@@ -11,7 +11,7 @@ export function meta({}: Route.MetaArgs) {
 export async function clientLoader() {
   const token = localStorage.getItem("token");
   if (token) {
-    throw redirect("/home");
+    throw redirect("/dashboard");
   }
   return null;
 }
