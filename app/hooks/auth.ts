@@ -15,7 +15,7 @@ export function useLogin() {
       const response = await authService.login(data.email, data.password);
       localStorage.setItem("token", response.token);
       localStorage.setItem("user", JSON.stringify(response.user));
-      navigate("/dashboard");
+      window.location.href = "/dashboard";
     } catch (err) {
       setError("Login failed. Please check your credentials.");
     } finally {
@@ -35,16 +35,15 @@ export function useRegister() {
     try {
       setLoading(true);
       setError(null);
-      const user = await authService.register(
+      await authService.register(
         data.study_class_id,
         data.name,
         data.email,
         data.password,
-        data.retry_password,
+        data.password_confirmation,
         data.role,
       );
-      localStorage.setItem("user", JSON.stringify(user));
-      navigate("/dashboard");
+      window.location.href = "/login";
     } catch (err) {
       setError("Registration failed. Please try again.");
     } finally {
