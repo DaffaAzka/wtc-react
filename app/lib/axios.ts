@@ -29,10 +29,14 @@ api.interceptors.response.use(
   },
   (error) => {
     if (typeof window !== "undefined") {
-      if (error.response?.status === 401) {
+      const isAuthEndpoint =
+        error.config?.url?.includes("/login") ||
+        error.config?.url?.includes("/register");
+
+      if (error.response?.status === 401 && !isAuthEndpoint) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        window.location.href = "/sign-in";
+        window.location.href = "/login";
       }
     }
     return Promise.reject(error);

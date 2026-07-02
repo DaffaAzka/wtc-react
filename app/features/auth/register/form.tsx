@@ -1,4 +1,5 @@
 import LoadingButton from "@/components/custom/loading-button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Card,
   CardContent,
@@ -43,6 +44,11 @@ export default function Form() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-6">
+            {error && (
+              <Alert variant="destructive" className="bg-red-100">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <div className="grid gap-2">
               <Label htmlFor="name">Fullname</Label>
               <Input
@@ -50,6 +56,7 @@ export default function Form() {
                 type="text"
                 placeholder="John Doe"
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
+                value={form.name}
                 required
               />
             </div>
@@ -60,6 +67,7 @@ export default function Form() {
                 type="email"
                 placeholder="m@example.com"
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
+                value={form.email}
                 required
               />
             </div>
@@ -74,6 +82,7 @@ export default function Form() {
                   onChange={(e) =>
                     setForm({ ...form, password: e.target.value })
                   }
+                  value={form.password}
                   required
                 />
               </div>
@@ -89,6 +98,7 @@ export default function Form() {
                   onChange={(e) =>
                     setForm({ ...form, password_confirmation: e.target.value })
                   }
+                  value={form.password_confirmation}
                   required
                 />
               </div>
