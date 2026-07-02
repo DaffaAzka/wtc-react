@@ -1,4 +1,5 @@
 import LoadingButton from "@/components/custom/loading-button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Card,
   CardContent,
@@ -11,21 +12,31 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { Label } from "@/components/ui/label";
-import { useLogin } from "@/hooks/auth";
+import { useAuth } from "@/contexts/auth";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 export default function Form() {
-  const { login, error, loading } = useLogin();
+  const { login } = useAuth();
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    login(form);
+    setLoading(true);
+    const success = await login(form.email, form.password);
+    if (success) {
+      navigate("/dashboard");
+    } else {
+      setError("Login failed. Please check your credentials.");
+    }
+    setLoading(false);
   };
 
   return (
@@ -39,6 +50,11 @@ export default function Form() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-6">
+            {error && (
+              <Alert variant="destructive" className="bg-red-100">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -46,6 +62,7 @@ export default function Form() {
                 type="email"
                 placeholder="m@example.com"
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
+                value={form.email}
                 required
               />
             </div>
@@ -57,6 +74,7 @@ export default function Form() {
                 id="password"
                 type="password"
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
+                value={form.password}
                 required
               />
             </div>

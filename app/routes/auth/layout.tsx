@@ -16,9 +16,8 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import type { Route } from "./+types/layout";
-import { useAuth } from "@/contexts/auth";
 
-export function meta({}: Route.MetaArgs) {
+export function meta({ }: Route.MetaArgs) {
   return [
     { title: "WTC LMS" },
     { name: "description", content: "Welcome to WTC LMS!" },
