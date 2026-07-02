@@ -16,7 +16,7 @@ export const authService = {
     name: string,
     email: string,
     password: string,
-    retry_password: string,
+    password_confirmation: string,
     role: string,
   ): Promise<User> => {
     const response = await api.post<ApiResponse<User>>("/register", {
@@ -24,7 +24,7 @@ export const authService = {
       name,
       email,
       password,
-      retry_password,
+      password_confirmation,
       role,
     });
     return response.data.data!;

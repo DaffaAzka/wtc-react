@@ -11,11 +11,10 @@ export type LoginRequest = {
 };
 
 export type RegisterRequest = {
-  id: number;
   name: string;
   email: string;
   role: string;
   password: string;
-  retry_password: string;
+  password_confirmation: string;
   study_class_id: number | null;
 };
