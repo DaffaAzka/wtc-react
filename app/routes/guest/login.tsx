@@ -1,3 +1,4 @@
+import Form from "@/features/auth/login/form";
 import type { Route } from "../../+types/root";
 
 export function meta({}: Route.MetaArgs) {
@@ -8,7 +9,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function LoginPage() {
-  return <>
-  
-  </>;
+  return (
+    <div className="h-[90vh] flex justify-center items-center">
+      <Form />
+    </div>
+  );
 }
