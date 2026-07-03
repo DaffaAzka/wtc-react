@@ -1,12 +1,10 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
 import { authService } from "@/services/auth";
-import type { LoginRequest, RegisterRequest } from "@/types/auth";
+import type { RegisterRequest } from "@/types/auth";
 
 export function useRegister() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const register = async (data: RegisterRequest) => {
     try {
@@ -20,7 +18,7 @@ export function useRegister() {
         data.password_confirmation,
         data.role,
       );
-      window.location.href = "/login";
+      globalThis.location.href = "/login";
     } catch (err) {
       setError("Registration failed. Please try again.");
     } finally {
