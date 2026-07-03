@@ -10,7 +10,7 @@ export const api: AxiosInstance = axios.create({
 
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    if (typeof window !== "undefined") {
+    if (typeof globalThis !== "undefined") {
       const token = localStorage.getItem("token");
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -28,7 +28,7 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    if (typeof window !== "undefined") {
+    if (typeof globalThis !== "undefined") {
       const isAuthEndpoint =
         error.config?.url?.includes("/login") ||
         error.config?.url?.includes("/register");
@@ -36,7 +36,7 @@ api.interceptors.response.use(
       if (error.response?.status === 401 && !isAuthEndpoint) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
-        window.location.href = "/login";
+        globalThis.location.href = "/login";
       }
     }
     return Promise.reject(error);

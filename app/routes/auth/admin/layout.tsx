@@ -1,5 +1,5 @@
 import { Outlet, redirect } from "react-router";
-import type { Route } from "./+types/layout";
+import type { Route } from "../+types/layout";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -9,17 +9,13 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  const token = localStorage.getItem("token");
-  if (token) {
+  const user =
+    localStorage.getItem("user") && JSON.parse(localStorage.getItem("user")!);
+  if (user?.role !== "admin") {
     throw redirect("/dashboard");
   }
-  return null;
 }
 
-export default function GuestLayout() {
-  return (
-    <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-      <Outlet />
-    </div>
-  );
+export default function AdminLayout() {
+  return <Outlet />;
 }
