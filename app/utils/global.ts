@@ -24,4 +24,11 @@ export function getFieldError(
   return errors?.[field]?.[0] ?? null;
 }
 
-
+export function generateSlug(str: string) {
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/[\s_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}

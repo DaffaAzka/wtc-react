@@ -41,7 +41,7 @@ export function AuthProvider({
 
   const login = async (email: string, password: string): Promise<boolean> => {
     try {
-      const data = await authService.login(email, password);
+      const data = await authService.login({email, password});
 
       setUser(data.user);
       setToken(data.token);
