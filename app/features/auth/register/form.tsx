@@ -1,3 +1,4 @@
+import InputForm from "@/components/custom/input-form";
 import LoadingButton from "@/components/custom/loading-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
@@ -9,10 +10,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { Input } from "@/components/ui/input";
-
-import { Label } from "@/components/ui/label";
 import { useRegister } from "@/hooks/auth";
+import { getFieldError } from "@/utils/global";
 import { useState } from "react";
 import { Link } from "react-router";
 
@@ -27,6 +26,9 @@ export default function Form() {
     study_class_id: null,
     role: "student",
   });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -44,64 +46,50 @@ export default function Form() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-6">
-            {error && (
+            {error && error?.message !== "Validation errors" && (
               <Alert variant="destructive" className="bg-red-100">
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription>
+                  {error?.message ?? "An unknown error occurred."}
+                </AlertDescription>
               </Alert>
             )}
-            <div className="grid gap-2">
-              <Label htmlFor="name">Fullname</Label>
-              <Input
-                id="name"
-                type="text"
-                placeholder="John Doe"
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                value={form.name}
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                value={form.email}
-                required
-              />
-            </div>
+            <InputForm
+              name="name"
+              placeholder="John Doe"
+              text="Full Name"
+              type="text"
+              value={form.name}
+              handleChange={handleChange}
+              error={getFieldError(error?.errors, "name")}
+            />
+            <InputForm
+              name="email"
+              placeholder="m@example.com"
+              text="Email Address"
+              type="email"
+              value={form.email}
+              handleChange={handleChange}
+              error={getFieldError(error?.errors, "email")}
+            />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  onChange={(e) =>
-                    setForm({ ...form, password: e.target.value })
-                  }
-                  value={form.password}
-                  required
-                />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password_confirmation">
-                    Confirm Password
-                  </Label>
-                </div>
-                <Input
-                  id="password_confirmation"
-                  type="password"
-                  onChange={(e) =>
-                    setForm({ ...form, password_confirmation: e.target.value })
-                  }
-                  value={form.password_confirmation}
-                  required
-                />
-              </div>
+              <InputForm
+                name="password"
+                text="Password"
+                type="password"
+                placeholder="••••••••"
+                value={form.password}
+                handleChange={handleChange}
+                error={getFieldError(error?.errors, "password")}
+              />
+              <InputForm
+                name="password_confirmation"
+                text="Confirm Password"
+                type="password"
+                placeholder="••••••••"
+                value={form.password_confirmation}
+                handleChange={handleChange}
+                error={getFieldError(error?.errors, "password_confirmation")}
+              />
             </div>
           </div>
         </CardContent>

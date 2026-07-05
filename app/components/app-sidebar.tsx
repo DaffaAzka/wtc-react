@@ -104,7 +104,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavModules modules={data.modules} />
+        {user?.role === "admin" && <NavModules items={data.modules} />}
       </SidebarContent>
       <SidebarFooter>
         <NavUser

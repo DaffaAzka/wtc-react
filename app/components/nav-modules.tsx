@@ -24,9 +24,9 @@ import {
 } from "lucide-react";
 
 export function NavModules({
-  modules,
+  items,
 }: {
-  modules: {
+  items: {
     name: string;
     url: string;
     icon: React.ReactNode;
@@ -39,7 +39,7 @@ export function NavModules({
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Management</SidebarGroupLabel>
       <SidebarMenu>
-        {modules
+        {items
           .filter((module) => module.roleAllowed)
           .map((item) => (
             <SidebarMenuItem key={item.name}>
