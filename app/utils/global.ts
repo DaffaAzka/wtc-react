@@ -16,3 +16,12 @@ export function getTwoInitials(str: string) {
 export function permissionAllowed(userRole: string, allowedRoles: string[]) {
   return allowedRoles.includes(userRole);
 }
+
+export function getFieldError(
+  errors: Record<string, string[]> | null | undefined,
+  field: string,
+): string | null {
+  return errors?.[field]?.[0] ?? null;
+}
+
+

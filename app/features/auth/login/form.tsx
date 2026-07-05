@@ -1,3 +1,4 @@
+import InputForm from "@/components/custom/input-form";
 import LoadingButton from "@/components/custom/loading-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
@@ -13,6 +14,7 @@ import { Input } from "@/components/ui/input";
 
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/auth";
+import { getFieldError } from "@/utils/global";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 
@@ -26,6 +28,9 @@ export default function Form() {
     email: "",
     password: "",
   });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -55,29 +60,22 @@ export default function Form() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="m@example.com"
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                value={form.email}
-                required
-              />
-            </div>
-            <div className="grid gap-2">
-              <div className="flex items-center">
-                <Label htmlFor="password">Password</Label>
-              </div>
-              <Input
-                id="password"
-                type="password"
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                value={form.password}
-                required
-              />
-            </div>
+            <InputForm
+              name="email"
+              placeholder="m@example.com"
+              text="Email Address"
+              type="email"
+              value={form.email}
+              handleChange={handleChange}
+            />
+            <InputForm
+              name="password"
+              placeholder="••••••••"
+              text="Password"
+              type="password"
+              value={form.password}
+              handleChange={handleChange}
+            />
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-2">

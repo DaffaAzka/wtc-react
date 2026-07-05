@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { authService } from "@/services/auth";
 import type { RegisterRequest } from "@/types/auth";
+import { AxiosError } from "axios";
+import type { ApiErrorResponse } from "@/types/response";
 
 export function useRegister() {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ApiErrorResponse | null>(null);
 
   const register = async (data: RegisterRequest) => {
     try {
@@ -20,7 +22,12 @@ export function useRegister() {
       );
       globalThis.location.href = "/login";
     } catch (err) {
-      setError("Registration failed. Please try again.");
+      if (err instanceof AxiosError) {
+        const data = err.response?.data as ApiErrorResponse | undefined;
+        setError(data ?? { message: "Something went wrong." });
+      } else {
+        setError({ message: "An unexpected error occurred." });
+      }
     } finally {
       setLoading(false);
     }
