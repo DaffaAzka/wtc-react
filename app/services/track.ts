@@ -5,17 +5,16 @@ import type { TrackRequest } from "@/types/track";
 
 export const TrackService = {
   store: async (request: TrackRequest): Promise<Track> => {
-    const response = await api.post<ApiResponse<Track>>("/tracks", {
-      request,
-    });
+    const response = await api.post<ApiResponse<Track>>("/tracks", request);
 
     return response.data.data!;
   },
 
   update: async (id: number, request: TrackRequest): Promise<Track> => {
-    const response = await api.put<ApiResponse<Track>>(`/tracks/${id}`, {
+    const response = await api.put<ApiResponse<Track>>(
+      `/tracks/${id}`,
       request,
-    });
+    );
 
     return response.data.data!;
   },

@@ -38,6 +38,10 @@ api.interceptors.response.use(
         localStorage.removeItem("user");
         globalThis.location.href = "/login";
       }
+
+      if (error.response?.status === 403) {
+        globalThis.location.href = "/dashboard";
+      }
     }
     return Promise.reject(error);
   },
