@@ -20,6 +20,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getSecureRandomNumber } from "@/utils/global";
 import { PanelLeftIcon } from "lucide-react";
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state";
@@ -586,8 +587,7 @@ function SidebarMenuSkeleton({
 }) {
   // Random width between 50 to 90%.
   const [width] = React.useState(() => {
-    // NOSONAR: cosmetic-only randomness, not security-sensitive
-    return `${Math.floor(Math.random() * 40) + 50}%`;
+    return `${getSecureRandomNumber(50, 90)}%`;
   });
 
   return (

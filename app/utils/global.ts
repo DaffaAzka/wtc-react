@@ -1,3 +1,28 @@
+export function getSecureRandomNumber(min: number, max: number) {
+  if (typeof globalThis.crypto?.getRandomValues !== "function") {
+    throw new Error("Secure random number generator is not available.");
+  }
+
+  if (max < min) {
+    throw new Error(
+      "Maximum value must be greater than or equal to minimum value.",
+    );
+  }
+
+  const range = max - min + 1;
+  const maxUint32 = 0xffffffff;
+  const limit = Math.floor(maxUint32 / range) * range;
+  const randomValues = new Uint32Array(1);
+
+  let randomValue = 0;
+  do {
+    globalThis.crypto.getRandomValues(randomValues);
+    randomValue = randomValues[0];
+  } while (randomValue >= limit);
+
+  return min + (randomValue % range);
+}
+
 export function firstCharacterUppercase(str: string) {
   if (!str) return str;
   return str.charAt(0).toUpperCase() + str.slice(1);
@@ -31,6 +56,6 @@ export function generateSlug(str: string) {
       .trim()
       .replace(/[^\w\s-]/g, "")
       .replace(/[\s_-]+/g, "-")
-      .replace(/^-+|-+$/g, "") + `-${Math.floor(Math.random() * 10000)}`
+      .replace(/^-+|-+$/g, "") + `-${getSecureRandomNumber(1000, 9999)}`
   );
 }
