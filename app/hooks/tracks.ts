@@ -23,9 +23,12 @@ export function useGetTracks() {
 
 export function useStoreTrack() {
   const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: (payload: Omit<Track, "id" | "created_at" | "updated_at">) =>
-      TrackService.store(payload),
+  return useMutation<
+    Track,
+    ApiErrorResponse,
+    Omit<Track, "id" | "created_at" | "updated_at">
+  >({
+    mutationFn: (payload) => TrackService.store(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: trackKeys.all });
     },
