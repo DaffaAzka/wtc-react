@@ -18,11 +18,7 @@ export default [
 
     layout("routes/auth/admin/layout.tsx", [
       // Track Routes
-      ...prefix("/tracks", [
-        index("routes/auth/admin/tracks/index.tsx"),
-        route("/add", "routes/auth/admin/tracks/add.tsx"),
-        route("/:id/edit", "routes/auth/admin/tracks/edit.tsx"),
-      ]),
+      ...prefix("/tracks", [index("routes/auth/admin/tracks/index.tsx")]),
     ]),
   ]),
 ] satisfies RouteConfig;
