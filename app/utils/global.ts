@@ -25,10 +25,12 @@ export function getFieldError(
 }
 
 export function generateSlug(str: string) {
-  return str
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_-]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+  return (
+    str
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "") + `-${Math.floor(Math.random() * 10000)}`
+  );
 }

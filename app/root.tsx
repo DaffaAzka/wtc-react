@@ -12,6 +12,8 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import { AuthProvider } from "./contexts/auth";
 import { TooltipProvider } from "./components/ui/tooltip";
+import { useState } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -78,11 +80,25 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            staleTime: 60 * 1000,
+            retry: 1,
+          },
+        },
+      }),
+  );
+
   return (
-    <AuthProvider>
-      <TooltipProvider>
-        <Outlet />
-      </TooltipProvider>
-    </AuthProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Outlet />
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
   );
 }
