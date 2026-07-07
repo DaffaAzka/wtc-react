@@ -1,29 +1,36 @@
 import { TrackService } from "@/services/track";
 import type { Track } from "@/types/model";
 import type { ApiErrorResponse } from "@/types/response";
-import { use, useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+export const trackKeys = {
+  all: ["tracks"] as const,
+};
 
 export function useGetTracks() {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<ApiErrorResponse | null>(null);
-  const [tracks, setTracks] = useState<Track[]>([]);
+  const query = useQuery<Track[], ApiErrorResponse>({
+    queryKey: trackKeys.all,
+    queryFn: () => TrackService.getAll(),
+  });
 
-  const fetchTracks = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await TrackService.getAll();
-      setTracks(response);
-    } catch (err) {
-      setError(err as ApiErrorResponse);
-    } finally {
-      setLoading(false);
-    }
+  return {
+    tracks: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refresh: query.refetch,
   };
+}
 
-  useEffect(() => {
-    fetchTracks();
-  }, []);
-
-  return { refetch: fetchTracks, loading, error, tracks };
+export function useStoreTrack() {
+  const queryClient = useQueryClient();
+  return useMutation<
+    Track,
+    ApiErrorResponse,
+    Omit<Track, "id" | "created_at" | "updated_at">
+  >({
+    mutationFn: (payload) => TrackService.store(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: trackKeys.all });
+    },
+  });
 }

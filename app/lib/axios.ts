@@ -1,3 +1,4 @@
+import type { ApiErrorResponse } from "@/types/response";
 import type { AxiosInstance, InternalAxiosRequestConfig } from "axios";
 import axios from "axios";
 
@@ -10,49 +11,40 @@ export const api: AxiosInstance = axios.create({
 
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    if (typeof globalThis !== "undefined") {
-      const token = localStorage.getItem("token");
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    const token = localStorage.getItem("token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  },
-);
-
-api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    if (typeof globalThis !== "undefined") {
-      const isAuthEndpoint =
-        error.config?.url?.includes("/login") ||
-        error.config?.url?.includes("/register");
-
-      if (error.response?.status === 401 && !isAuthEndpoint) {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        globalThis.location.href = "/login";
-      }
-
-      if (error.response?.status === 403) {
-        globalThis.location.href = "/dashboard";
-      }
-    }
-    return Promise.reject(error);
-  },
+  (error) => Promise.reject(error),
 );
 
 api.interceptors.response.use(
   (response) => {
     if (typeof response.data !== "object" || response.data === null) {
-      return Promise.reject(new Error(response.data ?? "Unknown error"));
+      const fallback: ApiErrorResponse = {
+        message: "Unexpected response format",
+      } as ApiErrorResponse;
+      return Promise.reject(fallback);
     }
     return response;
   },
-  (error) => Promise.reject(error),
+  (error) => {
+    const isAuthEndpoint =
+      error.config?.url?.includes("/login") ||
+      error.config?.url?.includes("/register");
+
+    if (error.response?.status === 401 && !isAuthEndpoint) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      globalThis.location.href = "/login";
+    }
+
+    if (axios.isAxiosError(error) && error.response) {
+      return Promise.reject(error.response.data as ApiErrorResponse);
+    }
+
+    return Promise.reject(error);
+  },
 );

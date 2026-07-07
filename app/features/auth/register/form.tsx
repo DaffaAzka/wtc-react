@@ -16,7 +16,7 @@ import { useState } from "react";
 import { Link } from "react-router";
 
 export default function Form() {
-  const { register, error, loading } = useRegister();
+  const register = useRegister();
 
   const [form, setForm] = useState({
     email: "",
@@ -32,7 +32,7 @@ export default function Form() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    register(form);
+    register.mutate(form);
   };
 
   return (
@@ -46,13 +46,14 @@ export default function Form() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-6">
-            {error && error?.message !== "Validation errors" && (
-              <Alert variant="destructive" className="bg-red-100">
-                <AlertDescription>
-                  {error?.message ?? "An unknown error occurred."}
-                </AlertDescription>
-              </Alert>
-            )}
+            {register.error &&
+              register.error?.message !== "Validation errors" && (
+                <Alert variant="destructive" className="bg-red-100">
+                  <AlertDescription>
+                    {register.error?.message ?? "An unknown error occurred."}
+                  </AlertDescription>
+                </Alert>
+              )}
             <InputForm
               name="name"
               placeholder="John Doe"
@@ -60,7 +61,7 @@ export default function Form() {
               type="text"
               value={form.name}
               handleChange={handleChange}
-              error={getFieldError(error?.errors, "name")}
+              error={getFieldError(register.error?.errors, "name")}
             />
             <InputForm
               name="email"
@@ -69,7 +70,7 @@ export default function Form() {
               type="email"
               value={form.email}
               handleChange={handleChange}
-              error={getFieldError(error?.errors, "email")}
+              error={getFieldError(register.error?.errors, "email")}
             />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <InputForm
@@ -79,7 +80,7 @@ export default function Form() {
                 placeholder="••••••••"
                 value={form.password}
                 handleChange={handleChange}
-                error={getFieldError(error?.errors, "password")}
+                error={getFieldError(register.error?.errors, "password")}
               />
               <InputForm
                 name="password_confirmation"
@@ -88,13 +89,16 @@ export default function Form() {
                 placeholder="••••••••"
                 value={form.password_confirmation}
                 handleChange={handleChange}
-                error={getFieldError(error?.errors, "password_confirmation")}
+                error={getFieldError(
+                  register.error?.errors,
+                  "password_confirmation",
+                )}
               />
             </div>
           </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
-          <LoadingButton loading={loading} text="Register" />
+          <LoadingButton loading={register.isPending} text="Register" />
           <Link to="/login">
             <p className="flex flex-row gap-1">
               Already have an account?
