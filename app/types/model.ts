@@ -5,3 +5,14 @@ export type User = {
   email: string;
   role: string;
 };
+
+export type Track = {
+  id: number;
+  slug: string;
+  title: string;
+  order: number;
+  image_url: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+};

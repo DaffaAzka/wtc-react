@@ -12,14 +12,14 @@ export function useRegister() {
     try {
       setLoading(true);
       setError(null);
-      await authService.register(
-        data.study_class_id,
-        data.name,
-        data.email,
-        data.password,
-        data.password_confirmation,
-        data.role,
-      );
+      await authService.register({
+        study_class_id: data.study_class_id,
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        password_confirmation: data.password_confirmation,
+        role: data.role,
+      });
       globalThis.location.href = "/login";
     } catch (err) {
       if (err instanceof AxiosError) {
