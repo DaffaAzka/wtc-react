@@ -2,6 +2,7 @@ import {
   type RouteConfig,
   index,
   layout,
+  prefix,
   route,
 } from "@react-router/dev/routes";
 
@@ -16,7 +17,12 @@ export default [
     route("/dashboard", "routes/auth/dashboard.tsx"),
 
     layout("routes/auth/admin/layout.tsx", [
-      route("/users", "routes/auth/admin/users.tsx"),
+      // Track Routes
+      ...prefix("/tracks", [
+        index("routes/auth/admin/tracks/index.tsx"),
+        route("/add", "routes/auth/admin/tracks/add.tsx"),
+        route("/:id/edit", "routes/auth/admin/tracks/edit.tsx"),
+      ]),
     ]),
   ]),
 ] satisfies RouteConfig;

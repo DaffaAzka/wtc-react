@@ -64,19 +64,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     ],
     modules: [
       {
-        name: "Design Engineering",
-        url: "#",
+        name: "Tracks",
+        url: "/tracks",
         icon: <FrameIcon />,
-      },
-      {
-        name: "Sales & Marketing",
-        url: "#",
-        icon: <PieChartIcon />,
-      },
-      {
-        name: "Travel",
-        url: "#",
-        icon: <MapIcon />,
+        roleAllowed: true,
       },
     ],
   };
