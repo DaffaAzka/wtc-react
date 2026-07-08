@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import ModalAdd from "./modal-add";
 
 export default function Header() {

@@ -4,7 +4,6 @@ import * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavModules } from "@/components/nav-modules";
-import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
@@ -17,14 +16,9 @@ import {
 } from "@/components/ui/sidebar";
 import {
   TerminalSquareIcon,
-  BotIcon,
-  BookOpenIcon,
-  Settings2Icon,
   LifeBuoyIcon,
   SendIcon,
   FrameIcon,
-  PieChartIcon,
-  MapIcon,
   TerminalIcon,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
