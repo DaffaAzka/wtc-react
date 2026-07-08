@@ -1,3 +1,6 @@
+import type { Track } from "@/types/model";
+import React, { useEffect, useState } from "react";
+
 import InputForm from "@/components/custom/input-form";
 import LoadingButton from "@/components/custom/loading-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -10,14 +13,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useStoreTrack } from "@/hooks/tracks";
-import { generateSlug } from "@/utils/global";
+import { useUpdateTrack } from "@/hooks/tracks";
 import { getFieldError } from "@/utils/global";
-import { useState } from "react";
 
-export default function ModalAdd() {
-  const [open, setOpen] = useState(false);
-
+export default function ModalEdit({
+  data,
+  isOpen,
+  onOpenChange,
+}: {
+  data: Track | null;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
   const [form, setForm] = useState({
     title: "",
     slug: "",
@@ -26,24 +33,37 @@ export default function ModalAdd() {
     image_url: "",
   });
 
-  const storeTrack = useStoreTrack();
+  useEffect(() => {
+    if (data) {
+      setForm({
+        title: data.title,
+        slug: data.slug,
+        description: data.description,
+        order: data.order.toString(),
+        image_url: data.image_url,
+      });
+    }
+  }, [data]);
+
+  const updateTrack = useUpdateTrack(data!.slug);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    storeTrack.mutate(
+
+    updateTrack.mutate(
       {
         title: form.title,
-        slug: generateSlug(form.title),
+        slug: form.slug,
         description: form.description,
         order: Number.parseInt(form.order),
         image_url: form.image_url,
       },
       {
         onSuccess: () => {
-          setOpen(false);
+          onOpenChange(false);
           setForm({
             title: "",
             slug: "",
@@ -57,20 +77,18 @@ export default function ModalAdd() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <Button>Add Track</Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Track</DialogTitle>
+          <DialogTitle>Update Track</DialogTitle>
           <DialogDescription>
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-              {storeTrack.error &&
-                storeTrack.error.message !== "Validation errors" && (
+              {updateTrack.error &&
+                updateTrack.error.message !== "Validation errors" && (
                   <Alert variant="destructive" className="bg-red-100">
                     <AlertDescription>
-                      {storeTrack.error.message ?? "An unknown error occurred."}
+                      {updateTrack.error.message ??
+                        "An unknown error occurred."}
                     </AlertDescription>
                   </Alert>
                 )}
@@ -81,7 +99,7 @@ export default function ModalAdd() {
                 type="text"
                 value={form.title}
                 handleChange={handleChange}
-                error={getFieldError(storeTrack.error?.errors, "title")}
+                error={getFieldError(updateTrack.error?.errors, "title")}
               />
               <InputForm
                 name="description"
@@ -89,7 +107,7 @@ export default function ModalAdd() {
                 type="text"
                 value={form.description}
                 handleChange={handleChange}
-                error={getFieldError(storeTrack.error?.errors, "description")}
+                error={getFieldError(updateTrack.error?.errors, "description")}
               />
               <InputForm
                 name="order"
@@ -97,7 +115,7 @@ export default function ModalAdd() {
                 type="number"
                 value={form.order}
                 handleChange={handleChange}
-                error={getFieldError(storeTrack.error?.errors, "order")}
+                error={getFieldError(updateTrack.error?.errors, "order")}
               />
               <InputForm
                 name="image_url"
@@ -105,10 +123,10 @@ export default function ModalAdd() {
                 type="text"
                 value={form.image_url}
                 handleChange={handleChange}
-                error={getFieldError(storeTrack.error?.errors, "image_url")}
+                error={getFieldError(updateTrack.error?.errors, "image_url")}
               />
 
-              <LoadingButton text="Create" loading={storeTrack.isPending} />
+              <LoadingButton text="Update" loading={updateTrack.isPending} />
             </form>
           </DialogDescription>
         </DialogHeader>
