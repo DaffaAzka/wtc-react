@@ -45,7 +45,7 @@ export default function ModalEdit({
     }
   }, [data]);
 
-  const updateTrack = useUpdateTrack(data!.slug);
+  const updateTrack = useUpdateTrack();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));

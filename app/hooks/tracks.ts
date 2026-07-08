@@ -35,16 +35,26 @@ export function useStoreTrack() {
   });
 }
 
-export function useUpdateTrack(slug: string) {
+export function useUpdateTrack() {
   const queryClient = useQueryClient();
   return useMutation<
     Track,
     ApiErrorResponse,
     Omit<Track, "id" | "created_at" | "updated_at">
   >({
-    mutationFn: (payload) => TrackService.update(slug, payload),
+    mutationFn: (payload) => TrackService.update(payload.slug, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: trackKeys.all });
     },
   });
-} 
+}
+
+export function useDeleteTrack() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (slug: string) => TrackService.delete(slug),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: trackKeys.all });
+    },
+  });
+}
