@@ -20,9 +20,18 @@ import type { Track } from "@/types/model";
 import { useState } from "react";
 import ModalEdit from "./modal-edit";
 import { EllipseIcon, EllipsisIcon } from "lucide-react";
+import ModalDelete from "./modal-delete";
 
 export default function TracksTable({ data }: { data: Track[] }) {
   const [editModal, setEditModal] = useState<{
+    data: Track | null;
+    isOpen: boolean;
+  }>({
+    data: null,
+    isOpen: false,
+  });
+
+  const [deleteModal, setDeleteModal] = useState<{
     data: Track | null;
     isOpen: boolean;
   }>({
@@ -71,7 +80,15 @@ export default function TracksTable({ data }: { data: Track[] }) {
                           }}>
                           Update
                         </DropdownMenuItem>
-                        <DropdownMenuItem>Delete</DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setDeleteModal({
+                              data: track,
+                              isOpen: true,
+                            });
+                          }}>
+                          Delete
+                        </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>
@@ -89,6 +106,17 @@ export default function TracksTable({ data }: { data: Track[] }) {
           isOpen={editModal.isOpen}
           onOpenChange={(open) =>
             setEditModal((prev) => ({ ...prev, isOpen: open }))
+          }
+        />
+      )}
+
+      {deleteModal.data !== null && (
+        <ModalDelete
+          key={deleteModal.data.id}
+          data={deleteModal.data}
+          isOpen={deleteModal.isOpen}
+          onOpenChange={(open) =>
+            setDeleteModal((prev) => ({ ...prev, isOpen: open }))
           }
         />
       )}
