@@ -1,7 +1,6 @@
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -19,7 +18,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { Track } from "@/types/model";
 import { useState } from "react";
 import ModalEdit from "./modal-edit";
-import { EllipseIcon, EllipsisIcon } from "lucide-react";
+import { EllipsisIcon } from "lucide-react";
 import ModalDelete from "./modal-delete";
 
 export default function TracksTable({ data }: { data: Track[] }) {

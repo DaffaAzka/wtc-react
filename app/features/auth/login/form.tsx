@@ -10,11 +10,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { Input } from "@/components/ui/input";
 
-import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/auth";
-import { getFieldError } from "@/utils/global";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
 

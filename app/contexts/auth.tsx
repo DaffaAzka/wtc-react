@@ -3,7 +3,6 @@ import {
   useState,
   useEffect,
   useContext,
-  use,
   useMemo,
 } from "react";
 import { authService } from "@/services/auth";
