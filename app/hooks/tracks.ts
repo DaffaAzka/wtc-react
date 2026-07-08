@@ -34,3 +34,17 @@ export function useStoreTrack() {
     },
   });
 }
+
+export function useUpdateTrack(slug: string) {
+  const queryClient = useQueryClient();
+  return useMutation<
+    Track,
+    ApiErrorResponse,
+    Omit<Track, "id" | "created_at" | "updated_at">
+  >({
+    mutationFn: (payload) => TrackService.update(slug, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: trackKeys.all });
+    },
+  });
+} 

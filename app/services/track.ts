@@ -10,7 +10,7 @@ export const TrackService = {
     return response.data.data!;
   },
 
-  update: async (id: number, request: TrackRequest): Promise<Track> => {
+  update: async (id: string, request: TrackRequest): Promise<Track> => {
     const response = await api.put<ApiResponse<Track>>(
       `/tracks/${id}`,
       request,
@@ -24,12 +24,12 @@ export const TrackService = {
     return response.data.data!;
   },
 
-  getById: async (id: number): Promise<Track> => {
+  getById: async (id: string): Promise<Track> => {
     const response = await api.get<ApiResponse<Track>>(`/tracks/${id}`);
     return response.data.data!;
   },
 
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: string): Promise<void> => {
     await api.delete(`/tracks/${id}`);
   },
 };
