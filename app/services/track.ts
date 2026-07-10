@@ -1,7 +1,8 @@
 import { api } from "@/lib/axios";
 import type { Track } from "@/types/model";
 import type { ApiResponse } from "@/types/response";
-import type { TrackRequest } from "@/types/track";
+
+type TrackRequest = Omit<Track, "id" | "created_at" | "updated_at">;
 
 export const TrackService = {
   store: async (request: TrackRequest): Promise<Track> => {
@@ -10,9 +11,9 @@ export const TrackService = {
     return response.data.data!;
   },
 
-  update: async (id: string, request: TrackRequest): Promise<Track> => {
+  update: async (slug: string, request: TrackRequest): Promise<Track> => {
     const response = await api.put<ApiResponse<Track>>(
-      `/tracks/${id}`,
+      `/tracks/${slug}`,
       request,
     );
 
@@ -24,12 +25,12 @@ export const TrackService = {
     return response.data.data!;
   },
 
-  getById: async (id: string): Promise<Track> => {
-    const response = await api.get<ApiResponse<Track>>(`/tracks/${id}`);
+  getBySlug: async (slug: string): Promise<Track> => {
+    const response = await api.get<ApiResponse<Track>>(`/tracks/${slug}`);
     return response.data.data!;
   },
 
-  delete: async (id: string): Promise<void> => {
-    await api.delete(`/tracks/${id}`);
+  delete: async (slug: string): Promise<void> => {
+    await api.delete(`/tracks/${slug}`);
   },
 };

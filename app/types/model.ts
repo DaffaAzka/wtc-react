@@ -16,3 +16,13 @@ export type Track = {
   created_at: string;
   updated_at: string;
 };
+
+export type Module = {
+  id: number;
+  track_id: number;
+  slug: string;
+  title: string;
+  order: number;
+  created_at: string;
+  updated_at: string;
+};
