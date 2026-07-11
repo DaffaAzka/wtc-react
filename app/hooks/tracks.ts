@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const trackKeys = {
   all: ["tracks"] as const,
+  detail: (slug: string) => ["tracks", slug] as const,
 };
 
 export function useGetTracks() {
@@ -15,6 +16,21 @@ export function useGetTracks() {
 
   return {
     tracks: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refresh: query.refetch,
+  };
+}
+
+export function useGetTrack(slug: string) {
+  const query = useQuery<Track, ApiErrorResponse>({
+    queryKey: trackKeys.detail(slug),
+    queryFn: () => TrackService.getBySlug(slug),
+    enabled: !!slug,
+  });
+
+  return {
+    track: query.data,
     loading: query.isLoading,
     error: query.error ?? null,
     refresh: query.refetch,
