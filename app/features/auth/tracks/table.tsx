@@ -70,9 +70,9 @@ export default function TracksTable({ data }: { data: Track[] }) {
                         <EllipsisIcon />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem>
-                          <Link to={`/tracks/${track.slug}/modules`}>View</Link>
-                        </DropdownMenuItem>
+                        <Link to={`${track.slug}/modules`}>
+                          <DropdownMenuItem>View</DropdownMenuItem>
+                        </Link>
                         <DropdownMenuItem
                           onClick={() => {
                             setEditModal({

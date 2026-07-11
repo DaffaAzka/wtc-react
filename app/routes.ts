@@ -21,6 +21,10 @@ export default [
       ...prefix("/tracks", [
         index("routes/auth/admin/tracks/index.tsx"),
         route("/:slug/modules", "routes/auth/admin/tracks/modules/index.tsx"),
+        route(
+          "/:slug/modules/:moduleSlug/lessons",
+          "routes/auth/admin/tracks/modules/lessons/index.tsx",
+        ),
       ]),
     ]),
   ]),
