@@ -15,16 +15,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Card, CardContent } from "@/components/ui/card";
-import type { Module } from "@/types/model";
+import type { Lesson } from "@/types/model";
 import { useState } from "react";
 import ModalEdit from "./modal-edit";
 import { EllipsisIcon } from "lucide-react";
 import ModalDelete from "./modal-delete";
-import { Link } from "react-router";
 
-export default function ModulesTable({ data }: { data: Module[] }) {
+export default function LessonsTable({ data }: { data: Lesson[] }) {
   const [editModal, setEditModal] = useState<{
-    data: Module | null;
+    data: Lesson | null;
     isOpen: boolean;
   }>({
     data: null,
@@ -32,7 +31,7 @@ export default function ModulesTable({ data }: { data: Module[] }) {
   });
 
   const [deleteModal, setDeleteModal] = useState<{
-    data: Module | null;
+    data: Lesson | null;
     isOpen: boolean;
   }>({
     data: null,
@@ -48,31 +47,31 @@ export default function ModulesTable({ data }: { data: Module[] }) {
               <TableRow>
                 <TableHead className="w-25">No</TableHead>
                 <TableHead>Title</TableHead>
-                <TableHead>Slug</TableHead>
+                <TableHead className="hidden lg:table-cell">Content</TableHead>
                 <TableHead>Order</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((module, index) => (
-                <TableRow key={module.id}>
+              {data.map((lesson, index) => (
+                <TableRow key={lesson.id}>
                   <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell>{module.title}</TableCell>
-                  <TableCell>{module.slug}</TableCell>
-                  <TableCell>{module.order}</TableCell>
+                  <TableCell>{lesson.title}</TableCell>
+                  <TableCell className="hidden lg:table-cell max-w-xs truncate">
+                    {lesson.content}
+                  </TableCell>
+                  <TableCell>{lesson.order}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger>
                         <EllipsisIcon />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <Link to={`${module.slug}/lessons`}>
-                          <DropdownMenuItem>View</DropdownMenuItem>
-                        </Link>
+                        <DropdownMenuItem>View</DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => {
                             setEditModal({
-                              data: module,
+                              data: lesson,
                               isOpen: true,
                             });
                           }}>
@@ -81,7 +80,7 @@ export default function ModulesTable({ data }: { data: Module[] }) {
                         <DropdownMenuItem
                           onClick={() => {
                             setDeleteModal({
-                              data: module,
+                              data: lesson,
                               isOpen: true,
                             });
                           }}>
