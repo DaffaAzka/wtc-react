@@ -20,6 +20,7 @@ import { useState } from "react";
 import ModalEdit from "./modal-edit";
 import { EllipsisIcon } from "lucide-react";
 import ModalDelete from "./modal-delete";
+import { Link } from "react-router";
 
 export default function TracksTable({ data }: { data: Track[] }) {
   const [editModal, setEditModal] = useState<{
@@ -69,7 +70,9 @@ export default function TracksTable({ data }: { data: Track[] }) {
                         <EllipsisIcon />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem>View</DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Link to={`/tracks/${track.slug}/modules`}>View</Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => {
                             setEditModal({

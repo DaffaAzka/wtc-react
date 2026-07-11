@@ -1,4 +1,4 @@
-import type { Track } from "@/types/model";
+import type { Module } from "@/types/model";
 import React, { useEffect, useState } from "react";
 
 import LoadingButton from "@/components/custom/loading-button";
@@ -10,14 +10,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useDeleteTrack } from "@/hooks/tracks";
+import { useDeleteModule } from "@/hooks/modules";
 
 export default function ModalDelete({
   data,
   isOpen,
   onOpenChange,
 }: {
-  data: Track | null;
+  data: Module | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 }) {
@@ -35,11 +35,11 @@ export default function ModalDelete({
     }
   }, [data]);
 
-  const deleteTrack = useDeleteTrack();
+  const deleteModule = useDeleteModule();
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    deleteTrack.mutate(form!.slug, {
+    deleteModule.mutate(form!.slug, {
       onSuccess: () => {
         onOpenChange(false);
         setForm({
@@ -54,20 +54,20 @@ export default function ModalDelete({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Track</DialogTitle>
+          <DialogTitle>Delete Module</DialogTitle>
           <DialogDescription>
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-              {deleteTrack.error &&
-                deleteTrack.error.message !== "Validation errors" && (
+              {deleteModule.error &&
+                deleteModule.error.message !== "Validation errors" && (
                   <Alert variant="destructive" className="bg-red-100">
                     <AlertDescription>
-                      {deleteTrack.error.message ??
+                      {deleteModule.error.message ??
                         "An unknown error occurred."}
                     </AlertDescription>
                   </Alert>
                 )}
               <p>Are you sure, you want to delete {form.title}?</p>
-              <LoadingButton text="Delete" loading={deleteTrack.isPending} />
+              <LoadingButton text="Delete" loading={deleteModule.isPending} />
             </form>
           </DialogDescription>
         </DialogHeader>

@@ -10,36 +10,33 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useStoreTrack } from "@/hooks/tracks";
+import { useStoreModule } from "@/hooks/modules";
 import { generateSlug } from "@/utils/global";
 import { getFieldError } from "@/utils/global";
 import { useState } from "react";
 
-export default function ModalAdd() {
+export default function ModalAdd({ trackId }: { trackId: number }) {
   const [open, setOpen] = useState(false);
 
   const [form, setForm] = useState({
     title: "",
     slug: "",
-    description: "",
     order: "",
-    image_url: "",
   });
 
-  const storeTrack = useStoreTrack();
+  const storeModule = useStoreModule();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    storeTrack.mutate(
+    storeModule.mutate(
       {
         title: form.title,
         slug: generateSlug(form.title),
-        description: form.description,
         order: Number.parseInt(form.order),
-        image_url: form.image_url,
+        track_id: trackId,
       },
       {
         onSuccess: () => {
@@ -47,9 +44,7 @@ export default function ModalAdd() {
           setForm({
             title: "",
             slug: "",
-            description: "",
             order: "",
-            image_url: "",
           });
         },
       },
@@ -59,56 +54,40 @@ export default function ModalAdd() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>
-        <Button>Add Track</Button>
+        <Button>Add Module</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Track</DialogTitle>
+          <DialogTitle>Add New Module</DialogTitle>
           <DialogDescription>
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-              {storeTrack.error &&
-                storeTrack.error.message !== "Validation errors" && (
+              {storeModule.error &&
+                storeModule.error.message !== "Validation errors" && (
                   <Alert variant="destructive" className="bg-red-100">
                     <AlertDescription>
-                      {storeTrack.error.message ?? "An unknown error occurred."}
+                      {storeModule.error.message ?? "An unknown error occurred."}
                     </AlertDescription>
                   </Alert>
                 )}
 
               <InputForm
                 name="title"
-                text="Track Title"
+                text="Module Title"
                 type="text"
                 value={form.title}
                 handleChange={handleChange}
-                error={getFieldError(storeTrack.error?.errors, "title")}
-              />
-              <InputForm
-                name="description"
-                text="Track Description"
-                type="text"
-                value={form.description}
-                handleChange={handleChange}
-                error={getFieldError(storeTrack.error?.errors, "description")}
+                error={getFieldError(storeModule.error?.errors, "title")}
               />
               <InputForm
                 name="order"
-                text="Track Order"
+                text="Module Order"
                 type="number"
                 value={form.order}
                 handleChange={handleChange}
-                error={getFieldError(storeTrack.error?.errors, "order")}
-              />
-              <InputForm
-                name="image_url"
-                text="Image URL"
-                type="text"
-                value={form.image_url}
-                handleChange={handleChange}
-                error={getFieldError(storeTrack.error?.errors, "image_url")}
+                error={getFieldError(storeModule.error?.errors, "order")}
               />
 
-              <LoadingButton text="Create" loading={storeTrack.isPending} />
+              <LoadingButton text="Create" loading={storeModule.isPending} />
             </form>
           </DialogDescription>
         </DialogHeader>

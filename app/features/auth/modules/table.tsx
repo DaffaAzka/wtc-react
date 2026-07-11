@@ -15,15 +15,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { Card, CardContent } from "@/components/ui/card";
-import type { Track } from "@/types/model";
+import type { Module } from "@/types/model";
 import { useState } from "react";
 import ModalEdit from "./modal-edit";
 import { EllipsisIcon } from "lucide-react";
 import ModalDelete from "./modal-delete";
 
-export default function TracksTable({ data }: { data: Track[] }) {
+export default function ModulesTable({ data }: { data: Module[] }) {
   const [editModal, setEditModal] = useState<{
-    data: Track | null;
+    data: Module | null;
     isOpen: boolean;
   }>({
     data: null,
@@ -31,7 +31,7 @@ export default function TracksTable({ data }: { data: Track[] }) {
   });
 
   const [deleteModal, setDeleteModal] = useState<{
-    data: Track | null;
+    data: Module | null;
     isOpen: boolean;
   }>({
     data: null,
@@ -46,23 +46,19 @@ export default function TracksTable({ data }: { data: Track[] }) {
             <TableHeader>
               <TableRow>
                 <TableHead className="w-25">No</TableHead>
-                <TableHead>Name</TableHead>
+                <TableHead>Title</TableHead>
                 <TableHead>Slug</TableHead>
-                <TableHead className="hidden lg:inline-block">
-                  Description
-                </TableHead>
+                <TableHead>Order</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((track, index) => (
-                <TableRow key={track.id}>
+              {data.map((module, index) => (
+                <TableRow key={module.id}>
                   <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell>{track.title}</TableCell>
-                  <TableCell>{track.slug}</TableCell>
-                  <TableCell className="hidden lg:inline-block">
-                    {track.description}
-                  </TableCell>
+                  <TableCell>{module.title}</TableCell>
+                  <TableCell>{module.slug}</TableCell>
+                  <TableCell>{module.order}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger>
@@ -73,7 +69,7 @@ export default function TracksTable({ data }: { data: Track[] }) {
                         <DropdownMenuItem
                           onClick={() => {
                             setEditModal({
-                              data: track,
+                              data: module,
                               isOpen: true,
                             });
                           }}>
@@ -82,7 +78,7 @@ export default function TracksTable({ data }: { data: Track[] }) {
                         <DropdownMenuItem
                           onClick={() => {
                             setDeleteModal({
-                              data: track,
+                              data: module,
                               isOpen: true,
                             });
                           }}>
