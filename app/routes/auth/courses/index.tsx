@@ -1,7 +1,7 @@
 import CourseCard from "@/features/auth/courses/card";
 import { useGetTracks } from "@/hooks/tracks";
 
-export default function Courses() {
+export default function IndexPage() {
   const { tracks } = useGetTracks();
 
   return (
