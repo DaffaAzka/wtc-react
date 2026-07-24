@@ -15,6 +15,7 @@ export default [
 
   layout("routes/auth/layout.tsx", [
     route("/dashboard", "routes/auth/dashboard.tsx"),
+    route("/courses", "routes/auth/courses/index.tsx"),
 
     layout("routes/auth/admin/layout.tsx", [
       // Track Routes

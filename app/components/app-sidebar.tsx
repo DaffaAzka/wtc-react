@@ -30,18 +30,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const data = {
     navMain: [
       {
-        title: "Learning Tracks",
-        url: "#",
+        title: "Courses",
+        url: "/courses",
         icon: <TerminalSquareIcon />,
         isActive: true,
         roleAllowed: true,
-        items: [
-          {
-            title: "My Courses",
-            url: "#",
-            roleAllowed: true,
-          },
-        ],
       },
     ],
     navSecondary: [
