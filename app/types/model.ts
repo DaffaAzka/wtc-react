@@ -15,6 +15,9 @@ export type Track = {
   description: string;
   created_at: string;
   updated_at: string;
+
+  // addictional
+  modules_count?: number | null;
 };
 
 export type Module = {
