@@ -38,3 +38,25 @@ export type Lesson = {
   created_at: string | null;
   updated_at: string | null;
 };
+
+export type Challenge = {
+  id: number;
+  module_id: number | null;
+  lesson_id: number | null;
+  title: string;
+  slug: string;
+  type:
+    | "multiple_choice"
+    | "fill_blank"
+    | "code_editor"
+    | "file_upload"
+    | "github_submission"
+    | "docker_project"
+    | "timed_exam"
+    | "quiz_group";
+  content: string;
+  metadata: Record<string, unknown> | null;
+  max_score: number;
+  created_at: string | null;
+  updated_at: string | null;
+};

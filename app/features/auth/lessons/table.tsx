@@ -37,6 +37,10 @@ export default function LessonsTable({ data }: { data: Lesson[] }) {
     data: null,
     isOpen: false,
   });
+  const [challengeModal, setChallengeModal] = useState({
+    lesson: null as Lesson | null,
+    isOpen: false,
+  });
 
   return (
     <>
@@ -78,6 +82,15 @@ export default function LessonsTable({ data }: { data: Lesson[] }) {
                           Update
                         </DropdownMenuItem>
                         <DropdownMenuItem
+                          onClick={() =>
+                            setChallengeModal({
+                              lesson,
+                              isOpen: true,
+                            })
+                          }>
+                          Manage Challenge
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
                           onClick={() => {
                             setDeleteModal({
                               data: lesson,
@@ -114,6 +127,19 @@ export default function LessonsTable({ data }: { data: Lesson[] }) {
           isOpen={deleteModal.isOpen}
           onOpenChange={(open) =>
             setDeleteModal((prev) => ({ ...prev, isOpen: open }))
+          }
+        />
+      )}
+
+      {challengeModal.lesson && (
+        <ChallengeModal
+          lesson={challengeModal.lesson}
+          isOpen={challengeModal.isOpen}
+          onOpenChange={(open) =>
+            setChallengeModal((prev) => ({
+              ...prev,
+              isOpen: open,
+            }))
           }
         />
       )}
