@@ -2,6 +2,8 @@ import type { Module } from "@/types/model";
 import ModalAdd from "./modal-add";
 import TableInformation from "@/components/custom/table-information";
 import type { TableInformationData } from "@/types/global";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
 
 export default function Header({ module }: { module: Module }) {
   const data: TableInformationData[] = [
@@ -20,7 +22,15 @@ export default function Header({ module }: { module: Module }) {
       <h1 className="text-2xl font-bold">Lessons</h1>
 
       <TableInformation data={data} />
-      <ModalAdd moduleId={module.id} />
+
+      <div className="flex gap-2">
+        <ModalAdd moduleId={module.id} />
+
+        <Button variant="outline">
+          <Plus className="w-4 h-4 mr-2" />
+          Add Challenge
+        </Button>
+      </div>
     </div>
   );
 }
