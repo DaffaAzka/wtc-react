@@ -1,5 +1,5 @@
 import type { Module } from "@/types/model";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import LoadingButton from "@/components/custom/loading-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";

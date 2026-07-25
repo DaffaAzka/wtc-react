@@ -1,5 +1,5 @@
 import type { Lesson } from "@/types/model";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import InputForm from "@/components/custom/input-form";
 import TextareaForm from "@/components/custom/textarea-form";
