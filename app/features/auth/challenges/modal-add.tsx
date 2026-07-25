@@ -1,6 +1,7 @@
 import InputForm from "@/components/custom/input-form";
 import TextareaForm from "@/components/custom/textarea-form";
 import Builder from "./builder";
+import type { Question } from "./types";
 import LoadingButton from "@/components/custom/loading-button";
 import {
   Select,
@@ -41,6 +42,7 @@ export default function ChallengeModalAdd({
     content: "",
     max_score: "100",
   });
+  const [questions, setQuestions] = useState<Question[]>([]);
 
   const storeChallenge = useStoreChallenge();
 
@@ -63,7 +65,9 @@ export default function ChallengeModalAdd({
         slug: form.slug,
         type: form.type,
         content: form.content,
-        metadata: null,
+        metadata: {
+          questions,
+        },
         max_score: Number(form.max_score),
       },
       {
@@ -84,7 +88,8 @@ export default function ChallengeModalAdd({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+        {" "}
         <DialogHeader>
           <DialogTitle>Add Challenge</DialogTitle>
 
@@ -92,7 +97,6 @@ export default function ChallengeModalAdd({
             Lesson: <strong>{lesson.title}</strong>
           </DialogDescription>
         </DialogHeader>
-
         <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-4">
           {storeChallenge.error &&
             storeChallenge.error.message !== "Validation errors" && (
@@ -163,8 +167,11 @@ export default function ChallengeModalAdd({
             error={getFieldError(storeChallenge.error?.errors, "max_score")}
           />
 
-          <Builder type={form.type as "multiple_choice" | "essay" | "mixed"} />
-
+          <Builder
+            type={form.type as "multiple_choice" | "essay" | "mixed"}
+            questions={questions}
+            onChange={setQuestions}
+          />
           <LoadingButton
             text="Create Challenge"
             loading={storeChallenge.isPending}
