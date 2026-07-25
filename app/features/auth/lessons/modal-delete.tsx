@@ -22,14 +22,14 @@ export default function ModalDelete({
   onOpenChange: (open: boolean) => void;
 }) {
   const [form, setForm] = useState({
-    id: 0,
+    slug: "",
     title: "",
   });
 
   useEffect(() => {
     if (data) {
       setForm({
-        id: data.id,
+        slug: data.slug,
         title: data.title,
       });
     }
@@ -39,11 +39,11 @@ export default function ModalDelete({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    deleteLesson.mutate(form.id, {
+    deleteLesson.mutate(form.slug, {
       onSuccess: () => {
         onOpenChange(false);
         setForm({
-          id: 0,
+          slug: "",
           title: "",
         });
       },
