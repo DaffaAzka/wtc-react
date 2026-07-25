@@ -34,6 +34,7 @@ export type Lesson = {
   id: number;
   module_id: number;
   title: string;
+  slug: string;
   content: string;
   video_url: string | null;
   order: number;

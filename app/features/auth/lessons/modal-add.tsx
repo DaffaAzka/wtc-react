@@ -12,7 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useStoreLesson } from "@/hooks/lessons";
-import { getFieldError } from "@/utils/global";
+import { generateSlug, getFieldError } from "@/utils/global";
 import { useState } from "react";
 
 export default function ModalAdd({ moduleId }: { moduleId: number }) {
@@ -20,6 +20,7 @@ export default function ModalAdd({ moduleId }: { moduleId: number }) {
 
   const [form, setForm] = useState({
     title: "",
+    slug: "",
     content: "",
     video_url: "",
     order: "",
@@ -37,6 +38,7 @@ export default function ModalAdd({ moduleId }: { moduleId: number }) {
       {
         title: form.title,
         content: form.content,
+        slug: generateSlug(form.title),
         video_url: form.video_url || null,
         order: Number.parseInt(form.order),
         module_id: moduleId,
@@ -47,6 +49,7 @@ export default function ModalAdd({ moduleId }: { moduleId: number }) {
           setForm({
             title: "",
             content: "",
+            slug: "",
             video_url: "",
             order: "",
           });

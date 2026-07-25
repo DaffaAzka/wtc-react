@@ -2,7 +2,10 @@ import { api } from "@/lib/axios";
 import type { Lesson } from "@/types/model";
 import type { ApiResponse } from "@/types/response";
 
-type LessonRequest = Omit<Lesson, "id" | "deleted_at" | "created_at" | "updated_at">;
+type LessonRequest = Omit<
+  Lesson,
+  "id" | "deleted_at" | "created_at" | "updated_at"
+>;
 
 export const LessonService = {
   store: async (request: LessonRequest): Promise<Lesson> => {
@@ -11,9 +14,9 @@ export const LessonService = {
     return response.data.data!;
   },
 
-  update: async (id: number, request: LessonRequest): Promise<Lesson> => {
+  update: async (slug: string, request: LessonRequest): Promise<Lesson> => {
     const response = await api.put<ApiResponse<Lesson>>(
-      `/lessons/${id}`,
+      `/lessons/${slug}`,
       request,
     );
 
@@ -25,12 +28,12 @@ export const LessonService = {
     return response.data.data!;
   },
 
-  getById: async (id: number): Promise<Lesson> => {
-    const response = await api.get<ApiResponse<Lesson>>(`/lessons/${id}`);
+  getBySlug: async (slug: string): Promise<Lesson> => {
+    const response = await api.get<ApiResponse<Lesson>>(`/lessons/${slug}`);
     return response.data.data!;
   },
 
-  delete: async (id: number): Promise<void> => {
-    await api.delete(`/lessons/${id}`);
+  delete: async (slug: string): Promise<void> => {
+    await api.delete(`/lessons/${slug}`);
   },
 };
