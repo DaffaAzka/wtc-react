@@ -20,6 +20,7 @@ import { useState } from "react";
 import ModalEdit from "./modal-edit";
 import { EllipsisIcon } from "lucide-react";
 import ModalDelete from "./modal-delete";
+import ChallengeModal from "../challenges/modal-add";
 
 export default function LessonsTable({ data }: { data: Lesson[] }) {
   const [editModal, setEditModal] = useState<{
