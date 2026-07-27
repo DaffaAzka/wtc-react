@@ -52,9 +52,12 @@ export default function ModalDelete({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Delete Lesson</DialogTitle>
+
           <DialogDescription>
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
               {deleteLesson.error &&
@@ -66,7 +69,9 @@ export default function ModalDelete({
                     </AlertDescription>
                   </Alert>
                 )}
-              <p>Are you sure, you want to delete {form.title}?</p>
+
+              <p>Are you sure you want to delete {form.title}?</p>
+
               <LoadingButton text="Delete" loading={deleteLesson.isPending} />
             </form>
           </DialogDescription>

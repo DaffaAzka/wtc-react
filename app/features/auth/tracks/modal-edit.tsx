@@ -76,8 +76,10 @@ export default function ModalEdit({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
+      <DialogContent
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}>
+        <DialogHeader>  
           <DialogTitle>Update Track</DialogTitle>
           <DialogDescription>
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">

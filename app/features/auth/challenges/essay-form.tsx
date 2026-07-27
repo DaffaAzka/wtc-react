@@ -13,9 +13,10 @@ type Props = {
   index: number;
   data: MCQQuestion;
   onChange: (data: MCQQuestion) => void;
+  autoFocus?: boolean;
 };
 
-export default function MCQForm({ data, onChange }: Props) {
+export default function MCQForm({ data, onChange, autoFocus }: Props) {
   return (
     <div className="space-y-4">
       <InputForm
@@ -23,6 +24,7 @@ export default function MCQForm({ data, onChange }: Props) {
         name="question"
         type="text"
         value={data.question}
+        autoFocus={autoFocus}
         handleChange={(e) =>
           onChange({
             ...data,
@@ -36,6 +38,7 @@ export default function MCQForm({ data, onChange }: Props) {
         name="option_a"
         type="text"
         value={data.options[0]}
+        autoFocus={autoFocus}
         handleChange={(e) => {
           const options = [...data.options];
           options[0] = e.target.value;
@@ -52,6 +55,7 @@ export default function MCQForm({ data, onChange }: Props) {
         name="option_b"
         type="text"
         value={data.options[1]}
+        autoFocus={autoFocus}
         handleChange={(e) => {
           const options = [...data.options];
           options[1] = e.target.value;
@@ -68,6 +72,7 @@ export default function MCQForm({ data, onChange }: Props) {
         name="option_c"
         type="text"
         value={data.options[2]}
+        autoFocus={autoFocus}
         handleChange={(e) => {
           const options = [...data.options];
           options[2] = e.target.value;
@@ -84,6 +89,7 @@ export default function MCQForm({ data, onChange }: Props) {
         name="option_d"
         type="text"
         value={data.options[3]}
+        autoFocus={autoFocus}
         handleChange={(e) => {
           const options = [...data.options];
           options[3] = e.target.value;

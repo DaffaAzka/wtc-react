@@ -59,61 +59,69 @@ export default function ModalAdd({ moduleId }: { moduleId: number }) {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
+    <Dialog>
+      <DialogTrigger asChild>
         <Button>Add Lesson</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent
+        className="max-w-5xl max-h-[90vh] overflow-y-auto"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Add New Lesson</DialogTitle>
+
           <DialogDescription>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-              {storeLesson.error &&
-                storeLesson.error.message !== "Validation errors" && (
-                  <Alert variant="destructive" className="bg-red-100">
-                    <AlertDescription>
-                      {storeLesson.error.message ??
-                        "An unknown error occurred."}
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-              <InputForm
-                name="title"
-                text="Lesson Title"
-                type="text"
-                value={form.title}
-                handleChange={handleChange}
-                error={getFieldError(storeLesson.error?.errors, "title")}
-              />
-              <TextareaForm
-                name="content"
-                text="Lesson Content"
-                value={form.content}
-                handleChange={handleChange}
-                error={getFieldError(storeLesson.error?.errors, "content")}
-              />
-              <InputForm
-                name="video_url"
-                text="Video URL"
-                type="url"
-                value={form.video_url}
-                handleChange={handleChange}
-                error={getFieldError(storeLesson.error?.errors, "video_url")}
-              />
-              <InputForm
-                name="order"
-                text="Lesson Order"
-                type="number"
-                value={form.order}
-                handleChange={handleChange}
-                error={getFieldError(storeLesson.error?.errors, "order")}
-              />
-
-              <LoadingButton text="Create" loading={storeLesson.isPending} />
-            </form>
+            Create a new lesson for this module.
           </DialogDescription>
         </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-6">
+          {storeLesson.error &&
+            storeLesson.error.message !== "Validation errors" && (
+              <Alert variant="destructive" className="bg-red-100">
+                <AlertDescription>
+                  {storeLesson.error.message ?? "An unknown error occurred."}
+                </AlertDescription>
+              </Alert>
+            )}
+
+          <InputForm
+            name="title"
+            text="Lesson Title"
+            type="text"
+            value={form.title}
+            handleChange={handleChange}
+            error={getFieldError(storeLesson.error?.errors, "title")}
+          />
+
+          <TextareaForm
+            name="content"
+            text="Lesson Content"
+            value={form.content}
+            handleChange={handleChange}
+            error={getFieldError(storeLesson.error?.errors, "content")}
+          />
+
+          <InputForm
+            name="video_url"
+            text="Video URL"
+            type="url"
+            value={form.video_url}
+            handleChange={handleChange}
+            error={getFieldError(storeLesson.error?.errors, "video_url")}
+          />
+
+          <InputForm
+            name="order"
+            text="Lesson Order"
+            type="number"
+            value={form.order}
+            handleChange={handleChange}
+            error={getFieldError(storeLesson.error?.errors, "order")}
+          />
+
+          <LoadingButton text="Create" loading={storeLesson.isPending} />
+        </form>
       </DialogContent>
     </Dialog>
   );

@@ -57,11 +57,14 @@ export default function ModalAdd() {
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
+    <Dialog>
+      <DialogTrigger asChild>
         <Button>Add Track</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent
+        className="max-w-5xl max-h-[90vh] overflow-y-auto"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Add New Track</DialogTitle>
           <DialogDescription>
