@@ -51,7 +51,7 @@ export type Challenge = {
   slug: string;
   type:
     | "multiple_choice"
-    | "fill_blank"
+    | "essay"
     | "code_editor"
     | "file_upload"
     | "github_submission"

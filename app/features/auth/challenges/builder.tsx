@@ -12,15 +12,25 @@ import { ChevronDown, ChevronRight, Copy, Plus, Trash2 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import MCQForm from "./mcq-form";
 import EssayForm from "./essay-form";
-import type { Question } from "./types";
+import type { Question } from "@/types/challenge";
 
 type Props = {
   type: "multiple_choice" | "essay" | "mixed";
   questions: Question[];
   onChange: (questions: Question[]) => void;
+  questionErrors: Record<string, string>;
+  setQuestionErrors: React.Dispatch<
+    React.SetStateAction<Record<string, string>>
+  >;
 };
 
-export default function Builder({ type, questions, onChange }: Props) {
+export default function Builder({
+  type,
+  questions,
+  onChange,
+  questionErrors,
+  setQuestionErrors,
+}: Props) {
   const [openIndex, setOpenIndex] = useState(0);
   const lastQuestionRef = useRef<HTMLDivElement | null>(null);
 
@@ -50,7 +60,16 @@ export default function Builder({ type, questions, onChange }: Props) {
   };
 
   const removeQuestion = (index: number) => {
-    onChange(questions.filter((_, i) => i !== index));
+    const newQuestions = questions.filter((_, i) => i !== index);
+
+    onChange(newQuestions);
+
+    if (newQuestions.length === 0) {
+      setOpenIndex(-1);
+      return;
+    }
+
+    setOpenIndex(Math.max(0, index - 1));
   };
 
   const duplicateQuestion = (index: number) => {
@@ -68,7 +87,7 @@ export default function Builder({ type, questions, onChange }: Props) {
   const updateQuestion = (index: number, value: Question) => {
     onChange(questions.map((item, i) => (i === index ? value : item)));
   };
-  
+
   useEffect(() => {
     if (questions.length === 0) return;
 
@@ -81,7 +100,7 @@ export default function Builder({ type, questions, onChange }: Props) {
       });
     });
   }, [questions.length]);
-  
+
   const renderAddButton = () => {
     if (type === "mixed") {
       return (
@@ -170,22 +189,31 @@ export default function Builder({ type, questions, onChange }: Props) {
                 {question.type === "multiple_choice" ? (
                   <MCQForm
                     index={index}
-                    autoFocus={index === openIndex}
                     data={question}
                     onChange={(value) => updateQuestion(index, value)}
+                    questionErrors={questionErrors}
+                    setQuestionErrors={setQuestionErrors}
                   />
                 ) : (
                   <EssayForm
                     index={index}
                     autoFocus={index === openIndex}
                     data={question}
+                    errors={errors}
                     onChange={(value) => updateQuestion(index, value)}
                   />
                 )}
 
                 <div className="flex justify-between border-t pt-5">
+                  <Button
+                    variant="destructive"
+                    type="button"
+                    onClick={() => removeQuestion(index)}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete
+                  </Button>
+
                   <div className="flex gap-2">
-                    <Card className="transition-all duration-200"></Card>
                     <Button
                       variant="outline"
                       type="button"
@@ -194,14 +222,7 @@ export default function Builder({ type, questions, onChange }: Props) {
                       Duplicate
                     </Button>
 
-                    <Button
-                      variant="destructive"
-                      type="button"
-                      disabled={questions.length === 1}
-                      onClick={() => removeQuestion(index)}>
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete
-                    </Button>
+                    {renderAddButton()}
                   </div>
                 </div>
               </CardContent>

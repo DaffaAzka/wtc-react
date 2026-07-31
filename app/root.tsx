@@ -13,6 +13,7 @@ import "./app.css";
 import { AuthProvider } from "./contexts/auth";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { useState } from "react";
+import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./contexts/theme";
 
@@ -100,6 +101,8 @@ export default function App() {
           <TooltipProvider>
             <Outlet />
           </TooltipProvider>
+
+          <Toaster />
         </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
