@@ -1,4 +1,4 @@
-import InputForm from "@/components/custom/input-form";
+﻿import InputForm from "@/components/custom/input-form";
 import TextareaForm from "@/components/custom/textarea-form";
 
 import type { EssayQuestion } from "@/types/challenge";
@@ -18,8 +18,8 @@ export default function EssayForm({
   data,
   onChange,
   autoFocus,
-  errors,
   index,
+  questionErrors,
   setQuestionErrors,
 }: Props) {
   return (
@@ -29,17 +29,19 @@ export default function EssayForm({
         name="question"
         type="text"
         value={data.question}
+        error={questionErrors[`question-${index}`]}
         handleChange={(e) => {
           onChange({
             ...data,
             question: e.target.value,
           });
 
-          if (e.target.value.trim()) {
-            setFormErrors((prev) => ({
-              ...prev,
-              [`question.${index}.question`]: "",
-            }));
+          if (questionErrors[`question-${index}`]) {
+            setQuestionErrors((prev) => {
+              const updated = { ...prev };
+              delete updated[`question-${index}`];
+              return updated;
+            });
           }
         }}
       />
@@ -54,6 +56,14 @@ export default function EssayForm({
             ...data,
             rubric: e.target.value,
           });
+
+          if (questionErrors[`rubric-${index}`]) {
+            setQuestionErrors((prev) => {
+              const updated = { ...prev };
+              delete updated[`rubric-${index}`];
+              return updated;
+            });
+          }
         }}
       />
 
@@ -63,12 +73,20 @@ export default function EssayForm({
         type="number"
         value={data.score.toString()}
         error={questionErrors[`score-${index}`]}
-        handleChange={(e) =>
+        handleChange={(e) => {
           onChange({
             ...data,
             score: Number(e.target.value),
-          })
-        }
+          });
+
+          if (questionErrors[`score-${index}`]) {
+            setQuestionErrors((prev) => {
+              const updated = { ...prev };
+              delete updated[`score-${index}`];
+              return updated;
+            });
+          }
+        }}
       />
     </div>
   );

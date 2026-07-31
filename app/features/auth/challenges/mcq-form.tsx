@@ -1,4 +1,4 @@
-import InputForm from "@/components/custom/input-form";
+﻿import InputForm from "@/components/custom/input-form";
 import {
   Select,
   SelectContent,
@@ -6,7 +6,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
 import type { MCQQuestion } from "@/types/challenge";
 
 type Props = {
@@ -41,6 +40,14 @@ export default function MCQForm({
             ...data,
             question: e.target.value,
           });
+
+          if (questionErrors[`question-${index}`]) {
+            setQuestionErrors((prev) => {
+              const updated = { ...prev };
+              delete updated[`question-${index}`];
+              return updated;
+            });
+          }
         }}
       />
 
@@ -54,11 +61,18 @@ export default function MCQForm({
         handleChange={(e) => {
           const options = [...data.options];
           options[0] = e.target.value;
-
           onChange({
             ...data,
             options,
           });
+
+          if (questionErrors[`option-${index}-0`]) {
+            setQuestionErrors((prev) => {
+              const updated = { ...prev };
+              delete updated[`option-${index}-0`];
+              return updated;
+            });
+          }
         }}
       />
 
@@ -76,6 +90,14 @@ export default function MCQForm({
             ...data,
             options,
           });
+
+          if (questionErrors[`option-${index}-1`]) {
+            setQuestionErrors((prev) => {
+              const updated = { ...prev };
+              delete updated[`option-${index}-1`];
+              return updated;
+            });
+          }
         }}
       />
 
@@ -89,11 +111,18 @@ export default function MCQForm({
         handleChange={(e) => {
           const options = [...data.options];
           options[2] = e.target.value;
-
           onChange({
             ...data,
             options,
           });
+
+          if (questionErrors[`option-${index}-2`]) {
+            setQuestionErrors((prev) => {
+              const updated = { ...prev };
+              delete updated[`option-${index}-2`];
+              return updated;
+            });
+          }
         }}
       />
 
@@ -107,36 +136,54 @@ export default function MCQForm({
         handleChange={(e) => {
           const options = [...data.options];
           options[3] = e.target.value;
-
           onChange({
             ...data,
             options,
           });
+
+          if (questionErrors[`option-${index}-3`]) {
+            setQuestionErrors((prev) => {
+              const updated = { ...prev };
+              delete updated[`option-${index}-3`];
+              return updated;
+            });
+          }
         }}
       />
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Correct Answer</label>
-
         <Select
           value={data.answer}
-          onValueChange={(value) =>
+          onValueChange={(value) => {
             onChange({
               ...data,
               answer: value as "A" | "B" | "C" | "D",
-            })
-          }>
+            });
+
+            if (questionErrors[`answer-${index}`]) {
+              setQuestionErrors((prev) => {
+                const updated = { ...prev };
+                delete updated[`answer-${index}`];
+                return updated;
+              });
+            }
+          }}>
           <SelectTrigger>
             <SelectValue />
           </SelectTrigger>
-
           <SelectContent>
-            <SelectItem value="A">Option A</SelectItem>
-            <SelectItem value="B">Option B</SelectItem>
-            <SelectItem value="C">Option C</SelectItem>
-            <SelectItem value="D">Option D</SelectItem>
+            <SelectItem value="A">A</SelectItem>
+            <SelectItem value="B">B</SelectItem>
+            <SelectItem value="C">C</SelectItem>
+            <SelectItem value="D">D</SelectItem>
           </SelectContent>
         </Select>
+        {questionErrors[`answer-${index}`] && (
+          <p className="text-sm text-destructive">
+            {questionErrors[`answer-${index}`]}
+          </p>
+        )}
       </div>
 
       <InputForm
@@ -145,12 +192,20 @@ export default function MCQForm({
         type="number"
         value={data.score.toString()}
         error={questionErrors[`score-${index}`]}
-        handleChange={(e) =>
+        handleChange={(e) => {
           onChange({
             ...data,
             score: Number(e.target.value),
-          })
-        }
+          });
+
+          if (questionErrors[`score-${index}`]) {
+            setQuestionErrors((prev) => {
+              const updated = { ...prev };
+              delete updated[`score-${index}`];
+              return updated;
+            });
+          }
+        }}
       />
     </div>
   );

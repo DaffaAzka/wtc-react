@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+﻿import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -61,7 +61,6 @@ export default function Builder({
 
   const removeQuestion = (index: number) => {
     const newQuestions = questions.filter((_, i) => i !== index);
-
     onChange(newQuestions);
 
     if (newQuestions.length === 0) {
@@ -74,89 +73,82 @@ export default function Builder({
 
   const duplicateQuestion = (index: number) => {
     const question = structuredClone(questions[index]);
-
     const newQuestions = [...questions];
-
     newQuestions.splice(index + 1, 0, question);
-
     onChange(newQuestions);
-
     setOpenIndex(index + 1);
   };
 
   const updateQuestion = (index: number, value: Question) => {
-    onChange(questions.map((item, i) => (i === index ? value : item)));
+    const newQuestions = [...questions];
+    newQuestions[index] = value;
+    onChange(newQuestions);
   };
 
-  useEffect(() => {
-    if (questions.length === 0) return;
-
-    setOpenIndex(questions.length - 1);
-
-    requestAnimationFrame(() => {
-      lastQuestionRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    });
-  }, [questions.length]);
-
   const renderAddButton = () => {
-    if (type === "mixed") {
+    if (type === "multiple_choice") {
       return (
-        <Select
-          onValueChange={(value) => {
-            if (value === "multiple_choice") {
-              addMCQ();
-            }
+        <Button type="button" onClick={addMCQ}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add MCQ
+        </Button>
+      );
+    }
 
-            if (value === "essay") {
-              addEssay();
-            }
-          }}>
-          <SelectTrigger className="w-44">
-            <SelectValue placeholder="Add" />
-          </SelectTrigger>
-
-          <SelectContent>
-            <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
-
-            <SelectItem value="essay">Essay</SelectItem>
-          </SelectContent>
-        </Select>
+    if (type === "essay") {
+      return (
+        <Button type="button" onClick={addEssay}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Essay
+        </Button>
       );
     }
 
     return (
-      <Button
-        type="button"
-        onClick={() => {
-          if (type === "multiple_choice") {
-            addMCQ();
-          } else {
-            addEssay();
-          }
+      <Select
+        onValueChange={(value) => {
+          if (value === "mcq") addMCQ();
+          if (value === "essay") addEssay();
         }}>
-        <Plus className="mr-2 h-4 w-4" />
-        Add Question
-      </Button>
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="Add Question" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="mcq">Add MCQ</SelectItem>
+          <SelectItem value="essay">Add Essay</SelectItem>
+        </SelectContent>
+      </Select>
     );
   };
 
+  useEffect(() => {
+    if (questions.length > 0 && openIndex >= questions.length) {
+      setOpenIndex(questions.length - 1);
+    }
+  }, [questions.length, openIndex]);
+
+  useEffect(() => {
+    if (questions.length > 1 && openIndex === questions.length - 1) {
+      setTimeout(() => {
+        lastQuestionRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest",
+        });
+      }, 100);
+    }
+  }, [questions.length, openIndex]);
+
+  if (questions.length === 0) {
+    return (
+      <div className="border-2 border-dashed rounded-lg p-8 text-center space-y-4">
+        <p className="text-muted-foreground">No questions yet</p>
+        {renderAddButton()}
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-5">
-      <h3 className="text-lg font-semibold">Questions</h3>
-
-      {questions.length === 0 && (
-        <Card>
-          <CardContent className="flex flex-col items-center gap-4 py-10">
-            <p className="text-muted-foreground">No questions yet.</p>
-
-            {renderAddButton()}
-          </CardContent>
-        </Card>
-      )}
-
+    <div className="space-y-4">
       {questions.map((question, index) => (
         <div
           key={index}
@@ -199,8 +191,9 @@ export default function Builder({
                     index={index}
                     autoFocus={index === openIndex}
                     data={question}
-                    errors={errors}
                     onChange={(value) => updateQuestion(index, value)}
+                    questionErrors={questionErrors}
+                    setQuestionErrors={setQuestionErrors}
                   />
                 )}
 

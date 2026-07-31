@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+﻿import { useMemo } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
@@ -191,7 +191,7 @@ function FieldError({
     ];
 
     if (uniqueErrors?.length == 1) {
-      return uniquequestionErrors[0]?.message;
+      return uniqueErrors[0]?.message;
     }
 
     return (

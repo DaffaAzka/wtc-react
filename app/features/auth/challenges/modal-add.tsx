@@ -1,4 +1,4 @@
-import InputForm from "@/components/custom/input-form";
+﻿import InputForm from "@/components/custom/input-form";
 import { useDebounce } from "@/hooks/use-debounce";
 import { toast } from "sonner";
 import TextareaForm from "@/components/custom/textarea-form";
@@ -141,29 +141,29 @@ export default function ChallengeModalAdd({
       const question = questions[i];
 
       if (!question.question.trim()) {
-        questionErrors[`question-${i}`] = "Question is required.";
+        errors[`question-${i}`] = "Question is required.";
       }
 
       if (question.score <= 0) {
-        questionErrors[`score-${i}`] = "Score must be greater than 0.";
+        errors[`score-${i}`] = "Score must be greater than 0.";
       }
 
       if (question.type === "multiple_choice") {
         question.options.forEach((option, optionIndex) => {
           if (!option.trim()) {
-            questionErrors[`option-${i}-${optionIndex}`] =
+            errors[`option-${i}-${optionIndex}`] =
               `Option ${String.fromCharCode(65 + optionIndex)} is required.`;
           }
         });
 
         if (!question.answer) {
-          questionErrors[`answer-${i}`] = "Please select the correct answer.";
+          errors[`answer-${i}`] = "Please select the correct answer.";
         }
       }
 
       if (question.type === "essay") {
         if (!question.rubric.trim()) {
-          questionErrors[`rubric-${i}`] = "Rubric is required.";
+          errors[`rubric-${i}`] = "Rubric is required.";
         }
       }
     }
@@ -222,13 +222,16 @@ export default function ChallengeModalAdd({
     if (!validateQuestions()) {
       return;
     }
+
+    const submissionType = form.type === "mixed" ? "multiple_choice" : form.type;
+
     storeChallenge.mutate(
       {
         module_id: null,
         lesson_id: lesson.id,
         title: form.title,
         slug: generateSlug(form.title),
-        type: form.type,
+        type: submissionType,
         content: form.content,
         metadata: {
           questions,
@@ -308,7 +311,7 @@ export default function ChallengeModalAdd({
               onValueChange={(value) =>
                 setForm((prev) => ({
                   ...prev,
-                  type: value,
+                  type: value as "multiple_choice" | "essay" | "mixed",
                 }))
               }>
               <SelectTrigger>
@@ -350,7 +353,7 @@ export default function ChallengeModalAdd({
             type={form.type as "multiple_choice" | "essay" | "mixed"}
             questions={questions}
             onChange={setQuestions}
-            errors={questionErrors}
+            questionErrors={questionErrors}
             setQuestionErrors={setQuestionErrors}
           />
           <LoadingButton
