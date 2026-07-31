@@ -59,7 +59,7 @@ export default function ModalAdd({ moduleId }: { moduleId: number }) {
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>Add Lesson</Button>
       </DialogTrigger>

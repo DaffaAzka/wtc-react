@@ -223,7 +223,8 @@ export default function ChallengeModalAdd({
       return;
     }
 
-    const submissionType = form.type === "mixed" ? "multiple_choice" : form.type;
+    const submissionType =
+      form.type === "mixed" ? "multiple_choice" : form.type;
 
     storeChallenge.mutate(
       {

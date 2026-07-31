@@ -52,7 +52,7 @@ export default function ModalAdd({ trackId }: { trackId: number }) {
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>Add Module</Button>
       </DialogTrigger>
