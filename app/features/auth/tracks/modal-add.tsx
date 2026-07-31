@@ -57,7 +57,7 @@ export default function ModalAdd() {
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>Add Track</Button>
       </DialogTrigger>
@@ -68,53 +68,55 @@ export default function ModalAdd() {
         <DialogHeader>
           <DialogTitle>Add New Track</DialogTitle>
           <DialogDescription>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-              {storeTrack.error &&
-                storeTrack.error.message !== "Validation errors" && (
-                  <Alert variant="destructive" className="bg-red-100">
-                    <AlertDescription>
-                      {storeTrack.error.message ?? "An unknown error occurred."}
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-              <InputForm
-                name="title"
-                text="Track Title"
-                type="text"
-                value={form.title}
-                handleChange={handleChange}
-                error={getFieldError(storeTrack.error?.errors, "title")}
-              />
-              <InputForm
-                name="description"
-                text="Track Description"
-                type="text"
-                value={form.description}
-                handleChange={handleChange}
-                error={getFieldError(storeTrack.error?.errors, "description")}
-              />
-              <InputForm
-                name="order"
-                text="Track Order"
-                type="number"
-                value={form.order}
-                handleChange={handleChange}
-                error={getFieldError(storeTrack.error?.errors, "order")}
-              />
-              <InputForm
-                name="image_url"
-                text="Image URL"
-                type="text"
-                value={form.image_url}
-                handleChange={handleChange}
-                error={getFieldError(storeTrack.error?.errors, "image_url")}
-              />
-
-              <LoadingButton text="Create" loading={storeTrack.isPending} />
-            </form>
+            Fill in the details for the new track.
           </DialogDescription>
         </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+          {storeTrack.error &&
+            storeTrack.error.message !== "Validation errors" && (
+              <Alert variant="destructive" className="bg-red-100">
+                <AlertDescription>
+                  {storeTrack.error.message ?? "An unknown error occurred."}
+                </AlertDescription>
+              </Alert>
+            )}
+
+          <InputForm
+            name="title"
+            text="Track Title"
+            type="text"
+            value={form.title}
+            handleChange={handleChange}
+            error={getFieldError(storeTrack.error?.errors, "title")}
+          />
+          <InputForm
+            name="description"
+            text="Track Description"
+            type="text"
+            value={form.description}
+            handleChange={handleChange}
+            error={getFieldError(storeTrack.error?.errors, "description")}
+          />
+          <InputForm
+            name="order"
+            text="Track Order"
+            type="number"
+            value={form.order}
+            handleChange={handleChange}
+            error={getFieldError(storeTrack.error?.errors, "order")}
+          />
+          <InputForm
+            name="image_url"
+            text="Image URL"
+            type="text"
+            value={form.image_url}
+            handleChange={handleChange}
+            error={getFieldError(storeTrack.error?.errors, "image_url")}
+          />
+
+          <LoadingButton text="Create" loading={storeTrack.isPending} />
+        </form>
       </DialogContent>
     </Dialog>
   );
