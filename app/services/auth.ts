@@ -1,22 +1,21 @@
-import { api } from "@/lib/axios";
-import type {
-  LoginRequest,
-  LoginResponse,
-  RegisterRequest,
-} from "@/types/auth";
-import type { User } from "@/types/model";
-import type { ApiResponse } from "@/types/response";
+import { authApi } from "@/lib/auth-api";
 
 export const authService = {
-  login: async (request: LoginRequest): Promise<LoginResponse> => {
-    const response = await api.post<ApiResponse<LoginResponse>>(
-      "/login",
-      request,
-    );
-    return response.data.data!;
+  me() {
+    return authApi.get("/api/auth/me");
   },
-  register: async (request: RegisterRequest): Promise<User> => {
-    const response = await api.post<ApiResponse<User>>("/register", request);
-    return response.data.data!;
+
+  refresh(refreshToken: string) {
+    return authApi.post("/api/auth/refresh", {
+      refresh_token: refreshToken,
+    });
+  },
+
+  logout(refreshToken: string) {
+    return authApi.post("/api/auth/logout", {
+      refresh_token: refreshToken,
+      client_id: "lms",
+      redirect_uri: window.location.origin,
+    });
   },
 };

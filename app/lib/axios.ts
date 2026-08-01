@@ -1,20 +1,19 @@
 import type { ApiErrorResponse } from "@/types/response";
-import type { AxiosInstance, InternalAxiosRequestConfig } from "axios";
+import type { InternalAxiosRequestConfig } from "axios";
 import axios from "axios";
+import { createApi } from "./create-api";
+import { clearAuth } from "@/utils/auth-storage";
 
-export const api: AxiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL ?? "http://localhost:3000",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
+export const api = createApi(import.meta.env.VITE_API_URL);
 
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem("token");
+
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
     return config;
   },
   (error) => Promise.reject(error),
@@ -23,22 +22,16 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     if (typeof response.data !== "object" || response.data === null) {
-      const fallback: ApiErrorResponse = {
+      return Promise.reject({
         message: "Unexpected response format",
-      } as ApiErrorResponse;
-      return Promise.reject(fallback);
+      } satisfies ApiErrorResponse);
     }
+
     return response;
   },
   (error) => {
-    const isAuthEndpoint =
-      error.config?.url?.includes("/login") ||
-      error.config?.url?.includes("/register");
-
-    if (error.response?.status === 401 && !isAuthEndpoint) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      globalThis.location.href = "/login";
+    if (error.response?.status === 401) {
+      clearAuth();
     }
 
     if (axios.isAxiosError(error) && error.response) {

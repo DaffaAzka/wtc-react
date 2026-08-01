@@ -2,17 +2,14 @@ import { Outlet, redirect } from "react-router";
 import type { Route } from "./+types/layout";
 
 export function meta({}: Route.MetaArgs) {
-  return [
-    { title: "WTC LMS" },
-    { name: "description", content: "Welcome to WTC LMS!" },
-  ];
+  return [{ title: "WTC LMS" }, { name: "description", content: "Welcome to WTC LMS!" }];
 }
 
 export async function clientLoader() {
-  const token = localStorage.getItem("token");
-  if (token) {
-    throw redirect("/dashboard");
-  }
+  // const token = localStorage.getItem("token");
+  // if (token) {
+  //   throw redirect("/dashboard");
+  // } DONT FORGET TO UNCOMMENT LATER
   return null;
 }
 
