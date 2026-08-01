@@ -9,8 +9,10 @@ import {
 export default [
   layout("routes/guest/layout.tsx", [
     index("routes/home.tsx"),
-    route("/login", "routes/guest/login.tsx"),
-    route("/register", "routes/guest/register.tsx"),
+    // route("/login", "routes/guest/login.tsx"),
+    // route("/register", "routes/guest/register.tsx"),
+    route("/auth/callback", "routes/auth/callback.tsx"),
+    // route("/auth/test", "routes/auth/test.tsx"),
   ]),
 
   layout("routes/auth/layout.tsx", [

@@ -1,9 +1,27 @@
-export type User = {
-  id: number;
+export type Profile = {
+  puid: string;
   study_class_id: number | null;
+  nickname: string | null; //editable
+  display_name: string | null; //not editable
+  avatar_key: string | null;
+  avatar? : string | null;
+  email: string | null;
+  points: number;
+
+  last_login_at: string | null;
+  last_synced_at: string | null;
+
+  created_at: string;
+  updated_at: string;
+  deleted_at: string | null;
+
+  roles: Role[];
+};
+
+export type Role = {
+  id: number;
   name: string;
-  email: string;
-  role: string;
+  display_name: string;
 };
 
 export type Track = {
