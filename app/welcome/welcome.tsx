@@ -3,12 +3,6 @@ import logoLight from "./logo-light.svg";
 import { Button } from "@/components/ui/button";
 
 export function Welcome() {
-  const login = () => {
-    const redirect = encodeURIComponent(import.meta.env.VITE_REDIRECT_URI);
-
-    window.location.href = `${import.meta.env.VITE_AUTH_URL}/login` + `?client_id=${import.meta.env.VITE_CLIENT_ID}` + `&redirect_uri=${redirect}/auth/callback`;
-  };
-
   return (
     <main className="flex items-center justify-center pt-16 pb-4">
       <div className="flex-1 flex flex-col items-center gap-16 min-h-0">
@@ -22,7 +16,9 @@ export function Welcome() {
           <nav className="rounded-3xl border border-gray-200 p-6 dark:border-gray-700 space-y-4">
             <p className="leading-6 text-gray-700 dark:text-gray-200 text-center">What&apos;s next?</p>
             <ul>
-              <Button onClick={login}>Login</Button>
+              <Button onClick={() => (window.location.href = "/login")} className="w-full size-2xl font-stretch-75% text-xl">
+                Login pencet ini
+              </Button>
               {resources.map(({ href, text, icon }) => (
                 <li key={href}>
                   <a className="group flex items-center gap-3 self-stretch p-3 leading-normal text-blue-700 hover:underline dark:text-blue-500" href={href} target="_blank" rel="noreferrer">
