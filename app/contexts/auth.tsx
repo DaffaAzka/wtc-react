@@ -8,6 +8,7 @@ type AuthContextType = {
   token: string | null;
   loading: boolean;
 
+  setUserData: (userData: Profile) => void;
   refreshUser: () => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -65,6 +66,7 @@ export function AuthProvider({
   useEffect(() => {
     const bootstrap = async () => {
       const storedToken = localStorage.getItem("token");
+      const storedUser = localStorage.getItem("user");
 
       if (!storedToken) {
         setLoading(false);
@@ -74,7 +76,16 @@ export function AuthProvider({
       try {
         setToken(storedToken);
 
-        await fetchMe(storedToken);
+        // Read user from localStorage and use it directly
+        // Don't fetch avatar from authApi because it uses a different auth system
+        // and would cause 401 error that clears localStorage
+        if (storedUser) {
+          const userData = JSON.parse(storedUser);
+          setUser(userData);
+        } else {
+          // No stored user data, fetch from /me (fallback)
+          await fetchMe(storedToken);
+        }
       } catch (e) {
         console.error(e);
 
@@ -86,6 +97,11 @@ export function AuthProvider({
 
     bootstrap();
   }, []);
+
+  const setUserData = (userData: Profile) => {
+    setUser(userData);
+    localStorage.setItem("user", JSON.stringify(userData));
+  };
 
   const refreshUser = async () => {
     if (!token) return;
@@ -123,6 +139,7 @@ export function AuthProvider({
       user,
       token,
       loading,
+      setUserData,
       refreshUser,
       logout,
     }),
