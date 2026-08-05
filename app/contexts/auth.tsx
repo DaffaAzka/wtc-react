@@ -34,23 +34,28 @@ export function AuthProvider({
     setToken(null);
   };
 
+  const toMergedUser = (payload: any) => {
+    const { user, profile } = payload;
+    const { user_id, ...profileWithoutUserId } = profile;
+
+    return {
+      ...profileWithoutUserId,
+      email: user.email,
+      avatar: user.avatar,
+    };
+  };
+
   const fetchMe = async (accessToken: string) => {
-    const { data } = await api.get("/me", {
+    const { data: res } = await api.get("/me", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
 
-    const avatar = await fetchAvatar(accessToken);
+    const mergedUser = toMergedUser(res.data);
 
-    const updatedUser = {
-      ...data,
-      avatar,
-    };
-
-    setUser(updatedUser);
-
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+    localStorage.setItem("user", JSON.stringify(mergedUser));
+    setUser(mergedUser);
   };
 
   const fetchAvatar = async (accessToken: string) => {
@@ -66,7 +71,6 @@ export function AuthProvider({
   useEffect(() => {
     const bootstrap = async () => {
       const storedToken = localStorage.getItem("token");
-      const storedUser = localStorage.getItem("user");
 
       if (!storedToken) {
         setLoading(false);
@@ -76,20 +80,32 @@ export function AuthProvider({
       try {
         setToken(storedToken);
 
-        // Read user from localStorage and use it directly
-        // Don't fetch avatar from authApi because it uses a different auth system
-        // and would cause 401 error that clears localStorage
+        const storedUser = localStorage.getItem("user");
         if (storedUser) {
-          const userData = JSON.parse(storedUser);
-          setUser(userData);
-        } else {
-          // No stored user data, fetch from /me (fallback)
+          try {
+            const userData = JSON.parse(storedUser);
+            setUser(userData);
+          } catch (error) {
+            console.error("Failed to parse stored user data", error);
+          }
+        }
+
+        try {
           await fetchMe(storedToken);
+        } catch (error) {
+          const tokenStillExists = localStorage.getItem("token");
+          if (!tokenStillExists) {
+            setUser(null);
+            setToken(null);
+          } else {
+            console.warn("Failed to fetch fresh user data, using cached data", error);
+          }
         }
       } catch (e) {
-        console.error(e);
-
-        clearSession();
+        console.error("Bootstrap error", e);
+        if (localStorage.getItem("token")) {
+          clearSession();
+        }
       } finally {
         setLoading(false);
       }

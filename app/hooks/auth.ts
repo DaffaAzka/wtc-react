@@ -13,9 +13,6 @@ export function useLogin() {
     onSuccess: (data) => {
       localStorage.setItem("token", data.token);
 
-      // Store only requested fields:
-      // - From user: email, avatar
-      // - From profile: everything except user_id
       const { user_id, ...profileWithoutUserId } = data.profile;
 
       const mergedUser = {
@@ -42,10 +39,6 @@ export function useRegister() {
     mutationFn: (credentials) => authService.register(credentials),
     onSuccess: (data) => {
       localStorage.setItem("token", data.token);
-
-      // Store only requested fields:
-      // - From user: email, avatar
-      // - From profile: everything except user_id
       const { user_id, ...profileWithoutUserId } = data.profile;
 
       const mergedUser = {
