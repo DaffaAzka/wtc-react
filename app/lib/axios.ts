@@ -6,19 +6,6 @@ import { clearAuth } from "@/utils/auth-storage";
 
 export const api = createApi(import.meta.env.VITE_API_URL);
 
-api.interceptors.request.use(
-  (config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return config;
-  },
-  (error) => Promise.reject(error),
-);
-
 api.interceptors.response.use(
   (response) => {
     if (typeof response.data !== "object" || response.data === null) {

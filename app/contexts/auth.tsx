@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { authApi } from "@/lib/auth-api";
 import type { Profile } from "@/types/model";
 import { api } from "@/lib/axios";
@@ -68,32 +68,28 @@ export function AuthProvider({
     return data.url;
   };
 
+  const bootstrapped = useRef(false);
+
   useEffect(() => {
+    if (bootstrapped.current) return;
+    bootstrapped.current = true;
+
     const bootstrap = async () => {
       const storedToken = localStorage.getItem("token");
+      const storedUser = localStorage.getItem("user");
 
-      if (!storedToken) {
-        setLoading(false);
-        return;
-      }
-
-      try {
+      if (storedToken) {
         setToken(storedToken);
 
-        const storedUser = localStorage.getItem("user");
         if (storedUser) {
-          try {
-            const userData = JSON.parse(storedUser);
-            setUser(userData);
-          } catch (error) {
-            console.error("Failed to parse stored user data", error);
-          }
+          setUser(JSON.parse(storedUser));
         }
 
         try {
           await fetchMe(storedToken);
         } catch (error) {
           const tokenStillExists = localStorage.getItem("token");
+
           if (!tokenStillExists) {
             setUser(null);
             setToken(null);
@@ -101,13 +97,6 @@ export function AuthProvider({
             console.warn("Failed to fetch fresh user data, using cached data", error);
           }
         }
-      } catch (e) {
-        console.error("Bootstrap error", e);
-        if (localStorage.getItem("token")) {
-          clearSession();
-        }
-      } finally {
-        setLoading(false);
       }
     };
 

@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 export const moduleKeys = {
   all: ["modules"] as const,
   detail: (slug: string) => ["modules", slug] as const,
+  byTrack: (trackSlug: string) => ["modules", "track", trackSlug] as const,
 };
 
 export function useGetModules() {
@@ -31,6 +32,21 @@ export function useGetModule(slug: string) {
 
   return {
     module: query.data,
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refresh: query.refetch,
+  };
+}
+
+export function useGetModulesByTrack(trackSlug: string) {
+  const query = useQuery<Module[], ApiErrorResponse>({
+    queryKey: moduleKeys.byTrack(trackSlug),
+    queryFn: () => ModuleService.getByTrack(trackSlug),
+    enabled: !!trackSlug,
+  });
+
+  return {
+    modules: query.data ?? [],
     loading: query.isLoading,
     error: query.error ?? null,
     refresh: query.refetch,

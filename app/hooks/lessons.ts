@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 export const lessonKeys = {
   all: ["lessons"] as const,
   detail: (slug: string) => ["lessons", slug] as const,
+  byModule: (moduleSlug: string) => ["lessons", "module", moduleSlug] as const,
 };
 
 export function useGetLessons() {
@@ -31,6 +32,21 @@ export function useGetLesson(slug: string) {
 
   return {
     lesson: query.data,
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refresh: query.refetch,
+  };
+}
+
+export function useGetLessonsByModule(moduleSlug: string) {
+  const query = useQuery<Lesson[], ApiErrorResponse>({
+    queryKey: lessonKeys.byModule(moduleSlug),
+    queryFn: () => LessonService.getByModule(moduleSlug),
+    enabled: !!moduleSlug,
+  });
+
+  return {
+    lessons: query.data ?? [],
     loading: query.isLoading,
     error: query.error ?? null,
     refresh: query.refetch,

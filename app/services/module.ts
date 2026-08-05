@@ -33,4 +33,11 @@ export const ModuleService = {
   delete: async (slug: string): Promise<void> => {
     await api.delete(`/modules/${slug}`);
   },
+
+  getByTrack: async (trackSlug: string): Promise<Module[]> => {
+    const response = await api.get<ApiResponse<Module[]>>(
+      `/tracks/${trackSlug}/modules`,
+    );
+    return response.data.data!;
+  },
 };

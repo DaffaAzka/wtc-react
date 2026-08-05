@@ -36,4 +36,11 @@ export const LessonService = {
   delete: async (slug: string): Promise<void> => {
     await api.delete(`/lessons/${slug}`);
   },
+
+  getByModule: async (moduleSlug: string): Promise<Lesson[]> => {
+    const response = await api.get<ApiResponse<Lesson[]>>(
+      `/modules/${moduleSlug}/lessons`,
+    );
+    return response.data.data!;
+  },
 };
