@@ -28,6 +28,10 @@ export default [
           "/:slug/modules/:moduleSlug/lessons",
           "routes/auth/admin/tracks/modules/lessons/index.tsx",
         ),
+        route(
+          "/:slug/modules/:moduleSlug/lessons/create",
+          "routes/auth/admin/tracks/modules/lessons/create.tsx",
+        ),
       ]),
     ]),
   ]),

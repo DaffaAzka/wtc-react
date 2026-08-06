@@ -14,6 +14,7 @@ import {
 import { useStoreLesson } from "@/hooks/lessons";
 import { generateSlug, getFieldError } from "@/utils/global";
 import { useState } from "react";
+import { RichEditor } from "@/components/custom/rich-editor";
 
 export default function ModalAdd({ moduleId }: { moduleId: number }) {
   const [open, setOpen] = useState(false);
@@ -101,6 +102,8 @@ export default function ModalAdd({ moduleId }: { moduleId: number }) {
             handleChange={handleChange}
             error={getFieldError(storeLesson.error?.errors, "content")}
           />
+
+          {/* <RichEditor /> */}
 
           <InputForm
             name="video_url"
