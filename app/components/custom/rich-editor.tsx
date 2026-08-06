@@ -129,7 +129,7 @@ import { FloatingLinkEditorPlugin } from "@/components/editor/floating-link-edit
 import { HR } from "../editor/markdown-hr-transformer";
 
 const placeholder = "Press / for commands...";
-const maxLength = 30;
+const maxLength = 999999999;
 
 export function RichEditor({
   editorState,

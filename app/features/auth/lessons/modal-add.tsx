@@ -103,7 +103,7 @@ export default function ModalAdd({ moduleId }: { moduleId: number }) {
             error={getFieldError(storeLesson.error?.errors, "content")}
           />
 
-          <RichEditor />
+          {/* <RichEditor /> */}
 
           <InputForm
             name="video_url"
