@@ -1,20 +1,9 @@
-import type { User } from "./model";
-
-export type LoginResponse = {
-  token: string;
-  user: User;
+export type RefreshResponse = {
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
 };
 
-export type LoginRequest = {
-  email: string;
-  password: string;
-};
-
-export type RegisterRequest = {
-  name: string;
-  email: string;
-  role: string;
-  password: string;
-  password_confirmation: string;
-  study_class_id: number | null;
+export type LogoutResponse = {
+    redirect_to: string;
 };

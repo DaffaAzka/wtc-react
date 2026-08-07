@@ -20,6 +20,7 @@ export default function InputForm({
   error?: string | null;
   placeholder?: string;
   isDisabled?: boolean;
+  autoFocus?: boolean;
 }) {
   return (
     <Field aria-invalid={error != null} className="flex flex-col gap-1.5">

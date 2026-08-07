@@ -1,5 +1,5 @@
 import type { Lesson } from "@/types/model";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import LoadingButton from "@/components/custom/loading-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -22,14 +22,14 @@ export default function ModalDelete({
   onOpenChange: (open: boolean) => void;
 }) {
   const [form, setForm] = useState({
-    id: 0,
+    slug: "",
     title: "",
   });
 
   useEffect(() => {
     if (data) {
       setForm({
-        id: data.id,
+        slug: data.slug,
         title: data.title,
       });
     }
@@ -39,11 +39,11 @@ export default function ModalDelete({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    deleteLesson.mutate(form.id, {
+    deleteLesson.mutate(form.slug, {
       onSuccess: () => {
         onOpenChange(false);
         setForm({
-          id: 0,
+          slug: "",
           title: "",
         });
       },
@@ -52,9 +52,12 @@ export default function ModalDelete({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Delete Lesson</DialogTitle>
+
           <DialogDescription>
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
               {deleteLesson.error &&
@@ -66,7 +69,9 @@ export default function ModalDelete({
                     </AlertDescription>
                   </Alert>
                 )}
-              <p>Are you sure, you want to delete {form.title}?</p>
+
+              <p>Are you sure you want to delete {form.title}?</p>
+
               <LoadingButton text="Delete" loading={deleteLesson.isPending} />
             </form>
           </DialogDescription>

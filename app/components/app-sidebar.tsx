@@ -5,24 +5,11 @@ import * as React from "react";
 import { NavMain } from "@/components/nav-main";
 import { NavModules } from "@/components/nav-modules";
 import { NavUser } from "@/components/nav-user";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-import {
-  TerminalSquareIcon,
-  LifeBuoyIcon,
-  SendIcon,
-  FrameIcon,
-  TerminalIcon,
-} from "lucide-react";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { TerminalSquareIcon, LifeBuoyIcon, SendIcon, FrameIcon, TerminalIcon } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
 import { firstCharacterUppercase } from "@/utils/global";
+import { ModeToggle } from "./custom/mode-toggle";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
@@ -30,18 +17,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const data = {
     navMain: [
       {
-        title: "Learning Tracks",
-        url: "#",
+        title: "Courses",
+        url: "/courses",
         icon: <TerminalSquareIcon />,
         isActive: true,
         roleAllowed: true,
-        items: [
-          {
-            title: "My Courses",
-            url: "#",
-            roleAllowed: true,
-          },
-        ],
       },
     ],
     navSecondary: [
@@ -66,36 +46,37 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     ],
   };
 
+  const isAdmin = user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;
+
   return (
     <Sidebar variant="inset" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
+              <div className="flex items-center gap-3">
                 <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <TerminalIcon className="size-4" />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">WebTech TC.</span>
-                  <span className="truncate text-xs">
-                    {firstCharacterUppercase(user?.role || "Undefined")}
-                  </span>
+                  <span className="truncate text-xs">{firstCharacterUppercase(user?.roles?.[0]?.name ?? "Undefined")}</span>
                 </div>
-              </a>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        {user?.role === "admin" && <NavModules items={data.modules} />}
+        {isAdmin && <NavModules items={data.modules} />}
       </SidebarContent>
       <SidebarFooter>
         <NavUser
           user={{
-            name: user?.name || "Undefined",
-            email: user?.email || "Undefined",
+            name: user?.display_name ?? user?.nickname ?? "Undefined",
+            email: user?.email ?? "Undefined",
+            avatar: user?.avatar ?? undefined,
           }}
         />
       </SidebarFooter>

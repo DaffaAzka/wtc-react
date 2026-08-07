@@ -1,5 +1,5 @@
 import type { Lesson } from "@/types/model";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import InputForm from "@/components/custom/input-form";
 import TextareaForm from "@/components/custom/textarea-form";
@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useUpdateLesson } from "@/hooks/lessons";
-import { getFieldError } from "@/utils/global";
+import { generateSlug, getFieldError } from "@/utils/global";
 
 export default function ModalEdit({
   data,
@@ -27,6 +27,7 @@ export default function ModalEdit({
   const [form, setForm] = useState({
     id: 0,
     title: "",
+    slug: "",
     content: "",
     video_url: "",
     order: "",
@@ -39,6 +40,7 @@ export default function ModalEdit({
         id: data.id,
         title: data.title,
         content: data.content,
+        slug: data.slug,
         video_url: data.video_url ?? "",
         order: data.order.toString(),
         module_id: data.module_id,
@@ -61,6 +63,7 @@ export default function ModalEdit({
         title: form.title,
         content: form.content,
         video_url: form.video_url || null,
+        slug: form.slug,
         order: Number.parseInt(form.order),
         module_id: form.module_id,
       },
@@ -70,6 +73,7 @@ export default function ModalEdit({
           setForm({
             id: 0,
             title: "",
+            slug: "",
             content: "",
             video_url: "",
             order: "",
@@ -82,7 +86,9 @@ export default function ModalEdit({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Update Lesson</DialogTitle>
           <DialogDescription>

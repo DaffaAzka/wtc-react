@@ -1,5 +1,5 @@
 import type { Track } from "@/types/model";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import LoadingButton from "@/components/custom/loading-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -52,7 +52,9 @@ export default function ModalDelete({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Delete Track</DialogTitle>
           <DialogDescription>

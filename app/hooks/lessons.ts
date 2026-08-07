@@ -5,7 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const lessonKeys = {
   all: ["lessons"] as const,
-  detail: (id: number) => ["lessons", id] as const,
+  detail: (slug: string) => ["lessons", slug] as const,
 };
 
 export function useGetLessons() {
@@ -22,11 +22,11 @@ export function useGetLessons() {
   };
 }
 
-export function useGetLesson(id: number) {
+export function useGetLesson(slug: string) {
   const query = useQuery<Lesson, ApiErrorResponse>({
-    queryKey: lessonKeys.detail(id),
-    queryFn: () => LessonService.getById(id),
-    enabled: !!id,
+    queryKey: lessonKeys.detail(slug),
+    queryFn: () => LessonService.getBySlug(slug),
+    enabled: !!slug,
   });
 
   return {
@@ -56,9 +56,12 @@ export function useUpdateLesson() {
   return useMutation<
     Lesson,
     ApiErrorResponse,
-    { id: number } & Omit<Lesson, "id" | "deleted_at" | "created_at" | "updated_at">
+    { id: number } & Omit<
+      Lesson,
+      "id" | "deleted_at" | "created_at" | "updated_at"
+    >
   >({
-    mutationFn: (payload) => LessonService.update(payload.id, payload),
+    mutationFn: (payload) => LessonService.update(payload.slug, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: lessonKeys.all });
     },
@@ -68,7 +71,7 @@ export function useUpdateLesson() {
 export function useDeleteLesson() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: number) => LessonService.delete(id),
+    mutationFn: (slug: string) => LessonService.delete(slug),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: lessonKeys.all });
     },

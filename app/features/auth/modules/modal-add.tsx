@@ -53,10 +53,13 @@ export default function ModalAdd({ trackId }: { trackId: number }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button>Add Module</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent
+        className="max-w-5xl max-h-[90vh] overflow-y-auto"
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Add New Module</DialogTitle>
           <DialogDescription>
@@ -65,7 +68,8 @@ export default function ModalAdd({ trackId }: { trackId: number }) {
                 storeModule.error.message !== "Validation errors" && (
                   <Alert variant="destructive" className="bg-red-100">
                     <AlertDescription>
-                      {storeModule.error.message ?? "An unknown error occurred."}
+                      {storeModule.error.message ??
+                        "An unknown error occurred."}
                     </AlertDescription>
                   </Alert>
                 )}

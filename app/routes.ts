@@ -11,10 +11,13 @@ export default [
     index("routes/home.tsx"),
     route("/login", "routes/guest/login.tsx"),
     route("/register", "routes/guest/register.tsx"),
+    route("/auth/callback", "routes/auth/callback.tsx"),
+    // route("/auth/test", "routes/auth/test.tsx"),
   ]),
 
   layout("routes/auth/layout.tsx", [
     route("/dashboard", "routes/auth/dashboard.tsx"),
+    route("/courses", "routes/auth/courses/index.tsx"),
 
     layout("routes/auth/admin/layout.tsx", [
       // Track Routes
@@ -24,6 +27,10 @@ export default [
         route(
           "/:slug/modules/:moduleSlug/lessons",
           "routes/auth/admin/tracks/modules/lessons/index.tsx",
+        ),
+        route(
+          "/:slug/modules/:moduleSlug/lessons/create",
+          "routes/auth/admin/tracks/modules/lessons/create.tsx",
         ),
       ]),
     ]),

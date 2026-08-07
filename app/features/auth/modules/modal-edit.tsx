@@ -1,5 +1,5 @@
 import type { Module } from "@/types/model";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import InputForm from "@/components/custom/input-form";
 import LoadingButton from "@/components/custom/loading-button";
@@ -72,7 +72,9 @@ export default function ModalEdit({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>Update Module</DialogTitle>
           <DialogDescription>
