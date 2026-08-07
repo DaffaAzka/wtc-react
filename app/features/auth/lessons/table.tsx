@@ -21,6 +21,7 @@ import ModalEdit from "./modal-edit";
 import { EllipsisIcon } from "lucide-react";
 import ModalDelete from "./modal-delete";
 import ChallengeModal from "../challenges/modal-add";
+import { Link } from "react-router";
 
 export default function LessonsTable({ data }: { data: Lesson[] }) {
   const [editModal, setEditModal] = useState<{
@@ -52,8 +53,8 @@ export default function LessonsTable({ data }: { data: Lesson[] }) {
               <TableRow>
                 <TableHead className="w-25">No</TableHead>
                 <TableHead>Title</TableHead>
-                <TableHead className="hidden lg:table-cell">Content</TableHead>
-                <TableHead>Order</TableHead>
+                {/* <TableHead className="hidden lg:table-cell">Content</TableHead> */}
+                {/* <TableHead>Order</TableHead> */}
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -62,17 +63,19 @@ export default function LessonsTable({ data }: { data: Lesson[] }) {
                 <TableRow key={lesson.id}>
                   <TableCell className="font-medium">{index + 1}</TableCell>
                   <TableCell>{lesson.title}</TableCell>
-                  <TableCell className="hidden lg:table-cell max-w-xs truncate">
+                  {/* <TableCell className="hidden lg:table-cell max-w-xs truncate">
                     {lesson.content}
                   </TableCell>
-                  <TableCell>{lesson.order}</TableCell>
+                  <TableCell>{lesson.order}</TableCell> */}
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger>
                         <EllipsisIcon />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem>View</DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Link to={`${lesson.slug}/view`}>View</Link>
+                        </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => {
                             setEditModal({
