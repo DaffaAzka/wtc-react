@@ -13,7 +13,7 @@ export default function Header({ module }: { module: Module }) {
     },
     {
       name: "Order",
-      value: module.order.toString(),
+      value: module.order?.toString() ?? "N/A",
     },
   ];
 
