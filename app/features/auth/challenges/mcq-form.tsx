@@ -6,13 +6,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 import type { MCQQuestion } from "@/types/challenge";
 
 type Props = {
   index: number;
   data: MCQQuestion;
   onChange: (data: MCQQuestion) => void;
-  autoFocus?: boolean;
+  shouldAutoFocus?: boolean;
   questionErrors: Record<string, string>;
   setQuestionErrors: React.Dispatch<
     React.SetStateAction<Record<string, string>>
@@ -22,7 +24,7 @@ type Props = {
 export default function MCQForm({
   data,
   onChange,
-  autoFocus,
+  shouldAutoFocus,
   index,
   questionErrors,
   setQuestionErrors,
@@ -34,6 +36,7 @@ export default function MCQForm({
         name="question"
         type="text"
         value={data.question}
+        autoFocus={shouldAutoFocus}
         error={questionErrors[`question-${index}`]}
         handleChange={(e) => {
           onChange({
@@ -56,7 +59,6 @@ export default function MCQForm({
         name="option_a"
         type="text"
         value={data.options[0]}
-        autoFocus={autoFocus}
         error={questionErrors[`option-${index}-0`]}
         handleChange={(e) => {
           const options = [...data.options];
@@ -73,6 +75,15 @@ export default function MCQForm({
               return updated;
             });
           }
+
+          // Clear duplicate error when options change
+          if (questionErrors[`duplicate-${index}`]) {
+            setQuestionErrors((prev) => {
+              const updated = { ...prev };
+              delete updated[`duplicate-${index}`];
+              return updated;
+            });
+          }
         }}
       />
 
@@ -81,7 +92,6 @@ export default function MCQForm({
         name="option_b"
         type="text"
         value={data.options[1]}
-        autoFocus={autoFocus}
         error={questionErrors[`option-${index}-1`]}
         handleChange={(e) => {
           const options = [...data.options];
@@ -98,6 +108,14 @@ export default function MCQForm({
               return updated;
             });
           }
+
+          if (questionErrors[`duplicate-${index}`]) {
+            setQuestionErrors((prev) => {
+              const updated = { ...prev };
+              delete updated[`duplicate-${index}`];
+              return updated;
+            });
+          }
         }}
       />
 
@@ -106,7 +124,6 @@ export default function MCQForm({
         name="option_c"
         type="text"
         value={data.options[2]}
-        autoFocus={autoFocus}
         error={questionErrors[`option-${index}-2`]}
         handleChange={(e) => {
           const options = [...data.options];
@@ -123,6 +140,14 @@ export default function MCQForm({
               return updated;
             });
           }
+
+          if (questionErrors[`duplicate-${index}`]) {
+            setQuestionErrors((prev) => {
+              const updated = { ...prev };
+              delete updated[`duplicate-${index}`];
+              return updated;
+            });
+          }
         }}
       />
 
@@ -131,7 +156,6 @@ export default function MCQForm({
         name="option_d"
         type="text"
         value={data.options[3]}
-        autoFocus={autoFocus}
         error={questionErrors[`option-${index}-3`]}
         handleChange={(e) => {
           const options = [...data.options];
@@ -148,8 +172,25 @@ export default function MCQForm({
               return updated;
             });
           }
+
+          if (questionErrors[`duplicate-${index}`]) {
+            setQuestionErrors((prev) => {
+              const updated = { ...prev };
+              delete updated[`duplicate-${index}`];
+              return updated;
+            });
+          }
         }}
       />
+
+      {questionErrors[`duplicate-${index}`] && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {questionErrors[`duplicate-${index}`]}
+          </AlertDescription>
+        </Alert>
+      )}
 
       <div className="space-y-2">
         <label className="text-sm font-medium">Correct Answer</label>
@@ -186,27 +227,12 @@ export default function MCQForm({
         )}
       </div>
 
-      <InputForm
-        text="Score"
-        name="score"
-        type="number"
-        value={data.score.toString()}
-        error={questionErrors[`score-${index}`]}
-        handleChange={(e) => {
-          onChange({
-            ...data,
-            score: Number(e.target.value),
-          });
-
-          if (questionErrors[`score-${index}`]) {
-            setQuestionErrors((prev) => {
-              const updated = { ...prev };
-              delete updated[`score-${index}`];
-              return updated;
-            });
-          }
-        }}
-      />
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Score (Auto-calculated)</label>
+        <div className="flex items-center h-10 w-full rounded-md border border-input bg-muted px-3 py-2">
+          <span className="text-sm font-semibold">{data.score} pts</span>
+        </div>
+      </div>
     </div>
   );
 }

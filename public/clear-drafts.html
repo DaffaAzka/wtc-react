@@ -1,0 +1,24 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <title>Clear Challenge Drafts</title>
+</head>
+<body>
+  <h1>Clear Challenge Drafts</h1>
+  <button onclick="clearDrafts()">Clear All Challenge Drafts</button>
+  <div id="result"></div>
+
+  <script>
+    function clearDrafts() {
+      let count = 0;
+      Object.keys(localStorage).forEach(key => {
+        if (key.startsWith('challenge-draft-')) {
+          localStorage.removeItem(key);
+          count++;
+        }
+      });
+      document.getElementById('result').innerHTML = `<p>Cleared ${count} draft(s)</p>`;
+    }
+  </script>
+</body>
+</html>
