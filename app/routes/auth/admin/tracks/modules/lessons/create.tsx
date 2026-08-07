@@ -1,4 +1,4 @@
-import { Alert, AlertDescription } from "@/components/ui/alert";
+﻿import { Alert, AlertDescription } from "@/components/ui/alert";
 import InputForm from "@/components/custom/input-form";
 import LoadingButton from "@/components/custom/loading-button";
 import { RichEditor } from "@/components/custom/rich-editor";
@@ -7,6 +7,7 @@ import { useGetModule } from "@/hooks/modules";
 import { generateSlug, getFieldError } from "@/utils/global";
 import { useState } from "react";
 import type { Route } from "./+types/create";
+import { FormPageSkeleton } from "@/components/skeletons/form-page";
 
 export default function CreatePage({ params }: Route.ComponentProps) {
   const { module, loading, error } = useGetModule(params.moduleSlug);
@@ -57,7 +58,7 @@ export default function CreatePage({ params }: Route.ComponentProps) {
     );
   };
 
-  if (loading) return <p>Loading module...</p>;
+  if (loading) return <FormPageSkeleton />;
   if (error) return <p>Error: {error.message}</p>;
   if (!module) return <p>Module not found.</p>;
 
