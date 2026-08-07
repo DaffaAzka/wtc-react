@@ -4,6 +4,7 @@ import TableInformation from "@/components/custom/table-information";
 import type { TableInformationData } from "@/types/global";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
+import { Link } from "react-router";
 
 export default function Header({ module }: { module: Module }) {
   const data: TableInformationData[] = [
@@ -13,7 +14,7 @@ export default function Header({ module }: { module: Module }) {
     },
     {
       name: "Order",
-      value: module.order.toString(),
+      value: module.order?.toString() ?? "N/A",
     },
   ];
 
@@ -24,7 +25,10 @@ export default function Header({ module }: { module: Module }) {
       <TableInformation data={data} />
 
       <div className="flex gap-2">
-        <ModalAdd moduleId={module.id} />
+        <Link to={`create`}>
+          <Button>Add Lesson</Button>
+        </Link>
+        {/* <ModalAdd moduleId={module.id} /> */}
 
         <Button variant="outline">
           <Plus className="w-4 h-4 mr-2" />

@@ -73,9 +73,9 @@ export default function LessonsTable({ data }: { data: Lesson[] }) {
                         <EllipsisIcon />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem>
-                          <Link to={`${lesson.slug}/view`}>View</Link>
-                        </DropdownMenuItem>
+                        <Link to={`${lesson.slug}/view`}>
+                          <DropdownMenuItem>View</DropdownMenuItem>
+                        </Link>
                         <DropdownMenuItem
                           onClick={() => {
                             setEditModal({
