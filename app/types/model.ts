@@ -4,7 +4,7 @@ export type Profile = {
   nickname: string | null; //editable
   display_name: string | null; //not editable
   avatar_key: string | null;
-  avatar? : string | null;
+  avatar?: string | null;
   email: string | null;
   points: number;
 
@@ -28,7 +28,7 @@ export type Track = {
   id: number;
   slug: string;
   title: string;
-  order: number;
+  order?: number | null;
   image_url: string;
   description: string;
   created_at: string;
@@ -43,7 +43,7 @@ export type Module = {
   track_id: number;
   slug: string;
   title: string;
-  order: number;
+  order?: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -55,7 +55,7 @@ export type Lesson = {
   slug: string;
   content: string;
   video_url: string | null;
-  order: number;
+  order?: number | null;
   deleted_at: string | null;
   created_at: string | null;
   updated_at: string | null;

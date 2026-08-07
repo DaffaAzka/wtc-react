@@ -1,0 +1,10 @@
+import { createHeadlessEditor } from '@lexical/headless';
+import { $generateHtmlFromNodes } from '@lexical/html';
+import { HeadingNode } from '@lexical/rich-text';
+const editor = createHeadlessEditor({ nodes: [HeadingNode], onError: console.error });
+const jsonData = { root: { children: [ { children:[{detail:0,format:0,mode:'normal',style:'',text:'Hello',type:'text',version:1}], direction:null, format:'', indent:0, type:'heading', version:1, tag:'h1' }, { children:[], direction:null, format:'', indent:0, type:'paragraph', version:1, textFormat:0, textStyle:'' } ], direction:null, format:'', indent:0, type:'root', version:1 } };
+const editorState = editor.parseEditorState(JSON.stringify(jsonData));
+editor.setEditorState(editorState);
+let html='';
+editor.update(()=>{ html=$generateHtmlFromNodes(editor,null); });
+console.log(html);
