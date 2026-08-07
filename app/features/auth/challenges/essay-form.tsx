@@ -7,7 +7,7 @@ type Props = {
   index: number;
   data: EssayQuestion;
   onChange: (data: EssayQuestion) => void;
-  autoFocus?: boolean;
+  shouldAutoFocus?: boolean;
   questionErrors: Record<string, string>;
   setQuestionErrors: React.Dispatch<
     React.SetStateAction<Record<string, string>>
@@ -17,7 +17,7 @@ type Props = {
 export default function EssayForm({
   data,
   onChange,
-  autoFocus,
+  shouldAutoFocus,
   index,
   questionErrors,
   setQuestionErrors,
@@ -29,6 +29,7 @@ export default function EssayForm({
         name="question"
         type="text"
         value={data.question}
+        autoFocus={shouldAutoFocus}
         error={questionErrors[`question-${index}`]}
         handleChange={(e) => {
           onChange({
@@ -67,27 +68,12 @@ export default function EssayForm({
         }}
       />
 
-      <InputForm
-        text="Score"
-        name="score"
-        type="number"
-        value={data.score.toString()}
-        error={questionErrors[`score-${index}`]}
-        handleChange={(e) => {
-          onChange({
-            ...data,
-            score: Number(e.target.value),
-          });
-
-          if (questionErrors[`score-${index}`]) {
-            setQuestionErrors((prev) => {
-              const updated = { ...prev };
-              delete updated[`score-${index}`];
-              return updated;
-            });
-          }
-        }}
-      />
+      <div className="space-y-2">
+        <label className="text-sm font-medium">Score (Auto-calculated)</label>
+        <div className="flex items-center h-10 w-full rounded-md border border-input bg-muted px-3 py-2">
+          <span className="text-sm font-semibold">{data.score} pts</span>
+        </div>
+      </div>
     </div>
   );
 }

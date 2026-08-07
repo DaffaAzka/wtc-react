@@ -1,4 +1,4 @@
-export type Profile = {
+﻿export type Profile = {
   puid: string;
   study_class_id: number | null;
   nickname: string | null; //editable
@@ -76,6 +76,9 @@ export type Challenge = {
     | "docker_project"
     | "timed_exam"
     | "quiz_group";
+  difficulty?: "easy" | "medium" | "hard";
+  order?: number;
+  points?: number;
   content: string;
   metadata: Record<string, unknown> | null;
   max_score: number;
