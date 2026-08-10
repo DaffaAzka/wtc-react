@@ -35,8 +35,8 @@ export default [
           "routes/auth/admin/tracks/modules/lessons/create.tsx",
         ),
         route(
-          "/:slug/modules/:moduleSlug/lessons/:lessonSlug/edit",
-          "routes/auth/admin/tracks/modules/lessons/edit.tsx",
+          "/:slug/modules/:moduleSlug/lessons/:lessonSlug/update",
+          "routes/auth/admin/tracks/modules/lessons/update.tsx",
         ),
         route(
           "/:slug/modules/:moduleSlug/lessons/:lessonSlug/view",
