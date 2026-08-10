@@ -34,7 +34,8 @@ import {
   configExtension,
   defineExtension,
 } from "lexical";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 
 import { Separator } from "@/components/ui/separator";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -131,6 +132,32 @@ import { HR } from "../editor/markdown-hr-transformer";
 const placeholder = "Press / for commands...";
 const maxLength = 999999999;
 
+function InitialStatePlugin({
+  editorSerializedState,
+  editorState,
+}: {
+  editorSerializedState?: SerializedEditorState;
+  editorState?: EditorState;
+}) {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    if (editorState) {
+      editor.setEditorState(editorState);
+      return;
+    }
+
+    if (editorSerializedState) {
+      const parsedEditorState = editor.parseEditorState(
+        JSON.stringify(editorSerializedState),
+      );
+      editor.setEditorState(parsedEditorState);
+    }
+  }, [editor, editorSerializedState, editorState]);
+
+  return null;
+}
+
 export function RichEditor({
   editorState,
   editorSerializedState,
@@ -210,7 +237,9 @@ export function RichEditor({
         ],
         $initialEditorState(editor) {
           if (editorSerializedState) {
-            editor.parseEditorState(editorSerializedState);
+            editor.setEditorState(
+              editor.parseEditorState(JSON.stringify(editorSerializedState)),
+            );
           } else if (editorState) {
             editor.setEditorState(editorState);
           }
@@ -223,6 +252,10 @@ export function RichEditor({
   return (
     <div className="bg-background overflow-hidden rounded-lg border shadow w-full">
       <LexicalExtensionComposer extension={AppExtension} contentEditable={null}>
+        <InitialStatePlugin
+          editorSerializedState={editorSerializedState}
+          editorState={editorState}
+        />
         <TooltipProvider>
           <div className="relative">
             <ToolbarPlugin>
