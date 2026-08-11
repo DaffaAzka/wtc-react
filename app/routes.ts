@@ -42,6 +42,10 @@ export default [
           "/:slug/modules/:moduleSlug/lessons/:lessonSlug/view",
           "routes/auth/admin/tracks/modules/lessons/view.tsx",
         ),
+        route(
+          "/:slug/modules/:moduleSlug/lessons/:lessonSlug/challenges",
+          "routes/auth/admin/tracks/modules/lessons/challenges/index.tsx",
+        ),
       ]),
     ]),
   ]),

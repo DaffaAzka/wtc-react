@@ -36,6 +36,14 @@ export const ChallengeService = {
     return response.data.data!;
   },
 
+  getByLesson: async (lessonId: number): Promise<Challenge[]> => {
+    const response = await api.get<ApiResponse<Challenge[]>>(
+      `/lessons/${lessonId}/challenges`,
+    );
+
+    return response.data.data!;
+  },
+
   getById: async (id: number): Promise<Challenge> => {
     const response = await api.get<ApiResponse<Challenge>>(
       `/challenges/${id}`,

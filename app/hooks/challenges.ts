@@ -5,6 +5,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const challengeKeys = {
   all: ["challenges"] as const,
+  byLesson: (lessonId: number) => ["challenges", "lesson", lessonId] as const,
   detail: (id: number) => ["challenges", id] as const,
 };
 
@@ -12,6 +13,21 @@ export function useGetChallenges() {
   const query = useQuery<Challenge[], ApiErrorResponse>({
     queryKey: challengeKeys.all,
     queryFn: () => ChallengeService.getAll(),
+  });
+
+  return {
+    challenges: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refresh: query.refetch,
+  };
+}
+
+export function useGetChallengesByLesson(lessonId: number) {
+  const query = useQuery<Challenge[], ApiErrorResponse>({
+    queryKey: challengeKeys.byLesson(lessonId),
+    queryFn: () => ChallengeService.getByLesson(lessonId),
+    enabled: !!lessonId,
   });
 
   return {
@@ -37,7 +53,7 @@ export function useGetChallenge(id: number) {
   };
 }
 
-export function useStoreChallenge() {
+export function useStoreChallenge(lessonId?: number) {
   const queryClient = useQueryClient();
 
   return useMutation<
@@ -51,11 +67,17 @@ export function useStoreChallenge() {
       queryClient.invalidateQueries({
         queryKey: challengeKeys.all,
       });
+      
+      if (lessonId) {
+        queryClient.invalidateQueries({
+          queryKey: challengeKeys.byLesson(lessonId),
+        });
+      }
     },
   });
 }
 
-export function useUpdateChallenge() {
+export function useUpdateChallenge(lessonId?: number) {
   const queryClient = useQueryClient();
 
   return useMutation<
@@ -65,15 +87,25 @@ export function useUpdateChallenge() {
   >({
     mutationFn: (payload) => ChallengeService.update(payload.id, payload),
 
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: challengeKeys.all,
       });
+
+      queryClient.invalidateQueries({
+        queryKey: challengeKeys.detail(data.id),
+      });
+      
+      if (lessonId) {
+        queryClient.invalidateQueries({
+          queryKey: challengeKeys.byLesson(lessonId),
+        });
+      }
     },
   });
 }
 
-export function useDeleteChallenge() {
+export function useDeleteChallenge(lessonId?: number) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -83,6 +115,12 @@ export function useDeleteChallenge() {
       queryClient.invalidateQueries({
         queryKey: challengeKeys.all,
       });
+      
+      if (lessonId) {
+        queryClient.invalidateQueries({
+          queryKey: challengeKeys.byLesson(lessonId),
+        });
+      }
     },
   });
 }

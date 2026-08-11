@@ -1,4 +1,4 @@
-﻿import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +12,7 @@ import { useState } from "react";
 import ConfirmReplaceDialog from "./confirm-replace-dialog";
 
 type Props = {
-  type: "multiple_choice" | "essay" | "mixed";
+  type: ChallengeFormType;
   maxScore: number;
   questions: Question[];
   onGenerate: (questions: Question[]) => void;
