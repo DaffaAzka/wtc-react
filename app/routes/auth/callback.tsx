@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 
 import { api } from "@/lib/axios";
 import { saveRefreshToken, saveToken, saveUser } from "@/utils/auth-storage";
+import { authApi } from "@/lib/auth-api";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -11,45 +12,46 @@ export default function AuthCallback() {
     const finishLogin = async () => {
       const params = window.location.hash ? new URLSearchParams(window.location.hash.substring(1)) : new URLSearchParams(window.location.search);
 
-      const accessToken = params.get("access_token");
+      const pinatAccessToken = params.get("access_token");
+
       const refreshToken = params.get("refresh_token");
+
       const sessionId = params.get("session_id");
 
-      if (!accessToken) {
+      if (!pinatAccessToken) {
         navigate("/", {
           replace: true,
         });
+
         return;
       }
 
-      saveToken(accessToken);
-
-      if (refreshToken) {
-        saveRefreshToken(refreshToken);
-      }
-
-      if (sessionId) {
-        localStorage.setItem("session_id", sessionId);
-      }
-
       try {
-        const { data } = await api.get("/me", {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
+        const response = await api.post("/auth/sso", {
+          access_token: pinatAccessToken,
         });
 
-        // Backend LMS sekarang langsung return object profile
-        saveUser(data);
+        const result = response.data.data;
 
-        // Bersihkan query/hash token dari URL
+        saveToken(result.token);
+
+        if (refreshToken) {
+          saveRefreshToken(refreshToken);
+        }
+
+        if (sessionId) {
+          localStorage.setItem("session_id", sessionId);
+        }
+
+        saveUser(result.profile);
+
         window.history.replaceState({}, "", "/auth/callback");
 
         navigate("/dashboard", {
           replace: true,
         });
       } catch (err) {
-        console.error(err);
+        console.error("PinatAuth bootstrap failed:", err);
 
         localStorage.removeItem("token");
         localStorage.removeItem("refresh_token");

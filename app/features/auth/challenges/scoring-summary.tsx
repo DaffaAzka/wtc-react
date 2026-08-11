@@ -1,4 +1,4 @@
-﻿import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Question } from "@/types/challenge";
 import {
   calculateMCQScore,
@@ -7,7 +7,7 @@ import {
 } from "@/helper/calculate-score";
 
 type Props = {
-  type: "multiple_choice" | "essay" | "mixed";
+  type: ChallengeFormType;
   maxScore: number;
   questions: Question[];
 };

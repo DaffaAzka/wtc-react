@@ -1,4 +1,4 @@
-﻿import InputForm from "@/components/custom/input-form";
+import InputForm from "@/components/custom/input-form";
 import { useDebounce } from "@/hooks/use-debounce";
 import { toast } from "sonner";
 import TextareaForm from "@/components/custom/textarea-form";
@@ -21,6 +21,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { useStoreChallenge } from "@/hooks/challenges";
 import type { Lesson } from "@/types/model";
 import { generateSlug, getFieldError } from "@/utils/global";
@@ -41,27 +42,29 @@ export default function ChallengeModalAdd({
   isOpen,
   onOpenChange,
 }: Props) {
-  const storeChallenge = useStoreChallenge();
+  const storeChallenge = useStoreChallenge(lesson.id);
 
   const [form, setForm] = useState({
     title: "",
-    type: "multiple_choice" as "multiple_choice" | "essay" | "mixed",
+    type: "multiple_choice" as ChallengeFormType,
     difficulty: "" as "" | "easy" | "medium" | "hard",
+    order: "1",
+    content: "",
     max_score: "100",
     points: "",
-    content: "",
+    allowed_attempts: "1",
   });
 
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [questionErrors, setQuestionErrors] = useState<Record<string, string>>(
-    {},
-  );
+  const [questionErrors, setQuestionErrors] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<{
     title?: string;
     difficulty?: string;
+    order?: string;
+    content?: string;
     max_score?: string;
     points?: string;
-    content?: string;
+    allowed_attempts?: string;
   }>({});
   const [saving, setSaving] = useState(false);
   const debouncedForm = useDebounce(form);
@@ -72,6 +75,7 @@ export default function ChallengeModalAdd({
   const orderRef = useRef<HTMLDivElement>(null);
   const maxScoreRef = useRef<HTMLDivElement>(null);
   const pointsRef = useRef<HTMLDivElement>(null);
+  const allowedAttemptsRef = useRef<HTMLDivElement>(null);
   const descriptionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -86,9 +90,11 @@ export default function ChallengeModalAdd({
         title: "",
         type: "multiple_choice",
         difficulty: "",
+        order: "1",
+        content: "",
         max_score: "100",
         points: "",
-        content: "",
+        allowed_attempts: "1",
       });
 
       setQuestions([]);
@@ -105,9 +111,11 @@ export default function ChallengeModalAdd({
         title: parsed.form.title || "",
         type: parsed.form.type || "multiple_choice",
         difficulty: parsed.form.difficulty || "",
+        order: parsed.form.order || "1",
+        content: parsed.form.content || "",
         max_score: parsed.form.max_score || "100",
         points: parsed.form.points || "",
-        content: parsed.form.content || "",
+        allowed_attempts: parsed.form.allowed_attempts || "1",
       });
       setQuestions(parsed.questions ?? []);
 
@@ -117,10 +125,11 @@ export default function ChallengeModalAdd({
         title: "",
         type: "multiple_choice",
         difficulty: "",
-        order: "",
+        order: "1",
+        content: "",
         max_score: "100",
         points: "",
-        content: "",
+        allowed_attempts: "1",
       });
       setQuestions([]);
     } finally {
@@ -192,11 +201,12 @@ export default function ChallengeModalAdd({
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    setForm((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    setFormErrors((prev) => ({ ...prev, [name]: undefined }));
+  };
 
+  const clearFormError = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormErrors((prev) => ({
       ...prev,
       [e.target.name]: undefined,
@@ -212,8 +222,10 @@ export default function ChallengeModalAdd({
   const canSubmit =
     form.title.trim() !== "" &&
     form.difficulty !== "" &&
+    form.order.trim() !== "" &&
     form.max_score.trim() !== "" &&
     form.points.trim() !== "" &&
+    form.allowed_attempts.trim() !== "" &&
     form.content.trim() !== "" &&
     questions.length > 0;
 
@@ -224,9 +236,10 @@ export default function ChallengeModalAdd({
       title?: string;
       difficulty?: string;
       order?: string;
+      content?: string;
       max_score?: string;
       points?: string;
-      content?: string;
+      allowed_attempts?: string;
     } = {};
 
     if (!form.title.trim()) {
@@ -235,6 +248,14 @@ export default function ChallengeModalAdd({
 
     if (!form.difficulty) {
       errors.difficulty = "Difficulty is required.";
+    }
+
+    if (!form.order.trim()) {
+      errors.order = "Order is required.";
+    } else if (Number(form.order) < 1) {
+      errors.order = "Order must be at least 1.";
+    } else if (!Number.isInteger(Number(form.order))) {
+      errors.order = "Order must be an integer.";
     }
 
     if (!form.max_score.trim()) {
@@ -247,6 +268,14 @@ export default function ChallengeModalAdd({
       errors.points = "Points is required.";
     } else if (Number(form.points) < 0) {
       errors.points = "Points must be at least 0.";
+    }
+
+    if (!form.allowed_attempts.trim()) {
+      errors.allowed_attempts = "Allowed Attempts is required.";
+    } else if (Number(form.allowed_attempts) < 1) {
+      errors.allowed_attempts = "Allowed Attempts must be at least 1.";
+    } else if (!Number.isInteger(Number(form.allowed_attempts))) {
+      errors.allowed_attempts = "Allowed Attempts must be an integer.";
     }
 
     if (!form.content.trim()) {
@@ -295,6 +324,14 @@ export default function ChallengeModalAdd({
       return;
     }
 
+    if (errors.allowed_attempts) {
+      allowedAttemptsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      return;
+    }
+
     if (errors.content) {
       descriptionRef.current?.scrollIntoView({
         behavior: "smooth",
@@ -313,8 +350,7 @@ export default function ChallengeModalAdd({
       return;
     }
 
-    const submissionType =
-      form.type === "mixed" ? "multiple_choice" : form.type;
+    const submissionType = form.type === "mixed" ? "quiz_group" : form.type;
 
     storeChallenge.mutate(
       {
@@ -324,12 +360,15 @@ export default function ChallengeModalAdd({
         slug: generateSlug(form.title),
         type: submissionType,
         difficulty: form.difficulty,
-        max_score: Number(form.max_score),
-        points: Number(form.points),
+        order: Number(form.order),
         content: form.content,
+        settings: null,
         metadata: {
           questions,
         },
+        max_score: Number(form.max_score),
+        points: Number(form.points),
+        allowed_attempts: Number(form.allowed_attempts),
       },
       {
         onSuccess: () => {
@@ -339,10 +378,11 @@ export default function ChallengeModalAdd({
             title: "",
             type: "multiple_choice",
             difficulty: "",
-            order: "",
+            order: "1",
+            content: "",
             max_score: "100",
             points: "",
-            content: "",
+            allowed_attempts: "1",
           });
 
           setQuestions([]);
@@ -389,7 +429,7 @@ export default function ChallengeModalAdd({
 
         {/* Scrollable Content */}
         <div className="overflow-y-auto flex-1 px-6 pb-6">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5 mt-4">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6 mt-4">
             {storeChallenge.error &&
               storeChallenge.error.message !== "Validation errors" && (
                 <Alert variant="destructive">
@@ -399,143 +439,226 @@ export default function ChallengeModalAdd({
                 </Alert>
               )}
 
-            <div ref={titleRef}>
-              <InputForm
-                name="title"
-                text="Challenge Title"
-                type="text"
-                value={form.title}
-                handleChange={handleChange}
-                error={
-                  formErrors.title ??
-                  getFieldError(storeChallenge.error?.errors, "title")
-                }
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div ref={difficultyRef} className="space-y-2">
-                <Label>
-                  Difficulty <span className="text-red-500">*</span>
-                </Label>
-
-                <Select
-                  value={form.difficulty || undefined}
-                  onValueChange={(value) => {
-                    setForm((prev) => ({
-                      ...prev,
-                      difficulty: value as "easy" | "medium" | "hard",
-                    }));
-                    setFormErrors((prev) => ({
-                      ...prev,
-                      difficulty: undefined,
-                    }));
-                  }}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select difficulty" />
-                  </SelectTrigger>
-
-                  <SelectContent>
-                    <SelectItem value="easy">Easy</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="hard">Hard</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                {formErrors.difficulty && (
-                  <p className="text-sm text-red-500">
-                    {formErrors.difficulty}
-                  </p>
-                )}
-                {getFieldError(storeChallenge.error?.errors, "difficulty") && (
-                  <p className="text-sm text-red-500">
-                    {getFieldError(storeChallenge.error?.errors, "difficulty")}
-                  </p>
-                )}
+            {/* Challenge Information Section */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold">Challenge Information</h3>
+                <p className="text-sm text-muted-foreground">
+                  Basic details about the challenge
+                </p>
               </div>
 
-              <div className="space-y-2">
-                <Label>
-                  Challenge Type <span className="text-red-500">*</span>
-                </Label>
-
-                <Select
-                  value={form.type}
-                  onValueChange={(value) =>
-                    setForm((prev) => ({
-                      ...prev,
-                      type: value as "multiple_choice" | "essay" | "mixed",
-                    }))
-                  }>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-
-                  <SelectContent>
-                    <SelectItem value="multiple_choice">
-                      Multiple Choice
-                    </SelectItem>
-
-                    <SelectItem value="essay">Essay</SelectItem>
-
-                    <SelectItem value="mixed">Mixed Quiz</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div ref={maxScoreRef}>
+              <div ref={titleRef}>
                 <InputForm
-                  name="max_score"
-                  text="Max Score"
-                  type="number"
-                  value={form.max_score}
+                  name="title"
+                  text="Challenge Title"
+                  type="text"
+                  value={form.title}
                   handleChange={handleChange}
                   error={
-                    formErrors.max_score ??
-                    getFieldError(storeChallenge.error?.errors, "max_score")
+                    formErrors.title ??
+                    getFieldError(storeChallenge.error?.errors, "title")
+                  }
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div ref={difficultyRef} className="space-y-2">
+                  <Label>
+                    Difficulty <span className="text-red-500">*</span>
+                  </Label>
+
+                  <Select
+                    value={form.difficulty || undefined}
+                    onValueChange={(value) => {
+                      setForm((prev) => ({
+                        ...prev,
+                        difficulty: value as "easy" | "medium" | "hard",
+                      }));
+                      setFormErrors((prev) => ({
+                        ...prev,
+                        difficulty: undefined,
+                      }));
+                    }}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select difficulty" />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      <SelectItem value="easy">Easy</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="hard">Hard</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {formErrors.difficulty && (
+                    <p className="text-sm text-red-500">
+                      {formErrors.difficulty}
+                    </p>
+                  )}
+                  {getFieldError(storeChallenge.error?.errors, "difficulty") && (
+                    <p className="text-sm text-red-500">
+                      {getFieldError(storeChallenge.error?.errors, "difficulty")}
+                    </p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label>
+                    Challenge Type <span className="text-red-500">*</span>
+                  </Label>
+
+                  <Select
+                    value={form.type}
+                    onValueChange={(value) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        type: value as ChallengeFormType,
+                      }))
+                    }>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      <SelectItem value="multiple_choice">
+                        Multiple Choice
+                      </SelectItem>
+
+                      <SelectItem value="essay">Essay</SelectItem>
+
+                      <SelectItem value="mixed">Mixed Quiz</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div ref={orderRef}>
+                  <InputForm
+                    name="order"
+                    text="Order"
+                    type="number"
+                    value={form.order}
+                    handleChange={handleChange}
+                    error={
+                      formErrors.order ??
+                      getFieldError(storeChallenge.error?.errors, "order")
+                    }
+                  />
+                </div>
+              </div>
+
+              <div ref={descriptionRef}>
+                <TextareaForm
+                  name="content"
+                  text="Description"
+                  value={form.content}
+                  handleChange={handleChange}
+                  error={
+                    formErrors.content ??
+                    getFieldError(storeChallenge.error?.errors, "content")
                   }
                 />
               </div>
             </div>
 
-            <div ref={pointsRef}>
-              <InputForm
-                name="points"
-                text="Points"
-                type="number"
-                value={form.points}
-                handleChange={handleChange}
-                error={
-                  formErrors.points ??
-                  getFieldError(storeChallenge.error?.errors, "points")
-                }
-              />
+            <Separator />
+
+            {/* Scoring Configuration Section */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold">Scoring Configuration</h3>
+                <p className="text-sm text-muted-foreground">
+                  Set the total weight and reward points for this challenge
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div ref={maxScoreRef}>
+                  <InputForm
+                    name="max_score"
+                    text="Max Score"
+                    type="number"
+                    value={form.max_score}
+                    handleChange={handleChange}
+                    error={
+                      formErrors.max_score ??
+                      getFieldError(storeChallenge.error?.errors, "max_score")
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Total weight of the challenge (distributed across questions)
+                  </p>
+                </div>
+
+                <div ref={pointsRef}>
+                  <InputForm
+                    name="points"
+                    text="Points"
+                    type="number"
+                    value={form.points}
+                    handleChange={handleChange}
+                    error={
+                      formErrors.points ??
+                      getFieldError(storeChallenge.error?.errors, "points")
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Reward points (EXP) earned upon completion
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <div ref={descriptionRef}>
-              <TextareaForm
-                name="content"
-                text="Description"
-                value={form.content}
-                handleChange={handleChange}
-                error={
-                  formErrors.content ??
-                  getFieldError(storeChallenge.error?.errors, "content")
-                }
-              />
+            <Separator />
+
+            {/* Attempt Settings Section */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold">Attempt Settings</h3>
+                <p className="text-sm text-muted-foreground">
+                  Configure how many times students can attempt this challenge
+                </p>
+              </div>
+
+              <div ref={allowedAttemptsRef} className="max-w-md">
+                <InputForm
+                  name="allowed_attempts"
+                  text="Allowed Attempts"
+                  type="number"
+                  value={form.allowed_attempts}
+                  handleChange={handleChange}
+                  error={
+                    formErrors.allowed_attempts ??
+                    getFieldError(storeChallenge.error?.errors, "allowed_attempts")
+                  }
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Number of attempts students can make (minimum: 1)
+                </p>
+              </div>
             </div>
 
-            <Builder
-              type={form.type as "multiple_choice" | "essay" | "mixed"}
-              maxScore={Number(form.max_score)}
-              questions={questions}
-              onChange={setQuestions}
-              questionErrors={questionErrors}
-              setQuestionErrors={setQuestionErrors}
-              isModalOpen={isOpen}
-            />
+            <Separator />
+
+            {/* Question Builder Section */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-lg font-semibold">Question Builder</h3>
+                <p className="text-sm text-muted-foreground">
+                  Add and configure questions for this challenge
+                </p>
+              </div>
+
+              <Builder
+                type={form.type as ChallengeFormType}
+                maxScore={Number(form.max_score)}
+                questions={questions}
+                onChange={setQuestions}
+                questionErrors={questionErrors}
+                setQuestionErrors={setQuestionErrors}
+                isModalOpen={isOpen}
+              />
+            </div>
 
             <LoadingButton
               text="Create Challenge"
