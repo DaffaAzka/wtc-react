@@ -65,15 +65,10 @@ export default function LessonsTable({ data }: { data: Lesson[] }) {
                         <Link to={`${lesson.slug}/view`}>
                           <DropdownMenuItem>View</DropdownMenuItem>
                         </Link>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setEditModal({
-                              data: lesson,
-                              isOpen: true,
-                            });
-                          }}>
-                          Update
-                        </DropdownMenuItem>
+                       
+                        <Link to={`${lesson.slug}/update`}>
+                          <DropdownMenuItem>Update</DropdownMenuItem>
+                        </Link>
                         <Link to={`${lesson.slug}/challenges`}>
                           <DropdownMenuItem>Manage Challenge</DropdownMenuItem>
                         </Link>

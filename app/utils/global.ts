@@ -1,3 +1,5 @@
+import type { SerializedEditorState } from "lexical";
+
 export function getSecureRandomNumber(min: number, max: number) {
   if (typeof globalThis.crypto?.getRandomValues !== "function") {
     throw new Error("Secure random number generator is not available.");
@@ -58,4 +60,28 @@ export function generateSlug(str: string) {
       .replace(/[\s_-]+/g, "-")
       .replace(/^-+|-+$/g, "") + `-${getSecureRandomNumber(1000, 9999)}`
   );
+}
+
+export function buildInitialEditorState(
+  content: string | object | null | undefined,
+): SerializedEditorState | undefined {
+  if (!content) {
+    return undefined;
+  }
+
+  if (typeof content === "object") {
+    return content as unknown as SerializedEditorState;
+  }
+
+  try {
+    const parsed = JSON.parse(content);
+
+    if (parsed && typeof parsed === "object" && "root" in parsed) {
+      return parsed as unknown as SerializedEditorState;
+    }
+  } catch {
+    // ignore and return undefined so the editor stays empty
+  }
+
+  return undefined;
 }
