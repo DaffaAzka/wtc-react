@@ -26,6 +26,8 @@ export default [
         "routes/auth/admin/course-management/index.tsx",
       ),
 
+      route("/modules", "routes/auth/admin/modules/index.tsx"),
+
       // Track Routes
       ...prefix("/tracks", [
         index("routes/auth/admin/tracks/index.tsx"),

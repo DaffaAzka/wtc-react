@@ -1,4 +1,5 @@
 import { api } from "@/lib/axios";
+import type { ModuleFilter } from "@/types/filter";
 import type { Module } from "@/types/model";
 import type { ApiResponse } from "@/types/response";
 
@@ -20,8 +21,10 @@ export const ModuleService = {
     return response.data.data!;
   },
 
-  getAll: async (): Promise<Module[]> => {
-    const response = await api.get<ApiResponse<Module[]>>("/modules");
+  getAll: async (filters?: ModuleFilter): Promise<Module[]> => {
+    const response = await api.get<ApiResponse<Module[]>>("/modules", {
+      params: filters,
+    });
     return response.data.data!;
   },
 

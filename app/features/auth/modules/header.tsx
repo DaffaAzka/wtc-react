@@ -16,7 +16,7 @@ export default function Header({ track }: { track: Track }) {
   ];
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-4">
       <h1 className="text-2xl font-bold">Modules</h1>
 
       <TableInformation data={data} />

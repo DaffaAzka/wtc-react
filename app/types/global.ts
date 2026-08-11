@@ -7,3 +7,8 @@ export type ManagementData = {
   name: string;
   url: string;
 }
+
+export type SelectItems = {
+  id: string | number;
+  name: string;
+};
