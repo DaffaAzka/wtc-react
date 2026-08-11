@@ -1,10 +1,12 @@
+import type { Question } from "./challenge";
+
 export type Profile = {
   puid: string;
   study_class_id: number | null;
   nickname: string | null; //editable
   display_name: string | null; //not editable
   avatar_key: string | null;
-  avatar? : string | null;
+  avatar?: string | null;
   email: string | null;
   points: number;
 
@@ -28,7 +30,7 @@ export type Track = {
   id: number;
   slug: string;
   title: string;
-  order: number;
+  order?: number | null;
   image_url: string;
   description: string;
   created_at: string;
@@ -43,7 +45,7 @@ export type Module = {
   track_id: number;
   slug: string;
   title: string;
-  order: number;
+  order?: number | null;
   created_at: string;
   updated_at: string;
 };
@@ -55,10 +57,29 @@ export type Lesson = {
   slug: string;
   content: string;
   video_url: string | null;
-  order: number;
+  order?: number | null;
   deleted_at: string | null;
   created_at: string | null;
   updated_at: string | null;
+};
+
+export type ChallengeOption = {
+  key: string;
+  text: string;
+  is_correct: boolean;
+};
+
+export type ChallengeSettings = {
+  shuffle_options?: boolean;
+  options?: ChallengeOption[];
+  explanation?: string;
+  [key: string]: unknown;
+};
+
+export type ChallengeMetadata = {
+  estimated_minutes?: number;
+  questions?: Question[];
+  [key: string]: unknown;
 };
 
 export type Challenge = {
@@ -76,9 +97,14 @@ export type Challenge = {
     | "docker_project"
     | "timed_exam"
     | "quiz_group";
+  difficulty?: "easy" | "medium" | "hard";
+  order?: number;
   content: string;
-  metadata: Record<string, unknown> | null;
+  settings: ChallengeSettings | null;
+  metadata: ChallengeMetadata | null;
   max_score: number;
+  points?: number;
+  allowed_attempts?: number;
   created_at: string | null;
   updated_at: string | null;
 };

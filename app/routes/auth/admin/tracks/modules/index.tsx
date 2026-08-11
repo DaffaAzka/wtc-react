@@ -1,14 +1,21 @@
-import { useGetTrack } from "@/hooks/tracks";
+﻿import { useGetTrack } from "@/hooks/tracks";
 import type { Route } from "./+types/index";
 import Header from "@/features/auth/modules/header";
 import ModulesTable from "@/features/auth/modules/table";
 import { useGetModules } from "@/hooks/modules";
+import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
+import { TableSkeleton } from "@/components/skeletons/table";
 
 export default function IndexPage({ params }: Route.ComponentProps) {
   const { track, loading, error } = useGetTrack(params.slug);
   const { modules } = useGetModules();
 
-  if (loading) return <p>Loading track...</p>;
+  if (loading) return (
+    <>
+      <PageHeaderSkeleton />
+      <TableSkeleton />
+    </>
+  );
   if (error) return <p>Error: {error.message}</p>;
   if (!track) return <p>Track not found.</p>;
 

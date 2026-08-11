@@ -1,3 +1,4 @@
+export type ChallengeFormType = "multiple_choice" | "essay" | "mixed";
 export type MCQQuestion = {
   type: "multiple_choice";
   question: string;

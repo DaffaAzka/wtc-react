@@ -28,6 +28,24 @@ export default [
           "/:slug/modules/:moduleSlug/lessons",
           "routes/auth/admin/tracks/modules/lessons/index.tsx",
         ),
+
+        // Lesson Routes
+        route(
+          "/:slug/modules/:moduleSlug/lessons/create",
+          "routes/auth/admin/tracks/modules/lessons/create.tsx",
+        ),
+        route(
+          "/:slug/modules/:moduleSlug/lessons/:lessonSlug/update",
+          "routes/auth/admin/tracks/modules/lessons/update.tsx",
+        ),
+        route(
+          "/:slug/modules/:moduleSlug/lessons/:lessonSlug/view",
+          "routes/auth/admin/tracks/modules/lessons/view.tsx",
+        ),
+        route(
+          "/:slug/modules/:moduleSlug/lessons/:lessonSlug/challenges",
+          "routes/auth/admin/tracks/modules/lessons/challenges/index.tsx",
+        ),
       ]),
     ]),
   ]),
