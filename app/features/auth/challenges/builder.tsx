@@ -1,4 +1,4 @@
-﻿import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -26,10 +26,10 @@ import ValidationSummary from "./validation-summary";
 import DeleteQuestionDialog from "./delete-question-dialog";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getFirstErrorQuestionIndex } from "@/helper/validate-question";
-import type { Question } from "@/types/challenge";
+import type { Question, ChallengeFormTypeQuestion } from "@/types/challenge";
 
 type Props = {
-  type: "multiple_choice" | "essay" | "mixed";
+  type: ChallengeFormType;
   maxScore: number;
   questions: Question[];
   onChange: (questions: Question[]) => void;
