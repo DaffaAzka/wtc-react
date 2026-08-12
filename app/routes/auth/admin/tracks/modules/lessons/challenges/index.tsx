@@ -28,7 +28,6 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
   const loading = moduleLoading || lessonLoading;
   const error = moduleError || lessonError;
 
-  // Loading state for module and lesson
   if (loading) {
     return (
       <>
@@ -38,7 +37,6 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
     );
   }
 
-  // Error state for module or lesson
   if (error) {
     return (
       <>
@@ -62,7 +60,6 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
     );
   }
 
-  // Not found states
   if (!module) {
     return (
       <>

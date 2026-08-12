@@ -1,4 +1,4 @@
-import { api } from "@/lib/axios";
+﻿import { api } from "@/lib/axios";
 import type { Challenge } from "@/types/model";
 import type { ApiResponse } from "@/types/response";
 
@@ -38,7 +38,10 @@ export const ChallengeService = {
 
   getByLesson: async (lessonId: number): Promise<Challenge[]> => {
     const response = await api.get<ApiResponse<Challenge[]>>(
-      `/lessons/${lessonId}/challenges`,
+      `/challenges`,
+      {
+        params: { lesson_id: lessonId },
+      },
     );
 
     return response.data.data!;
