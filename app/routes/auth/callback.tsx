@@ -1,14 +1,70 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router";
 
 import { api } from "@/lib/axios";
-import { saveRefreshToken, saveToken, saveUser } from "@/utils/auth-storage";
-import { authApi } from "@/lib/auth-api";
+import { saveRefreshToken, saveToken } from "@/utils/auth-storage";
+
+import { useAuth } from "@/contexts/auth";
+
+type MeResponse = {
+  user: {
+    id: string;
+    puid: string | null;
+    name: string;
+    email: string;
+    provider: string;
+    avatar: string | null;
+    email_verified_at: string | null;
+    created_at: string;
+    updated_at: string;
+  };
+
+  profile: {
+    id: string;
+    user_id: string;
+    study_class_id: number | null;
+    display_name: string | null;
+    points: number;
+    last_login_at: string | null;
+    last_synced_at: string | null;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    roles: {
+      name: string;
+      display_name?: string;
+      id?: number;
+    }[];
+  };
+};
+
+function toMergedUser(payload: MeResponse) {
+  const { user, profile } = payload;
+
+  return {
+    puid: user.puid ?? "",
+    display_name: profile.display_name ?? user.name,
+    email: user.email,
+    avatar: user.avatar,
+    points: profile.points,
+    study_class_id: profile.study_class_id,
+    roles: profile.roles,
+  };
+}
 
 export default function AuthCallback() {
   const navigate = useNavigate();
+  const { setUserData } = useAuth();
+
+  const hasStarted = useRef(false);
 
   useEffect(() => {
+    if (hasStarted.current) {
+      return;
+    }
+
+    hasStarted.current = true;
+
     const finishLogin = async () => {
       const params = window.location.hash ? new URLSearchParams(window.location.hash.substring(1)) : new URLSearchParams(window.location.search);
 
@@ -25,6 +81,8 @@ export default function AuthCallback() {
 
         return;
       }
+
+      window.history.replaceState({}, "", "/auth/callback");
 
       try {
         const response = await api.post("/auth/sso", {
@@ -43,16 +101,24 @@ export default function AuthCallback() {
           localStorage.setItem("session_id", sessionId);
         }
 
-        saveUser(result.profile);
+        const meResponse = await api.get<{
+          success: boolean;
+          message: string;
+          data: MeResponse;
+        }>("/me", {
+          headers: {
+            Authorization: `Bearer ${result.token}`,
+          },
+        });
 
-        window.history.replaceState({}, "", "/auth/callback");
+        const mergedUser = toMergedUser(meResponse.data.data);
+
+        setUserData(mergedUser);
 
         navigate("/dashboard", {
           replace: true,
         });
-      } catch (err) {
-        console.error("PinatAuth bootstrap failed:", err);
-
+      } catch (error) {
         localStorage.removeItem("token");
         localStorage.removeItem("refresh_token");
         localStorage.removeItem("session_id");
@@ -65,7 +131,7 @@ export default function AuthCallback() {
     };
 
     finishLogin();
-  }, [navigate]);
+  }, [navigate, setUserData]);
 
   return (
     <div className="flex min-h-screen items-center justify-center">

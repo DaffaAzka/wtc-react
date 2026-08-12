@@ -1,7 +1,40 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+
 import { authApi } from "@/lib/auth-api";
-import type { Profile } from "@/types/model";
 import { api } from "@/lib/axios";
+import type { Profile } from "@/types/model";
+
+type MeResponse = {
+  user: {
+    id: string;
+    puid: string | null;
+    name: string;
+    email: string;
+    provider: string;
+    avatar: string | null;
+    email_verified_at: string | null;
+    created_at: string;
+    updated_at: string;
+  };
+
+  profile: {
+    id: string;
+    user_id: string;
+    study_class_id: number | null;
+    display_name: string | null;
+    points: number;
+    last_login_at: string | null;
+    last_synced_at: string | null;
+    created_at: string;
+    updated_at: string;
+    deleted_at: string | null;
+    roles: {
+      name: string;
+      display_name?: string;
+      id?: number;
+    }[];
+  };
+};
 
 type AuthContextType = {
   user: Profile | null;
@@ -14,6 +47,20 @@ type AuthContextType = {
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
+
+function toMergedUser(payload: MeResponse): Profile {
+  const { user, profile } = payload;
+
+  return {
+    puid: user.puid ?? "",
+    display_name: profile.display_name ?? user.name,
+    email: user.email,
+    avatar: user.avatar,
+    points: profile.points,
+    study_class_id: profile.study_class_id,
+    roles: profile.roles,
+  };
+}
 
 export function AuthProvider({
   children,
@@ -34,93 +81,103 @@ export function AuthProvider({
     setToken(null);
   };
 
-  const toMergedUser = (payload: any) => {
-    const { user, profile } = payload;
-    const { user_id, ...profileWithoutUserId } = profile;
+  const setUserData = (userData: Profile) => {
+    setUser(userData);
 
-    return {
-      ...profileWithoutUserId,
-      email: user.email,
-      avatar: user.avatar,
-    };
+    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   const fetchMe = async (accessToken: string) => {
-    const { data: res } = await api.get("/me", {
+    const { data: response } = await api.get("/me", {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
     });
 
-    const mergedUser = toMergedUser(res.data);
+    const mergedUser = toMergedUser(response.data);
+
+    setUser(mergedUser);
 
     localStorage.setItem("user", JSON.stringify(mergedUser));
-    setUser(mergedUser);
-  };
 
-  const fetchAvatar = async (accessToken: string) => {
-    const { data } = await authApi.get("/api/auth/avatar", {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
-
-    return data.url;
+    return mergedUser;
   };
 
   useEffect(() => {
+    let mounted = true;
+
     const bootstrap = async () => {
       const storedToken = localStorage.getItem("token");
 
       if (!storedToken) {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
+
         return;
       }
 
       try {
         setToken(storedToken);
 
+        /*
+         * Load cached user immediately.
+         */
         const storedUser = localStorage.getItem("user");
+
         if (storedUser) {
           try {
             const userData = JSON.parse(storedUser);
-            setUser(userData);
+
+            if (mounted) {
+              setUser(userData);
+            }
           } catch (error) {
             console.error("Failed to parse stored user data", error);
           }
         }
 
+        /*
+         * Then refresh the user from backend.
+         */
         try {
           await fetchMe(storedToken);
         } catch (error) {
           const tokenStillExists = localStorage.getItem("token");
+
           if (!tokenStillExists) {
-            setUser(null);
-            setToken(null);
+            if (mounted) {
+              setUser(null);
+              setToken(null);
+            }
           } else {
             console.warn("Failed to fetch fresh user data, using cached data", error);
           }
         }
-      } catch (e) {
-        console.error("Bootstrap error", e);
+      } catch (error) {
+        console.error("Bootstrap error", error);
+
         if (localStorage.getItem("token")) {
           clearSession();
         }
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
     bootstrap();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
-  const setUserData = (userData: Profile) => {
-    setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
-  };
-
   const refreshUser = async () => {
-    if (!token) return;
+    if (!token) {
+      return;
+    }
 
     await fetchMe(token);
   };
@@ -150,7 +207,7 @@ export function AuthProvider({
     }
   };
 
-  const value = useMemo(
+  const value = useMemo<AuthContextType>(
     () => ({
       user,
       token,

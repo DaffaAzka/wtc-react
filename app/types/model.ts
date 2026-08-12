@@ -1,29 +1,19 @@
 import type { Question } from "./challenge";
 
 export type Profile = {
-  puid: string;
-  study_class_id: number | null;
-  nickname: string | null; //editable
-  display_name: string | null; //not editable
-  avatar_key: string | null;
-  avatar?: string | null;
+  display_name: string | null;
   email: string | null;
+  avatar: string | null;
   points: number;
-
-  last_login_at: string | null;
-  last_synced_at: string | null;
-
-  created_at: string;
-  updated_at: string;
-  deleted_at: string | null;
-
+  study_class_id: number | null;
   roles: Role[];
+  puid?: string;
 };
 
 export type Role = {
-  id: number;
+  id?: number;
   name: string;
-  display_name: string;
+  display_name?: string;
 };
 
 export type Track = {
