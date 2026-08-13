@@ -1,4 +1,4 @@
-import InputForm from "@/components/custom/input-form";
+﻿import InputForm from "@/components/custom/input-form";
 import TextareaForm from "@/components/custom/textarea-form";
 import LoadingButton from "@/components/custom/loading-button";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -251,16 +251,16 @@ export default function CodingAssignmentModalAdd({
     }
 
     const payload = {
+    module_id: null,
       lesson_id: lesson.id,
-      module_id: lesson.module_id,
       title: form.title,
       slug: generateSlug(form.title),
       type: "file_upload" as const,
       difficulty: form.difficulty as "easy" | "medium" | "hard",
       order: Number(form.order),
       content: form.content,
-      settings: null,
-      metadata: {},
+      settings: [] as any,
+      metadata: [] as any,
       max_score: Number(form.max_score),
       points: Number(form.points),
       allowed_attempts: Number(form.allowed_attempts),
@@ -272,27 +272,7 @@ export default function CodingAssignmentModalAdd({
       if (selectedFile) {
         setIsUploading(true);
         try {
-          const updateData = {
-            module_id: createdChallenge.module_id,
-            lesson_id: createdChallenge.lesson_id,
-            title: createdChallenge.title,
-            slug: createdChallenge.slug,
-            type: createdChallenge.type,
-            difficulty: createdChallenge.difficulty,
-            order: createdChallenge.order,
-            content: createdChallenge.content,
-            settings: createdChallenge.settings,
-            metadata: createdChallenge.metadata,
-            max_score: createdChallenge.max_score,
-            points: createdChallenge.points,
-            allowed_attempts: createdChallenge.allowed_attempts,
-          };
-
-          await ChallengeService.updateWithAttachment(
-            createdChallenge.id,
-            updateData,
-            selectedFile,
-          );
+          await ChallengeService.addAttachment(createdChallenge.id, selectedFile, selectedFile.name, "starter_file");
           toast.success("Coding Assignment created with attachment successfully");
         } catch (uploadError) {
           toast.warning(

@@ -1,4 +1,4 @@
-import InputForm from "@/components/custom/input-form";
+﻿import InputForm from "@/components/custom/input-form";
 import TextareaForm from "@/components/custom/textarea-form";
 import LoadingButton from "@/components/custom/loading-button";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -274,8 +274,7 @@ export default function CodingAssignmentModalEdit({
     }
 
     const payload = {
-      id: challenge.id,
-      module_id: lesson.module_id,
+      id: challenge.id,      module_id: null,
       lesson_id: challenge.lesson_id,
       title: form.title,
       slug: challenge.slug,
@@ -283,8 +282,8 @@ export default function CodingAssignmentModalEdit({
       difficulty: form.difficulty as "easy" | "medium" | "hard",
       order: Number(form.order),
       content: form.content,
-      settings: challenge.settings,
-      metadata: challenge.metadata || {},
+      settings: challenge.settings || [] as any,
+      metadata: (challenge.metadata || []) as any,
       max_score: Number(form.max_score),
       points: Number(form.points),
       allowed_attempts: Number(form.allowed_attempts),
@@ -295,36 +294,42 @@ export default function CodingAssignmentModalEdit({
       if (selectedFile) {
         setIsUploading(true);
         try {
-          const updateData = {
-            module_id: lesson.module_id,
-            lesson_id: challenge.lesson_id,
-            title: form.title,
-            slug: challenge.slug,
-            type: challenge.type,
-            difficulty: form.difficulty as "easy" | "medium" | "hard",
-            order: Number(form.order),
-            content: form.content,
-            settings: challenge.settings,
-            metadata: challenge.metadata || {},
-            max_score: Number(form.max_score),
-            points: Number(form.points),
-            allowed_attempts: Number(form.allowed_attempts),
-          };
+          // Delete old attachment if exists
+          if (currentAttachment) {
+            await ChallengeService.deleteAttachment(challenge.id, currentAttachment.id);
+          }
 
-          await ChallengeService.updateWithAttachment(
+          // Upload new attachment
+          await ChallengeService.addAttachment(
             challenge.id,
-            updateData,
             selectedFile,
+            selectedFile.name,
+            "starter_file",
           );
+
+          // Update challenge data
+          await updateChallenge.mutateAsync(payload);
           toast.success("Coding Assignment updated with new attachment successfully");
         } catch (uploadError) {
           toast.error("Failed to update attachment");
           return;
         } finally {
           setIsUploading(false);
+        }      } else if (removeAttachment && currentAttachment) {
+        // User wants to remove attachment without adding new one
+        setIsUploading(true);
+        try {
+          await ChallengeService.deleteAttachment(challenge.id, currentAttachment.id);
+          await updateChallenge.mutateAsync(payload);
+          toast.success("Attachment removed and challenge updated successfully");
+        } catch (error) {
+          toast.error("Failed to remove attachment");
+          return;
+        } finally {
+          setIsUploading(false);
         }
       } else {
-        // Regular update without file
+        // Regular update without file changes
         await updateChallenge.mutateAsync(payload);
         toast.success("Coding Assignment updated successfully");
       }
