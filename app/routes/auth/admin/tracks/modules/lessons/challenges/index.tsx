@@ -1,4 +1,4 @@
-import { useGetModule } from "@/hooks/modules";
+﻿import { useGetModule } from "@/hooks/modules";
 import { useGetLesson } from "@/hooks/lessons";
 import { useGetChallengesByLesson } from "@/hooks/challenges";
 import type { Route } from "./+types/index";
@@ -6,10 +6,11 @@ import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
 import { ChallengeGridSkeleton } from "@/components/skeletons/challenge-card";
 import ErrorState from "@/components/custom/error-state";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus } from "lucide-react";
+import { ArrowLeft, Plus, Code } from "lucide-react";
 import { Link } from "react-router";
 import { useState } from "react";
 import ChallengeModal from "@/features/auth/challenges/modal-add";
+import CodingAssignmentModal from "@/features/auth/challenges/modal-add-coding-assignment";
 import ChallengeList from "@/features/auth/challenges/challenge-list";
 import ChallengeEmpty from "@/features/auth/challenges/challenge-empty";
 
@@ -24,6 +25,7 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
   } = useGetChallengesByLesson(lesson?.id ?? 0);
   
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isAddCodingAssignmentOpen, setIsAddCodingAssignmentOpen] = useState(false);
 
   const loading = moduleLoading || lessonLoading;
   const error = moduleError || lessonError;
@@ -120,10 +122,16 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
             </div>
           </div>
         </div>
-        <Button onClick={() => setIsAddModalOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Challenge
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={() => setIsAddModalOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Challenge
+          </Button>
+          <Button onClick={() => setIsAddCodingAssignmentOpen(true)} variant="outline">
+            <Code className="h-4 w-4 mr-2" />
+            Add Coding Assignment
+          </Button>
+        </div>
       </div>
 
       {/* Challenges List */}
@@ -147,6 +155,15 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
           lesson={lesson}
           isOpen={isAddModalOpen}
           onOpenChange={setIsAddModalOpen}
+        />
+      )}
+
+      {/* Add Coding Assignment Modal */}
+      {isAddCodingAssignmentOpen && (
+        <CodingAssignmentModal
+          lesson={lesson}
+          isOpen={isAddCodingAssignmentOpen}
+          onOpenChange={setIsAddCodingAssignmentOpen}
         />
       )}
     </div>

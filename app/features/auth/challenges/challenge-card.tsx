@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+﻿import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +22,7 @@ const getChallengeTypeLabel = (type: string): string => {
     multiple_choice: "Multiple Choice",
     essay: "Essay",
     code_editor: "Code Editor",
-    file_upload: "File Upload",
+    file_upload: "Coding Assignment",
     github_submission: "GitHub Submission",
     docker_project: "Docker Project",
     timed_exam: "Timed Exam",

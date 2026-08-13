@@ -29,28 +29,59 @@ export const ChallengeService = {
     return response.data.data!;
   },
 
-  getAll: async (): Promise<Challenge[]> => {
-    const response =
-      await api.get<ApiResponse<Challenge[]>>("/challenges");
+  addAttachment: async (
+    challengeId: number,
+    file: File,
+    title: string,
+    type: "material" | "starter_file" | "example" | "template" | "reference" | "instruction" = "starter_file",
+    description?: string,
+  ): Promise<any> => {
+    const formData = new FormData();
+    
+    formData.append("file", file);
+    formData.append("title", title);
+    formData.append("type", type);
+    
+    if (description) {
+      formData.append("description", description);
+    }
 
-    return response.data.data!;
-  },
-
-  getByLesson: async (lessonId: number): Promise<Challenge[]> => {
-    const response = await api.get<ApiResponse<Challenge[]>>(
-      `/challenges`,
+    const response = await api.post<ApiResponse<any>>(
+      `/challenges/${challengeId}/attachments`,
+      formData,
       {
-        params: { lesson_id: lessonId },
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       },
     );
 
     return response.data.data!;
   },
 
-  getById: async (id: number): Promise<Challenge> => {
-    const response = await api.get<ApiResponse<Challenge>>(
-      `/challenges/${id}`,
+  deleteAttachment: async (
+    challengeId: number,
+    attachmentId: string,
+  ): Promise<void> => {
+    await api.delete(`/challenges/${challengeId}/attachments/${attachmentId}`);
+  },
+
+  getAll: async (): Promise<Challenge[]> => {
+    const response = await api.get<ApiResponse<Challenge[]>>("/challenges");
+
+    return response.data.data!;
+  },
+
+  getByLesson: async (lessonId: number): Promise<Challenge[]> => {
+    const response = await api.get<ApiResponse<Challenge[]>>(
+      `/challenges?lesson_id=${lessonId}`,
     );
+
+    return response.data.data!;
+  },
+
+  getById: async (id: number): Promise<Challenge> => {
+    const response = await api.get<ApiResponse<Challenge>>(`/challenges/${id}`);
 
     return response.data.data!;
   },
