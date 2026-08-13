@@ -3,12 +3,17 @@ import TracksTable from "@/features/auth/tracks/table";
 import { useGetTracks } from "@/hooks/tracks";
 
 export default function IndexPage() {
-  const { tracks } = useGetTracks();
+  const { tracks, loading, error, refresh } = useGetTracks();
 
   return (
     <>
-      <Header />
-      <TracksTable data={tracks} />
+      <Header count={tracks.length} />
+      <TracksTable
+        data={tracks}
+        loading={loading}
+        error={error}
+        onRetry={refresh}
+      />
     </>
   );
 }
