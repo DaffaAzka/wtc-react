@@ -1,4 +1,5 @@
 import { ModuleService } from "@/services/module";
+import type { ModuleFilter } from "@/types/filter";
 import type { Module } from "@/types/model";
 import type { ApiErrorResponse } from "@/types/response";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -8,10 +9,10 @@ export const moduleKeys = {
   detail: (slug: string) => ["modules", slug] as const,
 };
 
-export function useGetModules() {
+export function useGetModules(filters?: ModuleFilter) {
   const query = useQuery<Module[], ApiErrorResponse>({
-    queryKey: moduleKeys.all,
-    queryFn: () => ModuleService.getAll(),
+    queryKey: [...moduleKeys.all, filters],
+    queryFn: () => ModuleService.getAll(filters),
   });
 
   return {

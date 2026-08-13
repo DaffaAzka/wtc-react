@@ -20,7 +20,7 @@ import { useState } from "react";
 import ModalEdit from "./modal-edit";
 import { EllipsisIcon } from "lucide-react";
 import ModalDelete from "./modal-delete";
-import ChallengeModal from "../challenges/modal-add";
+import { Link } from "react-router";
 
 export default function LessonsTable({ data }: { data: Lesson[] }) {
   const [editModal, setEditModal] = useState<{
@@ -38,10 +38,6 @@ export default function LessonsTable({ data }: { data: Lesson[] }) {
     data: null,
     isOpen: false,
   });
-  const [challengeModal, setChallengeModal] = useState({
-    lesson: null as Lesson | null,
-    isOpen: false,
-  });
 
   return (
     <>
@@ -52,8 +48,6 @@ export default function LessonsTable({ data }: { data: Lesson[] }) {
               <TableRow>
                 <TableHead className="w-25">No</TableHead>
                 <TableHead>Title</TableHead>
-                <TableHead className="hidden lg:table-cell">Content</TableHead>
-                <TableHead>Order</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -62,35 +56,22 @@ export default function LessonsTable({ data }: { data: Lesson[] }) {
                 <TableRow key={lesson.id}>
                   <TableCell className="font-medium">{index + 1}</TableCell>
                   <TableCell>{lesson.title}</TableCell>
-                  <TableCell className="hidden lg:table-cell max-w-xs truncate">
-                    {lesson.content}
-                  </TableCell>
-                  <TableCell>{lesson.order}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger>
                         <EllipsisIcon />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent>
-                        <DropdownMenuItem>View</DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setEditModal({
-                              data: lesson,
-                              isOpen: true,
-                            });
-                          }}>
-                          Update
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() =>
-                            setChallengeModal({
-                              lesson,
-                              isOpen: true,
-                            })
-                          }>
-                          Manage Challenge
-                        </DropdownMenuItem>
+                        <Link to={`${lesson.slug}/view`}>
+                          <DropdownMenuItem>View</DropdownMenuItem>
+                        </Link>
+                       
+                        <Link to={`${lesson.slug}/update`}>
+                          <DropdownMenuItem>Update</DropdownMenuItem>
+                        </Link>
+                        <Link to={`${lesson.slug}/challenges`}>
+                          <DropdownMenuItem>Manage Challenge</DropdownMenuItem>
+                        </Link>
                         <DropdownMenuItem
                           onClick={() => {
                             setDeleteModal({
@@ -128,19 +109,6 @@ export default function LessonsTable({ data }: { data: Lesson[] }) {
           isOpen={deleteModal.isOpen}
           onOpenChange={(open) =>
             setDeleteModal((prev) => ({ ...prev, isOpen: open }))
-          }
-        />
-      )}
-
-      {challengeModal.lesson && (
-        <ChallengeModal
-          lesson={challengeModal.lesson}
-          isOpen={challengeModal.isOpen}
-          onOpenChange={(open) =>
-            setChallengeModal((prev) => ({
-              ...prev,
-              isOpen: open,
-            }))
           }
         />
       )}

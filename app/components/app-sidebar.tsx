@@ -5,8 +5,22 @@ import * as React from "react";
 import { NavMain } from "@/components/nav-main";
 import { NavModules } from "@/components/nav-modules";
 import { NavUser } from "@/components/nav-user";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
-import { TerminalSquareIcon, LifeBuoyIcon, SendIcon, FrameIcon, TerminalIcon } from "lucide-react";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
+import {
+  TerminalSquareIcon,
+  LifeBuoyIcon,
+  SendIcon,
+  FrameIcon,
+  TerminalIcon,
+} from "lucide-react";
 import { useAuth } from "@/contexts/auth";
 import { firstCharacterUppercase } from "@/utils/global";
 import { ModeToggle } from "./custom/mode-toggle";
@@ -38,15 +52,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     ],
     modules: [
       {
-        name: "Tracks",
-        url: "/tracks",
+        name: "Course Management",
+        url: "/course-management",
+        icon: <FrameIcon />,
+        roleAllowed: true,
+      },
+      {
+        name: "User Management",
+        url: "/user-management",
         icon: <FrameIcon />,
         roleAllowed: true,
       },
     ],
   };
 
-  const isAdmin = user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;
+  const isAdmin =
+    user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;
 
   return (
     <Sidebar variant="inset" {...props}>
@@ -60,7 +81,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-medium">WebTech TC.</span>
-                  <span className="truncate text-xs">{firstCharacterUppercase(user?.roles?.[0]?.name ?? "Undefined")}</span>
+                  <span className="truncate text-xs">
+                    {firstCharacterUppercase(
+                      user?.roles?.[0]?.name ?? "Undefined",
+                    )}
+                  </span>
                 </div>
               </div>
             </SidebarMenuButton>

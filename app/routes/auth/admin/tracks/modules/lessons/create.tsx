@@ -123,7 +123,9 @@ export default function CreatePage({ params }: Route.ComponentProps) {
           error={getFieldError(storeLesson.error?.errors, "order")}
         />
 
-        <LoadingButton text="Create Lesson" loading={storeLesson.isPending} />
+        <div className="flex justify-end gap-4">
+          <LoadingButton text="Create Lesson" loading={storeLesson.isPending} />
+        </div>
       </form>
     </div>
   );
