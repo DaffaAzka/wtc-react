@@ -6,20 +6,13 @@ import { useLogin } from "@/hooks/auth";
 import { getFieldError } from "@/utils/global";
 import { useState } from "react";
 import { Link } from "react-router";
-import { CheckCircle2 } from "lucide-react";
 
 export function meta() {
   return [
-    { title: "Login - WTC LMS" },
-    { name: "description", content: "Login to your account" },
+    { title: "Sign in - WTC" },
+    { name: "description", content: "Sign in to your WTC account" },
   ];
 }
-
-const highlights = [
-  "Personalized learning paths powered by AI",
-  "Track your progress across every course",
-  "Learn at your own pace, anytime, anywhere",
-];
 
 export default function Login() {
   const login = useLogin();
@@ -38,142 +31,64 @@ export default function Login() {
   };
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2 bg-background">
-      {/* Left brand panel — intentionally always dark, independent of theme */}
-      <div className="relative hidden lg:flex flex-col justify-between overflow-hidden bg-zinc-950 p-10">
-        {/* subtle dot-grid texture */}
-        <div
-          className="pointer-events-none absolute inset-0 opacity-40"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px)",
-            backgroundSize: "22px 22px",
-          }}
-        />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/[0.04] via-transparent to-black/40" />
+    // `dark` forces the shadcn dark-theme tokens for this whole subtree,
+    // so InputForm / OAuthButtons / Alert / LoadingButton render correctly
+    // dark regardless of the user's site-wide theme — same technique
+    // Linear/Vercel use for auth pages that stay dark year-round.
+    <div className="dark fixed inset-0 flex items-center justify-center overflow-hidden bg-background p-4">
+      {/* aurora glow — the one bold gesture on an otherwise quiet page */}
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute -top-40 -left-32 h-[420px] w-[420px] rounded-full bg-primary/30 blur-[120px]" />
+        <div className="absolute -bottom-48 -right-24 h-[380px] w-[380px] rounded-full bg-primary/15 blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[100px]" />
+      </div>
 
-        {/* logo */}
-        <div className="relative z-10 flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-            W
+      {/* fine dot grid, Vercel-style */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.15]"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, var(--border) 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+          maskImage:
+            "radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent)",
+        }}
+      />
+
+      <div className="relative z-10 w-full max-w-[380px]">
+        {/* wordmark */}
+        <div className="mb-6 flex flex-col items-center text-center">
+          <div className="relative mb-3 h-9 w-9 rotate-45 rounded-lg bg-gradient-to-br from-primary to-primary/60 shadow-[0_0_32px_-6px_var(--primary)]">
+            <span className="absolute inset-0 flex -rotate-45 items-center justify-center text-sm font-bold text-primary-foreground">
+              W
+            </span>
           </div>
-          <span className="text-lg font-semibold tracking-tight text-white">
-            WTC LMS
+          <span className="text-xl font-bold tracking-tight text-foreground">
+            WTC
+          </span>
+          <span className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+            Webtech Training Camp
           </span>
         </div>
 
-        {/* headline */}
-        <div className="relative z-10 max-w-md">
-          <div className="mb-5 flex items-center gap-3">
-            <span className="h-8 w-1 rounded-full bg-primary" />
-            <span className="text-xs font-medium uppercase tracking-wider text-white/50">
-              AI-powered learning paths
-            </span>
-          </div>
+        {/* card */}
+        <form
+          onSubmit={handleSubmit}
+          className="relative overflow-hidden rounded-2xl border border-border bg-card/70 p-6 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-7"
+        >
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent" />
 
-          <h1 className="text-4xl font-semibold leading-tight tracking-tight text-white">
-            Welcome back to your learning journey
+          <p className="font-mono text-xs text-primary">
+            <span className="text-muted-foreground">$</span> wtc auth login
+          </p>
+          <h1 className="mt-2 text-xl font-semibold tracking-tight text-foreground">
+            Sign in to your account
           </h1>
-          <p className="mt-3 text-sm text-white/50">
-            Pick up right where you left off. Your courses, progress, and
-            goals are waiting.
+          <p className="mt-1 text-sm text-muted-foreground">
+            Continue building where you left off.
           </p>
 
-          <ul className="mt-8 space-y-3">
-            {highlights.map((item) => (
-              <li
-                key={item}
-                className="flex items-start gap-2.5 text-sm text-white/70"
-              >
-                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                {item}
-              </li>
-            ))}
-          </ul>
-
-          {/* signature element: learning-path node graphic */}
-          <div className="relative z-10 mt-10 max-w-sm">
-            <svg viewBox="0 0 380 70" className="w-full" fill="none">
-              <path
-                d="M8 55 C 70 15, 140 85, 210 38 S 340 10, 372 35"
-                stroke="white"
-                strokeOpacity="0.12"
-                strokeWidth="2"
-                strokeDasharray="4 7"
-                strokeLinecap="round"
-              />
-              <circle cx="8" cy="55" r="5" fill="var(--color-primary)" />
-              <circle cx="130" cy="58" r="5" fill="var(--color-primary)" />
-              <circle cx="210" cy="38" r="6" fill="var(--color-primary)" />
-              <circle
-                cx="210"
-                cy="38"
-                r="10"
-                fill="none"
-                stroke="var(--color-primary)"
-                strokeOpacity="0.5"
-              >
-                <animate
-                  attributeName="r"
-                  values="8;15;8"
-                  dur="2.2s"
-                  repeatCount="indefinite"
-                />
-                <animate
-                  attributeName="opacity"
-                  values="0.6;0;0.6"
-                  dur="2.2s"
-                  repeatCount="indefinite"
-                />
-              </circle>
-              <circle
-                cx="372"
-                cy="35"
-                r="5"
-                fill="none"
-                stroke="white"
-                strokeOpacity="0.3"
-              />
-            </svg>
-            <div className="mt-2 flex justify-between text-[10px] font-medium uppercase tracking-wider text-white/30">
-              <span>Fundamentals</span>
-              <span className="text-primary">In progress</span>
-              <span>Advanced</span>
-            </div>
-          </div>
-        </div>
-
-        {/* plain bordered stat block */}
-        <div className="relative z-10 w-fit rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-          <p className="text-2xl font-semibold text-white">12,400+</p>
-          <p className="text-xs text-white/40">
-            learners growing their skills with WTC
-          </p>
-        </div>
-      </div>
-
-      {/* Right form panel */}
-      <div className="flex items-center justify-center p-6 sm:p-10">
-        <form onSubmit={handleSubmit} className="w-full max-w-sm">
-          <div className="mb-8 flex items-center gap-2 lg:hidden">
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
-              W
-            </div>
-            <span className="text-lg font-semibold tracking-tight">
-              WTC LMS
-            </span>
-          </div>
-
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold tracking-tight text-foreground">
-              Login to your account
-            </h2>
-            <p className="mt-1.5 text-sm text-muted-foreground">
-              Enter your credentials to access your account
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-5">
+          <div className="mt-5 flex flex-col gap-3.5">
             {login.error && login.error?.message !== "Validation errors" && (
               <Alert
                 variant="destructive"
@@ -186,7 +101,7 @@ export default function Login() {
             )}
             <InputForm
               name="email"
-              placeholder="m@example.com"
+              placeholder="you@webtech.camp"
               text="Email Address"
               type="email"
               value={form.email}
@@ -204,19 +119,21 @@ export default function Login() {
             />
           </div>
 
-          <div className="mt-6 flex flex-col gap-4">
-            <LoadingButton loading={login.isPending} text="Login" />
+          <div className="mt-5 flex flex-col gap-3.5">
+            <LoadingButton loading={login.isPending} text="Sign in" />
             <OAuthButtons />
-            <Link to="/register" className="w-full text-center">
-              <p className="flex flex-row justify-center gap-1 text-sm text-muted-foreground">
-                Don't have an account?
-                <span className="text-primary hover:underline">
-                  Register
-                </span>
-              </p>
-            </Link>
           </div>
         </form>
+
+        <p className="mt-5 text-center text-sm text-muted-foreground">
+          Don't have an account?{" "}
+          <Link
+            to="/register"
+            className="font-medium text-foreground underline underline-offset-4 transition-colors hover:text-primary"
+          >
+            Create one
+          </Link>
+        </p>
       </div>
     </div>
   );
