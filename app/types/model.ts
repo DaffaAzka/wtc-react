@@ -1,4 +1,4 @@
-import type { Question } from "./challenge";
+﻿import type { Question } from "./challenge";
 
 export type Profile = {
   puid: string;
@@ -82,6 +82,18 @@ export type ChallengeMetadata = {
   [key: string]: unknown;
 };
 
+export type ChallengeAttachment = {
+  id: string;
+  title: string;
+  description: string;
+  type: string;
+  file_name: string;
+  mime_type: string;
+  size: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Challenge = {
   id: number;
   module_id: number | null;
@@ -105,6 +117,7 @@ export type Challenge = {
   max_score: number;
   points?: number;
   allowed_attempts?: number;
+  attachments?: ChallengeAttachment[];
   created_at: string | null;
   updated_at: string | null;
 };

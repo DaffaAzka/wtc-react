@@ -14,6 +14,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import ChallengeModalEdit from "./modal-edit";
+import CodingAssignmentModalEdit from "./modal-edit-coding-assignment";
 import ChallengeModalManage from "./modal-manage";
 
 type Props = {
@@ -104,12 +105,22 @@ export default function ChallengeList({ challenges, lesson }: Props) {
 
       {/* Edit Modal (Metadata Only) */}
       {editModal.challenge && (
-        <ChallengeModalEdit
-          key={`edit-${editModal.challenge.id}`}
-          challenge={editModal.challenge}
-          isOpen={editModal.isOpen}
-          onOpenChange={(open) => setEditModal((prev) => ({ ...prev, isOpen: open }))}
-        />
+        editModal.challenge.type === "file_upload" ? (
+          <CodingAssignmentModalEdit
+            key={`edit-${editModal.challenge.id}`}
+            challenge={editModal.challenge}
+            lesson={lesson}
+            isOpen={editModal.isOpen}
+            onOpenChange={(open) => setEditModal((prev) => ({ ...prev, isOpen: open }))}
+          />
+        ) : (
+          <ChallengeModalEdit
+            key={`edit-${editModal.challenge.id}`}
+            challenge={editModal.challenge}
+            isOpen={editModal.isOpen}
+            onOpenChange={(open) => setEditModal((prev) => ({ ...prev, isOpen: open }))}
+          />
+        )
       )}
 
       {/* Manage Modal (Full Edit with Builder) */}

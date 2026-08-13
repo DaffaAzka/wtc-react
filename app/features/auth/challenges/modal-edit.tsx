@@ -136,7 +136,7 @@ export default function ChallengeModalEdit({
 
     const payload = {
       id: challenge.id,
-      module_id: challenge.module_id,
+      // module_id: challenge.module_id,
       lesson_id: challenge.lesson_id,
       title: form.title,
       slug: challenge.slug,
@@ -162,15 +162,16 @@ export default function ChallengeModalEdit({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col p-0">
+        <DialogHeader className="shrink-0 border-b px-6 pt-6 pb-4 bg-background">
           <DialogTitle>Edit Challenge</DialogTitle>
           <DialogDescription>
             Update challenge configuration. To edit questions, use the Manage action.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6 mt-4">
+        <div className="overflow-y-auto flex-1 px-6 pb-6">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6 mt-4">
           {/* Challenge Information Section */}
           <div className="space-y-4">
             <div>
@@ -346,7 +347,8 @@ export default function ChallengeModalEdit({
             />
           </div>
         </form>
-      </DialogContent>
+        </div>
+        </DialogContent>
     </Dialog>
   );
 }
