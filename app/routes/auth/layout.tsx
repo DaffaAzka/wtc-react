@@ -16,6 +16,19 @@ export async function clientLoader() {
   if (!token) {
     throw redirect("/");
   }
+
+  // Role-based redirect - Check if user is NOT admin (since all users have student role)
+  const rawUser = localStorage.getItem("user");
+  if (rawUser) {
+    const user = JSON.parse(rawUser);
+    const isAdmin = user.roles?.some((role: any) => role.name.toLowerCase() === "admin");
+
+    // Regular students (no admin role) should use /student/* routes, not general auth routes
+    if (!isAdmin) {
+      throw redirect("/student/dashboard");
+    }
+  }
+
   return null;
 }
 

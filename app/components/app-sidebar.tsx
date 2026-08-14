@@ -167,8 +167,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </Collapsible>
               )}
 
-              {/* Item datar dengan panah kanan */}
-              {navSecondary.map((item) => (
+              {/* Item datar dengan panah kanan - Admin only */}
+              {isAdmin && navSecondary.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
                     <Link to={item.url} className="flex items-center">
