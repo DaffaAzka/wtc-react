@@ -117,7 +117,7 @@ export default function TracksTable({
           </div>
         )}
 
-        {loading ? (
+        {loading ?
           <div className="divide-y divide-border">
             {Array.from({ length: 6 }).map((_, index) => (
               <div key={index} className="flex items-center gap-4 px-4 py-3">
@@ -127,7 +127,7 @@ export default function TracksTable({
               </div>
             ))}
           </div>
-        ) : error ? (
+        : error ?
           <EmptyState
             icon={TriangleAlert}
             title="Couldn't load tracks"
@@ -141,20 +141,19 @@ export default function TracksTable({
               )
             }
           />
-        ) : data.length === 0 ? (
+        : data.length === 0 ?
           <EmptyState
             icon={Inbox}
             title="No tracks yet"
             description="Add your first track to start building a curriculum path."
           />
-        ) : filtered.length === 0 ? (
+        : filtered.length === 0 ?
           <EmptyState
             icon={SearchX}
             title={`No tracks match "${search}"`}
             description="Try a different name or slug."
           />
-        ) : (
-          <table className="w-full text-sm">
+        : <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border text-left text-xs text-muted-foreground">
                 <th className="px-4 py-2 font-medium">Title</th>
@@ -196,7 +195,7 @@ export default function TracksTable({
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                         <Link
-                          to={`${track.slug}/modules`}
+                          to={`/${track.slug}/modules`}
                           className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
                           Modules
                         </Link>
@@ -210,7 +209,7 @@ export default function TracksTable({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <Link to={`${track.slug}/modules`}>
+                            <Link to={`/${track.slug}/modules`}>
                               <DropdownMenuItem>View</DropdownMenuItem>
                             </Link>
                             <DropdownMenuItem
@@ -235,7 +234,7 @@ export default function TracksTable({
               })}
             </tbody>
           </table>
-        )}
+        }
       </div>
 
       {editModal.data !== null && (

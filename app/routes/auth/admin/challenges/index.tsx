@@ -1,4 +1,4 @@
-﻿import { useGetModule } from "@/hooks/modules";
+import { useGetModules } from "@/hooks/modules";
 import { useGetLesson } from "@/hooks/lessons";
 import { useGetChallengesByLesson } from "@/hooks/challenges";
 import type { Route } from "./+types/index";
@@ -15,17 +15,32 @@ import ChallengeList from "@/features/auth/challenges/challenge-list";
 import ChallengeEmpty from "@/features/auth/challenges/challenge-empty";
 
 export default function ChallengePage({ params }: Route.ComponentProps) {
-  const { module, loading: moduleLoading, error: moduleError, refresh: refreshModule } = useGetModule(params.moduleSlug);
-  const { lesson, loading: lessonLoading, error: lessonError, refresh: refreshLesson } = useGetLesson(params.lessonSlug);
-  const { 
-    challenges, 
-    loading: challengesLoading, 
-    error: challengesError, 
-    refresh: refreshChallenges 
+  const {
+    lesson,
+    loading: lessonLoading,
+    error: lessonError,
+    refresh: refreshLesson,
+  } = useGetLesson(params.lessonSlug);
+
+  // Fetch all modules and find the one matching lesson.module_id
+  const {
+    modules,
+    loading: moduleLoading,
+    error: moduleError,
+    refresh: refreshModule,
+  } = useGetModules(lesson?.module_id ? { id: lesson.module_id.toString() } : undefined);
+  const module = modules.find((m) => m.id === lesson?.module_id);
+
+  const {
+    challenges,
+    loading: challengesLoading,
+    error: challengesError,
+    refresh: refreshChallenges,
   } = useGetChallengesByLesson(lesson?.id ?? 0);
-  
+
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isAddCodingAssignmentOpen, setIsAddCodingAssignmentOpen] = useState(false);
+  const [isAddCodingAssignmentOpen, setIsAddCodingAssignmentOpen] =
+    useState(false);
 
   const loading = moduleLoading || lessonLoading;
   const error = moduleError || lessonError;
@@ -52,7 +67,9 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
         </div>
         <ErrorState
           title="Unable to load lesson"
-          message={error.message || "An error occurred while loading the lesson data."}
+          message={
+            error.message || "An error occurred while loading the lesson data."
+          }
           onRetry={() => {
             refreshModule();
             refreshLesson();
@@ -127,7 +144,9 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
             <Plus className="h-4 w-4 mr-2" />
             Add Challenge
           </Button>
-          <Button onClick={() => setIsAddCodingAssignmentOpen(true)} variant="outline">
+          <Button
+            onClick={() => setIsAddCodingAssignmentOpen(true)}
+            variant="outline">
             <Code className="h-4 w-4 mr-2" />
             Add Coding Assignment
           </Button>
@@ -135,19 +154,20 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
       </div>
 
       {/* Challenges List */}
-      {challengesLoading ? (
+      {challengesLoading ?
         <ChallengeGridSkeleton />
-      ) : challengesError ? (
+      : challengesError ?
         <ErrorState
           title="Unable to load challenges"
-          message={challengesError.message || "An error occurred while loading challenges for this lesson."}
+          message={
+            challengesError.message ||
+            "An error occurred while loading challenges for this lesson."
+          }
           onRetry={refreshChallenges}
         />
-      ) : challenges.length === 0 ? (
+      : challenges.length === 0 ?
         <ChallengeEmpty onAddClick={() => setIsAddModalOpen(true)} />
-      ) : (
-        <ChallengeList challenges={challenges} lesson={lesson} />
-      )}
+      : <ChallengeList challenges={challenges} lesson={lesson} />}
 
       {/* Add Challenge Modal */}
       {isAddModalOpen && (

@@ -106,7 +106,7 @@ export default function IndexPage() {
   };
 
   return (
-    <div className="relative mx-auto w-full max-w-5xl">
+    <div className="relative mx-auto w-full max-w-8xl">
       {/* subtle dot-grid, fills the negative space around the card */}
       <div
         className="pointer-events-none absolute -inset-x-12 -inset-y-8 -z-10 opacity-[0.4]"
