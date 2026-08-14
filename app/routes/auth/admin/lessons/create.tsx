@@ -1,4 +1,4 @@
-﻿import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import InputForm from "@/components/custom/input-form";
 import LoadingButton from "@/components/custom/loading-button";
 import { RichEditor } from "@/components/custom/rich-editor";
@@ -10,7 +10,7 @@ import type { Route } from "./+types/create";
 import { FormPageSkeleton } from "@/components/skeletons/form-page";
 
 export default function CreatePage({ params }: Route.ComponentProps) {
-  const { module, loading, error } = useGetModule(params.moduleSlug);
+  const { module, loading, error } = useGetModule(params.slug!);
   const storeLesson = useStoreLesson();
   const [editorResetKey, setEditorResetKey] = useState(0);
 

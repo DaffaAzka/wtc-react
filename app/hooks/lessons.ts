@@ -1,4 +1,5 @@
 import { LessonService } from "@/services/lesson";
+import type { LessonFilter } from "@/types/filter";
 import type { Lesson } from "@/types/model";
 import type { ApiErrorResponse } from "@/types/response";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -8,10 +9,10 @@ export const lessonKeys = {
   detail: (slug: string) => ["lessons", slug] as const,
 };
 
-export function useGetLessons() {
+export function useGetLessons(filters?: LessonFilter) {
   const query = useQuery<Lesson[], ApiErrorResponse>({
-    queryKey: lessonKeys.all,
-    queryFn: () => LessonService.getAll(),
+    queryKey: [...lessonKeys.all, filters],
+    queryFn: () => LessonService.getAll(filters),
   });
 
   return {

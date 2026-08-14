@@ -1,4 +1,5 @@
 import { api } from "@/lib/axios";
+import type { LessonFilter } from "@/types/filter";
 import type { Lesson } from "@/types/model";
 import type { ApiResponse } from "@/types/response";
 
@@ -23,8 +24,10 @@ export const LessonService = {
     return response.data.data!;
   },
 
-  getAll: async (): Promise<Lesson[]> => {
-    const response = await api.get<ApiResponse<Lesson[]>>("/lessons");
+  getAll: async (filters?: LessonFilter): Promise<Lesson[]> => {
+    const response = await api.get<ApiResponse<Lesson[]>>("/lessons", {
+      params: filters,
+    });
     return response.data.data!;
   },
 
