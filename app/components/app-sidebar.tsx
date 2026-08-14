@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Link } from "react-router";
 
 import { NavUser } from "@/components/nav-user";
 import {
@@ -78,8 +79,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     <Sidebar
       variant="sidebar"
       className="border-sidebar-border bg-sidebar text-sidebar-foreground"
-      {...props}
-    >
+      {...props}>
       <SidebarHeader className="gap-4">
         {/* Wordmark */}
         <div className="px-2 pt-1">
@@ -100,7 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </Avatar>
           <div className="min-w-0">
             <p className="truncate text-sm font-semibold text-sidebar-foreground">
-              {user?.display_name ?? user?.nickname ?? "Undefined"}
+              {user?.display_name ?? "Undefined"}
             </p>
             <span className="mt-0.5 inline-block rounded-full bg-chart-2 px-2 py-0.5 text-[11px] font-semibold text-sidebar">
               {firstCharacterUppercase(user?.roles?.[0]?.name ?? "Undefined")}
@@ -119,10 +119,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {navFlat.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={item.isActive}>
-                    <a href={item.url}>
+                    <Link to={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -130,22 +130,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <Collapsible
                   open={courseMgmtOpen}
                   onOpenChange={setCourseMgmtOpen}
-                  className="group/collapsible"
-                >
+                  className="group/collapsible">
                   <SidebarMenuItem className="relative">
                     {" "}
                     <SidebarMenuButton asChild className="pr-8">
-                      <a href="/course-management">
+                      <Link to="/course-management">
                         <courseManagementGroup.icon />
                         <span>{courseManagementGroup.title}</span>
-                      </a>
+                      </Link>
                     </SidebarMenuButton>
                     <CollapsibleTrigger asChild>
                       <button
                         type="button"
                         onClick={(e) => e.stopPropagation()}
-                        className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                      >
+                        className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground">
                         <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 group-data-[state=closed]/collapsible:-rotate-90" />
                       </button>
                     </CollapsibleTrigger>
@@ -154,13 +152,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         {courseManagementGroup.items.map((sub) => (
                           <SidebarMenuSubItem key={sub.title}>
                             <SidebarMenuSubButton asChild>
-                              <a
-                                href={sub.url}
-                                className="flex items-center gap-2"
-                              >
+                              <Link
+                                to={sub.url}
+                                className="flex items-center gap-2">
                                 <sub.icon className="h-3.5 w-3.5" />
                                 <span>{sub.title}</span>
-                              </a>
+                              </Link>
                             </SidebarMenuSubButton>
                           </SidebarMenuSubItem>
                         ))}
@@ -174,11 +171,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {navSecondary.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <a href={item.url} className="flex items-center">
+                    <Link to={item.url} className="flex items-center">
                       <item.icon />
                       <span className="flex-1">{item.title}</span>
                       <ChevronRight className="h-3.5 w-3.5 opacity-60" />
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -192,7 +189,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           <div className="min-w-0 flex-1">
             <NavUser
               user={{
-                name: user?.display_name ?? user?.nickname ?? "Undefined",
+                name: user?.display_name ?? "Undefined",
                 email: user?.email ?? "Undefined",
                 avatar: user?.avatar ?? undefined,
               }}
