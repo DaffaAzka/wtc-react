@@ -1,150 +1,88 @@
-"use client";
-
-import * as React from "react";
-import { Link } from "react-router";
-
+import React from "react";
+import { Link, useLocation } from "react-router";
+import { Home, BookOpen, GraduationCap, GitBranch, Award, Users, ArrowUpRight } from "lucide-react";
 import { NavUser } from "@/components/nav-user";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-  SidebarSeparator,
-} from "@/components/ui/sidebar";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { ChevronDown, ChevronRight, LayersIcon, LifeBuoyIcon, ListTreeIcon, NotebookTextIcon, RouteIcon, SendIcon, TerminalSquareIcon, UserIcon, UsersIcon } from "lucide-react";
-import { useAuth } from "@/contexts/auth";
-import { firstCharacterUppercase } from "@/utils/global";
 import { ModeToggle } from "@/components/custom/mode-toggle";
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { useAuth } from "@/contexts/auth";
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export default function StudentSidebar() {
+  const location = useLocation();
   const { user } = useAuth();
-  const [courseMgmtOpen, setCourseMgmtOpen] = React.useState(true); // ← tambahin ini
 
-  const isAdmin = user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;
-
-  const navFlat = [
-    {
-      title: "Courses",
-      url: "/courses",
-      icon: TerminalSquareIcon,
-      isActive: true,
-    },
-  ];
-
-  const courseManagementGroup = {
-    title: "Course Management",
-    icon: LayersIcon,
-    defaultOpen: true,
-    items: [
-      { title: "Tracks", url: "/tracks", icon: RouteIcon },
-      { title: "Modules", url: "/modules", icon: ListTreeIcon },
-      { title: "Lessons", url: "/lessons", icon: NotebookTextIcon },
+  const menus = {
+    main: [
+      { name: "Beranda", icon: Home, href: "/student/dashboard", isExternal: false },
+      { name: "Progress Belajar", icon: GraduationCap, href: "/student/progress", isExternal: false },
+      { name: "Kelas", icon: BookOpen, href: "/student/classes", isExternal: false },
+      { name: "Learning Path", icon: GitBranch, href: "/student/learning-path", isExternal: false },
+    ],
+    learning: [
+      { name: "Tantangan", icon: Award, href: "/student/challenges", isExternal: false },
+      { name: "Kelas Saya", icon: Users, href: "/student/study-classes", isExternal: false },
     ],
   };
 
-  const navSecondary = [
-    { title: "User Management", url: "/user-management", icon: UsersIcon },
-    { title: "Support", url: "#", icon: LifeBuoyIcon },
-    { title: "Feedback", url: "#", icon: SendIcon },
-  ];
+  const NavItem = ({ item }: { item: (typeof menus.main)[0] }) => {
+    const Icon = item.icon;
+    const isActive = location.pathname === item.href;
+
+    if (item.isExternal) {
+      return (
+        <SidebarMenuItem>
+          <SidebarMenuButton asChild>
+            <a href={item.href} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Icon />
+                <span>{item.name}</span>
+              </div>
+              <ArrowUpRight className="h-3.5 w-3.5 opacity-60" />
+            </a>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
+      );
+    }
+
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton asChild isActive={isActive}>
+          <Link to={item.href}>
+            <Icon />
+            <span>{item.name}</span>
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  };
 
   return (
-    <Sidebar variant="sidebar" className="border-sidebar-border bg-sidebar text-sidebar-foreground" {...props}>
-      <SidebarHeader className="gap-4">
-        {/* Wordmark */}
+    <Sidebar variant="sidebar">
+      <SidebarHeader>
+        {/* Brand */}
         <div className="px-2 pt-1">
-          <span className="text-sm font-bold tracking-tight text-sidebar-foreground">WebTech TC.</span>
+          <span className="text-sm font-bold tracking-tight">WebTech TC</span>
         </div>
-
-        <div className="flex items-center gap-3 px-2">
-          <Avatar className="h-11 w-11 border border-sidebar-border">
-            <AvatarImage src={user?.avatar ?? undefined} alt={user?.display_name ?? ""} />
-            <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground">
-              <UserIcon className="h-5 w-5" />
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-sidebar-foreground">{user?.display_name ?? "Undefined"}</p>
-            <span className="mt-0.5 inline-block rounded-full bg-chart-2 px-2 py-0.5 text-[11px] font-semibold text-sidebar">{firstCharacterUppercase(user?.roles?.[0]?.name ?? "Undefined")}</span>
-          </div>
-        </div>
-
-        <SidebarSeparator className="mx-0 bg-sidebar-border/60" />
       </SidebarHeader>
 
       <SidebarContent>
+        {/* Main menu */}
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {/* Item datar teratas */}
-              {navFlat.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={item.isActive}>
-                    <Link to={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+              {menus.main.map((item, idx) => (
+                <NavItem key={idx} item={item} />
               ))}
-              {isAdmin && (
-                <Collapsible open={courseMgmtOpen} onOpenChange={setCourseMgmtOpen} className="group/collapsible">
-                  <SidebarMenuItem className="relative">
-                    {" "}
-                    <SidebarMenuButton asChild className="pr-8">
-                      <Link to="/course-management">
-                        <courseManagementGroup.icon />
-                        <span>{courseManagementGroup.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                    <CollapsibleTrigger asChild>
-                      <button
-                        type="button"
-                        onClick={(e) => e.stopPropagation()}
-                        className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
-                      >
-                        <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 group-data-[state=closed]/collapsible:-rotate-90" />
-                      </button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {courseManagementGroup.items.map((sub) => (
-                          <SidebarMenuSubItem key={sub.title}>
-                            <SidebarMenuSubButton asChild>
-                              <Link to={sub.url} className="flex items-center gap-2">
-                                <sub.icon className="h-3.5 w-3.5" />
-                                <span>{sub.title}</span>
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  </SidebarMenuItem>
-                </Collapsible>
-              )}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
 
-              {/* Item datar dengan panah kanan */}
-              {navSecondary.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link to={item.url} className="flex items-center">
-                      <item.icon />
-                      <span className="flex-1">{item.title}</span>
-                      <ChevronRight className="h-3.5 w-3.5 opacity-60" />
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+        {/* Learning section */}
+        <SidebarGroup>
+          <SidebarGroupLabel>Learning</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menus.learning.map((item, idx) => (
+                <NavItem key={idx} item={item} />
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
@@ -153,11 +91,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarFooter>
         <div className="flex items-center gap-1">
-          <div className="min-w-0 flex-1">
+          <div className="flex-1 min-w-0">
             <NavUser
               user={{
-                name: user?.display_name ?? "Undefined",
-                email: user?.email ?? "Undefined",
+                name: user?.display_name?.trim() || "Student",
+                email: user?.email?.trim() || "student@example.com",
                 avatar: user?.avatar ?? undefined,
               }}
             />
