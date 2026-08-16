@@ -9,9 +9,9 @@ import { ModeToggle } from "@/components/custom/mode-toggle";
 export default function StudentLayout() {
   return (
     <SidebarProvider>
-      <div className="flex h-screen w-screen overflow-hidden bg-gray-50 dark:bg-gray-950">
+      <div className="flex h-screen w-screen bg-gray-50 dark:bg-gray-950">
         <StudentSidebar />
-        <SidebarInset className="flex flex-1 flex-col overflow-hidden ml-4">
+        <SidebarInset className="flex flex-1 flex-col overflow-y-auto ml-4">
           <header className="flex h-16 shrink-0 items-center justify-between gap-2">
             <div className="flex items-center gap-2 px-4">
               <Breadcrumb>

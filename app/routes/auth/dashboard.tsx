@@ -5,6 +5,7 @@ import { api } from "@/lib/axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   BookOpen,
   Package,
@@ -12,7 +13,6 @@ import {
   Trophy,
   Users,
   School,
-  TrendingUp,
   Activity,
 } from "lucide-react";
 
@@ -30,12 +30,6 @@ interface Track {
   name: string;
   description: string;
   slug: string;
-}
-
-interface Module {
-  id: string;
-  name: string;
-  track_id: string;
 }
 
 export default function Dashboard() {
@@ -142,13 +136,13 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div>
-          <Skeleton className="h-8 w-64 mb-2" />
-          <Skeleton className="h-4 w-96" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Skeleton className="h-32" />
+          <Skeleton className="h-32" />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} className="h-32" />
+            <Skeleton key={i} className="h-28" />
           ))}
         </div>
         <Skeleton className="h-64" />
@@ -174,39 +168,31 @@ export default function Dashboard() {
 
   const statsCards = [
     {
-      title: "Total Tracks",
+      title: "Tracks",
       value: stats.tracks,
       icon: BookOpen,
-      description: "Learning paths tersedia",
-      color: "text-blue-500",
-      bgColor: "bg-blue-500/10",
+      description: "Learning paths",
       link: "/tracks",
     },
     {
-      title: "Total Modules",
+      title: "Modules",
       value: stats.modules,
       icon: Package,
       description: "Module pembelajaran",
-      color: "text-green-500",
-      bgColor: "bg-green-500/10",
       link: "/modules",
     },
     {
-      title: "Total Lessons",
+      title: "Lessons",
       value: stats.lessons,
       icon: FileText,
       description: "Materi pelajaran",
-      color: "text-purple-500",
-      bgColor: "bg-purple-500/10",
       link: "/lessons",
     },
     {
-      title: "Total Challenges",
+      title: "Challenges",
       value: stats.challenges,
       icon: Trophy,
-      description: "Tantangan tersedia",
-      color: "text-yellow-500",
-      bgColor: "bg-yellow-500/10",
+      description: "Tantangan",
       link: "/student/challenges",
     },
     {
@@ -214,187 +200,214 @@ export default function Dashboard() {
       value: stats.studyClasses,
       icon: School,
       description: "Kelas aktif",
-      color: "text-cyan-500",
-      bgColor: "bg-cyan-500/10",
       link: "/study-classes",
     },
     {
-      title: "Total Users",
+      title: "Users",
       value: stats.users,
       icon: Users,
       description: "Pengguna terdaftar",
-      color: "text-pink-500",
-      bgColor: "bg-pink-500/10",
       link: "/users",
     },
   ];
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold">
-          Selamat datang, {user?.display_name?.trim() || "Admin"}
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Overview sistem pembelajaran WebTech Training Center
-        </p>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {statsCards.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Card
-              key={stat.title}
-              className="hover:shadow-md transition-all duration-200 cursor-pointer hover:scale-[1.02]"
-            >
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {stat.title}
-                </CardTitle>
-                <div className={`p-2 rounded-lg ${stat.bgColor}`}>
-                  <Icon className={`h-4 w-4 ${stat.color}`} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-baseline gap-2">
-                  <div className="text-3xl font-bold">{stat.value}</div>
-                  <TrendingUp className="h-4 w-4 text-green-500" />
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {stat.description}
-                </p>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-
-      {/* System Overview */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Quick Stats */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5" />
-              Quick Stats
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between py-2 border-b">
-              <span className="text-sm text-muted-foreground">Content Total</span>
-              <span className="font-semibold">
-                {stats.tracks + stats.modules + stats.lessons} items
-              </span>
-            </div>
-            <div className="flex items-center justify-between py-2 border-b">
-              <span className="text-sm text-muted-foreground">Avg Modules/Track</span>
-              <span className="font-semibold">
-                {stats.tracks > 0
-                  ? Math.round(stats.modules / stats.tracks)
-                  : 0}{" "}
-                modules
-              </span>
-            </div>
-            <div className="flex items-center justify-between py-2 border-b">
-              <span className="text-sm text-muted-foreground">Avg Lessons/Module</span>
-              <span className="font-semibold">
-                {stats.modules > 0
-                  ? Math.round(stats.lessons / stats.modules)
-                  : 0}{" "}
-                lessons
-              </span>
-            </div>
-            <div className="flex items-center justify-between py-2">
-              <span className="text-sm text-muted-foreground">
-                Users per Class (avg)
-              </span>
-              <span className="font-semibold">
-                {stats.studyClasses > 0
-                  ? Math.round(stats.users / stats.studyClasses)
-                  : 0}{" "}
-                users
-              </span>
+      {/* Top Row: Admin Info + System Summary */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Admin Profile Card */}
+        <Card className="bg-slate-900 dark:bg-slate-950 text-white border-slate-800">
+          <CardContent className="p-6">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center text-xl font-bold">
+                {user?.avatar ? (
+                  <img
+                    src={user.avatar}
+                    alt={user.display_name || "Admin"}
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                ) : (
+                  <span>{user?.display_name?.charAt(0)?.toUpperCase() || "A"}</span>
+                )}
+              </div>
+              <div className="flex-1">
+                <h2 className="text-xl font-semibold mb-1">
+                  {user?.display_name?.trim() || "Admin"}
+                </h2>
+                <p className="text-sm text-slate-300 mb-2">{user?.email || ""}</p>
+                {user?.roles && user.roles.length > 0 && (
+                  <Badge variant="secondary" className="text-xs">
+                    {user.roles[0].display_name || user.roles[0].name || "Administrator"}
+                  </Badge>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
 
+        {/* System Summary */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold">System Overview</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Total Content</span>
+              <span className="font-semibold">
+                {stats.tracks + stats.modules + stats.lessons} items
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Avg Modules/Track</span>
+              <span className="font-semibold">
+                {stats.tracks > 0 ? Math.round(stats.modules / stats.tracks) : 0}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span className="text-muted-foreground">Avg Lessons/Module</span>
+              <span className="font-semibold">
+                {stats.modules > 0 ? Math.round(stats.lessons / stats.modules) : 0}
+              </span>
+            </div>
+            <div className="flex justify-between text-sm pt-2 border-t">
+              <span className="text-muted-foreground">Active Users</span>
+              <span className="font-semibold">{stats.users}</span>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Stats Cards Grid */}
+      <div>
+        <h2 className="text-lg font-semibold mb-4">Platform Statistics</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+          {statsCards.map((stat) => {
+            const Icon = stat.icon;
+            return (
+              <Link key={stat.title} to={stat.link}>
+                <Card className="hover:shadow-md transition-shadow">
+                  <CardContent className="p-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800">
+                        <Icon className="h-4 w-4" />
+                      </div>
+                    </div>
+                    <div className="text-2xl font-bold mb-1">{stat.value}</div>
+                    <div className="text-xs text-muted-foreground">{stat.title}</div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Content Sections */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Tracks */}
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="flex items-center gap-2">
-              <BookOpen className="h-5 w-5" />
+          <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <BookOpen className="h-4 w-4" />
               Recent Tracks
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/tracks">View All</Link>
+              <Link to="/tracks" className="text-xs">
+                View All
+              </Link>
             </Button>
           </CardHeader>
           <CardContent>
             {recentTracks.length === 0 ? (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground py-4">
                 Belum ada tracks tersedia.
               </p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {recentTracks.map((track) => (
-                  <div
+                  <Link
                     key={track.id}
-                    className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted/50 transition-colors"
+                    to={`/tracks/${track.slug}`}
+                    className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors border"
                   >
-                    <div className="p-2 rounded bg-blue-500/10">
-                      <BookOpen className="h-4 w-4 text-blue-500" />
+                    <div className="p-2 rounded bg-slate-100 dark:bg-slate-800">
+                      <BookOpen className="h-4 w-4" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{track.name}</p>
-                      <p className="text-xs text-muted-foreground truncate">
+                      <p className="text-xs text-muted-foreground line-clamp-1">
                         {track.description}
                       </p>
                     </div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}
           </CardContent>
         </Card>
-      </div>
 
-      {/* Quick Actions */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            <Button variant="outline" className="justify-start" asChild>
-              <Link to="/tracks">
-                <BookOpen className="h-4 w-4 mr-2" />
-                Manage Tracks
-              </Link>
-            </Button>
-            <Button variant="outline" className="justify-start" asChild>
-              <Link to="/modules">
-                <Package className="h-4 w-4 mr-2" />
-                Manage Modules
-              </Link>
-            </Button>
-            <Button variant="outline" className="justify-start" asChild>
-              <Link to="/lessons">
-                <FileText className="h-4 w-4 mr-2" />
-                Manage Lessons
-              </Link>
-            </Button>
-            <Button variant="outline" className="justify-start" asChild>
-              <Link to="/student/challenges">
-                <Trophy className="h-4 w-4 mr-2" />
-                View Challenges
-              </Link>
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Quick Actions */}
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base font-semibold flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Quick Actions
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 gap-3">
+              <Button variant="outline" className="justify-start h-auto py-3" asChild>
+                <Link to="/tracks">
+                  <div className="flex flex-col items-start gap-1 w-full">
+                    <BookOpen className="h-4 w-4 mb-1" />
+                    <span className="text-xs font-medium">Manage Tracks</span>
+                  </div>
+                </Link>
+              </Button>
+              <Button variant="outline" className="justify-start h-auto py-3" asChild>
+                <Link to="/modules">
+                  <div className="flex flex-col items-start gap-1 w-full">
+                    <Package className="h-4 w-4 mb-1" />
+                    <span className="text-xs font-medium">Manage Modules</span>
+                  </div>
+                </Link>
+              </Button>
+              <Button variant="outline" className="justify-start h-auto py-3" asChild>
+                <Link to="/lessons">
+                  <div className="flex flex-col items-start gap-1 w-full">
+                    <FileText className="h-4 w-4 mb-1" />
+                    <span className="text-xs font-medium">Manage Lessons</span>
+                  </div>
+                </Link>
+              </Button>
+              <Button variant="outline" className="justify-start h-auto py-3" asChild>
+                <Link to="/student/challenges">
+                  <div className="flex flex-col items-start gap-1 w-full">
+                    <Trophy className="h-4 w-4 mb-1" />
+                    <span className="text-xs font-medium">View Challenges</span>
+                  </div>
+                </Link>
+              </Button>
+              <Button variant="outline" className="justify-start h-auto py-3" asChild>
+                <Link to="/study-classes">
+                  <div className="flex flex-col items-start gap-1 w-full">
+                    <School className="h-4 w-4 mb-1" />
+                    <span className="text-xs font-medium">Study Classes</span>
+                  </div>
+                </Link>
+              </Button>
+              <Button variant="outline" className="justify-start h-auto py-3" asChild>
+                <Link to="/users">
+                  <div className="flex flex-col items-start gap-1 w-full">
+                    <Users className="h-4 w-4 mb-1" />
+                    <span className="text-xs font-medium">Manage Users</span>
+                  </div>
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

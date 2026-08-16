@@ -23,6 +23,16 @@ export default function StudentSidebar() {
   const { user } = useAuth();
   const { toggleSidebar, state } = useSidebar();
 
+  // Time-based animation: Morning (6am-6pm) or Night (6pm-6am)
+  const getTimeBasedAnimation = () => {
+    const hour = new Date().getHours();
+    return hour >= 6 && hour < 18
+      ? "/videos/MorningAnimation.mp4"
+      : "/videos/NightAnimation.mp4";
+  };
+
+  const [videoSrc] = React.useState(getTimeBasedAnimation());
+
   const menus = {
     main: [
       { name: "Beranda", icon: Home, href: "/student/dashboard", isExternal: false },
@@ -70,16 +80,35 @@ export default function StudentSidebar() {
 
   return (
     <Sidebar collapsible="icon" variant="sidebar">
-      <SidebarHeader className="my-2">
-        {/* Brand */}
-        <div className={`pt-2 flex items-center ${state === "collapsed" ? "justify-center" : "justify-between pl-4"}`}>
-          {state === "expanded" && <span className="text-md font-bold tracking-tight">WebTech TC</span>}
-          <button onClick={toggleSidebar} className={`p-1.5 rounded hover:bg-muted/50 transition-colors ${state === "collapsed" ? "" : "mr-2"}`}>
-            <SidebarIcon className="h-4 w-4" />
-          </button>
+      <SidebarHeader className="gap-0 p-0">
+        {/* Video Animation - Full width, no padding */}
+        <div className="relative w-full overflow-hidden">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-36 object-cover"
+            key={videoSrc}
+          >
+            <source src={videoSrc} type="video/mp4" />
+          </video>
+
+          {/* Logo and toggle button overlay on video */}
+          <div className="absolute top-4 left-4 flex items-center justify-between w-[calc(100%-2rem)]">
+            <span className="text-base font-bold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+              WebTech TC.
+            </span>
+            <button
+              onClick={toggleSidebar}
+              className="p-1.5 rounded hover:bg-white/10 transition-colors backdrop-blur-sm"
+            >
+              <SidebarIcon className="h-4 w-4 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" />
+            </button>
+          </div>
         </div>
       </SidebarHeader>
-      <div className=" border-t mx-4 " />
+      <div className="border-t mx-4" />
       <SidebarContent>
         <div className="flex flex-col mt-4">
           {/* Main menu */}
