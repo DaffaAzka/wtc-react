@@ -28,6 +28,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   ChevronDown,
   ChevronRight,
+  LayoutDashboard,
   LayersIcon,
   LifeBuoyIcon,
   ListTreeIcon,
@@ -46,15 +47,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
   const [courseMgmtOpen, setCourseMgmtOpen] = React.useState(true); // ← tambahin ini
 
+  // Time-based animation: Morning (6am-6pm) or Night (6pm-6am)
+  const getTimeBasedAnimation = () => {
+    const hour = new Date().getHours();
+    return hour >= 6 && hour < 18
+      ? "/videos/MorningAnimation.mp4"
+      : "/videos/NightAnimation.mp4";
+  };
+
+  const [videoSrc] = React.useState(getTimeBasedAnimation());
+
   const isAdmin =
     user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;
 
   const navFlat = [
     {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: LayoutDashboard,
+      isActive: false,
+    },
+    {
       title: "Courses",
       url: "/courses",
       icon: TerminalSquareIcon,
-      isActive: true,
+      isActive: false,
     },
   ];
 
@@ -80,35 +97,52 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       variant="sidebar"
       className="border-sidebar-border bg-sidebar text-sidebar-foreground"
       {...props}>
-      <SidebarHeader className="gap-4">
-        {/* Wordmark */}
-        <div className="px-2 pt-1">
-          <span className="text-sm font-bold tracking-tight text-sidebar-foreground">
-            WebTech TC.
-          </span>
-        </div>
+      <SidebarHeader className="gap-0 p-0">
+        {/* Video Animation - Full width, no padding */}
+        <div className="relative w-full overflow-hidden">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="w-full h-36 object-cover"
+            key={videoSrc}
+          >
+            <source src={videoSrc} type="video/mp4" />
+          </video>
 
-        <div className="flex items-center gap-3 px-2">
-          <Avatar className="h-11 w-11 border border-sidebar-border">
-            <AvatarImage
-              src={user?.avatar ?? undefined}
-              alt={user?.display_name ?? ""}
-            />
-            <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground">
-              <UserIcon className="h-5 w-5" />
-            </AvatarFallback>
-          </Avatar>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-sidebar-foreground">
-              {user?.display_name ?? "Undefined"}
-            </p>
-            <span className="mt-0.5 inline-block rounded-full bg-chart-2 px-2 py-0.5 text-[11px] font-semibold text-sidebar">
-              {firstCharacterUppercase(user?.roles?.[0]?.name ?? "Undefined")}
+          {/* Logo overlay on video */}
+          <div className="absolute top-4 left-4">
+            <span className="text-base font-bold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+              WebTech TC.
             </span>
           </div>
         </div>
 
-        <SidebarSeparator className="mx-0 bg-sidebar-border/60" />
+        {/* Rest of content with padding restored */}
+        <div className="flex flex-col gap-4 px-4 pt-4">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-11 w-11 border border-sidebar-border">
+              <AvatarImage
+                src={user?.avatar ?? undefined}
+                alt={user?.display_name ?? ""}
+              />
+              <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground">
+                <UserIcon className="h-5 w-5" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-sidebar-foreground">
+                {user?.display_name ?? "Undefined"}
+              </p>
+              <span className="mt-0.5 inline-block rounded-full bg-chart-2 px-2 py-0.5 text-[11px] font-semibold text-sidebar">
+                {firstCharacterUppercase(user?.roles?.[0]?.name ?? "Undefined")}
+              </span>
+            </div>
+          </div>
+
+          <SidebarSeparator className="mx-0 bg-sidebar-border/60" />
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
