@@ -2,7 +2,10 @@ import { Outlet, redirect } from "react-router";
 import type { Route } from "./+types/layout";
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: "WTC LMS" }, { name: "description", content: "Welcome to WTC LMS!" }];
+  return [
+    { title: "WTC LMS" },
+    { name: "description", content: "Welcome to WTC LMS!" },
+  ];
 }
 
 export async function clientLoader() {
