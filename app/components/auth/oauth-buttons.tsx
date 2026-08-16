@@ -16,10 +16,12 @@ export function OAuthButtons() {
     <div className="flex flex-col gap-3">
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
+          <div className="w-full border-t border-border/50" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+          <span className="bg-card px-3 font-mono tracking-wider text-muted-foreground/60">
+            or continue with
+          </span>
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
