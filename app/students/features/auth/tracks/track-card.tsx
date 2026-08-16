@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,23 +7,20 @@ import { BookOpen } from "lucide-react";
 
 interface TrackCardProps {
   track: Track;
-  variant?: "catalog" | "enrolled";
-  onEnroll?: (trackId: number) => void;
+  isEnrolled?: boolean;
+  onEnroll?: (trackSlug: string) => void;
   enrolling?: boolean;
 }
 
 export function TrackCard({ 
   track, 
-  variant = "catalog",
+  isEnrolled = false,
   onEnroll,
   enrolling = false 
 }: TrackCardProps) {
-  const [isEnrolled, setIsEnrolled] = useState(variant === "enrolled");
-
-  const handleEnroll = async () => {
+  const handleEnroll = () => {
     if (onEnroll) {
-      await onEnroll(track.id);
-      setIsEnrolled(true);
+      onEnroll(track.slug);
     }
   };
 
@@ -58,6 +54,11 @@ export function TrackCard({
               {track.modules_count} Modul
             </Badge>
           )}
+          {isEnrolled && (
+            <Badge variant="default" className="text-xs">
+              Sedang Dipelajari
+            </Badge>
+          )}
         </div>
 
         {/* Description */}
@@ -70,7 +71,7 @@ export function TrackCard({
 
       <CardFooter className="p-4 pt-0">
         {isEnrolled ? (
-          <Button asChild className="w-full" variant="outline">
+          <Button asChild variant="outline" className="w-full">
             <Link to={`/student/classes/${track.slug}`}>
               Lanjutkan Belajar
             </Link>

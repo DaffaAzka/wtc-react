@@ -21,9 +21,11 @@ export default [
         // Track/Class Routes (URL: /classes, API: /tracks)
         ...prefix("/classes", [
           index("routes/auth/student/tracks/index.tsx"),
-          route("/my-learning", "routes/auth/student/tracks/my-learning.tsx"),
           route("/:slug", "routes/auth/student/tracks/$slug.tsx"),
         ]),
+
+        // Progress/My Learning Page
+        route("/progress", "routes/auth/student/my-learning/index.tsx"),
     ]),
 
   ]),

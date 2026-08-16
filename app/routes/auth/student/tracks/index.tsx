@@ -1,21 +1,33 @@
 import { useGetTracks } from "@/hooks/tracks";
+import { useMyTracks, useEnrollTrack } from "@/students/hooks/enrollments";
 import { TrackCard } from "@/students/features/auth/tracks/track-card";
 import { TrackCardSkeleton } from "@/students/features/auth/tracks/track-card-skeleton";
 import { EmptyState } from "@/students/components/empty-state";
 import { BookOpen } from "lucide-react";
-import { toast } from "sonner";
 
 export default function TracksIndex() {
-  const { tracks, loading, error } = useGetTracks();
+  const { tracks, loading: tracksLoading, error: tracksError } = useGetTracks();
+  const { myTracks, loading: myTracksLoading } = useMyTracks();
+  const enrollMutation = useEnrollTrack();  
 
-  const handleEnroll = async (trackId: number) => {
-    // TODO: Implement actual enrollment API call when backend is ready
-    toast.success("Berhasil mendaftar kelas!", {
-      description: "Kamu sudah bisa mulai belajar sekarang.",
-    });
+  const loading = tracksLoading || myTracksLoading;
+
+  // Check if a track is enrolled
+  const isTrackEnrolled = (trackSlug: string): boolean => {
+    return myTracks.some((mt) => mt.slug === trackSlug);
   };
 
-  if (error) {
+  // Check if a specific track is currently being enrolled
+  const isEnrolling = (trackSlug: string): boolean => {
+    return enrollMutation.isPending && enrollMutation.variables === trackSlug;
+  };
+
+  // Handle enrollment
+  const handleEnroll = (trackSlug: string) => {
+    enrollMutation.mutate(trackSlug);
+  };
+
+  if (tracksError) {
     return (
       <div className="space-y-6">
         <div>
@@ -27,7 +39,7 @@ export default function TracksIndex() {
         <EmptyState
           icon={BookOpen}
           title="Gagal memuat data"
-          description={error.message || "Terjadi kesalahan saat memuat katalog kelas. Silakan coba lagi."}
+          description={tracksError.message || "Terjadi kesalahan saat memuat katalog kelas. Silakan coba lagi."}
         />
       </div>
     );
@@ -68,8 +80,9 @@ export default function TracksIndex() {
             <TrackCard
               key={track.id}
               track={track}
-              variant="catalog"
+              isEnrolled={isTrackEnrolled(track.slug)}
               onEnroll={handleEnroll}
+              enrolling={isEnrolling(track.slug)}
             />
           ))}
         </div>
