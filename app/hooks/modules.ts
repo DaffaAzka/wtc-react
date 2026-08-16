@@ -38,6 +38,21 @@ export function useGetModule(slug: string) {
   };
 }
 
+export function useGetModulesByTrack(trackSlug: string) {
+  const query = useQuery<Module[], ApiErrorResponse>({
+    queryKey: ["tracks", trackSlug, "modules"] as const,
+    queryFn: () => ModuleService.getByTrack(trackSlug),
+    enabled: !!trackSlug,
+  });
+
+  return {
+    modules: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refresh: query.refetch,
+  };
+}
+
 export function useStoreModule() {
   const queryClient = useQueryClient();
   return useMutation<
