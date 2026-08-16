@@ -12,9 +12,23 @@ export default [
     route("/login", "routes/guest/login.tsx"),
     route("/register", "routes/guest/register.tsx"),
     route("/auth/callback", "routes/auth/callback.tsx"),
-    // route("/auth/test", "routes/auth/test.tsx"),
   ]),
 
+  layout("routes/auth/student/layout.tsx", [
+      ...prefix("/student", [
+        route("/dashboard", "routes/auth/student/dashboard.tsx"),
+        
+        // Track/Class Routes (URL: /classes, API: /tracks)
+        ...prefix("/classes", [
+          index("routes/auth/student/tracks/index.tsx"),
+          route("/:slug", "routes/auth/student/tracks/$slug.tsx"),
+        ]),
+
+        // Progress/My Learning Page
+        route("/progress", "routes/auth/student/my-learning/index.tsx"),
+    ]),
+
+  ]),
   layout("routes/auth/layout.tsx", [
     route("/dashboard", "routes/auth/dashboard.tsx"),
     route("/courses", "routes/auth/courses/index.tsx"),
@@ -31,10 +45,10 @@ export default [
         index("routes/auth/admin/tracks/index.tsx"),
       ]),
 
-      // Module Routes â€” /:slug? covers both /modules and /:trackSlug/modules
+      // Module Routes — /:slug? covers both /modules and /:trackSlug/modules
       route("/:slug?/modules", "routes/auth/admin/modules/index.tsx"),
 
-      // Lesson Routes â€” /:slug? covers both /lessons and /:moduleSlug/lessons
+      // Lesson Routes — /:slug? covers both /lessons and /:moduleSlug/lessons
       route("/:slug?/lessons", "routes/auth/admin/lessons/index.tsx"),
       route("/:slug?/lessons/create", "routes/auth/admin/lessons/create.tsx"),
       route("/:slug?/lessons/:lessonSlug/update", "routes/auth/admin/lessons/update.tsx"),

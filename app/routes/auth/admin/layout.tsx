@@ -17,7 +17,14 @@ export async function clientLoader() {
   const isAdmin = user.roles?.some((role: any) => role.name.toLowerCase() === "admin");
 
   if (!isAdmin) {
-    throw redirect("/dashboard");
+    // Check if student - redirect to student dashboard
+    const isStudent = user.roles?.some((role: any) => role.name.toLowerCase() === "student");
+
+    if (isStudent) {
+      throw redirect("/student/dashboard");
+    } else {
+      throw redirect("/dashboard");
+    }
   }
 }
 

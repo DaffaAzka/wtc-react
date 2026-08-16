@@ -26,7 +26,15 @@ export function useLogin() {
       // Update auth context immediately so sidebar re-renders
       setUserData(mergedUser as any);
 
-      navigate("/dashboard");
+      // Role-based redirect - Check ADMIN first (since all users have student role)
+      const isAdmin = mergedUser.roles?.some((role: any) => role.name.toLowerCase() === "admin");
+
+      if (isAdmin) {
+        navigate("/dashboard");
+      } else {
+        // Regular students (only student role, no admin role)
+        navigate("/student/dashboard");
+      }
     },
   });
 }
@@ -52,7 +60,15 @@ export function useRegister() {
       // Update auth context immediately so sidebar re-renders
       setUserData(mergedUser as any);
 
-      navigate("/dashboard");
+      // Role-based redirect - Check ADMIN first (since all users have student role)
+      const isAdmin = mergedUser.roles?.some((role: any) => role.name.toLowerCase() === "admin");
+
+      if (isAdmin) {
+        navigate("/dashboard");
+      } else {
+        // Regular students (only student role, no admin role)
+        navigate("/student/dashboard");
+      }
     },
   });
 }

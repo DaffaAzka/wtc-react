@@ -27,6 +27,12 @@ export const ModuleService = {
     });
     return response.data.data!;
   },
+  getByTrack: async (trackSlug: string): Promise<Module[]> => {
+    const response = await api.get<ApiResponse<Module[]>>(
+      `/tracks/${trackSlug}/modules`,
+    );
+    return response.data.data!;
+  },
 
   getBySlug: async (slug: string): Promise<Module> => {
     const response = await api.get<ApiResponse<Module>>(`/modules/${slug}`);
