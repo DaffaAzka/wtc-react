@@ -11,9 +11,14 @@ import {
   SiPostgresql,
   SiGit,
   SiGraphql,
-  SiRedis
+  SiRedis,
+  SiLaravel,
+  SiKotlin,
+  SiFlutter,
+  SiMysql,
+  SiPhp
 } from "react-icons/si";
-import { FaAws } from "react-icons/fa";
+import { FaAws, FaJava } from "react-icons/fa";
 
 export function LandingPage() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -463,6 +468,42 @@ export function LandingPage() {
             <div className="group flex flex-col items-center justify-center rounded-xl border border-border/50 bg-card/30 p-6 backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:border-primary/30 hover:bg-card/50 hover:shadow-lg">
               <SiRedis className="mb-3 h-12 w-12 text-[#DC382D] transition-transform group-hover:scale-110" />
               <div className="text-sm font-medium text-foreground">Redis</div>
+            </div>
+
+            {/* Laravel */}
+            <div className="group flex flex-col items-center justify-center rounded-xl border border-border/50 bg-card/30 p-6 backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:border-primary/30 hover:bg-card/50 hover:shadow-lg">
+              <SiLaravel className="mb-3 h-12 w-12 text-[#FF2D20] transition-transform group-hover:rotate-12" />
+              <div className="text-sm font-medium text-foreground">Laravel</div>
+            </div>
+
+            {/* Kotlin */}
+            <div className="group flex flex-col items-center justify-center rounded-xl border border-border/50 bg-card/30 p-6 backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:border-primary/30 hover:bg-card/50 hover:shadow-lg">
+              <SiKotlin className="mb-3 h-12 w-12 text-[#7F52FF] transition-transform group-hover:scale-110" />
+              <div className="text-sm font-medium text-foreground">Kotlin</div>
+            </div>
+
+            {/* Flutter */}
+            <div className="group flex flex-col items-center justify-center rounded-xl border border-border/50 bg-card/30 p-6 backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:border-primary/30 hover:bg-card/50 hover:shadow-lg">
+              <SiFlutter className="mb-3 h-12 w-12 text-[#02569B] transition-transform group-hover:-translate-y-1" />
+              <div className="text-sm font-medium text-foreground">Flutter</div>
+            </div>
+
+            {/* Java */}
+            <div className="group flex flex-col items-center justify-center rounded-xl border border-border/50 bg-card/30 p-6 backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:border-primary/30 hover:bg-card/50 hover:shadow-lg">
+              <FaJava className="mb-3 h-12 w-12 text-[#007396] transition-transform group-hover:rotate-12" />
+              <div className="text-sm font-medium text-foreground">Java</div>
+            </div>
+
+            {/* MySQL */}
+            <div className="group flex flex-col items-center justify-center rounded-xl border border-border/50 bg-card/30 p-6 backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:border-primary/30 hover:bg-card/50 hover:shadow-lg">
+              <SiMysql className="mb-3 h-12 w-12 text-[#4479A1] transition-transform group-hover:scale-110" />
+              <div className="text-sm font-medium text-foreground">MySQL</div>
+            </div>
+
+            {/* PHP */}
+            <div className="group flex flex-col items-center justify-center rounded-xl border border-border/50 bg-card/30 p-6 backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:border-primary/30 hover:bg-card/50 hover:shadow-lg">
+              <SiPhp className="mb-3 h-12 w-12 text-[#777BB4] transition-transform group-hover:rotate-12" />
+              <div className="text-sm font-medium text-foreground">PHP</div>
             </div>
           </div>
         </div>
