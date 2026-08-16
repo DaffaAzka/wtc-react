@@ -1,14 +1,27 @@
 import React from "react";
 import { Link, useLocation } from "react-router";
-import { Home, BookOpen, GraduationCap, GitBranch, Award, Users, ArrowUpRight } from "lucide-react";
+import { Home, BookOpen, GraduationCap, GitBranch, Award, Users, ArrowUpRight, SidebarIcon, Divide } from "lucide-react";
 import { NavUser } from "@/components/nav-user";
 import { ModeToggle } from "@/components/custom/mode-toggle";
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/auth";
 
 export default function StudentSidebar() {
   const location = useLocation();
   const { user } = useAuth();
+  const { toggleSidebar, state } = useSidebar();
 
   const menus = {
     main: [
@@ -33,7 +46,7 @@ export default function StudentSidebar() {
           <SidebarMenuButton asChild>
             <a href={item.href} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Icon />
+                <Icon className="h-4 w-4" />
                 <span>{item.name}</span>
               </div>
               <ArrowUpRight className="h-3.5 w-3.5 opacity-60" />
@@ -47,7 +60,7 @@ export default function StudentSidebar() {
       <SidebarMenuItem>
         <SidebarMenuButton asChild isActive={isActive}>
           <Link to={item.href}>
-            <Icon />
+            <Icon className="h-4 w-4" />
             <span>{item.name}</span>
           </Link>
         </SidebarMenuButton>
@@ -56,42 +69,46 @@ export default function StudentSidebar() {
   };
 
   return (
-    <Sidebar variant="sidebar">
-      <SidebarHeader>
+    <Sidebar collapsible="icon" variant="sidebar">
+      <SidebarHeader className="my-2">
         {/* Brand */}
-        <div className="px-2 pt-1">
-          <span className="text-sm font-bold tracking-tight">WebTech TC</span>
+        <div className={`pt-2 flex items-center ${state === "collapsed" ? "justify-center" : "justify-between pl-4"}`}>
+          {state === "expanded" && <span className="text-md font-bold tracking-tight">WebTech TC</span>}
+          <button onClick={toggleSidebar} className={`p-1.5 rounded hover:bg-muted/50 transition-colors ${state === "collapsed" ? "" : "mr-2"}`}>
+            <SidebarIcon className="h-4 w-4" />
+          </button>
         </div>
       </SidebarHeader>
-
+      <div className=" border-t mx-4 " />
       <SidebarContent>
-        {/* Main menu */}
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menus.main.map((item, idx) => (
-                <NavItem key={idx} item={item} />
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <div className="flex flex-col mt-4">
+          {/* Main menu */}
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {menus.main.map((item, idx) => (
+                  <NavItem key={idx} item={item} />
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
 
-        {/* Learning section */}
-        <SidebarGroup>
-          <SidebarGroupLabel>Learning</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {menus.learning.map((item, idx) => (
-                <NavItem key={idx} item={item} />
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+          {/* Learning section */}
+          <SidebarGroup>
+            <SidebarGroupLabel>Learning</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {menus.learning.map((item, idx) => (
+                  <NavItem key={idx} item={item} />
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </div>
       </SidebarContent>
-
       <SidebarFooter>
-        <div className="flex items-center gap-1">
-          <div className="flex-1 min-w-0">
+        <div className={`flex ${state === "collapsed" ? "flex-col items-center gap-2" : "items-center gap-1"}`}>
+          <div className={state === "expanded" ? "flex-1 min-w-0" : ""}>
             <NavUser
               user={{
                 name: user?.display_name?.trim() || "Student",
