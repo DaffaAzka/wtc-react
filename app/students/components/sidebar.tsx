@@ -1,6 +1,8 @@
-import React from "react";
+"use client";
+
+import * as React from "react";
 import { Link, useLocation } from "react-router";
-import { Home, BookOpen, GraduationCap, GitBranch, Award, Users, ArrowUpRight, SidebarIcon, Divide } from "lucide-react";
+import { Home, BookOpen, GraduationCap, GitBranch, Award, Users, ArrowUpRight, UserIcon } from "lucide-react";
 import { NavUser } from "@/components/nav-user";
 import { ModeToggle } from "@/components/custom/mode-toggle";
 import {
@@ -14,14 +16,15 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/auth";
+import { firstCharacterUppercase } from "@/utils/global";
 
 export default function StudentSidebar() {
   const location = useLocation();
   const { user } = useAuth();
-  const { toggleSidebar, state } = useSidebar();
 
   // Time-based animation: Morning (6am-6pm) or Night (6pm-6am)
   const getTimeBasedAnimation = () => {
@@ -79,7 +82,10 @@ export default function StudentSidebar() {
   };
 
   return (
-    <Sidebar collapsible="icon" variant="sidebar">
+    <Sidebar
+      collapsible="icon"
+      variant="sidebar"
+      className="border-sidebar-border bg-sidebar text-sidebar-foreground border-r-0">
       <SidebarHeader className="gap-0 p-0">
         {/* Video Animation - Full width, no padding */}
         <div className="relative w-full overflow-hidden">
@@ -89,55 +95,70 @@ export default function StudentSidebar() {
             muted
             playsInline
             className="w-full h-36 object-cover"
-            key={videoSrc}
-          >
+            key={videoSrc}>
             <source src={videoSrc} type="video/mp4" />
           </video>
 
-          {/* Logo and toggle button overlay on video */}
-          <div className="absolute top-4 left-4 flex items-center justify-between w-[calc(100%-2rem)]">
+          {/* Logo overlay on video */}
+          <div className="absolute top-4 left-4">
             <span className="text-base font-bold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
               WebTech TC.
             </span>
-            <button
-              onClick={toggleSidebar}
-              className="p-1.5 rounded hover:bg-white/10 transition-colors backdrop-blur-sm"
-            >
-              <SidebarIcon className="h-4 w-4 text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]" />
-            </button>
           </div>
         </div>
-      </SidebarHeader>
-      <div className="border-t mx-4" />
-      <SidebarContent>
-        <div className="flex flex-col mt-4">
-          {/* Main menu */}
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {menus.main.map((item, idx) => (
-                  <NavItem key={idx} item={item} />
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
 
-          {/* Learning section */}
-          <SidebarGroup>
-            <SidebarGroupLabel>Learning</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {menus.learning.map((item, idx) => (
-                  <NavItem key={idx} item={item} />
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+        {/* Rest of content with padding restored */}
+        <div className="flex flex-col gap-4 px-4 pt-4">
+          <div className="flex items-center gap-3">
+            <Avatar className="h-11 w-11 border border-sidebar-border">
+              <AvatarImage
+                src={user?.avatar ?? undefined}
+                alt={user?.display_name ?? ""}
+              />
+              <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground">
+                <UserIcon className="h-5 w-5" />
+              </AvatarFallback>
+            </Avatar>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-sidebar-foreground">
+                {user?.display_name ?? "Student"}
+              </p>
+              <span className="mt-0.5 inline-block rounded-full bg-chart-2 px-2 py-0.5 text-[11px] font-semibold text-sidebar">
+                {firstCharacterUppercase(user?.roles?.[0]?.name ?? "Student")}
+              </span>
+            </div>
+          </div>
+
+          <SidebarSeparator className="mx-0 bg-sidebar-border/60" />
         </div>
+      </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menus.main.map((item, idx) => (
+                <NavItem key={idx} item={item} />
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Learning</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menus.learning.map((item, idx) => (
+                <NavItem key={idx} item={item} />
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
+
       <SidebarFooter>
-        <div className={`flex ${state === "collapsed" ? "flex-col items-center gap-2" : "items-center gap-1"}`}>
-          <div className={state === "expanded" ? "flex-1 min-w-0" : ""}>
+        <div className="flex items-center gap-1">
+          <div className="min-w-0 flex-1">
             <NavUser
               user={{
                 name: user?.display_name?.trim() || "Student",
