@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet } from "react-router";
-import StudentSidebar from "@/students/components/sidebar";
+import { AppSidebar } from "@/components/app-sidebar";
 import {
   SidebarInset,
   SidebarProvider,
@@ -21,8 +21,8 @@ export default function StudentLayout() {
   return (
     <SidebarProvider>
       <div className="flex h-screen w-screen bg-gray-50 dark:bg-gray-950">
-        <StudentSidebar />
-        <SidebarInset className="flex flex-1 flex-col overflow-y-auto ml-4">
+        <AppSidebar />
+        <SidebarInset className="flex flex-1 flex-col overflow-y-auto">
           <header className="flex h-16 shrink-0 items-center justify-between gap-2">
             <div className="flex items-center gap-2 px-4">
               <Breadcrumb>
