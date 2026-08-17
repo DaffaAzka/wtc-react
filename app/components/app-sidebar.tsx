@@ -38,6 +38,12 @@ import {
   TerminalSquareIcon,
   UserIcon,
   UsersIcon,
+  Home,
+  BookOpen,
+  GraduationCap,
+  GitBranch,
+  Award,
+  Users,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
 import { firstCharacterUppercase } from "@/utils/global";
@@ -60,6 +66,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isAdmin =
     user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;
 
+  // Admin navigation
   const navFlat = [
     {
       title: "Dashboard",
@@ -73,6 +80,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: TerminalSquareIcon,
       isActive: false,
     },
+  ];
+
+  // Student navigation
+  const studentNavMain = [
+    { title: "Beranda", url: "/student/dashboard", icon: Home },
+    { title: "Progress Belajar", url: "/student/progress", icon: GraduationCap },
+    { title: "Kelas", url: "/student/classes", icon: BookOpen },
+    { title: "Learning Path", url: "/student/learning-path", icon: GitBranch },
+  ];
+
+  const studentNavLearning = [
+    { title: "Tantangan", url: "/student/challenges", icon: Award },
+    { title: "Kelas Saya", url: "/student/study-classes", icon: Users },
   ];
 
   const courseManagementGroup = {
@@ -149,73 +169,108 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {/* Item datar teratas */}
-              {navFlat.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={item.isActive}>
-                    <Link to={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {/* Admin Navigation */}
               {isAdmin && (
-                <Collapsible
-                  open={courseMgmtOpen}
-                  onOpenChange={setCourseMgmtOpen}
-                  className="group/collapsible">
-                  <SidebarMenuItem className="relative">
-                    {" "}
-                    <SidebarMenuButton asChild className="pr-8">
-                      <Link to="/course-management">
-                        <courseManagementGroup.icon />
-                        <span>{courseManagementGroup.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                    <CollapsibleTrigger asChild>
-                      <button
-                        type="button"
-                        onClick={(e) => e.stopPropagation()}
-                        className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground">
-                        <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 group-data-[state=closed]/collapsible:-rotate-90" />
-                      </button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {courseManagementGroup.items.map((sub) => (
-                          <SidebarMenuSubItem key={sub.title}>
-                            <SidebarMenuSubButton asChild>
-                              <Link
-                                to={sub.url}
-                                className="flex items-center gap-2">
-                                <sub.icon className="h-3.5 w-3.5" />
-                                <span>{sub.title}</span>
-                              </Link>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  </SidebarMenuItem>
-                </Collapsible>
+                <>
+                  {navFlat.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild isActive={item.isActive}>
+                        <Link to={item.url}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                  <Collapsible
+                    open={courseMgmtOpen}
+                    onOpenChange={setCourseMgmtOpen}
+                    className="group/collapsible">
+                    <SidebarMenuItem className="relative">
+                      <SidebarMenuButton asChild className="pr-8">
+                        <Link to="/course-management">
+                          <courseManagementGroup.icon />
+                          <span>{courseManagementGroup.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                      <CollapsibleTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={(e) => e.stopPropagation()}
+                          className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground">
+                          <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 group-data-[state=closed]/collapsible:-rotate-90" />
+                        </button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {courseManagementGroup.items.map((sub) => (
+                            <SidebarMenuSubItem key={sub.title}>
+                              <SidebarMenuSubButton asChild>
+                                <Link
+                                  to={sub.url}
+                                  className="flex items-center gap-2">
+                                  <sub.icon className="h-3.5 w-3.5" />
+                                  <span>{sub.title}</span>
+                                </Link>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    </SidebarMenuItem>
+                  </Collapsible>
+                  {navSecondary.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <Link to={item.url} className="flex items-center">
+                          <item.icon />
+                          <span className="flex-1">{item.title}</span>
+                          <ChevronRight className="h-3.5 w-3.5 opacity-60" />
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </>
               )}
 
-              {/* Item datar dengan panah kanan - Admin only */}
-              {isAdmin && navSecondary.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link to={item.url} className="flex items-center">
-                      <item.icon />
-                      <span className="flex-1">{item.title}</span>
-                      <ChevronRight className="h-3.5 w-3.5 opacity-60" />
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {/* Student Navigation */}
+              {!isAdmin && (
+                <>
+                  {studentNavMain.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <Link to={item.url}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </>
+              )}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Student Learning Section */}
+        {!isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {studentNavLearning.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link to={item.url}>
+                        <item.icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
       </SidebarContent>
 
       <SidebarFooter>
