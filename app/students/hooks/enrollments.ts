@@ -16,19 +16,10 @@ export function useMyTracks() {
   const query = useQuery<MyTrack[], ApiErrorResponse>({
     queryKey: enrollmentKeys.myTracks,
     queryFn: async () => {
-      console.log("?? [useMyTracks] Fetching enrolled tracks...");
       const data = await EnrollmentService.getMyTracks();
-      console.log("? [useMyTracks] Received data:", data);
-      console.log("?? [useMyTracks] Total tracks:", data.length);
       return data;
     },
     refetchOnMount: "always",
-  });
-
-  console.log("?? [useMyTracks] Current state:", {
-    loading: query.isLoading,
-    tracksCount: query.data?.length ?? 0,
-    error: query.error,
   });
 
   return {
@@ -90,33 +81,26 @@ export function useTrackProgress(trackSlug: string) {
 // Enroll in a track
 export function useEnrollTrack() {
   const queryClient = useQueryClient();
-  
+
   return useMutation<TrackEnrollment, ApiErrorResponse, string>({
     mutationFn: async (trackSlug: string) => {
-      console.log("?? [useEnrollTrack] Enrolling in track:", trackSlug);
       const result = await EnrollmentService.enroll(trackSlug);
-      console.log("? [useEnrollTrack] Enrollment successful:", result);
       return result;
     },
     onSuccess: async (data, trackSlug) => {
-      console.log("?? [useEnrollTrack] Starting refetch after enrollment...");
-      
       // Explicitly refetch queries to ensure immediate update
       await Promise.all([
         queryClient.refetchQueries({ queryKey: enrollmentKeys.myTracks }),
         queryClient.refetchQueries({ queryKey: enrollmentKeys.myProgress }),
         queryClient.refetchQueries({ queryKey: enrollmentKeys.trackEnrollment(trackSlug) }),
       ]);
-      
-      console.log("? [useEnrollTrack] Refetch completed");
-      
+
       // Show success toast
       toast.success("Berhasil mendaftar ke track.", {
         description: "Kamu sudah bisa mulai belajar sekarang.",
       });
     },
     onError: (error) => {
-      console.error("? [useEnrollTrack] Enrollment failed:", error);
       toast.error("Gagal mendaftar ke track.", {
         description: error.message || "Terjadi kesalahan saat mendaftar.",
       });
