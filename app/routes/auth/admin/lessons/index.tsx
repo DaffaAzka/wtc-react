@@ -3,13 +3,14 @@ import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
 import { TableSkeleton } from "@/components/skeletons/table";
 import Header from "@/features/auth/lessons/header";
 import LessonsTable from "@/features/auth/lessons/table";
-import { useGetLessons } from "@/hooks/lessons";
+import { useGetLessons, useGetLessonsPaginated } from "@/hooks/lessons";
 import { useGetModule, useGetModules } from "@/hooks/modules";
 import { useGetTracks } from "@/hooks/tracks";
 import type { LessonFilter } from "@/types/filter";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
+import { Pagination } from "@/components/ui/pagination";
 import { Plus } from "lucide-react";
 import type { Route } from "./+types/index";
 
@@ -66,12 +67,18 @@ function StandaloneLessons() {
     undefined,
   );
   const [filters, setFilters] = useState<LessonFilter>({});
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(15);
 
   const { modules, loading: modulesLoading } = useGetModules(
     selectedTrackId ? { track_id: selectedTrackId } : undefined,
   );
 
-  const { lessons, loading, error, refresh } = useGetLessons(filters);
+  const { lessons, pagination, loading, error, refresh } = useGetLessonsPaginated({
+    ...filters,
+    page,
+    per_page: perPage,
+  });
 
   const selectedModule = modules.find(
     (m) => m.id.toString() === filters.module_id,
@@ -139,6 +146,23 @@ function StandaloneLessons() {
         error={error}
         onRetry={refresh}
       />
+
+      {pagination && (
+        <Pagination
+          currentPage={pagination.current_page}
+          lastPage={pagination.last_page}
+          total={pagination.total}
+          from={pagination.from}
+          to={pagination.to}
+          perPage={perPage}
+          onPageChange={setPage}
+          onPerPageChange={(newPerPage) => {
+            setPerPage(newPerPage);
+            setPage(1); // Reset to page 1 when changing per_page
+          }}
+          loading={loading}
+        />
+      )}
     </>
   );
 }

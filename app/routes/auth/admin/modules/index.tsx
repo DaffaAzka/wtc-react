@@ -1,6 +1,6 @@
 import SelectForm from "@/components/custom/select-form";
 import ModulesTable from "@/features/auth/modules/table";
-import { useGetModules } from "@/hooks/modules";
+import { useGetModules, useGetModulesPaginated } from "@/hooks/modules";
 import { useGetTracks } from "@/hooks/tracks";
 import type { ModuleFilter } from "@/types/filter";
 import { useState } from "react";
@@ -8,6 +8,7 @@ import type { Route } from "./+types";
 import ModalAdd from "@/features/auth/modules/modal-add";
 import type { Track } from "@/types/model";
 import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
+import { Pagination } from "@/components/ui/pagination";
 
 export default function IndexPage({ params }: Route.ComponentProps) {
   const { tracks, loading: trackLoading, error: trackError } = useGetTracks();
@@ -16,10 +17,14 @@ export default function IndexPage({ params }: Route.ComponentProps) {
   );
 
   const [filters, setFilters] = useState<ModuleFilter>({});
+  const [page, setPage] = useState(1);
+  const [perPage, setPerPage] = useState(15);
 
-  const { modules, error, loading, refresh } = useGetModules({
+  const { modules, pagination, error, loading, refresh } = useGetModulesPaginated({
     ...filters,
     track_id: filters.track_id ?? track?.id.toString(),
+    page,
+    per_page: perPage,
   });
 
   const selectedTrackId =
@@ -67,6 +72,23 @@ export default function IndexPage({ params }: Route.ComponentProps) {
         error={error}
         onRetry={refresh}
       />
+
+      {pagination && (
+        <Pagination
+          currentPage={pagination.current_page}
+          lastPage={pagination.last_page}
+          total={pagination.total}
+          from={pagination.from}
+          to={pagination.to}
+          perPage={perPage}
+          onPageChange={setPage}
+          onPerPageChange={(newPerPage) => {
+            setPerPage(newPerPage);
+            setPage(1); // Reset to page 1 when changing per_page
+          }}
+          loading={loading}
+        />
+      )}
     </>
   );
 }

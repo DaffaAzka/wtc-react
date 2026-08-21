@@ -1,7 +1,7 @@
 import { LessonService } from "@/services/lesson";
 import type { LessonFilter } from "@/types/filter";
 import type { Lesson } from "@/types/model";
-import type { ApiErrorResponse } from "@/types/response";
+import type { ApiErrorResponse, PaginatedResponse } from "@/types/response";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const lessonKeys = {
@@ -17,6 +17,23 @@ export function useGetLessons(filters?: LessonFilter) {
 
   return {
     lessons: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refresh: query.refetch,
+  };
+}
+
+export function useGetLessonsPaginated(
+  filters?: LessonFilter & { page?: number; per_page?: number },
+) {
+  const query = useQuery<PaginatedResponse<Lesson>, ApiErrorResponse>({
+    queryKey: [...lessonKeys.all, "paginated", filters],
+    queryFn: () => LessonService.getAllPaginated(filters),
+  });
+
+  return {
+    lessons: query.data?.data ?? [],
+    pagination: query.data?.meta,
     loading: query.isLoading,
     error: query.error ?? null,
     refresh: query.refetch,

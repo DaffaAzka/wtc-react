@@ -1,7 +1,7 @@
 import { ModuleService } from "@/services/module";
 import type { ModuleFilter } from "@/types/filter";
 import type { Module } from "@/types/model";
-import type { ApiErrorResponse } from "@/types/response";
+import type { ApiErrorResponse, PaginatedResponse } from "@/types/response";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const moduleKeys = {
@@ -17,6 +17,23 @@ export function useGetModules(filters?: ModuleFilter) {
 
   return {
     modules: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refresh: query.refetch,
+  };
+}
+
+export function useGetModulesPaginated(
+  filters?: ModuleFilter & { page?: number; per_page?: number },
+) {
+  const query = useQuery<PaginatedResponse<Module>, ApiErrorResponse>({
+    queryKey: [...moduleKeys.all, "paginated", filters],
+    queryFn: () => ModuleService.getAllPaginated(filters),
+  });
+
+  return {
+    modules: query.data?.data ?? [],
+    pagination: query.data?.meta,
     loading: query.isLoading,
     error: query.error ?? null,
     refresh: query.refetch,

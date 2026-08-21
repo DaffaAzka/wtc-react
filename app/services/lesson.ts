@@ -1,7 +1,7 @@
 import { api } from "@/lib/axios";
 import type { LessonFilter } from "@/types/filter";
 import type { Lesson } from "@/types/model";
-import type { ApiResponse } from "@/types/response";
+import type { ApiResponse, PaginatedResponse } from "@/types/response";
 
 type LessonRequest = Omit<
   Lesson,
@@ -29,6 +29,15 @@ export const LessonService = {
       params: filters,
     });
     return response.data.data!;
+  },
+
+  getAllPaginated: async (
+    filters?: LessonFilter & { page?: number; per_page?: number },
+  ): Promise<PaginatedResponse<Lesson>> => {
+    const response = await api.get<PaginatedResponse<Lesson>>("/lessons", {
+      params: { ...filters, pagination: true },
+    });
+    return response.data;
   },
 
   getBySlug: async (slug: string): Promise<Lesson> => {
