@@ -86,6 +86,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const studentNavLearning = [
     { title: "Tantangan", url: "/student/challenges", icon: Award },
     { title: "Kelas Saya", url: "/student/study-classes", icon: Users },
+    { title: "Submisi Saya", url: "/student/submissions", icon: FileText },
   ];
 
   const courseManagementGroup = {
@@ -101,6 +102,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const navSecondary = [
     { title: "User Management", url: "/user-management", icon: UsersIcon },
+    { title: "Study Classes", url: "/study-classes", icon: GraduationCap },
     { title: "Support", url: "#", icon: LifeBuoyIcon },
     { title: "Feedback", url: "#", icon: SendIcon },
   ];
