@@ -9,7 +9,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/students/components/empty-state";
 import { ArrowLeft, BookOpen, PlayCircle, CheckCircle, Loader2 } from "lucide-react";
 import { ProgressBarWithLabel, CircularProgress, CompletionBadge, LessonStatusIcon } from "@/components/progress/ProgressIndicators";
-import { cn } from "@/lib/utils";
 
 export default function TrackDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -114,44 +113,33 @@ export default function TrackDetail() {
 
                 {/* Description */}
                 {track.description && <p className="text-muted-foreground leading-relaxed">{track.description}</p>}
-              </div>
 
-              {/* Progress Section - Only show if enrolled and overview data is available */}
-              {isEnrolled && overview && (
-                <div className="space-y-3 p-4 rounded-lg bg-muted/50 border">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-medium text-muted-foreground">Progress Belajar</h3>
-                    <CompletionBadge completed={overview.progress.completed_lessons} total={overview.progress.total_lessons} label="pelajaran" />
-                  </div>
-                  <ProgressBarWithLabel value={overview.progress.percent} showPercentage size="lg" />
+                {/* Enrollment Button */}
+                <div className="pt-2">
+                  {isEnrolled ? (
+                    <Button variant="outline" onClick={() => unenroll(slug!)} disabled={unenrolling}>
+                      {unenrolling ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Memproses...
+                        </>
+                      ) : (
+                        "Keluar dari Track"
+                      )}
+                    </Button>
+                  ) : (
+                    <Button onClick={() => enroll(slug!)} disabled={enrolling || enrollmentLoading}>
+                      {enrolling ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Mendaftar...
+                        </>
+                      ) : (
+                        "Daftar Sekarang"
+                      )}
+                    </Button>
+                  )}
                 </div>
-              )}
-
-              {/* Enrollment Button */}
-              <div className="mt-auto pt-2">
-                {isEnrolled ? (
-                  <Button variant="outline" onClick={() => unenroll(slug!)} disabled={unenrolling} className="w-full">
-                    {unenrolling ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Memproses...
-                      </>
-                    ) : (
-                      "Keluar dari Track"
-                    )}
-                  </Button>
-                ) : (
-                  <Button onClick={() => enroll(slug!)} disabled={enrolling || enrollmentLoading} className="w-full">
-                    {enrolling ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Mendaftar...
-                      </>
-                    ) : (
-                      "Daftar Sekarang"
-                    )}
-                  </Button>
-                )}
               </div>
             </div>
           </CardContent>

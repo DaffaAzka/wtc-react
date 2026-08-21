@@ -9,11 +9,7 @@ import { Link } from "react-router";
 import { teamPhotos } from "@/components/custom/team-photos";
 
 export function meta() {
-<<<<<<< Updated upstream
-  return [{ title: "Register - WTC LMS" }, { name: "description", content: "Create a new account" }];
-=======
   return [{ title: "Create Account - WTC" }, { name: "description", content: "Create your WTC account and start learning" }];
->>>>>>> Stashed changes
 }
 
 export default function Register() {
@@ -28,8 +24,6 @@ export default function Register() {
     password_confirmation: "",
   });
 
-<<<<<<< Updated upstream
-=======
   useEffect(() => {
     setIsLoaded(true);
   }, []);
@@ -41,7 +35,6 @@ export default function Register() {
     return () => clearInterval(interval);
   }, [teamPhotos.length]);
 
->>>>>>> Stashed changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {

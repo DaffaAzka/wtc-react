@@ -84,22 +84,6 @@ export default function Login() {
         }}
       />
 
-<<<<<<< Updated upstream
-      <div className="relative z-10 w-full max-w-[380px]">
-        {/* wordmark */}
-        <div className="mb-6 flex flex-col items-center text-center">
-          <div className="relative mb-3 h-9 w-9 rotate-45 rounded-lg bg-gradient-to-br from-primary to-primary/60 shadow-[0_0_32px_-6px_var(--primary)]">
-            <span className="absolute inset-0 flex -rotate-45 items-center justify-center text-sm font-bold text-primary-foreground">
-              W
-            </span>
-          </div>
-          <span className="text-2xl font-bold tracking-tight text-foreground">
-            WTC
-          </span>
-          <span className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80">
-            Webtech Training Camp
-          </span>
-=======
       <style
         dangerouslySetInnerHTML={{
           __html: `
@@ -128,7 +112,6 @@ export default function Login() {
           </div>
           <span className="text-2xl font-bold tracking-tight text-foreground">WTC</span>
           <span className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80">Webtech Training Camp</span>
->>>>>>> Stashed changes
         </div>
 
         <form
@@ -145,38 +128,15 @@ export default function Login() {
             <p className="font-mono text-xs text-primary/90">
               <span className="text-muted-foreground">$</span> wtc auth login
             </p>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              Welcome back
-            </h1>
-            <p className="text-sm text-muted-foreground/80">
-              Sign in to continue your learning journey
-            </p>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Welcome back</h1>
+            <p className="text-sm text-muted-foreground/80">Sign in to continue your learning journey</p>
           </div>
 
 <<<<<<< Updated upstream
           <div className="mt-5 flex flex-col gap-3.5">
             {login.error && login.error?.message !== "Validation errors" && (
-              <Alert
-                variant="destructive"
-                className="animate-in fade-in-50 slide-in-from-top-2 border-destructive/30 bg-destructive/10 duration-300"
-              >
-                <AlertDescription>
-                  {login.error?.message ?? "An unknown error occurred."}
-                </AlertDescription>
-=======
-          <div className="space-y-1.5">
-            <p className="font-mono text-xs text-primary/90">
-              <span className="text-muted-foreground">$</span> wtc auth login
-            </p>
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Welcome back</h1>
-            <p className="text-sm text-muted-foreground/80">Sign in to continue your learning journey</p>
-          </div>
-
-          <div className="mt-6 flex flex-col gap-4">
-            {login.error && login.error?.message !== "Validation errors" && (
               <Alert variant="destructive" className="animate-in fade-in-50 slide-in-from-top-2 border-destructive/30 bg-destructive/10 duration-300">
                 <AlertDescription>{login.error?.message ?? "An unknown error occurred."}</AlertDescription>
->>>>>>> Stashed changes
               </Alert>
             )}
 
@@ -221,7 +181,6 @@ export default function Login() {
 
           <div className="mt-6">
             <LoadingButton loading={login.isPending} text="Sign in" />
->>>>>>> Stashed changes
           </div>
 
           <div className="mt-5 flex flex-col gap-3.5">
