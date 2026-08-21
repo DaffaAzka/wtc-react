@@ -22,10 +22,6 @@ export default function Login() {
     password: "",
   });
 
-<<<<<<< Updated upstream
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-=======
   useEffect(() => {
     setIsLoaded(true);
   }, []);
@@ -38,7 +34,6 @@ export default function Login() {
   }, [teamPhotos.length]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
->>>>>>> Stashed changes
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
