@@ -1,6 +1,6 @@
 import { api } from "@/lib/axios";
 import type { Track } from "@/types/model";
-import type { ApiResponse } from "@/types/response";
+import type { ApiResponse, PaginatedResponse } from "@/types/response";
 
 type TrackRequest = Omit<Track, "id" | "created_at" | "updated_at">;
 
@@ -23,6 +23,16 @@ export const TrackService = {
   getAll: async (): Promise<Track[]> => {
     const response = await api.get<ApiResponse<Track[]>>("/tracks");
     return response.data.data!;
+  },
+
+  getAllPaginated: async (params?: {
+    page?: number;
+    per_page?: number;
+  }): Promise<PaginatedResponse<Track>> => {
+    const response = await api.get<PaginatedResponse<Track>>("/tracks", {
+      params: { ...params, pagination: true },
+    });
+    return response.data;
   },
 
   getBySlug: async (slug: string): Promise<Track> => {

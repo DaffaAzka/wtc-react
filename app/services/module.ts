@@ -1,7 +1,7 @@
 import { api } from "@/lib/axios";
 import type { ModuleFilter } from "@/types/filter";
 import type { Module } from "@/types/model";
-import type { ApiResponse } from "@/types/response";
+import type { ApiResponse, PaginatedResponse } from "@/types/response";
 
 type ModuleRequest = Omit<Module, "id" | "created_at" | "updated_at">;
 
@@ -27,6 +27,16 @@ export const ModuleService = {
     });
     return response.data.data!;
   },
+
+  getAllPaginated: async (
+    filters?: ModuleFilter & { page?: number; per_page?: number },
+  ): Promise<PaginatedResponse<Module>> => {
+    const response = await api.get<PaginatedResponse<Module>>("/modules", {
+      params: { ...filters, pagination: true },
+    });
+    return response.data;
+  },
+
   getByTrack: async (trackSlug: string): Promise<Module[]> => {
     const response = await api.get<ApiResponse<Module[]>>(
       `/tracks/${trackSlug}/modules`,

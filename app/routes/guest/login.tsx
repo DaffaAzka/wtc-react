@@ -4,7 +4,7 @@ import { OAuthButtons } from "@/components/auth/oauth-buttons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useLogin } from "@/hooks/auth";
 import { getFieldError } from "@/utils/global";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
 
 export function meta() {
@@ -16,11 +16,32 @@ export function meta() {
 
 export default function Login() {
   const login = useLogin();
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
 
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+
+  const teamPhotos = [
+    "/images/team/team1.jpeg", // ✅ Foto yang sudah ada
+    "/images/team/team2.png", // Sementara pakai yang sama
+    "/images/team/team3.png", // Sementara pakai yang sama
+    "/images/team/team4.png", // Sementara pakai yang sama
+    "/images/team/team5.png", // Sementara pakai yang sama
+  ];
+
+  useEffect(() => {
+    setIsLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % teamPhotos.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [teamPhotos.length]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -31,21 +52,36 @@ export default function Login() {
   };
 
   return (
-    // `dark` forces the shadcn dark-theme tokens for this whole subtree,
-    // so InputForm / OAuthButtons / Alert / LoadingButton render correctly
-    // dark regardless of the user's site-wide theme — same technique
-    // Linear/Vercel use for auth pages that stay dark year-round.
     <div className="dark fixed inset-0 flex items-center justify-center overflow-hidden bg-background p-4">
-      {/* aurora glow — the one bold gesture on an otherwise quiet page */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-40 -left-32 h-[420px] w-[420px] rounded-full bg-primary/30 blur-[120px]" />
-        <div className="absolute -bottom-48 -right-24 h-[380px] w-[380px] rounded-full bg-primary/15 blur-[120px]" />
-        <div className="absolute top-1/2 left-1/2 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[100px]" />
+      {/* Background Carousel - Team Photos */}
+      <div className="absolute inset-0 z-0">
+        {teamPhotos.map((photo, index) => (
+          <div
+            key={index}
+            className={`absolute inset-0 transition-opacity duration-1000 ${
+              index === currentSlide ? "opacity-100" : "opacity-0"
+            }`}
+            style={{
+              backgroundImage: `url(${photo})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center 35%",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
+        ))}
       </div>
 
-      {/* fine dot grid, Vercel-style */}
+      <div className="absolute inset-0 z-[1] bg-gradient-to-br from-background/70 via-background/50 to-background/70" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-t from-background/60 via-transparent to-background/50" />
+
+      <div className="pointer-events-none absolute inset-0 z-[3]">
+        <div className="absolute -top-40 -left-32 h-[420px] w-[420px] animate-pulse rounded-full bg-primary/20 blur-[120px] duration-[4000ms]" />
+        <div className="absolute -bottom-48 -right-24 h-[380px] w-[380px] animate-pulse rounded-full bg-primary/10 blur-[120px] delay-1000 duration-[5000ms]" />
+        <div className="absolute top-1/2 left-1/2 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full bg-primary/8 blur-[100px] delay-500 duration-[3000ms]" />
+      </div>
+
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.15]"
+        className="pointer-events-none absolute inset-0 z-[3] opacity-[0.12]"
         style={{
           backgroundImage:
             "radial-gradient(circle, var(--border) 1px, transparent 1px)",
@@ -55,50 +91,80 @@ export default function Login() {
         }}
       />
 
-      <div className="relative z-10 w-full max-w-[380px]">
-        {/* wordmark */}
-        <div className="mb-6 flex flex-col items-center text-center">
-          <div className="relative mb-3 h-9 w-9 rotate-45 rounded-lg bg-gradient-to-br from-primary to-primary/60 shadow-[0_0_32px_-6px_var(--primary)]">
-            <span className="absolute inset-0 flex -rotate-45 items-center justify-center text-sm font-bold text-primary-foreground">
-              W
-            </span>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          @keyframes kenburns {
+            0% {
+              transform: scale(1) translate(0, 0);
+            }
+            50% {
+              transform: scale(1.03) translate(-1%, 0.5%);
+            }
+            100% {
+              transform: scale(1) translate(0, 0);
+            }
+          }
+        `
+      }} />
+
+      <div
+        className={`relative z-[10] w-full max-w-[420px] transition-all duration-700 ${
+          isLoaded
+            ? "translate-y-0 opacity-100"
+            : "translate-y-8 opacity-0"
+        }`}
+      >
+        <div className="mb-8 flex flex-col items-center text-center">
+          <div className="group relative mb-4">
+            <div className="absolute inset-0 h-11 w-11 rotate-45 rounded-xl bg-primary/20 blur-xl transition-all duration-300 group-hover:bg-primary/30" />
+            <div className="relative h-11 w-11 rotate-45 rounded-xl bg-gradient-to-br from-primary via-primary to-primary/70 shadow-[0_0_40px_-8px_var(--primary)] transition-all duration-300 group-hover:shadow-[0_0_50px_-6px_var(--primary)]">
+              <span className="absolute inset-0 flex -rotate-45 items-center justify-center text-base font-bold text-primary-foreground">
+                W
+              </span>
+            </div>
           </div>
-          <span className="text-xl font-bold tracking-tight text-foreground">
+          <span className="text-2xl font-bold tracking-tight text-foreground">
             WTC
           </span>
-          <span className="mt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
+          <span className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80">
             Webtech Training Camp
           </span>
         </div>
 
-        {/* card */}
         <form
           onSubmit={handleSubmit}
-          className="relative overflow-hidden rounded-2xl border border-border bg-card/70 p-6 shadow-2xl shadow-black/40 backdrop-blur-xl sm:p-7"
+          className="relative overflow-hidden rounded-2xl border border-border/60 bg-card/80 p-7 shadow-2xl shadow-black/50 backdrop-blur-xl transition-all duration-300 hover:border-border/80 hover:shadow-primary/5 sm:p-8"
         >
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/70 to-transparent" />
 
-          <p className="font-mono text-xs text-primary">
-            <span className="text-muted-foreground">$</span> wtc auth login
-          </p>
-          <h1 className="mt-2 text-xl font-semibold tracking-tight text-foreground">
-            Sign in to your account
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Continue building where you left off.
-          </p>
+          <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 hover:opacity-100">
+            <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent blur-sm" />
+          </div>
 
-          <div className="mt-5 flex flex-col gap-3.5">
+          <div className="space-y-1.5">
+            <p className="font-mono text-xs text-primary/90">
+              <span className="text-muted-foreground">$</span> wtc auth login
+            </p>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+              Welcome back
+            </h1>
+            <p className="text-sm text-muted-foreground/80">
+              Sign in to continue your learning journey
+            </p>
+          </div>
+
+          <div className="mt-6 flex flex-col gap-4">
             {login.error && login.error?.message !== "Validation errors" && (
               <Alert
                 variant="destructive"
-                className="bg-destructive/10 border-destructive/30"
+                className="animate-in fade-in-50 slide-in-from-top-2 border-destructive/30 bg-destructive/10 duration-300"
               >
                 <AlertDescription>
                   {login.error?.message ?? "An unknown error occurred."}
                 </AlertDescription>
               </Alert>
             )}
+
             <InputForm
               name="email"
               placeholder="you@webtech.camp"
@@ -108,32 +174,75 @@ export default function Login() {
               handleChange={handleChange}
               error={getFieldError(login.error?.errors, "email")}
             />
-            <InputForm
-              name="password"
-              text="Password"
-              type="password"
-              placeholder="••••••••"
-              value={form.password}
-              handleChange={handleChange}
-              error={getFieldError(login.error?.errors, "password")}
+
+            <div className="space-y-2">
+              <InputForm
+                name="password"
+                text="Password"
+                type="password"
+                placeholder="••••••••"
+                value={form.password}
+                handleChange={handleChange}
+                error={getFieldError(login.error?.errors, "password")}
+              />
+              <div className="flex justify-end">
+                <Link
+                  to="/forgot-password"
+                  className="text-xs font-medium text-muted-foreground transition-colors hover:text-primary"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <LoadingButton
+              loading={login.isPending}
+              text="Sign in"
+              className="w-full"
             />
           </div>
 
-          <div className="mt-5 flex flex-col gap-3.5">
-            <LoadingButton loading={login.isPending} text="Sign in" />
+          <div className="mt-6">
             <OAuthButtons />
           </div>
         </form>
 
-        <p className="mt-5 text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
-          <Link
-            to="/register"
-            className="font-medium text-foreground underline underline-offset-4 transition-colors hover:text-primary"
-          >
-            Create one
-          </Link>
-        </p>
+        <div className="mt-6 space-y-3 text-center">
+          <p className="text-sm text-muted-foreground">
+            Don't have an account?{" "}
+            <Link
+              to="/register"
+              className="font-semibold text-foreground underline decoration-primary/30 underline-offset-4 transition-all hover:decoration-primary"
+            >
+              Create one
+            </Link>
+          </p>
+
+          <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground/60">
+            <Link
+              to="/privacy"
+              className="transition-colors hover:text-muted-foreground"
+            >
+              Privacy
+            </Link>
+            <span>•</span>
+            <Link
+              to="/terms"
+              className="transition-colors hover:text-muted-foreground"
+            >
+              Terms
+            </Link>
+            <span>•</span>
+            <Link
+              to="/help"
+              className="transition-colors hover:text-muted-foreground"
+            >
+              Help
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

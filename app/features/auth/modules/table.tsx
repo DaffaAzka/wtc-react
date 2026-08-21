@@ -83,12 +83,26 @@ export default function ModulesTable({
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return data;
-    return data.filter(
-      (module) =>
-        module.title.toLowerCase().includes(q) ||
-        module.slug.toLowerCase().includes(q),
-    );
+    let result = data;
+
+    // Apply search filter
+    if (q) {
+      result = data.filter(
+        (module) =>
+          module.title.toLowerCase().includes(q) ||
+          module.slug.toLowerCase().includes(q),
+      );
+    }
+
+    // Sort by track_id first, then by order
+    return [...result].sort((a, b) => {
+      // First sort by track_id
+      if (a.track_id !== b.track_id) {
+        return (a.track_id || 0) - (b.track_id || 0);
+      }
+      // Then sort by order
+      return (a.order || 0) - (b.order || 0);
+    });
   }, [data, search]);
 
   const showToolbar = !loading && !error && data.length > 0;
@@ -158,9 +172,6 @@ export default function ModulesTable({
             <thead>
               <tr className="border-b border-border text-left text-xs text-muted-foreground">
                 <th className="px-4 py-2 font-medium">Title</th>
-                <th className="hidden px-4 py-2 font-medium sm:table-cell">
-                  Order
-                </th>
                 <th className="hidden px-4 py-2 font-medium md:table-cell">
                   Updated
                 </th>
@@ -181,9 +192,6 @@ export default function ModulesTable({
                           /{module.slug}
                         </span>
                       </div>
-                    </td>
-                    <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
-                      {module.order ?? "—"}
                     </td>
                     <td className="hidden px-4 py-3 text-xs text-muted-foreground md:table-cell">
                       {updated}
