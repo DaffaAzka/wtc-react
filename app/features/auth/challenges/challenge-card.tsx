@@ -74,7 +74,7 @@ export default function ChallengeCard({
               )}
               <CardTitle className="text-lg truncate">{challenge.title}</CardTitle>
             </div>
-            
+
             {/* Type and Difficulty badges */}
             <div className="flex items-center gap-2 flex-wrap">
               <Badge variant="outline" className="font-normal">
@@ -87,13 +87,13 @@ export default function ChallengeCard({
               )}
             </div>
           </div>
-          
+
           {/* Action menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="shrink-0"
                 aria-label={`Actions for ${challenge.title}`}>
                 <MoreVertical className="h-4 w-4" />

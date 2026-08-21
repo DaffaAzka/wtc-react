@@ -1,72 +1,113 @@
 import { api } from "@/lib/axios";
 import type { ApiResponse } from "@/types/response";
-import type {
-  Submission,
-  SubmissionDetail,
-  SubmissionCreateRequest,
-  SubmissionUpdateRequest,
-  SubmissionFileResponse,
-} from "@/types/submission";
+
+// Submission types
+export type Submission = {
+  id: number;
+  profile_id: number;
+  challenge_id: number;
+  attempt_number: number;
+  file_path: string | null;
+  content: string | null;
+  status: "draft" | "submitted" | "graded" | "returned";
+  score: number | null;
+  feedback: string | null;
+  submitted_at: string | null;
+  graded_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type SubmissionWithProfile = Submission & {
+  profile: {
+    id: number;
+    display_name: string | null;
+    email: string;
+    avatar: string | null;
+  };
+};
+
+export type SubmissionDetail = {
+  submission: SubmissionWithProfile & {
+    challenge: {
+      id: number;
+      title: string;
+      slug: string;
+      type: string;
+      max_score: number;
+    };
+  };
+  file?: {
+    name: string;
+    url: string;
+    expires_at: string;
+  };
+};
+
+export type ChallengeSubmissionsData = {
+  challenge: {
+    id: number;
+    title: string;
+    slug: string;
+    type: string;
+    max_score: number;
+    allowed_attempts: number;
+  };
+  students: Array<{
+    profile: {
+      id: number;
+      display_name: string | null;
+      email: string;
+      avatar: string | null;
+    };
+    submission_count: number;
+    status: "not_submitted" | "submitted";
+    attempts: Array<{
+      id: number;
+      attempt_number: number;
+      status: string;
+      score: number | null;
+      submitted_at: string | null;
+    }>;
+  }>;
+};
+
+export type SubmitRequest = {
+  file?: File;
+  content?: string;
+};
+
+export type UpdateSubmissionRequest = {
+  status?: "draft" | "submitted" | "graded" | "returned";
+  score?: number;
+  feedback?: string;
+};
 
 export const SubmissionService = {
   /**
-   * Get all submissions for a specific challenge
+   * Get all student submissions for a challenge (admin/instructor)
    * GET /challenges/{challengeId}/submissions
    */
-  getAll: async (challengeId: number): Promise<Submission[]> => {
-    const response = await api.get<ApiResponse<Submission[]>>(
-      `/challenges/${challengeId}/submissions`
+  index: async (challengeId: number): Promise<ChallengeSubmissionsData> => {
+    const response = await api.get<ApiResponse<ChallengeSubmissionsData>>(
+      `/challenges/${challengeId}/submissions`,
     );
     return response.data.data!;
   },
 
   /**
-   * Get student's own submissions for a specific challenge
-   * GET /challenges/{challengeId}/my-submissions
-   */
-  mySubmissions: async (challengeId: number): Promise<SubmissionDetail[]> => {
-    const response = await api.get<ApiResponse<SubmissionDetail[]>>(
-      `/challenges/${challengeId}/my-submissions`
-    );
-    return response.data.data!;
-  },
-
-  /**
-   * Get all submissions for the authenticated user across all challenges
-   * GET /my-submissions
-   */
-  getAllMySubmissions: async (): Promise<SubmissionDetail[]> => {
-    const response = await api.get<ApiResponse<SubmissionDetail[]>>("/my-submissions");
-    return response.data.data!;
-  },
-
-  /**
-   * Get a single submission by ID
-   * GET /submissions/{submissionId}
-   */
-  getById: async (submissionId: number): Promise<SubmissionDetail> => {
-    const response = await api.get<ApiResponse<SubmissionDetail>>(
-      `/submissions/${submissionId}`
-    );
-    return response.data.data!;
-  },
-
-  /**
-   * Submit to a challenge
+   * Submit a new submission for a challenge
    * POST /challenges/{challengeId}/submit
    */
-  submit: async (
-    challengeId: number,
-    data: SubmissionCreateRequest
-  ): Promise<Submission> => {
+  store: async (challengeId: number, request: SubmitRequest): Promise<Submission> => {
     const formData = new FormData();
 
-    if (data.content) {
-      formData.append("content", data.content);
+    if (request.file) {
+      formData.append("file", request.file);
     }
 
-    if (data.file) {
-      formData.append("file", data.file);
+    if (request.content) {
+      formData.append("content", request.content);
     }
 
     const response = await api.post<ApiResponse<Submission>>(
@@ -76,33 +117,47 @@ export const SubmissionService = {
         headers: {
           "Content-Type": "multipart/form-data",
         },
-      }
+      },
     );
 
     return response.data.data!;
   },
 
   /**
-   * Update a submission (for instructors/admins)
+   * Get authenticated user's submissions for a challenge
+   * GET /challenges/{challengeId}/my-submissions
+   */
+  mySubmissions: async (challengeId: number): Promise<Submission[]> => {
+    const response = await api.get<ApiResponse<Submission[]>>(
+      `/challenges/${challengeId}/my-submissions`,
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Get a single submission in detail
+   * GET /submissions/{submissionId}
+   */
+  show: async (submissionId: number): Promise<SubmissionDetail> => {
+    const response = await api.get<ApiResponse<SubmissionDetail>>(
+      `/submissions/${submissionId}`,
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Update a submission (for grading/feedback)
    * PUT /submissions/{submissionId}
    */
   update: async (
     submissionId: number,
-    data: SubmissionUpdateRequest
+    request: UpdateSubmissionRequest,
   ): Promise<Submission> => {
     const response = await api.put<ApiResponse<Submission>>(
       `/submissions/${submissionId}`,
-      data
+      request,
     );
     return response.data.data!;
-  },
-
-  /**
-   * Delete a submission
-   * DELETE /submissions/{submissionId}
-   */
-  delete: async (submissionId: number): Promise<void> => {
-    await api.delete(`/submissions/${submissionId}`);
   },
 
   /**
@@ -110,9 +165,18 @@ export const SubmissionService = {
    * GET /submissions/{submissionId}/file
    */
   file: async (submissionId: number): Promise<{ name: string; url: string; expires_at: string }> => {
-    const response = await api.get<ApiResponse<SubmissionFileResponse>>(
-      `/submissions/${submissionId}/file`
-    );
+    const response = await api.get<
+      ApiResponse<{ file: { name: string; url: string; expires_at: string } }>
+    >(`/submissions/${submissionId}/file`);
     return response.data.data!.file;
+  },
+
+  /**
+   * Get all submissions for the authenticated user across all challenges
+   * GET /my-submissions
+   */
+  getAllMySubmissions: async (): Promise<SubmissionDetail[]> => {
+    const response = await api.get<ApiResponse<SubmissionDetail[]>>("/my-submissions");
+    return response.data.data!;
   },
 };

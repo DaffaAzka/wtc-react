@@ -22,9 +22,12 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
+  Award,
+  BookOpen,
   ChevronDown,
   ChevronRight,
-  LayoutDashboard,
+  FileText,
+  Home,
   LayersIcon,
   LifeBuoyIcon,
   ListTreeIcon,
@@ -105,6 +108,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     { title: "Study Classes", url: "/study-classes", icon: GraduationCap },
     { title: "Support", url: "#", icon: LifeBuoyIcon },
     { title: "Feedback", url: "#", icon: SendIcon },
+  ];
+
+  // Student Navigation
+  const studentNavMain = [
+    { title: "Beranda", url: "/student", icon: Home },
+    { title: "Pembelajaran Saya", url: "/student/my-learning", icon: BookOpen },
+  ];
+
+  const studentNavLearning = [
+    { title: "Tantangan", url: "/student/challenges", icon: Award },
+    { title: "Kelas Saya", url: "/student/study-classes", icon: UsersIcon },
+    { title: "Submisi Saya", url: "/student/submissions", icon: FileText },
   ];
 
   return (

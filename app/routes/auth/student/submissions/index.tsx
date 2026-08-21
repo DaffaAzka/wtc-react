@@ -6,39 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  FileText,
-  Download,
-  Eye,
-  Search,
-  Filter,
-  CheckCircle2,
-  Clock,
-  XCircle,
-  AlertCircle,
-} from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FileText, Download, Eye, Search, Filter, CheckCircle2, Clock, XCircle, AlertCircle } from "lucide-react";
 import { format } from "date-fns";
 import { id as localeId } from "date-fns/locale";
 import type { SubmissionDetail } from "@/types/submission";
@@ -67,9 +38,7 @@ export default function MySubmissions() {
     // Search by challenge name
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter((sub) =>
-        sub.challenge?.title?.toLowerCase().includes(query)
-      );
+      filtered = filtered.filter((sub) => sub.challenge?.title?.toLowerCase().includes(query));
     }
 
     // Sort by submitted_at descending
@@ -80,10 +49,7 @@ export default function MySubmissions() {
 
   // Pagination
   const totalPages = Math.ceil(filteredSubmissions.length / itemsPerPage);
-  const paginatedSubmissions = filteredSubmissions.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const paginatedSubmissions = filteredSubmissions.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   // Stats
   const stats = useMemo(() => {
@@ -148,9 +114,7 @@ export default function MySubmissions() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold mb-2">Submisi Saya</h1>
-        <p className="text-muted-foreground">
-          Riwayat pengiriman tugas dan tantangan yang telah Anda kerjakan
-        </p>
+        <p className="text-muted-foreground">Riwayat pengiriman tugas dan tantangan yang telah Anda kerjakan</p>
       </div>
 
       {/* Stats */}
@@ -262,11 +226,7 @@ export default function MySubmissions() {
             <div className="p-12 text-center">
               <FileText className="h-16 w-16 text-muted-foreground/50 mx-auto mb-4" />
               <h3 className="text-lg font-semibold mb-2">Belum Ada Submisi</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchQuery || statusFilter !== "all"
-                  ? "Tidak ada submisi yang sesuai dengan filter Anda."
-                  : "Anda belum mengirimkan tantangan apapun."}
-              </p>
+              <p className="text-muted-foreground mb-4">{searchQuery || statusFilter !== "all" ? "Tidak ada submisi yang sesuai dengan filter Anda." : "Anda belum mengirimkan tantangan apapun."}</p>
               {(searchQuery || statusFilter !== "all") && (
                 <Button
                   variant="outline"
@@ -296,11 +256,7 @@ export default function MySubmissions() {
                     <TableRow key={submission.id}>
                       <TableCell>
                         <div className="font-medium">{submission.challenge?.title || "Untitled"}</div>
-                        {submission.feedback && (
-                          <p className="text-xs text-muted-foreground line-clamp-1 mt-1">
-                            {submission.feedback}
-                          </p>
-                        )}
+                        {submission.feedback && <p className="text-xs text-muted-foreground line-clamp-1 mt-1">{submission.feedback}</p>}
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
@@ -308,34 +264,19 @@ export default function MySubmissions() {
                             locale: localeId,
                           })}
                         </div>
-                        <div className="text-xs text-muted-foreground">
-                          {format(new Date(submission.submitted_at), "HH:mm")}
-                        </div>
+                        <div className="text-xs text-muted-foreground">{format(new Date(submission.submitted_at), "HH:mm")}</div>
                       </TableCell>
                       <TableCell>{getStatusBadge(submission.status)}</TableCell>
                       <TableCell>
-                        {submission.score !== null && submission.score !== undefined ? (
-                          <span className="font-semibold">{submission.score}</span>
-                        ) : (
-                          <span className="text-muted-foreground">-</span>
-                        )}
+                        {submission.score !== null && submission.score !== undefined ? <span className="font-semibold">{submission.score}</span> : <span className="text-muted-foreground">-</span>}
                       </TableCell>
                       <TableCell>
                         <div className="flex justify-end gap-2">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedSubmission(submission)}
-                          >
+                          <Button variant="ghost" size="sm" onClick={() => setSelectedSubmission(submission)}>
                             <Eye className="h-4 w-4" />
                           </Button>
                           {submission.file_path && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleDownload(submission.id)}
-                              disabled={downloadFile.isPending}
-                            >
+                            <Button variant="ghost" size="sm" onClick={() => handleDownload(submission.id)} disabled={downloadFile.isPending}>
                               <Download className="h-4 w-4" />
                             </Button>
                           )}
@@ -350,25 +291,13 @@ export default function MySubmissions() {
               {totalPages > 1 && (
                 <div className="flex items-center justify-between px-6 py-4 border-t">
                   <div className="text-sm text-muted-foreground">
-                    Menampilkan {(currentPage - 1) * itemsPerPage + 1} -{" "}
-                    {Math.min(currentPage * itemsPerPage, filteredSubmissions.length)} dari{" "}
-                    {filteredSubmissions.length} submisi
+                    Menampilkan {(currentPage - 1) * itemsPerPage + 1} - {Math.min(currentPage * itemsPerPage, filteredSubmissions.length)} dari {filteredSubmissions.length} submisi
                   </div>
                   <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                      disabled={currentPage === 1}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => setCurrentPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>
                       Previous
                     </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                      disabled={currentPage === totalPages}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
                       Next
                     </Button>
                   </div>
@@ -390,9 +319,7 @@ export default function MySubmissions() {
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Tantangan</label>
-                <p className="text-base font-semibold mt-1">
-                  {selectedSubmission.challenge?.title || "Untitled"}
-                </p>
+                <p className="text-base font-semibold mt-1">{selectedSubmission.challenge?.title || "Untitled"}</p>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -401,11 +328,7 @@ export default function MySubmissions() {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Nilai</label>
-                  <p className="text-base font-semibold mt-1">
-                    {selectedSubmission.score !== null && selectedSubmission.score !== undefined
-                      ? selectedSubmission.score
-                      : "-"}
-                  </p>
+                  <p className="text-base font-semibold mt-1">{selectedSubmission.score !== null && selectedSubmission.score !== undefined ? selectedSubmission.score : "-"}</p>
                 </div>
               </div>
               <div>
@@ -426,12 +349,7 @@ export default function MySubmissions() {
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">File</label>
                   <div className="mt-1">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDownload(selectedSubmission.id)}
-                      disabled={downloadFile.isPending}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => handleDownload(selectedSubmission.id)} disabled={downloadFile.isPending}>
                       <Download className="h-4 w-4 mr-2" />
                       Download File
                     </Button>
@@ -445,4 +363,3 @@ export default function MySubmissions() {
     </div>
   );
 }
-

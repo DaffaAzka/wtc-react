@@ -3,9 +3,16 @@ import { SubmissionService } from "@/services/submission";
 import type {
   Submission,
   SubmissionDetail,
+<<<<<<< Updated upstream
   SubmissionCreateRequest,
   SubmissionUpdateRequest,
 } from "@/types/submission";
+=======
+  ChallengeSubmissionsData,
+  SubmitRequest,
+  UpdateSubmissionRequest,
+} from "@/services/submission";
+>>>>>>> Stashed changes
 import { toast } from "sonner";
 
 // Query keys
@@ -18,18 +25,57 @@ export const submissionKeys = {
 };
 
 /**
+<<<<<<< Updated upstream
  * Hook to get all submissions for a challenge (admin/instructor view)
  */
 export function useSubmissions(challengeId: number) {
   return useQuery({
     queryKey: submissionKeys.challengeSubmissions(challengeId),
     queryFn: () => SubmissionService.getAll(challengeId),
+=======
+ * Hook to get all student submissions for a challenge (admin/instructor)
+ */
+export function useGetChallengeSubmissions(challengeId: number) {
+  return useQuery({
+    queryKey: submissionKeys.challengeSubmissions(challengeId),
+    queryFn: () => SubmissionService.index(challengeId),
+>>>>>>> Stashed changes
     enabled: !!challengeId,
   });
 }
 
 /**
+<<<<<<< Updated upstream
  * Hook to get student's own submissions for a specific challenge
+=======
+ * Hook to submit a challenge
+ */
+export function useSubmitChallenge() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ challengeId, request }: { challengeId: number; request: SubmitRequest }) =>
+      SubmissionService.store(challengeId, request),
+    onSuccess: (data, variables) => {
+      toast.success("Submission berhasil dikirim!");
+
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({
+        queryKey: submissionKeys.mySubmissions(variables.challengeId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: submissionKeys.challengeSubmissions(variables.challengeId),
+      });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Gagal mengirim submission");
+    },
+  });
+}
+
+/**
+ * Hook to get authenticated user's submissions for a challenge
+>>>>>>> Stashed changes
  */
 export function useMySubmissions(challengeId: number) {
   return useQuery({
@@ -40,6 +86,54 @@ export function useMySubmissions(challengeId: number) {
 }
 
 /**
+<<<<<<< Updated upstream
+=======
+ * Hook to get a single submission detail
+ */
+export function useGetSubmission(submissionId: number) {
+  return useQuery({
+    queryKey: submissionKeys.detail(submissionId),
+    queryFn: () => SubmissionService.show(submissionId),
+    enabled: !!submissionId,
+  });
+}
+
+/**
+ * Hook to update a submission (for grading/feedback)
+ */
+export function useUpdateSubmission() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      submissionId,
+      request,
+    }: {
+      submissionId: number;
+      request: UpdateSubmissionRequest;
+    }) => SubmissionService.update(submissionId, request),
+    onSuccess: (data) => {
+      toast.success("Submission berhasil diupdate!");
+
+      // Invalidate relevant queries
+      queryClient.invalidateQueries({
+        queryKey: submissionKeys.detail(data.id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: submissionKeys.challengeSubmissions(data.challenge_id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: submissionKeys.mySubmissions(data.challenge_id),
+      });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Gagal mengupdate submission");
+    },
+  });
+}
+
+/**
+>>>>>>> Stashed changes
  * Hook to get all submissions for the authenticated user
  */
 export function useAllMySubmissions() {
@@ -50,6 +144,7 @@ export function useAllMySubmissions() {
 }
 
 /**
+<<<<<<< Updated upstream
  * Hook to get a single submission by ID
  */
 export function useSubmission(submissionId: number) {
@@ -157,6 +252,8 @@ export function useDeleteSubmission() {
 }
 
 /**
+=======
+>>>>>>> Stashed changes
  * Hook to get submission file download URL
  */
 export function useGetSubmissionFile() {
@@ -167,9 +264,13 @@ export function useGetSubmissionFile() {
       window.open(data.url, "_blank");
     },
     onError: (error: any) => {
+<<<<<<< Updated upstream
       toast.error("Gagal mengambil file submission", {
         description: error.response?.data?.message || "Terjadi kesalahan saat mengambil file.",
       });
+=======
+      toast.error(error.response?.data?.message || "Gagal mengambil file submission");
+>>>>>>> Stashed changes
     },
   });
 }

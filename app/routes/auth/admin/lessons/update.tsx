@@ -1,4 +1,4 @@
-import { useGetLesson, useUpdateLesson } from "@/hooks/lessons";
+import { useGetLesson, useUpdateLesson, useAddLessonAttachment, useDeleteLessonAttachment } from "@/hooks/lessons";
 import type { Route } from "./+types/update";
 import { FormPageSkeleton } from "@/components/skeletons/form-page";
 import type { SerializedEditorState } from "lexical";
@@ -13,6 +13,8 @@ import { buildInitialEditorState, getFieldError } from "@/utils/global";
 export default function UpdatePage({ params }: Route.ComponentProps) {
   const { lesson, error, loading, refresh } = useGetLesson(params.lessonSlug);
   const updateLesson = useUpdateLesson();
+  const addAttachment = useAddLessonAttachment();
+  const deleteAttachment = useDeleteLessonAttachment();
   const [editorResetKey, setEditorResetKey] = useState(0);
   const [editorInitialState, setEditorInitialState] = useState<
     SerializedEditorState | undefined
@@ -25,6 +27,18 @@ export default function UpdatePage({ params }: Route.ComponentProps) {
     module_id: lesson?.module_id ?? "",
   });
   const [editorContent, setEditorContent] = useState("");
+
+  const [attachmentForm, setAttachmentForm] = useState<{
+    file: File | null;
+    title: string;
+    type: "material" | "reference" | "download" | "slides" | "document";
+    description: string;
+  }>({
+    file: null,
+    title: "",
+    type: "material",
+    description: "",
+  });
 
   useEffect(() => {
     if (!lesson) return;
@@ -70,6 +84,64 @@ export default function UpdatePage({ params }: Route.ComponentProps) {
         },
       },
     );
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setAttachmentForm((prev) => ({ ...prev, file }));
+  };
+
+  const handleAttachmentChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    setAttachmentForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleAddAttachment = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!lesson || !attachmentForm.file || !attachmentForm.title) return;
+
+    addAttachment.mutate(
+      {
+        lessonSlug: lesson.slug,
+        file: attachmentForm.file,
+        title: attachmentForm.title,
+        type: attachmentForm.type,
+        description: attachmentForm.description || undefined,
+      },
+      {
+        onSuccess: () => {
+          setAttachmentForm({
+            file: null,
+            title: "",
+            type: "material",
+            description: "",
+          });
+          const fileInput = document.getElementById("attachment-file") as HTMLInputElement;
+          if (fileInput) fileInput.value = "";
+          refresh();
+        },
+      },
+    );
+  };
+
+  const handleDeleteAttachment = (attachmentId: string) => {
+    if (!lesson) return;
+
+    if (window.confirm("Are you sure you want to delete this attachment?")) {
+      deleteAttachment.mutate(
+        {
+          lessonSlug: lesson.slug,
+          attachmentId,
+        },
+        {
+          onSuccess: () => {
+            refresh();
+          },
+        },
+      );
+    }
   };
 
   return (
