@@ -2,7 +2,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import InputForm from "@/components/custom/input-form";
 import LoadingButton from "@/components/custom/loading-button";
 import { RichEditor } from "@/components/custom/rich-editor";
-import { useStoreLesson } from "@/hooks/lessons";
+import { useStoreLesson, useAddLessonAttachment } from "@/hooks/lessons";
 import { useGetModule } from "@/hooks/modules";
 import { generateSlug, getFieldError } from "@/utils/global";
 import { useState } from "react";
@@ -12,6 +12,7 @@ import { FormPageSkeleton } from "@/components/skeletons/form-page";
 export default function CreatePage({ params }: Route.ComponentProps) {
   const { module, loading, error } = useGetModule(params.slug!);
   const storeLesson = useStoreLesson();
+  const addAttachment = useAddLessonAttachment();
   const [editorResetKey, setEditorResetKey] = useState(0);
 
   const [form, setForm] = useState({
@@ -23,6 +24,27 @@ export default function CreatePage({ params }: Route.ComponentProps) {
   });
 
   const [editorContent, setEditorContent] = useState("");
+
+  const [preparedAttachments, setPreparedAttachments] = useState<
+    Array<{
+      file: File;
+      title: string;
+      type: "material" | "reference" | "download" | "slides" | "document";
+      description: string;
+    }>
+  >([]);
+
+  const [attachmentForm, setAttachmentForm] = useState<{
+    file: File | null;
+    title: string;
+    type: "material" | "reference" | "download" | "slides" | "document";
+    description: string;
+  }>({
+    file: null,
+    title: "",
+    type: "material",
+    description: "",
+  });
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,

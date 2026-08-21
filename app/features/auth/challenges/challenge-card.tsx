@@ -6,15 +6,17 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import type { Challenge } from "@/types/model";
-import { Edit, MoreVertical, Trash2, Settings } from "lucide-react";
+import { Edit, MoreVertical, Trash2, Settings, ClipboardList } from "lucide-react";
 
 type Props = {
   challenge: Challenge;
   onEdit?: (challenge: Challenge) => void;
   onDelete?: (challenge: Challenge) => void;
   onManage?: (challenge: Challenge) => void;
+  onViewSubmissions?: (challenge: Challenge) => void;
 };
 
 const getChallengeTypeLabel = (type: string): string => {
@@ -54,6 +56,7 @@ export default function ChallengeCard({
   onEdit,
   onDelete,
   onManage,
+  onViewSubmissions,
 }: Props) {
   const questionCount = getQuestionCount(challenge);
 
@@ -97,6 +100,15 @@ export default function ChallengeCard({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              {onViewSubmissions && (
+                <>
+                  <DropdownMenuItem onClick={() => onViewSubmissions(challenge)}>
+                    <ClipboardList className="h-4 w-4 mr-2" />
+                    View Submissions
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
               {onManage && (
                 <DropdownMenuItem onClick={() => onManage(challenge)}>
                   <Settings className="h-4 w-4 mr-2" />
