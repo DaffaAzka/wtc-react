@@ -42,13 +42,6 @@ export default function Login() {
 
   return (
     <div className="dark fixed inset-0 flex items-center justify-center overflow-hidden bg-background p-4">
-<<<<<<< Updated upstream
-      {/* aurora glow — the one bold gesture on an otherwise quiet page */}
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-40 -left-32 h-[420px] w-[420px] rounded-full bg-primary/30 blur-[120px]" />
-        <div className="absolute -bottom-48 -right-24 h-[380px] w-[380px] rounded-full bg-primary/15 blur-[120px]" />
-        <div className="absolute top-1/2 left-1/2 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[100px]" />
-=======
       {/* Background Carousel - Team Photos */}
       <div className="absolute inset-0 z-0">
         {teamPhotos.map((photo, index) => (
@@ -72,7 +65,6 @@ export default function Login() {
         <div className="absolute -top-40 -left-32 h-105 w-105 animate-pulse rounded-full bg-primary/20 blur-[120px] duration-4000" />
         <div className="absolute -bottom-48 -right-24 h-[380px] w-[380px] animate-pulse rounded-full bg-primary/10 blur-[120px] delay-1000 duration-[5000ms]" />
         <div className="absolute top-1/2 left-1/2 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full bg-primary/8 blur-[100px] delay-500 duration-[3000ms]" />
->>>>>>> Stashed changes
       </div>
 
       <div
@@ -132,7 +124,6 @@ export default function Login() {
             <p className="text-sm text-muted-foreground/80">Sign in to continue your learning journey</p>
           </div>
 
-<<<<<<< Updated upstream
           <div className="mt-5 flex flex-col gap-3.5">
             {login.error && login.error?.message !== "Validation errors" && (
               <Alert variant="destructive" className="animate-in fade-in-50 slide-in-from-top-2 border-destructive/30 bg-destructive/10 duration-300">
@@ -149,7 +140,6 @@ export default function Login() {
               handleChange={handleChange}
               error={getFieldError(login.error?.errors, "email")}
             />
-<<<<<<< Updated upstream
             <InputForm
               name="password"
               text="Password"
@@ -159,7 +149,6 @@ export default function Login() {
               handleChange={handleChange}
               error={getFieldError(login.error?.errors, "password")}
             />
-=======
 
             <div className="space-y-2">
               <InputForm
@@ -189,17 +178,6 @@ export default function Login() {
           </div>
         </form>
 
-<<<<<<< Updated upstream
-        <p className="mt-5 text-center text-sm text-muted-foreground">
-          Don't have an account?{" "}
-          <Link
-            to="/register"
-            className="font-medium text-foreground underline underline-offset-4 transition-colors hover:text-primary"
-          >
-            Create one
-          </Link>
-        </p>
-=======
         <div className="mt-6 space-y-3 text-center">
           <p className="text-sm text-muted-foreground">
             Don't have an account?{" "}
@@ -222,7 +200,6 @@ export default function Login() {
             </Link>
           </div>
         </div>
->>>>>>> Stashed changes
       </div>
     </div>
   );
