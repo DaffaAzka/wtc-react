@@ -25,11 +25,12 @@ type Props = {
 };
 
 export default function ChallengeList({ challenges, context }: Props) {
+  const navigate = useNavigate();
   const deleteChallenge = useDeleteChallenge(
-    context.type === 'lesson' ? context.id : undefined,
-    context.type === 'module' ? context.slug : undefined
+    context.type === "lesson" ? context.id : undefined,
+    context.type === "module" ? context.slug : undefined,
   );
-  
+
   const [deleteDialog, setDeleteDialog] = useState<{
     challenge: Challenge | null;
     isOpen: boolean;
@@ -78,8 +79,12 @@ export default function ChallengeList({ challenges, context }: Props) {
             key={challenge.id}
             challenge={challenge}
             onEdit={(challenge) => setEditModal({ challenge, isOpen: true })}
-            onDelete={(challenge) => setDeleteDialog({ challenge, isOpen: true })}
-            onManage={(challenge) => setManageModal({ challenge, isOpen: true })}
+            onDelete={(challenge) =>
+              setDeleteDialog({ challenge, isOpen: true })
+            }
+            onManage={(challenge) =>
+              setManageModal({ challenge, isOpen: true })
+            }
             onViewSubmissions={handleViewSubmissions}
           />
         ))}
@@ -114,25 +119,26 @@ export default function ChallengeList({ challenges, context }: Props) {
       </AlertDialog>
 
       {/* Edit Modal (Metadata Only) */}
-      {editModal.challenge && (
-        editModal.challenge.type === "file_upload" ? (
+      {editModal.challenge &&
+        (editModal.challenge.type === "file_upload" ?
           <CodingAssignmentModalEdit
             key={`edit-${editModal.challenge.id}`}
             challenge={editModal.challenge}
             context={context}
             isOpen={editModal.isOpen}
-            onOpenChange={(open) => setEditModal((prev) => ({ ...prev, isOpen: open }))}
+            onOpenChange={(open) =>
+              setEditModal((prev) => ({ ...prev, isOpen: open }))
+            }
           />
-        ) : (
-          <ChallengeModalEdit
+        : <ChallengeModalEdit
             key={`edit-${editModal.challenge.id}`}
             challenge={editModal.challenge}
             context={context}
             isOpen={editModal.isOpen}
-            onOpenChange={(open) => setEditModal((prev) => ({ ...prev, isOpen: open }))}
-          />
-        )
-      )}
+            onOpenChange={(open) =>
+              setEditModal((prev) => ({ ...prev, isOpen: open }))
+            }
+          />)}
 
       {/* Manage Modal (Full Edit with Builder) */}
       {manageModal.challenge && (
@@ -140,7 +146,9 @@ export default function ChallengeList({ challenges, context }: Props) {
           key={`manage-${manageModal.challenge.id}`}
           challenge={manageModal.challenge}
           isOpen={manageModal.isOpen}
-          onOpenChange={(open) => setManageModal((prev) => ({ ...prev, isOpen: open }))}
+          onOpenChange={(open) =>
+            setManageModal((prev) => ({ ...prev, isOpen: open }))
+          }
         />
       )}
     </>

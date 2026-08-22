@@ -1,6 +1,5 @@
 import { useState, useMemo } from "react";
 import { Link, useParams } from "react-router";
-import type { Route } from "./+types/$challengeId";
 import { useGetChallengeSubmissions } from "@/hooks/submission";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,14 +55,18 @@ function getStatusLabel(status: string) {
   }
 }
 
-export default function SubmissionReviewPage({ params }: Route.ComponentProps) {
-  const challengeId = parseInt(params.challengeId);
-  const { data, isLoading, error, refetch } = useGetChallengeSubmissions(challengeId);
+export default function SubmissionReviewPage() {
+  const { challengeId: challengeIdParam } = useParams();
+  const challengeId = Number(challengeIdParam);
+  const { data, isLoading, error, refetch } =
+    useGetChallengeSubmissions(challengeId);
 
   // State for filters and search
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [selectedSubmissionId, setSelectedSubmissionId] = useState<number | null>(null);
+  const [selectedSubmissionId, setSelectedSubmissionId] = useState<
+    number | null
+  >(null);
   const [isGradingModalOpen, setIsGradingModalOpen] = useState(false);
 
   // Filter and search logic
@@ -83,7 +86,7 @@ export default function SubmissionReviewPage({ params }: Route.ComponentProps) {
       filtered = filtered.filter(
         (student) =>
           student.profile.display_name?.toLowerCase().includes(query) ||
-          student.profile.email.toLowerCase().includes(query)
+          student.profile.email.toLowerCase().includes(query),
       );
     }
 
@@ -91,10 +94,18 @@ export default function SubmissionReviewPage({ params }: Route.ComponentProps) {
   }, [data?.students, statusFilter, searchQuery]);
 
   // Get latest submission for a student
-  const getLatestSubmission = (student: typeof data.students[0]) => {
+  const getLatestSubmission = (student: {
+    attempts?: Array<{
+      id: number;
+      attempt_number: number;
+      status: string;
+      score: number | null;
+      submitted_at: string | null;
+    }> | null;
+  }) => {
     if (!student.attempts || student.attempts.length === 0) return null;
     return student.attempts.reduce((latest, current) =>
-      current.attempt_number > latest.attempt_number ? current : latest
+      current.attempt_number > latest.attempt_number ? current : latest,
     );
   };
 
@@ -123,7 +134,9 @@ export default function SubmissionReviewPage({ params }: Route.ComponentProps) {
         </Link>
         <ErrorState
           title="Unable to load submissions"
-          message={error.message || "An error occurred while loading submissions."}
+          message={
+            error.message || "An error occurred while loading submissions."
+          }
           onRetry={refetch}
         />
       </div>
@@ -156,17 +169,22 @@ export default function SubmissionReviewPage({ params }: Route.ComponentProps) {
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Link to="/admin/challenges">
-              <Button variant="ghost" size="icon" aria-label="Back to challenges">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Back to challenges">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
             </Link>
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Submissions</h1>
               <p className="text-muted-foreground text-sm">
-                Challenge: <span className="font-medium">{challenge.title}</span>
+                Challenge:{" "}
+                <span className="font-medium">{challenge.title}</span>
               </p>
               <p className="text-muted-foreground text-xs">
-                Max Score: {challenge.max_score} • Allowed Attempts: {challenge.allowed_attempts}
+                Max Score: {challenge.max_score} • Allowed Attempts:{" "}
+                {challenge.allowed_attempts}
               </p>
             </div>
           </div>
@@ -209,18 +227,17 @@ export default function SubmissionReviewPage({ params }: Route.ComponentProps) {
       )}
 
       {/* Submissions Table */}
-      {filteredStudents.length === 0 ? (
+      {filteredStudents.length === 0 ?
         <div className="flex flex-col items-center justify-center py-12 text-center">
           <FileText className="h-12 w-12 text-muted-foreground/50 mb-4" />
           <h3 className="text-lg font-medium mb-1">No submissions found</h3>
           <p className="text-sm text-muted-foreground">
-            {searchQuery.trim() || statusFilter !== "all"
-              ? "Try adjusting your filters"
-              : "No students have submitted yet"}
+            {searchQuery.trim() || statusFilter !== "all" ?
+              "Try adjusting your filters"
+            : "No students have submitted yet"}
           </p>
         </div>
-      ) : (
-        <div className="border rounded-lg">
+      : <div className="border rounded-lg">
           <Table>
             <TableHeader>
               <TableRow>
@@ -245,7 +262,9 @@ export default function SubmissionReviewPage({ params }: Route.ComponentProps) {
                             alt={student.profile.display_name || ""}
                           />
                           <AvatarFallback>
-                            {student.profile.display_name?.charAt(0).toUpperCase() ||
+                            {student.profile.display_name
+                              ?.charAt(0)
+                              .toUpperCase() ||
                               student.profile.email.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
@@ -270,37 +289,41 @@ export default function SubmissionReviewPage({ params }: Route.ComponentProps) {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {latestSubmission?.score !== null && latestSubmission?.score !== undefined ? (
+                      {(
+                        latestSubmission?.score !== null &&
+                        latestSubmission?.score !== undefined
+                      ) ?
                         <span className="font-medium">
                           {latestSubmission.score}/{challenge.max_score}
                         </span>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">-</span>
-                      )}
+                      : <span className="text-muted-foreground text-sm">-</span>
+                      }
                     </TableCell>
                     <TableCell>
-                      {latestSubmission?.submitted_at ? (
+                      {latestSubmission?.submitted_at ?
                         <span className="text-sm">
-                          {format(new Date(latestSubmission.submitted_at), "MMM d, yyyy")}
+                          {format(
+                            new Date(latestSubmission.submitted_at),
+                            "MMM d, yyyy",
+                          )}
                         </span>
-                      ) : (
-                        <span className="text-muted-foreground text-sm">-</span>
-                      )}
+                      : <span className="text-muted-foreground text-sm">-</span>
+                      }
                     </TableCell>
                     <TableCell className="text-right">
-                      {latestSubmission ? (
+                      {latestSubmission ?
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleGradeSubmission(latestSubmission.id)}
-                        >
+                          onClick={() =>
+                            handleGradeSubmission(latestSubmission.id)
+                          }>
                           {latestSubmission.score !== null ? "Review" : "Grade"}
                         </Button>
-                      ) : (
-                        <Button size="sm" variant="ghost" disabled>
+                      : <Button size="sm" variant="ghost" disabled>
                           No Submission
                         </Button>
-                      )}
+                      }
                     </TableCell>
                   </TableRow>
                 );
@@ -308,7 +331,7 @@ export default function SubmissionReviewPage({ params }: Route.ComponentProps) {
             </TableBody>
           </Table>
         </div>
-      )}
+      }
 
       {/* Grading Modal */}
       <GradingModal

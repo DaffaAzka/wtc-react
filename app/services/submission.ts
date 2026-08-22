@@ -1,24 +1,15 @@
 import { api } from "@/lib/axios";
 import type { ApiResponse } from "@/types/response";
+import type {
+  Submission as AppSubmission,
+  SubmissionDetail as AppSubmissionDetail,
+  SubmissionStatus,
+} from "@/types/submission";
 
-// Submission types
-export type Submission = {
-  id: number;
-  profile_id: number;
-  challenge_id: number;
-  attempt_number: number;
-  file_path: string | null;
-  content: string | null;
-  status: "draft" | "submitted" | "graded" | "returned";
-  score: number | null;
-  feedback: string | null;
-  submitted_at: string | null;
-  graded_at: string | null;
-  created_at: string;
-  updated_at: string;
-};
+export type Submission = AppSubmission;
+export type SubmissionStatusType = SubmissionStatus;
 
-export type SubmissionWithProfile = Submission & {
+export type SubmissionWithProfile = AppSubmission & {
   profile: {
     id: number;
     display_name: string | null;
@@ -27,22 +18,7 @@ export type SubmissionWithProfile = Submission & {
   };
 };
 
-export type SubmissionDetail = {
-  submission: SubmissionWithProfile & {
-    challenge: {
-      id: number;
-      title: string;
-      slug: string;
-      type: string;
-      max_score: number;
-    };
-  };
-  file?: {
-    name: string;
-    url: string;
-    expires_at: string;
-  };
-};
+export type SubmissionDetail = AppSubmissionDetail;
 
 export type ChallengeSubmissionsData = {
   challenge: {
@@ -99,7 +75,10 @@ export const SubmissionService = {
    * Submit a new submission for a challenge
    * POST /challenges/{challengeId}/submit
    */
-  store: async (challengeId: number, request: SubmitRequest): Promise<Submission> => {
+  store: async (
+    challengeId: number,
+    request: SubmitRequest,
+  ): Promise<Submission> => {
     const formData = new FormData();
 
     if (request.file) {
@@ -164,7 +143,9 @@ export const SubmissionService = {
    * Get temporary download URL for submission file
    * GET /submissions/{submissionId}/file
    */
-  file: async (submissionId: number): Promise<{ name: string; url: string; expires_at: string }> => {
+  file: async (
+    submissionId: number,
+  ): Promise<{ name: string; url: string; expires_at: string }> => {
     const response = await api.get<
       ApiResponse<{ file: { name: string; url: string; expires_at: string } }>
     >(`/submissions/${submissionId}/file`);
@@ -176,7 +157,8 @@ export const SubmissionService = {
    * GET /my-submissions
    */
   getAllMySubmissions: async (): Promise<SubmissionDetail[]> => {
-    const response = await api.get<ApiResponse<SubmissionDetail[]>>("/my-submissions");
+    const response =
+      await api.get<ApiResponse<SubmissionDetail[]>>("/my-submissions");
     return response.data.data!;
   },
 };
