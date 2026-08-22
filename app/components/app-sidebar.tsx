@@ -22,12 +22,9 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Award,
-  BookOpen,
   ChevronDown,
   ChevronRight,
-  FileText,
-  Home,
+  LayoutDashboard,
   LayersIcon,
   LifeBuoyIcon,
   ListTreeIcon,
@@ -84,12 +81,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     { title: "Progress Belajar", url: "/student/progress", icon: GraduationCap },
     { title: "Kelas", url: "/student/classes", icon: BookOpen },
     { title: "Learning Path", url: "/student/learning-path", icon: GitBranch },
+    { title: "Profil", url: "/student/profile", icon: UserIcon },
   ];
 
   const studentNavLearning = [
     { title: "Tantangan", url: "/student/challenges", icon: Award },
     { title: "Kelas Saya", url: "/student/study-classes", icon: Users },
-    { title: "Submisi Saya", url: "/student/submissions", icon: FileText },
   ];
 
   const courseManagementGroup = {
@@ -105,21 +102,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const navSecondary = [
     { title: "User Management", url: "/user-management", icon: UsersIcon },
-    { title: "Study Classes", url: "/study-classes", icon: GraduationCap },
     { title: "Support", url: "#", icon: LifeBuoyIcon },
     { title: "Feedback", url: "#", icon: SendIcon },
-  ];
-
-  // Student Navigation
-  const studentNavMain = [
-    { title: "Beranda", url: "/student", icon: Home },
-    { title: "Pembelajaran Saya", url: "/student/my-learning", icon: BookOpen },
-  ];
-
-  const studentNavLearning = [
-    { title: "Tantangan", url: "/student/challenges", icon: Award },
-    { title: "Kelas Saya", url: "/student/study-classes", icon: UsersIcon },
-    { title: "Submisi Saya", url: "/student/submissions", icon: FileText },
   ];
 
   return (
@@ -144,7 +128,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <div className="flex flex-col gap-4 px-4 pt-4">
           <div className="flex items-center gap-3">
             <Avatar className="h-11 w-11 border border-sidebar-border">
-              <AvatarImage src={user?.avatar ?? undefined} alt={user?.display_name ?? ""} />
+              <AvatarImage src={user?.avatar?.url ?? undefined} alt={user?.display_name ?? ""} />
               <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground">
                 <UserIcon className="h-5 w-5" />
               </AvatarFallback>

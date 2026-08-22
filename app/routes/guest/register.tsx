@@ -43,94 +43,6 @@ export default function Register() {
   };
 
   return (
-<<<<<<< Updated upstream
-    <div className="flex items-center justify-center min-h-screen">
-      <form onSubmit={handleSubmit} className="w-full max-w-md">
-        <Card>
-          <CardHeader>
-            <CardTitle>Create an account</CardTitle>
-            <CardDescription>Enter your details to create your account</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col gap-6">
-              {register.error && register.error?.message !== "Validation errors" && (
-                <Alert variant="destructive" className="bg-red-100">
-                  <AlertDescription>{register.error?.message ?? "An unknown error occurred."}</AlertDescription>
-                </Alert>
-              )}
-              <InputForm name="name" placeholder="John Doe" text="username" type="text" value={form.name} handleChange={handleChange} error={getFieldError(register.error?.errors, "name")} />
-              <InputForm
-                name="email"
-                placeholder="m@example.com"
-                text="Email Address"
-                type="email"
-                value={form.email}
-                handleChange={handleChange}
-                error={getFieldError(register.error?.errors, "email")}
-              />
-              <InputForm
-                name="password"
-                text="Password"
-                type="password"
-                placeholder="••••••••"
-                value={form.password}
-                handleChange={handleChange}
-                error={getFieldError(register.error?.errors, "password")}
-              />
-              <InputForm
-                name="password_confirmation"
-                text="Confirm Password"
-                type="password"
-                placeholder="••••••••"
-                value={form.password_confirmation}
-                handleChange={handleChange}
-                error={getFieldError(register.error?.errors, "password_confirmation")}
-              />
-            </div>
-          </CardContent>
-          <CardFooter className="flex flex-col gap-4">
-            <LoadingButton loading={register.isPending} text="Register" />
-            <OAuthButtons />
-          </div>
-        </form>
-
-        {/* Footer */}
-        <div className="mt-4 space-y-2 text-center">
-          <p className="text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="font-semibold text-foreground underline decoration-primary/30 underline-offset-4 transition-all hover:decoration-primary"
-            >
-              Sign in
-            </Link>
-          </p>
-
-          <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground/60">
-            <Link
-              to="/privacy"
-              className="transition-colors hover:text-muted-foreground"
-            >
-              Privacy
-            </Link>
-            <span>•</span>
-            <Link
-              to="/terms"
-              className="transition-colors hover:text-muted-foreground"
-            >
-              Terms
-            </Link>
-            <span>•</span>
-            <Link
-              to="/help"
-              className="transition-colors hover:text-muted-foreground"
-            >
-              Help
-            </Link>
-          </CardFooter>
-        </Card>
-      </form>
-=======
     <div className="dark fixed inset-0 flex items-center justify-center overflow-hidden bg-background p-4">
       {/* Background Carousel - Team Photos */}
       <div className="absolute inset-0 z-0">
@@ -276,7 +188,6 @@ export default function Register() {
           </div>
         </div>
       </div>
->>>>>>> Stashed changes
     </div>
   );
 }

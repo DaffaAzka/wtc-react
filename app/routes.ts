@@ -30,6 +30,13 @@ export default [
 
       // Progress/My Learning Page
       route("/progress", "routes/auth/student/my-learning/index.tsx"),
+
+      // Profile Management
+      route("/profile", "routes/auth/student/profile/index.tsx"),
+
+      // Submissions & Challenges
+      route("/submissions", "routes/auth/student/submissions/index.tsx"),
+      route("/challenges/:id", "routes/auth/student/challenges/$id.tsx"),
     ]),
   ]),
   layout("routes/auth/layout.tsx", [

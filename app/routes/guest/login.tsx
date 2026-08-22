@@ -58,11 +58,11 @@ export default function Login() {
         ))}
       </div>
 
-      <div className="absolute inset-0 z-1 bg-linear-to-br from-background/70 via-background/50 to-background/70" />
-      <div className="absolute inset-0 z-1 bg-linear-to-t from-background/60 via-transparent to-background/50" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-br from-background/70 via-background/50 to-background/70" />
+      <div className="absolute inset-0 z-[1] bg-gradient-to-t from-background/60 via-transparent to-background/50" />
 
-      <div className="pointer-events-none absolute inset-0 z-3">
-        <div className="absolute -top-40 -left-32 h-105 w-105 animate-pulse rounded-full bg-primary/20 blur-[120px] duration-4000" />
+      <div className="pointer-events-none absolute inset-0 z-[3]">
+        <div className="absolute -top-40 -left-32 h-[420px] w-[420px] animate-pulse rounded-full bg-primary/20 blur-[120px] duration-[4000ms]" />
         <div className="absolute -bottom-48 -right-24 h-[380px] w-[380px] animate-pulse rounded-full bg-primary/10 blur-[120px] delay-1000 duration-[5000ms]" />
         <div className="absolute top-1/2 left-1/2 h-[260px] w-[260px] -translate-x-1/2 -translate-y-1/2 animate-pulse rounded-full bg-primary/8 blur-[100px] delay-500 duration-[3000ms]" />
       </div>
@@ -124,7 +124,7 @@ export default function Login() {
             <p className="text-sm text-muted-foreground/80">Sign in to continue your learning journey</p>
           </div>
 
-          <div className="mt-5 flex flex-col gap-3.5">
+          <div className="mt-6 flex flex-col gap-4">
             {login.error && login.error?.message !== "Validation errors" && (
               <Alert variant="destructive" className="animate-in fade-in-50 slide-in-from-top-2 border-destructive/30 bg-destructive/10 duration-300">
                 <AlertDescription>{login.error?.message ?? "An unknown error occurred."}</AlertDescription>
@@ -139,15 +139,6 @@ export default function Login() {
               value={form.email}
               handleChange={handleChange}
               error={getFieldError(login.error?.errors, "email")}
-            />
-            <InputForm
-              name="password"
-              text="Password"
-              type="password"
-              placeholder="••••••••"
-              value={form.password}
-              handleChange={handleChange}
-              error={getFieldError(login.error?.errors, "password")}
             />
 
             <div className="space-y-2">
@@ -169,11 +160,10 @@ export default function Login() {
           </div>
 
           <div className="mt-6">
-            <LoadingButton loading={login.isPending} text="Sign in" />
+            <LoadingButton loading={login.isPending} text="Sign in" className="w-full" />
           </div>
 
-          <div className="mt-5 flex flex-col gap-3.5">
-            <LoadingButton loading={login.isPending} text="Sign in" />
+          <div className="mt-6">
             <OAuthButtons />
           </div>
         </form>
