@@ -21,22 +21,28 @@ import { Separator } from "@/components/ui/separator";
 import { useUpdateChallenge } from "@/hooks/challenges";
 import type { Challenge } from "@/types/model";
 import type { ChallengeFormType } from "@/types/challenge";
+import type { ChallengeContext } from "./challenge-manager";
 import { getFieldError } from "@/utils/global";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 
 type Props = {
   challenge: Challenge;
+  context: ChallengeContext;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
 export default function ChallengeModalEdit({
   challenge,
+  context,
   isOpen,
   onOpenChange,
 }: Props) {
-  const updateChallenge = useUpdateChallenge(challenge.lesson_id ?? undefined);
+  const updateChallenge = useUpdateChallenge(
+    context.type === 'lesson' ? context.id : undefined,
+    context.type === 'module' ? context.slug : undefined
+  );
 
   const [form, setForm] = useState({
     title: challenge.title,

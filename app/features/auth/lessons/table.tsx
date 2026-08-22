@@ -203,6 +203,11 @@ export default function LessonsTable({
                           className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
                           View
                         </Link>
+                        <Link
+                          to={`${lesson.slug}/challenges`}
+                          className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+                          Challenges
+                        </Link>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
@@ -218,11 +223,6 @@ export default function LessonsTable({
                             </Link>
                             <Link to={`${lesson.slug}/update`}>
                               <DropdownMenuItem>Update</DropdownMenuItem>
-                            </Link>
-                            <Link to={`${lesson.slug}/challenges`}>
-                              <DropdownMenuItem>
-                                Manage Challenges
-                              </DropdownMenuItem>
                             </Link>
                             <DropdownMenuItem
                               variant="destructive"

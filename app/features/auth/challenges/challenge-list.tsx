@@ -1,4 +1,5 @@
-import type { Challenge, Lesson } from "@/types/model";
+import type { Challenge } from "@/types/model";
+import type { ChallengeContext } from "./challenge-manager";
 import ChallengeCard from "./challenge-card";
 import { useState } from "react";
 import { useNavigate } from "react-router";
@@ -20,13 +21,15 @@ import ChallengeModalManage from "./modal-manage";
 
 type Props = {
   challenges: Challenge[];
-  lesson: Lesson;
+  context: ChallengeContext;
 };
 
-export default function ChallengeList({ challenges, lesson }: Props) {
-  const navigate = useNavigate();
-  const deleteChallenge = useDeleteChallenge(lesson.id);
-
+export default function ChallengeList({ challenges, context }: Props) {
+  const deleteChallenge = useDeleteChallenge(
+    context.type === 'lesson' ? context.id : undefined,
+    context.type === 'module' ? context.slug : undefined
+  );
+  
   const [deleteDialog, setDeleteDialog] = useState<{
     challenge: Challenge | null;
     isOpen: boolean;
@@ -116,7 +119,7 @@ export default function ChallengeList({ challenges, lesson }: Props) {
           <CodingAssignmentModalEdit
             key={`edit-${editModal.challenge.id}`}
             challenge={editModal.challenge}
-            lesson={lesson}
+            context={context}
             isOpen={editModal.isOpen}
             onOpenChange={(open) => setEditModal((prev) => ({ ...prev, isOpen: open }))}
           />
@@ -124,6 +127,7 @@ export default function ChallengeList({ challenges, lesson }: Props) {
           <ChallengeModalEdit
             key={`edit-${editModal.challenge.id}`}
             challenge={editModal.challenge}
+            context={context}
             isOpen={editModal.isOpen}
             onOpenChange={(open) => setEditModal((prev) => ({ ...prev, isOpen: open }))}
           />

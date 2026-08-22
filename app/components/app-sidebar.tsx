@@ -97,6 +97,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       { title: "Tracks", url: "/tracks", icon: RouteIcon },
       { title: "Modules", url: "/modules", icon: ListTreeIcon },
       { title: "Lessons", url: "/lessons", icon: NotebookTextIcon },
+      { title: "Challenges", url: "/challenges", icon: Award },
     ],
   };
 

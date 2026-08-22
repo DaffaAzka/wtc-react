@@ -203,6 +203,11 @@ export default function ModulesTable({
                           className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
                           Lessons
                         </Link>
+                        <Link
+                          to={`${module.slug}/challenges`}
+                          className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+                          Challenges
+                        </Link>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button

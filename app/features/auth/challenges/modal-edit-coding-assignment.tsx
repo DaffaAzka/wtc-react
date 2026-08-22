@@ -22,7 +22,8 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useUpdateChallenge } from "@/hooks/challenges";
 import { ChallengeService } from "@/services/challenge";
-import type { Challenge, Lesson } from "@/types/model";
+import type { Challenge } from "@/types/model";
+import type { ChallengeContext } from "./challenge-manager";
 import { getFieldError } from "@/utils/global";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
@@ -30,7 +31,7 @@ import { Upload, X, FileIcon, AlertCircle, CheckCircle2, Download, Trash2 } from
 
 type Props = {
   challenge: Challenge;
-  lesson: Lesson;
+  context: ChallengeContext;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 };
@@ -47,11 +48,14 @@ const formatFileSize = (bytes: number): string => {
 
 export default function CodingAssignmentModalEdit({
   challenge,
-  lesson,
+  context,
   isOpen,
   onOpenChange,
 }: Props) {
-  const updateChallenge = useUpdateChallenge(challenge.lesson_id ?? undefined);
+  const updateChallenge = useUpdateChallenge(
+    context.type === 'lesson' ? context.id : undefined,
+    context.type === 'module' ? context.slug : undefined
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
