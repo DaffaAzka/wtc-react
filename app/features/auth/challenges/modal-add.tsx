@@ -23,7 +23,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useStoreChallenge } from "@/hooks/challenges";
-import type { Lesson } from "@/types/model";
+import type { ChallengeContext } from "./challenge-manager";
 import { generateSlug, getFieldError } from "@/utils/global";
 import { useState, useEffect, useRef } from "react";
 import { calculateQuestionScore } from "@/helper/calculate-score";
@@ -31,18 +31,26 @@ import { validateAllQuestions } from "@/helper/validate-question";
 import { CheckCircle2 } from "lucide-react";
 
 type Props = {
-  lesson: Lesson;
+  context: ChallengeContext;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 };
-const STORAGE_KEY = (lessonId: number) => `challenge-draft-${lessonId}`;
+
+const STORAGE_KEY = (contextId: number, contextType: 'lesson' | 'module') =>
+  `challenge-draft-${contextType}-${contextId}`;
 
 export default function ChallengeModalAdd({
-  lesson,
+  context,
   isOpen,
   onOpenChange,
 }: Props) {
-  const storeChallenge = useStoreChallenge(lesson.id);
+  const contextId = context.id;
+  const contextType = context.type;
+
+  const storeChallenge = useStoreChallenge(
+    context.type === 'lesson' ? context.id : undefined,
+    context.type === 'module' ? context.slug : undefined
+  );
 
   const [form, setForm] = useState({
     title: "",
@@ -83,7 +91,7 @@ export default function ChallengeModalAdd({
 
     setReadyToSave(false);
 
-    const draft = localStorage.getItem(STORAGE_KEY(lesson.id));
+    const draft = localStorage.getItem(STORAGE_KEY(contextId, contextType));
 
     if (!draft) {
       setForm({
@@ -135,7 +143,7 @@ export default function ChallengeModalAdd({
     } finally {
       setReadyToSave(true);
     }
-  }, [lesson.id, isOpen]);
+  }, [contextId, isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -146,7 +154,7 @@ export default function ChallengeModalAdd({
 
     const timer = setTimeout(() => {
       localStorage.setItem(
-        STORAGE_KEY(lesson.id),
+        STORAGE_KEY(contextId, contextType),
         JSON.stringify({
           form: debouncedForm,
           questions: debouncedQuestions,
@@ -157,7 +165,7 @@ export default function ChallengeModalAdd({
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [debouncedForm, debouncedQuestions, lesson.id, readyToSave, isOpen]);
+  }, [debouncedForm, debouncedQuestions, contextId, readyToSave, isOpen]);
 
   useEffect(() => {
     if (!readyToSave) return;
@@ -354,8 +362,8 @@ export default function ChallengeModalAdd({
 
     storeChallenge.mutate(
       {
-        module_id: null,
-        lesson_id: lesson.id,
+        module_id: context.type === 'module' ? context.id : null,
+        lesson_id: context.type === 'lesson' ? context.id : null,
         title: form.title,
         slug: generateSlug(form.title),
         type: submissionType,
@@ -372,7 +380,7 @@ export default function ChallengeModalAdd({
       },
       {
         onSuccess: () => {
-          localStorage.removeItem(STORAGE_KEY(lesson.id));
+          localStorage.removeItem(STORAGE_KEY(contextId, contextType));
 
           setForm({
             title: "",
@@ -423,7 +431,7 @@ export default function ChallengeModalAdd({
           </div>
 
           <DialogDescription>
-            Lesson: <strong>{lesson.title}</strong>
+            {context.type === 'lesson' ? 'Lesson' : 'Module'}: <strong>{context.title}</strong>
           </DialogDescription>
         </DialogHeader>
 

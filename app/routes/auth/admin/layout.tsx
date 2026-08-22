@@ -17,7 +17,6 @@ export async function clientLoader() {
   const isAdmin = user.roles?.some((role: any) => role.name.toLowerCase() === "admin");
 
   if (!isAdmin) {
-    // Check if student - redirect to student dashboard
     const isStudent = user.roles?.some((role: any) => role.name.toLowerCase() === "student");
 
     if (isStudent) {

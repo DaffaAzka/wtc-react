@@ -1,18 +1,13 @@
 import { useGetModules } from "@/hooks/modules";
 import { useGetLesson } from "@/hooks/lessons";
-import { useGetChallengesByLesson } from "@/hooks/challenges";
 import type { Route } from "./+types/index";
 import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
 import { ChallengeGridSkeleton } from "@/components/skeletons/challenge-card";
 import ErrorState from "@/components/custom/error-state";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Code } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router";
-import { useState } from "react";
-import ChallengeModal from "@/features/auth/challenges/modal-add";
-import CodingAssignmentModal from "@/features/auth/challenges/modal-add-coding-assignment";
-import ChallengeList from "@/features/auth/challenges/challenge-list";
-import ChallengeEmpty from "@/features/auth/challenges/challenge-empty";
+import ChallengeManager from "@/features/auth/challenges/challenge-manager";
 
 export default function ChallengePage({ params }: Route.ComponentProps) {
   const {
@@ -22,25 +17,15 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
     refresh: refreshLesson,
   } = useGetLesson(params.lessonSlug);
 
-  // Fetch all modules and find the one matching lesson.module_id
+  // Fetch all modules (track context endpoint also returns 404, so just use this)
   const {
     modules,
     loading: moduleLoading,
     error: moduleError,
     refresh: refreshModule,
-  } = useGetModules(lesson?.module_id ? { id: lesson.module_id.toString() } : undefined);
-  const module = modules.find((m) => m.id === lesson?.module_id);
+  } = useGetModules();
 
-  const {
-    challenges,
-    loading: challengesLoading,
-    error: challengesError,
-    refresh: refreshChallenges,
-  } = useGetChallengesByLesson(lesson?.id ?? 0);
-
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isAddCodingAssignmentOpen, setIsAddCodingAssignmentOpen] =
-    useState(false);
+  const module = lesson ? modules.find((m) => m.id === lesson.module_id) : undefined;
 
   const loading = moduleLoading || lessonLoading;
   const error = moduleError || lessonError;
@@ -79,25 +64,6 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
     );
   }
 
-  if (!module) {
-    return (
-      <>
-        <div className="mb-6">
-          <Link to="../..">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Modules
-            </Button>
-          </Link>
-        </div>
-        <ErrorState
-          title="Module not found"
-          message="The requested module could not be found."
-        />
-      </>
-    );
-  }
-
   if (!lesson) {
     return (
       <>
@@ -117,75 +83,34 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
     );
   }
 
+  // Log for debugging if module not found (backend filtering issue)
+  if (!module) {
+    console.warn('Module not found for lesson - Backend filtering issue:', {
+      lesson_id: lesson.id,
+      lesson_slug: lesson.slug,
+      lesson_module_id: lesson.module_id,
+      available_modules: modules.map(m => ({ id: m.id, slug: m.slug, title: m.title })),
+      track_slug: params.slug || 'none (direct access)',
+    });
+  }
+
+  // Always render ChallengeManager (module context not critical for managing challenges)
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Link to="..">
-              <Button variant="ghost" size="icon" aria-label="Back to lessons">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Challenges</h1>
-              <p className="text-muted-foreground text-sm">
-                Module: <span className="font-medium">{module.title}</span>
-              </p>
-              <p className="text-muted-foreground text-sm">
-                Lesson: <span className="font-medium">{lesson.title}</span>
-              </p>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={() => setIsAddModalOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Challenge
-          </Button>
-          <Button
-            onClick={() => setIsAddCodingAssignmentOpen(true)}
-            variant="outline">
-            <Code className="h-4 w-4 mr-2" />
-            Add Coding Assignment
-          </Button>
-        </div>
-      </div>
-
-      {/* Challenges List */}
-      {challengesLoading ?
-        <ChallengeGridSkeleton />
-      : challengesError ?
-        <ErrorState
-          title="Unable to load challenges"
-          message={
-            challengesError.message ||
-            "An error occurred while loading challenges for this lesson."
-          }
-          onRetry={refreshChallenges}
-        />
-      : challenges.length === 0 ?
-        <ChallengeEmpty onAddClick={() => setIsAddModalOpen(true)} />
-      : <ChallengeList challenges={challenges} lesson={lesson} />}
-
-      {/* Add Challenge Modal */}
-      {isAddModalOpen && (
-        <ChallengeModal
-          lesson={lesson}
-          isOpen={isAddModalOpen}
-          onOpenChange={setIsAddModalOpen}
-        />
-      )}
-
-      {/* Add Coding Assignment Modal */}
-      {isAddCodingAssignmentOpen && (
-        <CodingAssignmentModal
-          lesson={lesson}
-          isOpen={isAddCodingAssignmentOpen}
-          onOpenChange={setIsAddCodingAssignmentOpen}
-        />
-      )}
-    </div>
+    <ChallengeManager
+      context={{
+        type: "lesson",
+        id: lesson.id,
+        slug: lesson.slug,
+        title: lesson.title,
+        ...(module && {
+          parentInfo: {
+            title: module.title,
+            type: "Module",
+          },
+        }),
+      }}
+      backUrl=".."
+      backLabel="Back to Lessons"
+    />
   );
 }

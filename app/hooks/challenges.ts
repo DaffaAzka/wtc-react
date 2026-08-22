@@ -6,6 +6,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 export const challengeKeys = {
   all: ["challenges"] as const,
   byLesson: (lessonId: number) => ["challenges", "lesson", lessonId] as const,
+  byModule: (moduleSlug: string) => ["challenges", "module", moduleSlug] as const,
   detail: (id: number) => ["challenges", id] as const,
 };
 
@@ -38,6 +39,21 @@ export function useGetChallengesByLesson(lessonId: number) {
   };
 }
 
+export function useGetChallengesByModule(moduleSlug: string) {
+  const query = useQuery<Challenge[], ApiErrorResponse>({
+    queryKey: challengeKeys.byModule(moduleSlug),
+    queryFn: () => ChallengeService.getByModule(moduleSlug),
+    enabled: !!moduleSlug,
+  });
+
+  return {
+    challenges: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refresh: query.refetch,
+  };
+}
+
 export function useGetChallenge(id: number) {
   const query = useQuery<Challenge, ApiErrorResponse>({
     queryKey: challengeKeys.detail(id),
@@ -53,7 +69,7 @@ export function useGetChallenge(id: number) {
   };
 }
 
-export function useStoreChallenge(lessonId?: number) {
+export function useStoreChallenge(lessonId?: number, moduleSlug?: string) {
   const queryClient = useQueryClient();
 
   return useMutation<
@@ -67,17 +83,23 @@ export function useStoreChallenge(lessonId?: number) {
       queryClient.invalidateQueries({
         queryKey: challengeKeys.all,
       });
-      
+
       if (lessonId) {
         queryClient.invalidateQueries({
           queryKey: challengeKeys.byLesson(lessonId),
+        });
+      }
+
+      if (moduleSlug) {
+        queryClient.invalidateQueries({
+          queryKey: challengeKeys.byModule(moduleSlug),
         });
       }
     },
   });
 }
 
-export function useUpdateChallenge(lessonId?: number) {
+export function useUpdateChallenge(lessonId?: number, moduleSlug?: string) {
   const queryClient = useQueryClient();
 
   return useMutation<
@@ -95,17 +117,23 @@ export function useUpdateChallenge(lessonId?: number) {
       queryClient.invalidateQueries({
         queryKey: challengeKeys.detail(data.id),
       });
-      
+
       if (lessonId) {
         queryClient.invalidateQueries({
           queryKey: challengeKeys.byLesson(lessonId),
+        });
+      }
+
+      if (moduleSlug) {
+        queryClient.invalidateQueries({
+          queryKey: challengeKeys.byModule(moduleSlug),
         });
       }
     },
   });
 }
 
-export function useDeleteChallenge(lessonId?: number) {
+export function useDeleteChallenge(lessonId?: number, moduleSlug?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -115,10 +143,16 @@ export function useDeleteChallenge(lessonId?: number) {
       queryClient.invalidateQueries({
         queryKey: challengeKeys.all,
       });
-      
+
       if (lessonId) {
         queryClient.invalidateQueries({
           queryKey: challengeKeys.byLesson(lessonId),
+        });
+      }
+
+      if (moduleSlug) {
+        queryClient.invalidateQueries({
+          queryKey: challengeKeys.byModule(moduleSlug),
         });
       }
     },

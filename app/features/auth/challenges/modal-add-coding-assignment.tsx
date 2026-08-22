@@ -22,19 +22,20 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useStoreChallenge } from "@/hooks/challenges";
 import { ChallengeService } from "@/services/challenge";
-import type { Lesson } from "@/types/model";
+import type { ChallengeContext } from "./challenge-manager";
 import { generateSlug, getFieldError } from "@/utils/global";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Upload, X, FileIcon, AlertCircle, CheckCircle2 } from "lucide-react";
 
 type Props = {
-  lesson: Lesson;
+  context: ChallengeContext;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-const STORAGE_KEY = (lessonId: number) => `coding-assignment-draft-${lessonId}`;
+const STORAGE_KEY = (contextId: number, contextType: 'lesson' | 'module') =>
+  `coding-assignment-draft-${contextType}-${contextId}`;
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return "0 Bytes";
@@ -45,11 +46,17 @@ const formatFileSize = (bytes: number): string => {
 };
 
 export default function CodingAssignmentModalAdd({
-  lesson,
+  context,
   isOpen,
   onOpenChange,
 }: Props) {
-  const storeChallenge = useStoreChallenge(lesson.id);
+  const contextId = context.id;
+  const contextType = context.type;
+
+  const storeChallenge = useStoreChallenge(
+    context.type === 'lesson' ? context.id : undefined,
+    context.type === 'module' ? context.slug : undefined
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
@@ -86,7 +93,7 @@ export default function CodingAssignmentModalAdd({
 
     setReadyToSave(false);
 
-    const draft = localStorage.getItem(STORAGE_KEY(lesson.id));
+    const draft = localStorage.getItem(STORAGE_KEY(contextId, contextType));
 
     if (!draft) {
       setForm({
@@ -139,7 +146,7 @@ export default function CodingAssignmentModalAdd({
     } finally {
       setReadyToSave(true);
     }
-  }, [lesson.id, isOpen]);
+  }, [contextId, isOpen]);
 
   // Auto-save draft
   useEffect(() => {
@@ -150,7 +157,7 @@ export default function CodingAssignmentModalAdd({
 
     const timer = setTimeout(() => {
       localStorage.setItem(
-        STORAGE_KEY(lesson.id),
+        STORAGE_KEY(contextId, contextType),
         JSON.stringify({
           form: debouncedForm,
         }),
@@ -160,7 +167,7 @@ export default function CodingAssignmentModalAdd({
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [debouncedForm, lesson.id, readyToSave, isOpen]);
+  }, [debouncedForm, contextId, readyToSave, isOpen]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -251,8 +258,8 @@ export default function CodingAssignmentModalAdd({
     }
 
     const payload = {
-    module_id: null,
-      lesson_id: lesson.id,
+      module_id: context.type === 'module' ? context.id : null,
+      lesson_id: context.type === 'lesson' ? context.id : null,
       title: form.title,
       slug: generateSlug(form.title),
       type: "file_upload" as const,
@@ -285,7 +292,7 @@ export default function CodingAssignmentModalAdd({
         toast.success("Coding Assignment created successfully");
       }
 
-      localStorage.removeItem(STORAGE_KEY(lesson.id));
+      localStorage.removeItem(STORAGE_KEY(contextId, contextType));
 
       onOpenChange(false);
     } catch (error) {

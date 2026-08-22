@@ -48,6 +48,10 @@ export default [
 
       // Module Routes � /:slug? covers both /modules and /:trackSlug/modules
       route("/:slug?/modules", "routes/auth/admin/modules/index.tsx"),
+      route(
+        "/:slug?/modules/:moduleSlug/challenges",
+        "routes/auth/admin/modules/challenges/index.tsx",
+      ),
 
       // Lesson Routes � /:slug? covers both /lessons and /:moduleSlug/lessons
       route("/:slug?/lessons", "routes/auth/admin/lessons/index.tsx"),
@@ -64,6 +68,9 @@ export default [
         "/:slug?/lessons/:lessonSlug/challenges",
         "routes/auth/admin/challenges/index.tsx",
       ),
+
+      // Global Challenges Routes
+      route("/challenges", "routes/auth/admin/all-challenges/index.tsx"),
     ]),
   ]),
 ] satisfies RouteConfig;
