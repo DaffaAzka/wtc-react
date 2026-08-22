@@ -81,6 +81,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     { title: "Progress Belajar", url: "/student/progress", icon: GraduationCap },
     { title: "Kelas", url: "/student/classes", icon: BookOpen },
     { title: "Learning Path", url: "/student/learning-path", icon: GitBranch },
+    { title: "Profil", url: "/student/profile", icon: UserIcon },
   ];
 
   const studentNavLearning = [
@@ -127,7 +128,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <div className="flex flex-col gap-4 px-4 pt-4">
           <div className="flex items-center gap-3">
             <Avatar className="h-11 w-11 border border-sidebar-border">
-              <AvatarImage src={user?.avatar ?? undefined} alt={user?.display_name ?? ""} />
+              <AvatarImage src={user?.avatar?.url ?? undefined} alt={user?.display_name ?? ""} />
               <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground">
                 <UserIcon className="h-5 w-5" />
               </AvatarFallback>
