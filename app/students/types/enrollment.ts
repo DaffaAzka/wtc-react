@@ -1,4 +1,4 @@
-import type { Track } from "./model";
+import type { Track } from "@/types/model";
 
 export type TrackEnrollment = {
   id: number;

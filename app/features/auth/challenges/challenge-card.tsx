@@ -6,15 +6,17 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import type { Challenge } from "@/types/model";
-import { Edit, MoreVertical, Trash2, Settings } from "lucide-react";
+import { Edit, MoreVertical, Trash2, Settings, ClipboardList } from "lucide-react";
 
 type Props = {
   challenge: Challenge;
   onEdit?: (challenge: Challenge) => void;
   onDelete?: (challenge: Challenge) => void;
   onManage?: (challenge: Challenge) => void;
+  onViewSubmissions?: (challenge: Challenge) => void;
 };
 
 const getChallengeTypeLabel = (type: string): string => {
@@ -54,6 +56,7 @@ export default function ChallengeCard({
   onEdit,
   onDelete,
   onManage,
+  onViewSubmissions,
 }: Props) {
   const questionCount = getQuestionCount(challenge);
 
@@ -71,7 +74,7 @@ export default function ChallengeCard({
               )}
               <CardTitle className="text-lg truncate">{challenge.title}</CardTitle>
             </div>
-            
+
             {/* Type and Difficulty badges */}
             <div className="flex items-center gap-2 flex-wrap">
               <Badge variant="outline" className="font-normal">
@@ -84,19 +87,28 @@ export default function ChallengeCard({
               )}
             </div>
           </div>
-          
+
           {/* Action menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="icon" 
+              <Button
+                variant="ghost"
+                size="icon"
                 className="shrink-0"
                 aria-label={`Actions for ${challenge.title}`}>
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              {onViewSubmissions && (
+                <>
+                  <DropdownMenuItem onClick={() => onViewSubmissions(challenge)}>
+                    <ClipboardList className="h-4 w-4 mr-2" />
+                    View Submissions
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
               {onManage && (
                 <DropdownMenuItem onClick={() => onManage(challenge)}>
                   <Settings className="h-4 w-4 mr-2" />

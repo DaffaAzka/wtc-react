@@ -1,6 +1,7 @@
 import type { Challenge, Lesson } from "@/types/model";
 import ChallengeCard from "./challenge-card";
 import { useState } from "react";
+import { useNavigate } from "react-router";
 import { useDeleteChallenge } from "@/hooks/challenges";
 import { toast } from "sonner";
 import {
@@ -23,8 +24,9 @@ type Props = {
 };
 
 export default function ChallengeList({ challenges, lesson }: Props) {
+  const navigate = useNavigate();
   const deleteChallenge = useDeleteChallenge(lesson.id);
-  
+
   const [deleteDialog, setDeleteDialog] = useState<{
     challenge: Challenge | null;
     isOpen: boolean;
@@ -61,6 +63,10 @@ export default function ChallengeList({ challenges, lesson }: Props) {
     }
   };
 
+  const handleViewSubmissions = (challenge: Challenge) => {
+    navigate(`/admin/submissions/${challenge.id}`);
+  };
+
   return (
     <>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -71,6 +77,7 @@ export default function ChallengeList({ challenges, lesson }: Props) {
             onEdit={(challenge) => setEditModal({ challenge, isOpen: true })}
             onDelete={(challenge) => setDeleteDialog({ challenge, isOpen: true })}
             onManage={(challenge) => setManageModal({ challenge, isOpen: true })}
+            onViewSubmissions={handleViewSubmissions}
           />
         ))}
       </div>

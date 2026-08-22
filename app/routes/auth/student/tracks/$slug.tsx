@@ -1,48 +1,22 @@
 import { useParams, Link, useNavigate } from "react-router";
 import { useGetTrack } from "@/hooks/tracks";
 import { useGetModulesByTrack } from "@/hooks/modules";
-import { useMyTracks, useEnrollTrack } from "@/students/hooks/enrollments";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import { EmptyState } from "@/students/components/empty-state";
-import { EnrollmentConfirmationModal } from "@/students/components/enrollment-confirmation-modal";
-import { ArrowLeft, BookOpen, PlayCircle, CheckCircle2, Clock, Award } from "lucide-react";
-import { useState } from "react";
+import { ArrowLeft, BookOpen, PlayCircle } from "lucide-react";
 
 export default function TrackDetail() {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const { track, loading: trackLoading, error: trackError } = useGetTrack(slug!);
   const { modules, loading: modulesLoading, error: modulesError } = useGetModulesByTrack(slug!);
-  const { myTracks, loading: myTracksLoading } = useMyTracks();
-  const enrollMutation = useEnrollTrack();
-
-  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const loading = trackLoading || modulesLoading || myTracksLoading;
   const error = trackError || modulesError;
-
-  // Check if user is enrolled in this track
-  const isEnrolled = myTracks.some((mt) => mt.slug === slug);
-
-  const handleEnrollClick = () => {
-    setShowConfirmModal(true);
-  };
-
-  const handleConfirmEnroll = async () => {
-    enrollMutation.mutate(slug!, {
-      onSuccess: () => {
-        setShowConfirmModal(false);
-        // Redirect to track catalog after successful enrollment
-        setTimeout(() => {
-          navigate("/student/classes");
-        }, 1500);
-      },
-    });
-  };
 
   if (error) {
     return (
@@ -53,11 +27,7 @@ export default function TrackDetail() {
             Kembali ke Katalog
           </Link>
         </Button>
-        <EmptyState
-          icon={BookOpen}
-          title="Gagal memuat data"
-          description={error.message || "Terjadi kesalahan saat memuat detail kelas."}
-        />
+        <EmptyState icon={BookOpen} title="Gagal memuat data" description={error.message || "Terjadi kesalahan saat memuat detail kelas."} />
       </div>
     );
   }
@@ -89,11 +59,7 @@ export default function TrackDetail() {
             Kembali ke Katalog
           </Link>
         </Button>
-        <EmptyState
-          icon={BookOpen}
-          title="Kelas tidak ditemukan"
-          description="Kelas yang kamu cari tidak ditemukan atau sudah tidak tersedia."
-        />
+        <EmptyState icon={BookOpen} title="Kelas tidak ditemukan" description="Kelas yang kamu cari tidak ditemukan atau sudah tidak tersedia." />
       </div>
     );
   }
@@ -304,40 +270,58 @@ export default function TrackDetail() {
             {/* Track Image */}
             {track.image_url && (
               <div className="aspect-video w-full overflow-hidden flex-shrink-0">
-                <img
-                  src={track.image_url}
-                  alt={track.title}
-                  className="h-full w-full object-cover"
-                />
+                <img src={track.image_url} alt={track.title} className="h-full w-full object-cover" />
               </div>
             )}
 
-            <div className="p-6 flex-1">
+            <div className="p-6 flex-1 flex flex-col gap-4">
               {/* Title and Meta */}
               <div className="space-y-3">
                 <h1 className="text-3xl font-bold">{track.title}</h1>
 
-                <div className="flex items-center gap-2">
-                  {track.modules_count !== null && track.modules_count !== undefined && (
-                    <Badge variant="secondary">
-                      {track.modules_count} Modul
+                <div className="flex items-center gap-2 flex-wrap">
+                  {track.modules_count !== null && track.modules_count !== undefined && <Badge variant="secondary">{track.modules_count} Modul</Badge>}
+                  <Badge variant="outline">{modules.length} Modul Tersedia</Badge>
+                  {isEnrolled && (
+                    <Badge variant="default" className="gap-1">
+                      <CheckCircle className="h-3 w-3" />
+                      Terdaftar
                     </Badge>
                   )}
                   <Badge variant="outline">
                     {modules.length} Modul Tersedia
                   </Badge>
-                  <Badge variant="default" className="gap-1">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Terdaftar
-                  </Badge>
                 </div>
 
                 {/* Description */}
-                {track.description && (
-                  <p className="text-muted-foreground leading-relaxed">
-                    {track.description}
-                  </p>
-                )}
+                {track.description && <p className="text-muted-foreground leading-relaxed">{track.description}</p>}
+
+                {/* Enrollment Button */}
+                <div className="pt-2">
+                  {isEnrolled ? (
+                    <Button variant="outline" onClick={() => unenroll(slug!)} disabled={unenrolling}>
+                      {unenrolling ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Memproses...
+                        </>
+                      ) : (
+                        "Keluar dari Track"
+                      )}
+                    </Button>
+                  ) : (
+                    <Button onClick={() => enroll(slug!)} disabled={enrolling || enrollmentLoading}>
+                      {enrolling ? (
+                        <>
+                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          Mendaftar...
+                        </>
+                      ) : (
+                        "Daftar Sekarang"
+                      )}
+                    </Button>
+                  )}
+                </div>
               </div>
             </div>
           </CardContent>
@@ -350,35 +334,61 @@ export default function TrackDetail() {
           </CardHeader>
           <CardContent className="flex-1 overflow-y-auto">
             {modules.length === 0 ? (
-              <EmptyState
-                icon={BookOpen}
-                title="Belum ada modul"
-                description="Modul untuk kelas ini sedang dalam pengembangan."
-              />
+              <EmptyState icon={BookOpen} title="Belum ada modul" description="Modul untuk kelas ini sedang dalam pengembangan." />
             ) : (
               <div className="space-y-3">
-                {modules.map((module, index) => (
-                  <Card key={module.id} className="hover:shadow-md transition-shadow">
-                    <CardHeader className="pb-3">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <Badge variant="outline" className="font-mono">
-                              {String(module.order ?? index + 1).padStart(2, '0')}
-                            </Badge>
-                            <CardTitle className="text-lg">{module.title}</CardTitle>
+                {modules.map((module, index) => {
+                  // Find module progress from overview data if available
+                  const moduleProgress = overview?.modules.find((m) => m.id === module.id);
+
+                  return (
+                    <Card key={module.id} className="hover:shadow-md transition-shadow">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start gap-3">
+                          {/* Progress indicator - only show if enrolled and has progress data */}
+                          {isEnrolled && moduleProgress && (
+                            <div className="flex-shrink-0">
+                              <CircularProgress value={moduleProgress.progress.percent} size={48} strokeWidth={4} />
+                            </div>
+                          )}
+
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Badge variant="outline" className="font-mono flex-shrink-0">
+                                {String(module.order ?? index + 1).padStart(2, "0")}
+                              </Badge>
+                              <CardTitle className="text-lg truncate">{module.title}</CardTitle>
+                            </div>
+
+                            {/* Module progress info */}
+                            {isEnrolled && moduleProgress && (
+                              <p className="text-sm text-muted-foreground">
+                                {moduleProgress.progress.completed_lessons} of {moduleProgress.progress.total_lessons} pelajaran
+                              </p>
+                            )}
                           </div>
                         </div>
-                        <Button size="sm" variant="ghost" asChild>
-                          <Link to={`/student/classes/${slug}/${module.slug}`}>
-                            <PlayCircle className="h-4 w-4 mr-2" />
-                            Mulai
-                          </Link>
-                        </Button>
-                      </div>
-                    </CardHeader>
-                  </Card>
-                ))}
+                      </CardHeader>
+
+                      {/* Lesson List with completion states - only show if enrolled */}
+                      {isEnrolled && moduleProgress && moduleProgress.lessons.length > 0 && (
+                        <CardContent className="pt-0">
+                          <div className="space-y-1.5 pl-2">
+                            {moduleProgress.lessons.map((lesson) => (
+                              <div key={lesson.id} className="flex items-center gap-2 py-2 px-3 rounded-md hover:bg-accent/50 transition-colors">
+                                <LessonStatusIcon state={lesson.state} size={16} />
+                                <span className={cn("text-sm flex-1", lesson.state === "locked" && "text-muted-foreground", lesson.state === "completed" && "text-muted-foreground line-through")}>
+                                  {lesson.title}
+                                </span>
+                                {lesson.duration && <span className="text-xs text-muted-foreground">{lesson.duration} min</span>}
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      )}
+                    </Card>
+                  );
+                })}
               </div>
             )}
           </CardContent>
@@ -389,7 +399,7 @@ export default function TrackDetail() {
       {modules.length > 0 && (
         <div className="flex justify-center pt-4">
           <Button size="lg" asChild>
-            <Link to={`/student/classes/${slug}/${modules[0].slug}`}>
+            <Link to={`/student/${slug}/${modules[0].slug}`}>
               <PlayCircle className="h-5 w-5 mr-2" />
               Mulai Belajar
             </Link>

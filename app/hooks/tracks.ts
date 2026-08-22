@@ -1,6 +1,6 @@
 import { TrackService } from "@/services/track";
 import type { Track } from "@/types/model";
-import type { ApiErrorResponse } from "@/types/response";
+import type { ApiErrorResponse, PaginatedResponse } from "@/types/response";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const trackKeys = {
@@ -16,6 +16,24 @@ export function useGetTracks() {
 
   return {
     tracks: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refresh: query.refetch,
+  };
+}
+
+export function useGetTracksPaginated(params?: {
+  page?: number;
+  per_page?: number;
+}) {
+  const query = useQuery<PaginatedResponse<Track>, ApiErrorResponse>({
+    queryKey: [...trackKeys.all, "paginated", params],
+    queryFn: () => TrackService.getAllPaginated(params),
+  });
+
+  return {
+    tracks: query.data?.data ?? [],
+    pagination: query.data?.meta,
     loading: query.isLoading,
     error: query.error ?? null,
     refresh: query.refetch,

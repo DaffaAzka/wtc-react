@@ -1,13 +1,7 @@
-import { useGetLessons } from "@/hooks/lessons";
+import { useGetLessons, useLessonCompletion } from "@/hooks/lessons";
 import { useGetModule } from "@/hooks/modules";
 import { Link, useNavigate, useParams } from "react-router";
-import {
-  ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
-  CheckCircle2,
-  Circle,
-} from "lucide-react";
+import { ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, Circle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -23,48 +17,32 @@ export default function LessonsPage() {
     lessonSlug?: string;
   }>();
 
-  if (!slug || !moduleSlug)
-    return (
-      <p>Cannot open the lessons because track or module is not specified.</p>
-    );
+  if (!slug || !moduleSlug) return <p>Cannot open the lessons because track or module is not specified.</p>;
 
   const { module, loading, error } = useGetModule(moduleSlug);
-  const {
-    lessons,
-    loading: lessonsLoading,
-    error: lessonsError,
-  } = useGetLessons(module ? { module_id: module.id.toString() } : undefined);
+  const { lessons, loading: lessonsLoading, error: lessonsError } = useGetLessons(module ? { module_id: module.id.toString() } : undefined);
+
+  // Lesson completion hook
+  const { mutate: completeLesson, isPending: completing } = useLessonCompletion();
 
   if (loading || lessonsLoading) return <div className="p-8">Loading...</div>;
   if (error) return <div className="p-8">Error: {error.message}</div>;
   if (!module) return <div className="p-8">Module not found.</div>;
 
-  if (lessons.length === 0)
-    return <div className="p-8">No lessons found for this module.</div>;
+  if (lessons.length === 0) return <div className="p-8">No lessons found for this module.</div>;
 
   // Sort lessons by order
-  const sortedLessons = [...lessons].sort(
-    (a, b) => (a.order ?? 0) - (b.order ?? 0),
-  );
+  const sortedLessons = [...lessons].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   // Find current lesson
-  const currentLesson =
-    lessonSlug ?
-      sortedLessons.find((l) => l.slug === lessonSlug)
-    : sortedLessons[0];
+  const currentLesson = lessonSlug ? sortedLessons.find((l) => l.slug === lessonSlug) : sortedLessons[0];
 
   if (!currentLesson) return <div className="p-8">Lesson not found.</div>;
 
   // Find current lesson index and adjacent lessons
-  const currentIndex = sortedLessons.findIndex(
-    (l) => l.id === currentLesson.id,
-  );
-  const previousLesson =
-    currentIndex > 0 ? sortedLessons[currentIndex - 1] : null;
-  const nextLesson =
-    currentIndex < sortedLessons.length - 1 ?
-      sortedLessons[currentIndex + 1]
-    : null;
+  const currentIndex = sortedLessons.findIndex((l) => l.id === currentLesson.id);
+  const previousLesson = currentIndex > 0 ? sortedLessons[currentIndex - 1] : null;
+  const nextLesson = currentIndex < sortedLessons.length - 1 ? sortedLessons[currentIndex + 1] : null;
 
   const handleLessonClick = (lesson: (typeof sortedLessons)[0]) => {
     navigate(`/student/classes/${slug}/${moduleSlug}/${lesson.slug}`);
@@ -107,12 +85,7 @@ export default function LessonsPage() {
           <div className="max-w-4xl mx-auto p-6 pb-24">
             {currentLesson.video_url && (
               <div className="mb-6 aspect-video rounded-lg overflow-hidden bg-muted">
-                <iframe
-                  src={currentLesson.video_url}
-                  title={currentLesson.title}
-                  className="w-full h-full"
-                  allowFullScreen
-                />
+                <iframe src={currentLesson.video_url} title={currentLesson.title} className="w-full h-full" allowFullScreen />
               </div>
             )}
 
@@ -154,41 +127,17 @@ export default function LessonsPage() {
                     <button
                       key={lesson.id}
                       onClick={() => handleLessonClick(lesson)}
-                      className={cn(
-                        "w-full text-left p-3 rounded-lg transition-colors",
-                        "hover:bg-accent/50",
-                        isActive && "bg-accent",
-                      )}>
+                      className={cn("w-full text-left p-3 rounded-lg transition-colors", "hover:bg-accent/50", isActive && "bg-accent")}
+                    >
                       <div className="flex items-start gap-3">
                         <div className="flex-shrink-0 mt-1">
-                          {isCompleted ?
-                            <CheckCircle2 className="h-5 w-5 text-green-600" />
-                          : <Circle
-                              className={cn(
-                                "h-5 w-5",
-                                isActive ?
-                                  "fill-white"
-                                : "text-muted-foreground",
-                              )}
-                            />
-                          }
+                          {isCompleted ? <CheckCircle2 className="h-5 w-5 text-green-600" /> : <Circle className={cn("h-5 w-5", isActive ? "fill-white" : "text-muted-foreground")} />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-mono text-muted-foreground">
-                              {String(lesson.order ?? index + 1).padStart(
-                                2,
-                                "0",
-                              )}
-                            </span>
+                            <span className="text-xs font-mono text-muted-foreground">{String(lesson.order ?? index + 1).padStart(2, "0")}</span>
                           </div>
-                          <h3
-                            className={cn(
-                              "text-sm font-medium line-clamp-2",
-                              isActive ? "text-white" : "text-foreground",
-                            )}>
-                            {lesson.title}
-                          </h3>
+                          <h3 className={cn("text-sm font-medium line-clamp-2", isActive ? "text-white" : "text-foreground")}>{lesson.title}</h3>
                         </div>
                       </div>
                     </button>
@@ -202,24 +151,34 @@ export default function LessonsPage() {
 
       {/* Bottom Navigation Bar - Sticky */}
       <div className="sticky bottom-0 z-10 bg-background border-t px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={!previousLesson}
-            className="min-w-32">
+        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
+          <Button variant="outline" onClick={handlePrevious} disabled={!previousLesson} className="min-w-32">
             <ChevronLeft className="h-4 w-4 mr-2" />
             Sebelumnya
           </Button>
 
-          <span className="text-sm text-muted-foreground">
-            {currentIndex + 1} / {sortedLessons.length}
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground">
+              {currentIndex + 1} / {sortedLessons.length}
+            </span>
+            {currentLesson && (
+              <Button variant="default" size="sm" onClick={() => completeLesson(currentLesson.slug)} disabled={completing}>
+                {completing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Memproses...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    Tandai Selesai
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
 
-          <Button
-            onClick={handleNext}
-            disabled={!nextLesson}
-            className="min-w-32">
+          <Button onClick={handleNext} disabled={!nextLesson} className="min-w-32">
             Selanjutnya
             <ChevronRight className="h-4 w-4 ml-2" />
           </Button>

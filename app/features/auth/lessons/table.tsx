@@ -83,12 +83,26 @@ export default function LessonsTable({
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return data;
-    return data.filter(
-      (lesson) =>
-        lesson.title.toLowerCase().includes(q) ||
-        lesson.slug.toLowerCase().includes(q),
-    );
+    let result = data;
+
+    // Apply search filter
+    if (q) {
+      result = data.filter(
+        (lesson) =>
+          lesson.title.toLowerCase().includes(q) ||
+          lesson.slug.toLowerCase().includes(q),
+      );
+    }
+
+    // Sort by module_id first, then by order
+    return [...result].sort((a, b) => {
+      // First sort by module_id
+      if (a.module_id !== b.module_id) {
+        return (a.module_id || 0) - (b.module_id || 0);
+      }
+      // Then sort by order
+      return (a.order || 0) - (b.order || 0);
+    });
   }, [data, search]);
 
   const showToolbar = !loading && !error && data.length > 0;
@@ -158,9 +172,6 @@ export default function LessonsTable({
             <thead>
               <tr className="border-b border-border text-left text-xs text-muted-foreground">
                 <th className="px-4 py-2 font-medium">Title</th>
-                <th className="hidden px-4 py-2 font-medium sm:table-cell">
-                  Order
-                </th>
                 <th className="hidden px-4 py-2 font-medium md:table-cell">
                   Updated
                 </th>
@@ -181,9 +192,6 @@ export default function LessonsTable({
                           /{lesson.slug}
                         </span>
                       </div>
-                    </td>
-                    <td className="hidden px-4 py-3 text-muted-foreground sm:table-cell">
-                      {lesson.order ?? "—"}
                     </td>
                     <td className="hidden px-4 py-3 text-xs text-muted-foreground md:table-cell">
                       {updated}

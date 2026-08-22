@@ -6,15 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  BookOpen,
-  Package,
-  FileText,
-  Trophy,
-  Users,
-  School,
-  Activity,
-} from "lucide-react";
+import { BookOpen, Package, FileText, Trophy, Users, School, Activity } from "lucide-react";
 
 interface DashboardStats {
   tracks: number;
@@ -53,19 +45,12 @@ export default function Dashboard() {
         setError(null);
 
         // Fetch all data in parallel
-        const [
-          tracksRes,
-          modulesRes,
-          lessonsRes,
-          challengesRes,
-          studyClassesRes,
-          usersRes,
-        ] = await Promise.all([
-          api.get("/tracks").catch(() => null),
-          api.get("/modules").catch(() => null),
-          api.get("/lessons").catch(() => null),
-          api.get("/challenges").catch(() => null),
-          api.get("/study-classes").catch(() => null),
+        const [tracksRes, modulesRes, lessonsRes, challengesRes, studyClassesRes, usersRes] = await Promise.all([
+          api.get("/tracks?pagination=false").catch(() => null),
+          api.get("/modules?pagination=false").catch(() => null),
+          api.get("/lessons?pagination=false").catch(() => null),
+          api.get("/challenges?pagination=false").catch(() => null),
+          api.get("/study-classes?pagination=false").catch(() => null),
           api.get("/users/stats").catch(() => null),
         ]);
 
@@ -80,38 +65,28 @@ export default function Dashboard() {
         };
 
         if (tracksRes?.data) {
-          const data = Array.isArray(tracksRes.data)
-            ? tracksRes.data
-            : tracksRes.data.data || [];
+          const data = Array.isArray(tracksRes.data) ? tracksRes.data : tracksRes.data.data || [];
           newStats.tracks = data.length;
           setRecentTracks(data.slice(0, 5));
         }
 
         if (modulesRes?.data) {
-          const data = Array.isArray(modulesRes.data)
-            ? modulesRes.data
-            : modulesRes.data.data || [];
+          const data = Array.isArray(modulesRes.data) ? modulesRes.data : modulesRes.data.data || [];
           newStats.modules = data.length;
         }
 
         if (lessonsRes?.data) {
-          const data = Array.isArray(lessonsRes.data)
-            ? lessonsRes.data
-            : lessonsRes.data.data || [];
+          const data = Array.isArray(lessonsRes.data) ? lessonsRes.data : lessonsRes.data.data || [];
           newStats.lessons = data.length;
         }
 
         if (challengesRes?.data) {
-          const data = Array.isArray(challengesRes.data)
-            ? challengesRes.data
-            : challengesRes.data.data || [];
+          const data = Array.isArray(challengesRes.data) ? challengesRes.data : challengesRes.data.data || [];
           newStats.challenges = data.length;
         }
 
         if (studyClassesRes?.data) {
-          const data = Array.isArray(studyClassesRes.data)
-            ? studyClassesRes.data
-            : studyClassesRes.data.data || [];
+          const data = Array.isArray(studyClassesRes.data) ? studyClassesRes.data : studyClassesRes.data.data || [];
           newStats.studyClasses = data.length;
         }
 
@@ -221,19 +196,13 @@ export default function Dashboard() {
             <div className="flex items-center gap-4">
               <div className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center text-xl font-bold">
                 {user?.avatar ? (
-                  <img
-                    src={user.avatar}
-                    alt={user.display_name || "Admin"}
-                    className="w-full h-full rounded-full object-cover"
-                  />
+                  <img src={user.avatar} alt={user.display_name || "Admin"} className="w-full h-full rounded-full object-cover" />
                 ) : (
                   <span>{user?.display_name?.charAt(0)?.toUpperCase() || "A"}</span>
                 )}
               </div>
               <div className="flex-1">
-                <h2 className="text-xl font-semibold mb-1">
-                  {user?.display_name?.trim() || "Admin"}
-                </h2>
+                <h2 className="text-xl font-semibold mb-1">{user?.display_name?.trim() || "Admin"}</h2>
                 <p className="text-sm text-slate-300 mb-2">{user?.email || ""}</p>
                 {user?.roles && user.roles.length > 0 && (
                   <Badge variant="secondary" className="text-xs">
@@ -253,21 +222,15 @@ export default function Dashboard() {
           <CardContent className="space-y-2">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Total Content</span>
-              <span className="font-semibold">
-                {stats.tracks + stats.modules + stats.lessons} items
-              </span>
+              <span className="font-semibold">{stats.tracks + stats.modules + stats.lessons} items</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Avg Modules/Track</span>
-              <span className="font-semibold">
-                {stats.tracks > 0 ? Math.round(stats.modules / stats.tracks) : 0}
-              </span>
+              <span className="font-semibold">{stats.tracks > 0 ? Math.round(stats.modules / stats.tracks) : 0}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Avg Lessons/Module</span>
-              <span className="font-semibold">
-                {stats.modules > 0 ? Math.round(stats.lessons / stats.modules) : 0}
-              </span>
+              <span className="font-semibold">{stats.modules > 0 ? Math.round(stats.lessons / stats.modules) : 0}</span>
             </div>
             <div className="flex justify-between text-sm pt-2 border-t">
               <span className="text-muted-foreground">Active Users</span>
@@ -319,25 +282,17 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             {recentTracks.length === 0 ? (
-              <p className="text-sm text-muted-foreground py-4">
-                Belum ada tracks tersedia.
-              </p>
+              <p className="text-sm text-muted-foreground py-4">Belum ada tracks tersedia.</p>
             ) : (
               <div className="space-y-2">
                 {recentTracks.map((track) => (
-                  <Link
-                    key={track.id}
-                    to={`/tracks/${track.slug}`}
-                    className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors border"
-                  >
+                  <Link key={track.id} to={`/tracks/${track.slug}`} className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors border">
                     <div className="p-2 rounded bg-slate-100 dark:bg-slate-800">
                       <BookOpen className="h-4 w-4" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{track.name}</p>
-                      <p className="text-xs text-muted-foreground line-clamp-1">
-                        {track.description}
-                      </p>
+                      <p className="text-xs text-muted-foreground line-clamp-1">{track.description}</p>
                     </div>
                   </Link>
                 ))}
