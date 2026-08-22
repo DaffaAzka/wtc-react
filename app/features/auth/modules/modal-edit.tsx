@@ -35,7 +35,7 @@ export default function ModalEdit({
       setForm({
         title: data.title,
         slug: data.slug,
-        order: data.order.toString(),
+        order: data.order == null ? "" : data.order.toString(),
         track_id: data.track_id,
       });
     }

@@ -4,7 +4,7 @@ export type TrackEnrollment = {
   id: number;
   track_id: number;
   profile_id: string;
-  status: "active" | "completed" | "dropped";  // Changed from "enrolled" to "active"
+  status: "active" | "completed" | "dropped"; // Changed from "enrolled" to "active"
   enrolled_at: string;
   completed_at: string | null;
   dropped_at: string | null;
@@ -20,9 +20,12 @@ export type MyTrack = {
   description: string;
   image_url: string;
   enrollment: {
-    status: "active" | "completed" | "dropped";  // Changed from "enrolled" to "active"
+    status: "active" | "completed" | "dropped";
     enrolled_at: string | null;
     completed_at: string | null;
+    progress_percentage?: number;
+    completed_modules?: number;
+    points_earned?: number;
   };
   modules_count: string | number;
 };

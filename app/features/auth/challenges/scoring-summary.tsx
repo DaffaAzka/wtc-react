@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { Question } from "@/types/challenge";
+import type { Question, ChallengeFormType } from "@/types/challenge";
 import {
   calculateMCQScore,
   calculateEssayScore,
@@ -13,9 +13,7 @@ type Props = {
 };
 
 export default function ScoringSummary({ type, maxScore, questions }: Props) {
-  const mcqCount = questions.filter(
-    (q) => q.type === "multiple_choice"
-  ).length;
+  const mcqCount = questions.filter((q) => q.type === "multiple_choice").length;
   const essayCount = questions.filter((q) => q.type === "essay").length;
   const totalQuestions = questions.length;
 
@@ -72,7 +70,7 @@ export default function ScoringSummary({ type, maxScore, questions }: Props) {
       const { mcqScore, essayScore } = calculateMixedScores(
         maxScore,
         mcqCount,
-        essayCount
+        essayCount,
       );
       return (
         <>

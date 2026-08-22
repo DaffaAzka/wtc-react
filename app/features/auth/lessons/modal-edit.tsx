@@ -42,7 +42,7 @@ export default function ModalEdit({
         content: data.content,
         slug: data.slug,
         video_url: data.video_url ?? "",
-        order: data.order.toString(),
+        order: data.order == null ? "" : data.order.toString(),
         module_id: data.module_id,
       });
     }

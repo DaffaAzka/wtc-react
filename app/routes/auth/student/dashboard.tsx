@@ -130,15 +130,20 @@ export default function Dashboard() {
               <div className="flex flex-col items-center text-center space-y-4">
                 {/* Avatar */}
                 <div className="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center text-2xl font-bold">
-                  {user?.avatar ? (
+                  {user?.avatar ?
                     <img
-                      src={user.avatar}
+                      src={
+                        typeof user.avatar === "string" ?
+                          user.avatar
+                        : (user.avatar?.url ?? undefined)
+                      }
                       alt={user.display_name || "User"}
                       className="w-full h-full rounded-full object-cover"
                     />
-                  ) : (
-                    <span>{user?.display_name?.charAt(0)?.toUpperCase() || "U"}</span>
-                  )}
+                  : <span>
+                      {user?.display_name?.charAt(0)?.toUpperCase() || "U"}
+                    </span>
+                  }
                 </div>
 
                 <div>
@@ -155,7 +160,11 @@ export default function Dashboard() {
                   )}
                 </div>
 
-                <Button variant="secondary" size="sm" asChild className="w-full">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  asChild
+                  className="w-full">
                   <Link to="/student/profile">Lihat Profil</Link>
                 </Button>
               </div>
@@ -199,8 +208,7 @@ export default function Dashboard() {
               {tracks.length > 3 && (
                 <Link
                   to="/student/learning-path"
-                  className="text-sm text-primary hover:underline"
-                >
+                  className="text-sm text-primary hover:underline">
                   Selengkapnya
                 </Link>
               )}
@@ -220,7 +228,11 @@ export default function Dashboard() {
                           {track.description}
                         </p>
                       </div>
-                      <Button variant="link" size="sm" className="text-primary" asChild>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="text-primary"
+                        asChild>
                         <Link to={`/student/learning-path/${track.slug}`}>
                           Lanjutkan
                         </Link>
@@ -234,7 +246,8 @@ export default function Dashboard() {
                 <Card>
                   <CardContent className="p-8 text-center">
                     <p className="text-muted-foreground text-sm">
-                      Belum ada aktivitas belajar. Mulai dengan memilih learning path!
+                      Belum ada aktivitas belajar. Mulai dengan memilih learning
+                      path!
                     </p>
                   </CardContent>
                 </Card>
@@ -249,8 +262,7 @@ export default function Dashboard() {
               {tracks.length > 4 && (
                 <Link
                   to="/student/learning-path"
-                  className="text-sm text-primary hover:underline"
-                >
+                  className="text-sm text-primary hover:underline">
                   Selengkapnya
                 </Link>
               )}
@@ -258,8 +270,12 @@ export default function Dashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {tracks.slice(0, 4).map((track) => (
-                <Card key={track.id} className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                  <Link to={`/student/learning-path/${track.slug}`} className="block">
+                <Card
+                  key={track.id}
+                  className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                  <Link
+                    to={`/student/learning-path/${track.slug}`}
+                    className="block">
                     {track.image_url && (
                       <div className="relative h-40 bg-muted">
                         <img
@@ -294,12 +310,13 @@ export default function Dashboard() {
           {/* Tantangan */}
           <div>
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Challenge yang Anda ikuti</h2>
+              <h2 className="text-lg font-semibold">
+                Challenge yang Anda ikuti
+              </h2>
               {challenges.length > 3 && (
                 <Link
                   to="/student/challenges"
-                  className="text-sm text-primary hover:underline"
-                >
+                  className="text-sm text-primary hover:underline">
                   Selengkapnya
                 </Link>
               )}
@@ -311,12 +328,16 @@ export default function Dashboard() {
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <h3 className="font-semibold mb-1">{challenge.title}</h3>
+                        <h3 className="font-semibold mb-1">
+                          {challenge.title}
+                        </h3>
                         <p className="text-sm text-muted-foreground line-clamp-1 mb-2">
                           {challenge.description}
                         </p>
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs capitalize">
+                          <Badge
+                            variant="outline"
+                            className="text-xs capitalize">
                             {challenge.difficulty}
                           </Badge>
                           <span className="text-xs text-muted-foreground">
@@ -325,7 +346,9 @@ export default function Dashboard() {
                         </div>
                       </div>
                       <Button size="sm" asChild>
-                        <Link to={`/student/challenges/${challenge.id}`}>Mulai</Link>
+                        <Link to={`/student/challenges/${challenge.id}`}>
+                          Mulai
+                        </Link>
                       </Button>
                     </div>
                   </CardContent>
@@ -352,8 +375,7 @@ export default function Dashboard() {
                 {studyClasses.length > 2 && (
                   <Link
                     to="/student/study-classes"
-                    className="text-sm text-primary hover:underline"
-                  >
+                    className="text-sm text-primary hover:underline">
                     Selengkapnya
                   </Link>
                 )}

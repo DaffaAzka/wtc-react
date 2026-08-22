@@ -11,6 +11,7 @@ export default function InputForm({
   error = null,
   placeholder = "",
   isDisabled = false,
+  required = false,
 }: {
   name: string;
   text: string;
@@ -21,6 +22,7 @@ export default function InputForm({
   placeholder?: string;
   isDisabled?: boolean;
   autoFocus?: boolean;
+  required?: boolean;
 }) {
   return (
     <Field aria-invalid={error != null} className="flex flex-col gap-1.5">
@@ -35,6 +37,7 @@ export default function InputForm({
           onChange={handleChange}
           aria-invalid={error != null}
           placeholder={placeholder}
+          required={required}
           className="text-black"
         />
         {error && (
