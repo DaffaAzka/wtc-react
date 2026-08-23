@@ -16,7 +16,4 @@ export const teamPhotos = [
   "/images/team/team15.png",
   "/images/team/team16.png",
   "/images/team/team17.png",
-  "/images/team/team18.jpeg",
-  "/images/team/team19.jpeg",
-  "/images/team/team20.jpeg",
 ];
