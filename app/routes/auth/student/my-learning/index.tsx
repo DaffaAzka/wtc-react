@@ -8,6 +8,16 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { GraduationCap, BookOpen, Trophy, Clock, CheckCircle2 } from "lucide-react";
 
+// Pattern background generator for broken images
+function getPatternBackground(text: string): string {
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = text.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const h = Math.abs(hash % 360);
+  return `radial-gradient(circle at 20% 50%, hsl(${h}, 70%, 25%) 0%, hsl(${h + 30}, 65%, 20%) 100%)`;
+}
+
 export default function MyLearning() {
   const { myTracks, loading, error } = useMyTracks();
 
@@ -20,9 +30,11 @@ export default function MyLearning() {
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Card className="p-8 max-w-md text-center">
+        <Card className="p-8 max-w-md text-center border-none shadow-sm">
           <p className="text-destructive mb-4">{error.message || "Gagal memuat data."}</p>
-          <Button onClick={() => window.location.reload()} size="sm">Coba Lagi</Button>
+          <Button onClick={() => window.location.reload()} size="sm">
+            Coba Lagi
+          </Button>
         </Card>
       </div>
     );
@@ -31,82 +43,64 @@ export default function MyLearning() {
   return (
     <div className="space-y-8">
       {/* Header Banner */}
-      <div className="overflow-hidden rounded-lg border-2">
-        <img
-          src="/images/progres-header.png"
-          alt="Progress Header"
-          className="w-full h-auto object-cover"
-        />
+      <div className="overflow-hidden rounded-xl shadow-sm">
+        <img src="/images/progres-header.png" alt="Progress Header" className="w-full h-auto object-cover" />
       </div>
 
-      {/* Stats Grid - Single Color Theme */}
+      {/* Stats Grid - Blue/Grey Theme */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="border-l-4 border-l-primary">
+        <Card className="border-none shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-2">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Clock className="h-5 w-5 text-primary" />
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 rounded-full bg-blue-500/10">
+                <Clock className="h-5 w-5 text-blue-500" />
               </div>
             </div>
-            <div className="text-3xl font-bold mb-1">
-              {enrolledTracks.length}
-            </div>
-            <p className="text-sm text-muted-foreground font-medium">
-              Sedang Dipelajari
-            </p>
+            <div className="text-3xl font-bold mb-1">{enrolledTracks.length}</div>
+            <p className="text-sm text-muted-foreground font-medium">Sedang Dipelajari</p>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-primary">
+        <Card className="border-none shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-2">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 rounded-full bg-cyan-500/10">
+                <CheckCircle2 className="h-5 w-5 text-cyan-500" />
               </div>
             </div>
-            <div className="text-3xl font-bold mb-1">
-              {completedTracks.length}
-            </div>
-            <p className="text-sm text-muted-foreground font-medium">
-              Diselesaikan
-            </p>
+            <div className="text-3xl font-bold mb-1">{completedTracks.length}</div>
+            <p className="text-sm text-muted-foreground font-medium">Diselesaikan</p>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-primary">
+        <Card className="border-none shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-2">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <BookOpen className="h-5 w-5 text-primary" />
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 rounded-full bg-sky-500/10">
+                <BookOpen className="h-5 w-5 text-sky-500" />
               </div>
             </div>
-            <div className="text-3xl font-bold mb-1">
-              {totalModulesCompleted}
-            </div>
-            <p className="text-sm text-muted-foreground font-medium">
-              Modul Selesai
-            </p>
+            <div className="text-3xl font-bold mb-1">{totalModulesCompleted}</div>
+            <p className="text-sm text-muted-foreground font-medium">Modul Selesai</p>
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-primary">
+        <Card className="border-none shadow-sm hover:shadow-md transition-shadow">
           <CardContent className="pt-6">
-            <div className="flex items-center justify-between mb-2">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Trophy className="h-5 w-5 text-primary" />
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-3 rounded-full bg-indigo-500/10">
+                <Trophy className="h-5 w-5 text-indigo-500" />
               </div>
             </div>
             <div className="text-3xl font-bold mb-1">{totalPoints}</div>
-            <p className="text-sm text-muted-foreground font-medium">
-              Total Poin
-            </p>
+            <p className="text-sm text-muted-foreground font-medium">Total Poin</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Tabs */}
       <Tabs defaultValue="enrolled" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 max-w-md">
+        <TabsList className="grid w-full grid-cols-2 max-w-md bg-muted/50">
           <TabsTrigger value="enrolled" className="gap-2">
             <Clock className="h-4 w-4" />
             Sedang Dipelajari ({enrolledTracks.length})
@@ -122,9 +116,9 @@ export default function MyLearning() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[1, 2].map((i) => (
-                <Card key={i}>
-                  <Skeleton className="h-48 w-full rounded-t-lg" />
-                  <CardContent className="p-4">
+                <Card key={i} className="border-none shadow-sm">
+                  <Skeleton className="h-48 w-full rounded-t-xl" />
+                  <CardContent className="p-5">
                     <Skeleton className="h-5 w-3/4 mb-2" />
                     <Skeleton className="h-4 w-full mb-4" />
                     <Skeleton className="h-2 w-full" />
@@ -133,15 +127,13 @@ export default function MyLearning() {
               ))}
             </div>
           ) : enrolledTracks.length === 0 ? (
-            <Card className="border-dashed border-2">
-              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="p-4 rounded-full bg-muted mb-4">
-                  <BookOpen className="h-12 w-12 text-muted-foreground" />
+            <Card className="border-dashed border-2 shadow-none">
+              <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="p-4 rounded-full bg-blue-500/10 mb-4">
+                  <BookOpen className="h-12 w-12 text-blue-500/50" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Belum Ada Kelas yang Sedang Dipelajari</h3>
-                <p className="text-sm text-muted-foreground mb-6 max-w-sm">
-                  Mulai perjalanan belajar kamu dengan mengambil kelas dari katalog.
-                </p>
+                <p className="text-sm text-muted-foreground mb-6 max-w-sm">Mulai perjalanan belajar kamu dengan mengambil kelas dari katalog.</p>
                 <Button asChild>
                   <Link to="/student/tracks">Jelajahi Kelas</Link>
                 </Button>
@@ -155,42 +147,57 @@ export default function MyLearning() {
                 const totalModules = track.modules_count || 0;
 
                 return (
-                  <Card key={track.id} className="overflow-hidden hover:shadow-lg transition-all duration-200">
-                    <div className="relative h-48 bg-muted">
+                  <Card key={track.id} className="overflow-hidden p-0 border-none shadow-sm hover:shadow-lg transition-all duration-200">
+                    <div className="relative h-48 bg-muted overflow-hidden">
                       {track.image_url ? (
-                        <img src={track.image_url} alt={track.title} className="h-full w-full object-cover" />
+                        <img
+                          src={track.image_url}
+                          alt={track.title}
+                          className="h-full w-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                            const parent = e.currentTarget.parentElement;
+                            if (parent) {
+                              parent.style.background = getPatternBackground(track.title);
+                            }
+                          }}
+                        />
                       ) : (
-                        <div className="flex h-full items-center justify-center">
-                          <BookOpen className="h-16 w-16 text-muted-foreground/30" />
+                        <div className="flex h-full items-center justify-center" style={{ background: getPatternBackground(track.title) }}>
+                          <BookOpen className="h-16 w-16 text-white/20" />
                         </div>
                       )}
+
+                      {/* Progress indicator overlay */}
+                      <div className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-black/60 backdrop-blur-sm">
+                        <span className="text-xs font-bold text-white">{Math.round(progress)}%</span>
+                      </div>
                     </div>
 
-                    <CardContent className="p-5">
+                    <CardContent className="pb-8 pt-2 px-5 space-y-2">
                       <h3 className="font-bold text-lg mb-2 line-clamp-2">{track.title}</h3>
 
-                      {track.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
-                          {track.description}
-                        </p>
-                      )}
+                      {track.description && <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{track.description}</p>}
 
                       <div className="space-y-3 mb-4">
                         <div className="flex justify-between items-center text-sm">
                           <span className="text-muted-foreground font-medium">Progress Belajar</span>
-                          <span className="font-bold text-primary">{Math.round(progress)}%</span>
+                          <span className="font-bold text-blue-500">{Math.round(progress)}%</span>
                         </div>
-                        <Progress value={progress} className="h-2.5" />
+                        <Progress value={progress} className="h-2.5 bg-blue-500/10" />
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                           <BookOpen className="h-4 w-4" />
-                          <span>{completedModules} dari {totalModules} Modul</span>
+                          <span>
+                            {completedModules} dari {totalModules} Modul
+                          </span>
                         </div>
                       </div>
 
                       {track.enrollment.enrolled_at && (
                         <p className="text-xs text-muted-foreground flex items-center gap-1.5 mb-4">
                           <Clock className="h-3.5 w-3.5" />
-                          Diambil {new Date(track.enrollment.enrolled_at).toLocaleDateString("id-ID", {
+                          Diambil{" "}
+                          {new Date(track.enrollment.enrolled_at).toLocaleDateString("id-ID", {
                             day: "numeric",
                             month: "short",
                             year: "numeric",
@@ -214,8 +221,8 @@ export default function MyLearning() {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (
-                <Card key={i}>
-                  <Skeleton className="h-32 w-full rounded-t-lg" />
+                <Card key={i} className="border-none shadow-sm">
+                  <Skeleton className="h-32 w-full rounded-t-xl" />
                   <CardContent className="p-4">
                     <Skeleton className="h-5 w-3/4 mb-2" />
                     <Skeleton className="h-4 w-1/2" />
@@ -224,30 +231,41 @@ export default function MyLearning() {
               ))}
             </div>
           ) : completedTracks.length === 0 ? (
-            <Card className="border-dashed border-2">
-              <CardContent className="flex flex-col items-center justify-center py-12 text-center">
-                <div className="p-4 rounded-full bg-muted mb-4">
-                  <Trophy className="h-12 w-12 text-muted-foreground" />
+            <Card className="border-dashed border-2 shadow-none">
+              <CardContent className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="p-4 rounded-full bg-cyan-500/10 mb-4">
+                  <Trophy className="h-12 w-12 text-cyan-500/50" />
                 </div>
                 <h3 className="text-lg font-semibold mb-2">Belum Ada Kelas yang Diselesaikan</h3>
-                <p className="text-sm text-muted-foreground max-w-sm">
-                  Selesaikan kelas yang sedang kamu pelajari untuk melihatnya di sini.
-                </p>
+                <p className="text-sm text-muted-foreground max-w-sm">Selesaikan kelas yang sedang kamu pelajari untuk melihatnya di sini.</p>
               </CardContent>
             </Card>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {completedTracks.map((track) => (
-                <Card key={track.id} className="overflow-hidden hover:shadow-lg transition-all duration-200 border-l-4 border-l-primary">
-                  <div className="relative h-32 bg-muted">
+                <Card key={track.id} className="overflow-hidden border-none p-0 shadow-sm hover:shadow-lg transition-all duration-200">
+                  <div className="relative h-32 bg-muted overflow-hidden">
                     {track.image_url ? (
-                      <img src={track.image_url} alt={track.title} className="h-full w-full object-cover" />
+                      <img
+                        src={track.image_url}
+                        alt={track.title}
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                          const parent = e.currentTarget.parentElement;
+                          if (parent) {
+                            parent.style.background = getPatternBackground(track.title);
+                          }
+                        }}
+                      />
                     ) : (
-                      <div className="flex h-full items-center justify-center">
-                        <Trophy className="h-12 w-12 text-muted-foreground/30" />
+                      <div className="flex h-full items-center justify-center" style={{ background: getPatternBackground(track.title) }}>
+                        <Trophy className="h-12 w-12 text-white/20" />
                       </div>
                     )}
-                    <div className="absolute top-2 right-2 p-1.5 rounded-full bg-primary">
+
+                    {/* Completion badge */}
+                    <div className="absolute top-2 right-2 p-1.5 rounded-full bg-cyan-500 shadow-lg">
                       <CheckCircle2 className="h-4 w-4 text-white" />
                     </div>
                   </div>
@@ -259,9 +277,10 @@ export default function MyLearning() {
 
                     {track.enrollment.completed_at && (
                       <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-4">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-cyan-500" />
                         <span>
-                          Diselesaikan {new Date(track.enrollment.completed_at).toLocaleDateString("id-ID", {
+                          Diselesaikan{" "}
+                          {new Date(track.enrollment.completed_at).toLocaleDateString("id-ID", {
                             day: "numeric",
                             month: "short",
                             year: "numeric",
