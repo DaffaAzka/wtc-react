@@ -57,14 +57,14 @@ export default [
       // Track Routes
       ...prefix("/tracks", [index("routes/auth/admin/tracks/index.tsx")]),
 
-      // Module Routes � /:slug? covers both /modules and /:trackSlug/modules
+      // Module Routes — /:slug? covers both /modules and /:trackSlug/modules
       route("/:slug?/modules", "routes/auth/admin/modules/index.tsx"),
       route(
         "/:slug?/modules/:moduleSlug/challenges",
         "routes/auth/admin/modules/challenges/index.tsx",
       ),
 
-      // Lesson Routes � /:slug? covers both /lessons and /:moduleSlug/lessons
+      // Lesson Routes — /:slug? covers both /lessons and /:moduleSlug/lessons
       route("/:slug?/lessons", "routes/auth/admin/lessons/index.tsx"),
       route("/:slug?/lessons/create", "routes/auth/admin/lessons/create.tsx"),
       route(

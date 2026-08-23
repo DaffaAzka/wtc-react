@@ -40,6 +40,7 @@ import {
   GitBranch,
   Award,
   Users,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
 import { firstCharacterUppercase } from "@/utils/global";
@@ -101,6 +102,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       { title: "Tracks", url: "/tracks", icon: RouteIcon },
       { title: "Modules", url: "/modules", icon: ListTreeIcon },
       { title: "Lessons", url: "/lessons", icon: NotebookTextIcon },
+      { title: "Materi Pembelajaran", url: "/materials", icon: FileText },
       { title: "Challenges", url: "/challenges", icon: Award },
     ],
   };
