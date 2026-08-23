@@ -48,6 +48,9 @@ export function useSubmitChallenge() {
       queryClient.invalidateQueries({
         queryKey: submissionKeys.challengeSubmissions(variables.challengeId),
       });
+      queryClient.invalidateQueries({
+        queryKey: submissionKeys.allMySubmissions(),
+      });
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "Gagal mengirim submission");
