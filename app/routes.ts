@@ -54,6 +54,10 @@ export default [
       // Profile Management
       route("/admin/profile", "routes/auth/admin/profile/index.tsx"),
 
+        // Pustaka PDF / Materials Management Routes
+      route("/materials", "routes/auth/admin/pustakaPdf/index.tsx"),
+      route("/materials/:lessonSlug/:attachmentId", "routes/auth/admin/pustakaPdf/show.tsx"),
+
       // Track Routes
       ...prefix("/tracks", [index("routes/auth/admin/tracks/index.tsx")]),
 
