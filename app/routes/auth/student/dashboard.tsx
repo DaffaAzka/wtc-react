@@ -187,7 +187,7 @@ export default function Dashboard() {
 
         <div className="flex items-center gap-4">
           <Avatar className="h-14 w-14 shadow-sm">
-            <AvatarImage src={user?.avatar?.url ?? undefined} alt={data.profile.display_name} />
+            <AvatarImage src={typeof user?.avatar === 'string' ? user.avatar : (user?.avatar && 'url' in user.avatar ? user.avatar.url : undefined)} alt={data.profile.display_name} />
             <AvatarFallback className="text-lg font-semibold">{data.profile.display_name?.charAt(0)?.toUpperCase()}</AvatarFallback>
           </Avatar>
           <div>

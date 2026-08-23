@@ -316,8 +316,8 @@ export default function UserManagement() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar>
-                        <AvatarImage src={profile.user.avatar?.url} alt={profile.display_name} />
-                        <AvatarFallback>{profile.display_name.charAt(0).toUpperCase()}</AvatarFallback>
+                        <AvatarImage src={typeof profile.user.avatar === 'string' ? profile.user.avatar : (profile.user.avatar as any)?.url ?? undefined} alt={profile.display_name ?? undefined} />
+                        <AvatarFallback>{profile.display_name?.charAt(0).toUpperCase() ?? '?'}</AvatarFallback>
                       </Avatar>
                       <div>
                         <div className="font-medium">{profile.display_name}</div>
@@ -386,8 +386,8 @@ export default function UserManagement() {
               {selectedProfile && (
                 <div className="flex items-center gap-3 mt-2">
                   <Avatar>
-                    <AvatarImage src={selectedProfile.user.avatar?.url} alt={selectedProfile.display_name} />
-                    <AvatarFallback>{selectedProfile.display_name.charAt(0).toUpperCase()}</AvatarFallback>
+                    <AvatarImage src={typeof selectedProfile.user.avatar === 'string' ? selectedProfile.user.avatar : (selectedProfile.user.avatar as any)?.url ?? undefined} alt={selectedProfile.display_name ?? undefined} />
+                    <AvatarFallback>{selectedProfile.display_name?.charAt(0).toUpperCase() ?? '?'}</AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="font-medium text-foreground">{selectedProfile.display_name}</div>

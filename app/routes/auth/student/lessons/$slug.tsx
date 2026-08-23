@@ -9,6 +9,11 @@ import { cn } from "@/lib/utils";
 import { TrackProvider, useTrackContext } from "@/contexts/track-context";
 import { useLessonCompletion } from "@/hooks/lessons";
 import { useGetLesson } from "@/hooks/lessons";
+import { useGetChallengesByLesson } from "@/hooks/challenges";
+import { useMySubmissions, useSubmitChallenge } from "@/hooks/submission";
+import { ChallengeDetails } from "@/features/auth/challenges/challenge-details";
+import { SubmissionForm } from "@/features/auth/challenges/submission-form";
+import { SubmissionHistory } from "@/features/auth/challenges/submission-history";
 import { toast } from "sonner";
 import { useEffect } from "react";
 
@@ -38,6 +43,16 @@ function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: stri
 
   // Also fetch full lesson content for display
   const { lesson: fullLesson, loading: lessonLoading } = useGetLesson(lessonSlug || "");
+
+  // 🎯 LESSON CHALLENGES: Fetch challenges assigned to this specific lesson
+  const lessonId = lessonWithState?.id;
+  const { challenges, loading: challengesLoading } = useGetChallengesByLesson(lessonId || 0);
+  const hasLessonChallenges = challenges && challenges.length > 0;
+
+  // For lesson challenges: fetch submissions for the first challenge
+  const firstChallenge = hasLessonChallenges ? challenges[0] : null;
+  const { data: submissions = [] } = useMySubmissions(firstChallenge?.id || 0);
+  const { mutate: submitChallenge, isPending: isSubmitting } = useSubmitChallenge();
 
   // 🚨 ROUTE GUARD: Block if locked (unless bypassed after completion)
   useEffect(() => {
@@ -154,6 +169,30 @@ function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: stri
     }
   };
 
+  // Challenge submission handler
+  const handleChallengeSubmit = (file: File | null, content: string) => {
+    if (!firstChallenge) return;
+
+    submitChallenge({
+      challengeId: firstChallenge.id,
+      request: {
+        file: file || undefined,
+        content: content || undefined
+      }
+    }, {
+      onSuccess: () => {
+        toast.success("Challenge berhasil dikumpulkan! 🎉");
+        // Note: Lesson completion might be automatic after challenge is graded by instructor
+      }
+    });
+  };
+
+  // Calculate remaining attempts for challenge
+  const submissionCount = submissions.length;
+  const allowedAttempts = firstChallenge?.allowed_attempts || 0;
+  const remainingAttempts = allowedAttempts > 0 ? allowedAttempts - submissionCount : Infinity;
+  const canSubmitChallenge = remainingAttempts > 0 || allowedAttempts === 0;
+
   const isCompleted = lessonWithState.state === "completed";
   const canMarkComplete = lessonWithState.state === "current" || lessonWithState.state === "completed";
 
@@ -254,6 +293,37 @@ function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: stri
                   </div>
                 </CardContent>
               </Card>
+            )}
+
+            {/* 🎯 LESSON CHALLENGE SECTION - Replaces "Tandai Selesai" button */}
+            {hasLessonChallenges && !isCompleted && canMarkComplete && firstChallenge && (
+              <div className="mt-8 space-y-6">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="h-10 w-1 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full" />
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground">Challenge untuk Lesson Ini</h2>
+                    <p className="text-sm text-muted-foreground">Selesaikan challenge ini untuk menyelesaikan lesson</p>
+                  </div>
+                </div>
+
+                <ChallengeDetails
+                  challenge={firstChallenge}
+                  submissionCount={submissionCount}
+                  remainingAttempts={remainingAttempts}
+                />
+
+                <SubmissionHistory
+                  submissions={submissions}
+                  maxScore={firstChallenge.max_score}
+                />
+
+                <SubmissionForm
+                  challenge={firstChallenge}
+                  canSubmit={canSubmitChallenge}
+                  isSubmitting={isSubmitting}
+                  onSubmit={handleChallengeSubmit}
+                />
+              </div>
             )}
           </div>
         </div>
@@ -363,7 +433,8 @@ function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: stri
           </Button>
 
           <div className="flex items-center gap-3">
-            {!isCompleted && canMarkComplete && (
+            {/* Only show "Tandai Selesai" button when there are NO lesson challenges */}
+            {!hasLessonChallenges && !isCompleted && canMarkComplete && (
               <Button
                 onClick={handleComplete}
                 disabled={completing}
