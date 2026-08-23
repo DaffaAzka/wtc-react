@@ -51,6 +51,10 @@ export type ChallengeSubmissionsData = {
 export type SubmitRequest = {
   file?: File;
   content?: string;
+  submitted_content?: {
+    answers?: string[];
+    [key: string]: any;
+  };
 };
 
 export type UpdateSubmissionRequest = {
@@ -79,6 +83,24 @@ export const SubmissionService = {
     challengeId: number,
     request: SubmitRequest,
   ): Promise<Submission> => {
+    // For auto-gradable challenges (multiple_choice, quiz_group, fill_blank)
+    // Send as JSON with submitted_content
+    if (request.submitted_content) {
+      const response = await api.post<ApiResponse<Submission>>(
+        `/challenges/${challengeId}/submit`,
+        { submitted_content: request.submitted_content },
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        },
+      );
+
+      return response.data.data!;
+    }
+
+    // For file uploads or legacy content field
+    // Send as FormData (backward compatibility)
     const formData = new FormData();
 
     if (request.file) {
