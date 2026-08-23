@@ -25,6 +25,7 @@ interface TracksTableProps {
   loading?: boolean;
   error?: ApiErrorResponse | null;
   onRetry?: () => void;
+  total?: number;
 }
 
 function formatUpdated(dateString?: string) {
@@ -68,6 +69,7 @@ export default function TracksTable({
   loading = false,
   error = null,
   onRetry,
+  total,
 }: TracksTableProps) {
   const [search, setSearch] = useState("");
 
@@ -99,8 +101,8 @@ export default function TracksTable({
         {showToolbar && (
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">{data.length}</span>{" "}
-              {data.length === 1 ? "track" : "tracks"}
+              <span className="font-medium text-foreground">{total ?? data.length}</span>{" "}
+              {(total ?? data.length) === 1 ? "track" : "tracks"}
               {filtered.length !== data.length && (
                 <span> · {filtered.length} shown</span>
               )}

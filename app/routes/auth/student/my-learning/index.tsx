@@ -135,7 +135,7 @@ export default function MyLearning() {
                 <h3 className="text-lg font-semibold mb-2">Belum Ada Kelas yang Sedang Dipelajari</h3>
                 <p className="text-sm text-muted-foreground mb-6 max-w-sm">Mulai perjalanan belajar kamu dengan mengambil kelas dari katalog.</p>
                 <Button asChild>
-                  <Link to="/student/tracks">Jelajahi Kelas</Link>
+                  <Link to="/student/classes">Jelajahi Kelas</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -206,7 +206,7 @@ export default function MyLearning() {
                       )}
 
                       <Button asChild className="w-full">
-                        <Link to={`/student/tracks/${track.slug}`}>Lanjutkan Belajar</Link>
+                        <Link to={`/student/classes/${track.slug}`}>Lanjutkan Belajar</Link>
                       </Button>
                     </CardContent>
                   </Card>
@@ -290,7 +290,7 @@ export default function MyLearning() {
                     )}
 
                     <Button asChild variant="outline" size="sm" className="w-full">
-                      <Link to={`/student/tracks/${track.slug}`}>Lihat Detail</Link>
+                      <Link to={`/student/classes/${track.slug}`}>Lihat Detail</Link>
                     </Button>
                   </CardContent>
                 </Card>

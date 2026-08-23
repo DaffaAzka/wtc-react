@@ -239,7 +239,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <Button size="lg" asChild className="shadow-sm">
-                <Link to={`/student/learning-path/lessons/${data.continue_learning.lesson.slug}`}>
+                <Link to={`/student/classes/${data.continue_learning.track.slug}`}>
                   Lanjutkan
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
@@ -320,14 +320,14 @@ export default function Dashboard() {
               <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
               <p className="text-muted-foreground mb-4">Belum ada learning path yang aktif</p>
               <Button variant="outline" size="sm" asChild>
-                <Link to="/student/learning-path">Jelajahi Learning Paths</Link>
+                <Link to="/student/classes">Jelajahi Learning Paths</Link>
               </Button>
             </CardContent>
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {data.tracks.slice(0, 3).map((track) => (
-              <Link key={track.id} to={`/student/progress/${track.slug}`}>
+              <Link key={track.id} to={`/student/classes/${track.slug}`}>
                 <Card className="shadow-sm p-0 hover:shadow-md transition-all duration-200 border-border/40 hover:border-border group overflow-hidden">
                   {track.image_url && (
                     <div className="h-36 w-full overflow-hidden shrink-0" style={{ background: getPatternBackground(track.title) }}>

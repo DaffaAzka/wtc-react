@@ -135,7 +135,7 @@ export default function TrackDetail() {
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="space-y-6 lg:col-span-2">
-            <Card>
+            <Card className="border-none shadow-sm">
               <CardContent className="p-0">
                 {track.image_url && (
                   <div className="aspect-video w-full overflow-hidden rounded-t-lg">
@@ -150,8 +150,8 @@ export default function TrackDetail() {
                 <div className="space-y-4 p-6">
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge variant="secondary">{modules.length} Modul</Badge>
-                      <Badge variant="outline" className="gap-1">
+                      <Badge className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border-none shadow-sm">{modules.length} Modul</Badge>
+                      <Badge className="bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500/20 border-none shadow-sm gap-1">
                         <Clock className="h-3 w-3" />
                         Self-Paced
                       </Badge>
