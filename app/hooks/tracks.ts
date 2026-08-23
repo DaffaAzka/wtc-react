@@ -1,11 +1,12 @@
 import { TrackService } from "@/services/track";
-import type { Track } from "@/types/model";
+import type { Track, TrackOverview } from "@/types/model";
 import type { ApiErrorResponse, PaginatedResponse } from "@/types/response";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const trackKeys = {
   all: ["tracks"] as const,
   detail: (slug: string) => ["tracks", slug] as const,
+  overview: (slug: string) => ["tracks", slug, "overview"] as const,
 };
 
 export function useGetTracks() {
@@ -49,6 +50,21 @@ export function useGetTrack(slug: string) {
 
   return {
     track: query.data,
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refresh: query.refetch,
+  };
+}
+
+export function useGetTrackOverview(slug: string) {
+  const query = useQuery<TrackOverview, ApiErrorResponse>({
+    queryKey: trackKeys.overview(slug),
+    queryFn: () => TrackService.getOverview(slug),
+    enabled: !!slug,
+  });
+
+  return {
+    trackOverview: query.data,
     loading: query.isLoading,
     error: query.error ?? null,
     refresh: query.refetch,

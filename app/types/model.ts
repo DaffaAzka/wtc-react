@@ -95,6 +95,7 @@ export type Challenge = {
   slug: string;
   type:
     | "multiple_choice"
+    | "fill_blank"
     | "essay"
     | "code_editor"
     | "file_upload"
@@ -113,4 +114,53 @@ export type Challenge = {
   attachments?: ChallengeAttachment[];
   created_at: string | null;
   updated_at: string | null;
+};
+
+// ========================================
+// Learning State Types (Track Overview)
+// ========================================
+
+export type LessonState = "locked" | "current" | "completed";
+
+export type LessonWithState = Lesson & {
+  state: LessonState;
+  completed: boolean;
+  challenges_count?: number;
+  duration?: number;
+};
+
+export type ModuleProgress = {
+  percent: number;
+  completed_lessons: number;
+  total_lessons: number;
+  completed_challenges: number;
+  total_challenges: number;
+};
+
+export type ModuleWithProgress = Module & {
+  progress: ModuleProgress;
+  lessons: LessonWithState[];
+  direct_challenges?: Challenge[];
+  description?: string;
+};
+
+export type EnrollmentInfo = {
+  status: "active" | "completed" | "inactive";
+  enrolled_at: string;
+  completed_at: string | null;
+};
+
+export type TrackProgress = {
+  percent: number;
+  completed_lessons: number;
+  total_lessons: number;
+  completed_challenges: number;
+  total_challenges: number;
+};
+
+export type TrackOverview = {
+  track: Track;
+  enrollment: EnrollmentInfo;
+  progress: TrackProgress;
+  modules: ModuleWithProgress[];
 };
