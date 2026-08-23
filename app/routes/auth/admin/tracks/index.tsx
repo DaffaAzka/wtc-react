@@ -1,8 +1,11 @@
-import Header from "@/features/auth/tracks/header";
 import TracksTable from "@/features/auth/tracks/table";
 import { useGetTracks, useGetTracksPaginated } from "@/hooks/tracks";
 import { Pagination } from "@/components/ui/pagination";
 import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router";
+import { Plus } from "lucide-react";
+import ModalAdd from "@/features/auth/tracks/modal-add";
 
 export default function IndexPage() {
   const [page, setPage] = useState(1);
@@ -15,12 +18,22 @@ export default function IndexPage() {
 
   return (
     <>
-      <Header count={pagination?.total ?? tracks.length} />
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Tracks</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            Browse and manage all learning tracks in your curriculum.
+          </p>
+        </div>
+        <ModalAdd />
+      </div>
+
       <TracksTable
         data={tracks}
         loading={loading}
         error={error}
         onRetry={refresh}
+        total={pagination?.total}
       />
 
       {pagination && (

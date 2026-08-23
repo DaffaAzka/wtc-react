@@ -7,15 +7,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Upload, X } from "lucide-react";
 import { useGetProfile, useUpdateProfile, useUploadAvatar, useDeleteAvatar } from "@/hooks/profile";
-import type { ProfileUpdateRequest } from "@/services/profile";
 
-export function ProfileInfoForm() {
+export function AdminProfileInfoForm() {
   const { data: profileData, isLoading } = useGetProfile();
   const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
   const { mutate: uploadAvatar, isPending: isUploading } = useUploadAvatar();
   const { mutate: deleteAvatar, isPending: isDeleting } = useDeleteAvatar();
 
-  const [formData, setFormData] = useState<ProfileUpdateRequest>({});
+  const [formData, setFormData] = useState<{ display_name?: string }>({});
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -24,17 +23,14 @@ export function ProfileInfoForm() {
     if (profileData?.profile) {
       setFormData({
         display_name: profileData.profile.display_name || "",
-        study_class_id: profileData.profile.study_class_id || undefined,
       });
     }
   }, [profileData]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const value = e.target.name === "study_class_id" ? (e.target.value ? parseInt(e.target.value) : undefined) : e.target.value;
-
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: value,
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -143,44 +139,6 @@ export function ProfileInfoForm() {
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-3 gap-6 py-6 border-b">
-        <div>
-          <div className="text-2xl font-semibold">{profile.points.toLocaleString("id-ID")}</div>
-          <div className="text-sm text-muted-foreground">Poin</div>
-        </div>
-        <div>
-          <div className="text-2xl font-semibold">{profile.achievements?.length || 0}</div>
-          <div className="text-sm text-muted-foreground">Pencapaian</div>
-        </div>
-        <div>
-          <div className="text-2xl font-semibold">{profile.study_class?.name || "-"}</div>
-          <div className="text-sm text-muted-foreground">Kelas</div>
-        </div>
-      </div>
-
-      {/* Achievements */}
-      {profile.achievements && profile.achievements.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Pencapaian</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {profile.achievements.map((achievement) => (
-                <div key={achievement.id} className="flex items-start gap-3 py-3 border-b last:border-0">
-                  <div className="flex-1">
-                    <div className="font-medium">{achievement.title}</div>
-                    <div className="text-sm text-muted-foreground">{achievement.description}</div>
-                    <div className="text-xs text-muted-foreground mt-1">{new Date(achievement.earned_at).toLocaleDateString("id-ID")}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Profile Edit Form */}
       <Card>
         <CardHeader>
@@ -197,16 +155,6 @@ export function ProfileInfoForm() {
             <div className="space-y-2">
               <Label htmlFor="display_name">Nama Tampilan</Label>
               <Input id="display_name" name="display_name" value={formData.display_name || ""} onChange={handleInputChange} placeholder="Nama yang ditampilkan" />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="study_class_id">Kelas Studi (Opsional)</Label>
-              <Input id="study_class_id" name="study_class_id" type="number" value={formData.study_class_id || ""} onChange={handleInputChange} placeholder="ID Kelas Studi" />
-              {profile.study_class && (
-                <p className="text-xs text-muted-foreground">
-                  Kelas saat ini: {profile.study_class.name} ({profile.study_class.code})
-                </p>
-              )}
             </div>
 
             <div className="flex justify-end pt-4">

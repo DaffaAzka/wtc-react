@@ -50,6 +50,9 @@ export default [
         "routes/auth/admin/course-management/index.tsx",
       ),
 
+      // Profile Management
+      route("/admin/profile", "routes/auth/admin/profile/index.tsx"),
+
       // Track Routes
       ...prefix("/tracks", [index("routes/auth/admin/tracks/index.tsx")]),
 

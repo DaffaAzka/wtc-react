@@ -1,11 +1,13 @@
 "use client";
 
+import { useMemo } from "react";
+import { Link } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/auth";
 import { getTwoInitials } from "@/utils/global";
-import { ChevronsUpDownIcon, BadgeCheckIcon, LogOutIcon } from "lucide-react";
+import { ChevronsUpDownIcon, Settings2Icon, LogOutIcon } from "lucide-react";
 
 export function NavUser({
   user,
@@ -17,7 +19,15 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
-  const { logout } = useAuth();
+  const { logout, user: authUser } = useAuth();
+
+  // Determine profile route based on user role
+  const profileRoute = useMemo(() => {
+    if (!authUser?.roles) return "/student/profile";
+
+    const hasAdminRole = authUser.roles.some((role) => role.name === "admin");
+    return hasAdminRole ? "/admin/profile" : "/student/profile";
+  }, [authUser?.roles]);
 
   return (
     <SidebarMenu>
@@ -51,9 +61,11 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheckIcon />
-                Account
+              <DropdownMenuItem asChild>
+                <Link to={profileRoute}>
+                  <Settings2Icon />
+                  Customize
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

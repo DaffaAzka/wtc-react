@@ -12,9 +12,7 @@ import { Pagination } from "@/components/ui/pagination";
 
 export default function IndexPage({ params }: Route.ComponentProps) {
   const { tracks, loading: trackLoading, error: trackError } = useGetTracks();
-  const track: Track | undefined = tracks.find(
-    (track) => track.slug === params.slug,
-  );
+  const track: Track | undefined = tracks.find((track) => track.slug === params.slug);
 
   const [filters, setFilters] = useState<ModuleFilter>({});
   const [page, setPage] = useState(1);
@@ -27,8 +25,7 @@ export default function IndexPage({ params }: Route.ComponentProps) {
     per_page: perPage,
   });
 
-  const selectedTrackId =
-    track?.id ?? (filters.track_id ? Number(filters.track_id) : undefined);
+  const selectedTrackId = track?.id ?? (filters.track_id ? Number(filters.track_id) : undefined);
 
   if (trackLoading)
     return (
@@ -38,8 +35,20 @@ export default function IndexPage({ params }: Route.ComponentProps) {
     );
 
   return (
-    <>
-      <div className="flex gap-2">
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Modules</h1>
+          <p className="mt-0.5 text-sm text-muted-foreground">
+            Browse and manage all modules across learning tracks.
+          </p>
+        </div>
+        {selectedTrackId && <ModalAdd trackId={selectedTrackId} />}
+      </div>
+
+      {/* Filters */}
+      <div className="space-y-4">
         <SelectForm
           name="track"
           text="Filtering by Track"
@@ -56,21 +65,14 @@ export default function IndexPage({ params }: Route.ComponentProps) {
           value={filters.track_id ?? "all"}
           withAll
         />
-
-        {selectedTrackId && (
-          <div className="flex items-end">
-            <ModalAdd trackId={selectedTrackId} />
-          </div>
-        )}
       </div>
-
-      {/* {track && <Header track={track} />} */}
 
       <ModulesTable
         data={modules}
         loading={loading}
         error={error}
         onRetry={refresh}
+        total={pagination?.total}
       />
 
       {pagination && (
@@ -84,11 +86,11 @@ export default function IndexPage({ params }: Route.ComponentProps) {
           onPageChange={setPage}
           onPerPageChange={(newPerPage) => {
             setPerPage(newPerPage);
-            setPage(1); // Reset to page 1 when changing per_page
+            setPage(1);
           }}
           loading={loading}
         />
       )}
-    </>
+    </div>
   );
 }

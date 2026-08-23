@@ -145,6 +145,7 @@ function StandaloneLessons() {
         loading={loading}
         error={error}
         onRetry={refresh}
+        total={pagination?.total}
       />
 
       {pagination && (

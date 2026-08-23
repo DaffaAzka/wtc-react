@@ -19,11 +19,7 @@ import {
   SidebarMenuSubItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   ChevronDown,
@@ -48,6 +44,7 @@ import {
 import { useAuth } from "@/contexts/auth";
 import { firstCharacterUppercase } from "@/utils/global";
 import { ModeToggle } from "./custom/mode-toggle";
+import { Separator } from "./ui/separator";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
@@ -56,15 +53,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // Time-based animation: Morning (6am-6pm) or Night (6pm-6am)
   const getTimeBasedAnimation = () => {
     const hour = new Date().getHours();
-    return hour >= 6 && hour < 18 ?
-        "/videos/MorningAnimation.mp4"
-      : "/videos/NightAnimation.mp4";
+    return hour >= 6 && hour < 18 ? "/videos/MorningAnimation.mp4" : "/videos/NightAnimation.mp4";
   };
 
   const [videoSrc] = React.useState(getTimeBasedAnimation());
 
-  const isAdmin =
-    user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;
+  const isAdmin = user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;
 
   // Admin navigation
   const navFlat = [
@@ -92,7 +86,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     },
     { title: "Kelas", url: "/student/classes", icon: BookOpen },
     { title: "Learning Path", url: "/student/learning-path", icon: GitBranch },
-    { title: "Profil", url: "/student/profile", icon: UserIcon },
   ];
 
   const studentNavLearning = [
@@ -119,20 +112,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   ];
 
   return (
-    <Sidebar
-      variant="sidebar"
-      className="border-sidebar-border bg-sidebar text-sidebar-foreground"
-      {...props}>
+    <Sidebar variant="sidebar" className="border-sidebar-border bg-sidebar text-sidebar-foreground" {...props}>
       <SidebarHeader className="gap-0 p-0">
         {/* Video Animation - Full width, no padding */}
         <div className="relative w-full overflow-hidden">
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="w-full h-36 object-cover"
-            key={videoSrc}>
+          <video autoPlay loop muted playsInline className="w-full h-36 object-cover" key={videoSrc}>
             <source src={videoSrc} type="video/mp4" />
           </video>
 
@@ -141,45 +125,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {/* <span className="text-base font-bold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
               WebTech TC.
             </span> */}
-            <img
-              src="/brand-pack/logo-h-dark.svg"
-              alt="Logo"
-              className="h-28 w-auto"
-            />
+            <img src="/brand-pack/logo-h-dark.svg" alt="Logo" className="h-28 w-auto" />
           </div>
         </div>
 
-        {/* Rest of content with padding restored */}
-        <div className="flex flex-col gap-4 px-4 pt-4">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-11 w-11 border border-sidebar-border">
-              <AvatarImage
-                src={
-                  typeof user?.avatar === "string" ?
-                    user.avatar
-                  : (user?.avatar?.url ?? undefined)
-                }
-                alt={user?.display_name ?? ""}
-              />
-              <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground">
-                <UserIcon className="h-5 w-5" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-sidebar-foreground">
-                {user?.display_name ?? "Undefined"}
-              </p>
-              <span className="mt-0.5 inline-block rounded-full bg-chart-2 px-2 py-0.5 text-[11px] font-semibold text-sidebar">
-                {firstCharacterUppercase(user?.roles?.[0]?.name ?? "Undefined")}
-              </span>
-            </div>
-          </div>
-
-          <SidebarSeparator className="mx-0 bg-sidebar-border/60" />
-        </div>
+        <Separator />
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="pt-2">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -196,10 +149,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
-                  <Collapsible
-                    open={courseMgmtOpen}
-                    onOpenChange={setCourseMgmtOpen}
-                    className="group/collapsible">
+                  <Collapsible open={courseMgmtOpen} onOpenChange={setCourseMgmtOpen} className="group/collapsible">
                     <SidebarMenuItem className="relative">
                       <SidebarMenuButton asChild className="pr-8">
                         <Link to="/course-management">
@@ -211,7 +161,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         <button
                           type="button"
                           onClick={(e) => e.stopPropagation()}
-                          className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground">
+                          className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-md text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        >
                           <ChevronDown className="h-3.5 w-3.5 transition-transform duration-200 group-data-[state=closed]/collapsible:-rotate-90" />
                         </button>
                       </CollapsibleTrigger>
@@ -220,9 +171,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           {courseManagementGroup.items.map((sub) => (
                             <SidebarMenuSubItem key={sub.title}>
                               <SidebarMenuSubButton asChild>
-                                <Link
-                                  to={sub.url}
-                                  className="flex items-center gap-2">
+                                <Link to={sub.url} className="flex items-center gap-2">
                                   <sub.icon className="h-3.5 w-3.5" />
                                   <span>{sub.title}</span>
                                 </Link>
