@@ -28,8 +28,7 @@ import {
 } from "lexical";
 
 type ImageStatus =
-  | { error: true }
-  | { error: false; width: number; height: number };
+  { error: true } | { error: false; width: number; height: number };
 
 const imageCache = new Map<string, Promise<ImageStatus> | ImageStatus>();
 
@@ -325,7 +324,11 @@ export default function ImageComponent({
         onClick,
         COMMAND_PRIORITY_LOW,
       ),
-      editor.registerCommand(KEY_ENTER_COMMAND, $onEnter, COMMAND_PRIORITY_LOW),
+      editor.registerCommand(
+        KEY_ENTER_COMMAND as any,
+        $onEnter as any,
+        COMMAND_PRIORITY_LOW,
+      ),
       editor.registerCommand(
         KEY_ESCAPE_COMMAND,
         $onEscape,
@@ -347,14 +350,13 @@ export default function ImageComponent({
     <Suspense fallback={null}>
       <>
         <div draggable={draggable}>
-          {isLoadError ? (
+          {isLoadError ?
             <BrokenImage />
-          ) : (
-            <LazyImage
+          : <LazyImage
               className={
-                isFocused
-                  ? `focused ${isInNodeSelection ? "draggable" : ""}`
-                  : null
+                isFocused ?
+                  `focused ${isInNodeSelection ? "draggable" : ""}`
+                : null
               }
               src={src}
               altText={altText}
@@ -364,7 +366,7 @@ export default function ImageComponent({
               maxWidth={maxWidth}
               onError={() => setIsLoadError(true)}
             />
-          )}
+          }
         </div>
       </>
     </Suspense>

@@ -4,9 +4,10 @@ import { Plus, FileQuestion } from "lucide-react";
 
 type Props = {
   onAddClick: () => void;
+  contextType?: "lesson" | "module";
 };
 
-export default function ChallengeEmpty({ onAddClick }: Props) {
+export default function ChallengeEmpty({ onAddClick, contextType = "lesson" }: Props) {
   return (
     <Card>
       <CardContent className="flex flex-col items-center justify-center py-16">
@@ -15,7 +16,7 @@ export default function ChallengeEmpty({ onAddClick }: Props) {
         </div>
         <h3 className="text-lg font-semibold mb-2">No challenges yet</h3>
         <p className="text-muted-foreground text-center mb-6 max-w-sm">
-          This lesson doesn't have any challenges yet. Create your first challenge to get started.
+          This {contextType} doesn't have any challenges yet. Create your first challenge to get started.
         </p>
         <Button onClick={onAddClick}>
           <Plus className="h-4 w-4 mr-2" />

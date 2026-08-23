@@ -35,6 +35,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useUpdateChallenge } from "@/hooks/challenges";
 import type { Challenge } from "@/types/model";
+import type { ChallengeFormType } from "@/types/challenge";
 import { getFieldError } from "@/utils/global";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { calculateQuestionScore } from "@/helper/calculate-score";
@@ -48,7 +49,8 @@ type Props = {
   onOpenChange: (open: boolean) => void;
 };
 
-const EDIT_STORAGE_KEY = (challengeId: number) => `challenge-edit-draft-${challengeId}`;
+const EDIT_STORAGE_KEY = (challengeId: number) =>
+  `challenge-edit-draft-${challengeId}`;
 
 export default function ChallengeModalManage({
   challenge,
@@ -57,19 +59,31 @@ export default function ChallengeModalManage({
 }: Props) {
   const updateChallenge = useUpdateChallenge(challenge.lesson_id ?? undefined);
 
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    title: string;
+    type: ChallengeFormType;
+    difficulty: "" | "easy" | "medium" | "hard";
+    order: string;
+    content: string;
+    max_score: string;
+    points: string;
+    allowed_attempts: string;
+  }>({
     title: challenge.title,
     type: challenge.type as ChallengeFormType,
-    difficulty: challenge.difficulty || ("" as "" | "easy" | "medium" | "hard"),
+    difficulty: challenge.difficulty || "",
     order: challenge.order ? String(challenge.order) : "1",
     content: challenge.content,
     max_score: String(challenge.max_score),
     points: challenge.points ? String(challenge.points) : "",
-    allowed_attempts: challenge.allowed_attempts ? String(challenge.allowed_attempts) : "1",
+    allowed_attempts:
+      challenge.allowed_attempts ? String(challenge.allowed_attempts) : "1",
   });
 
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [questionErrors, setQuestionErrors] = useState<Record<string, string>>({});
+  const [questionErrors, setQuestionErrors] = useState<Record<string, string>>(
+    {},
+  );
   const [formErrors, setFormErrors] = useState<{
     title?: string;
     difficulty?: string;
@@ -85,7 +99,7 @@ export default function ChallengeModalManage({
   const debouncedForm = useDebounce(form);
   const debouncedQuestions = useDebounce(questions);
   const [readyToSave, setReadyToSave] = useState(false);
-  
+
   // Store original state for unsaved changes detection
   const [originalState, setOriginalState] = useState<{
     form: typeof form;
@@ -103,10 +117,10 @@ export default function ChallengeModalManage({
   // Detect unsaved changes
   const hasUnsavedChanges = useMemo(() => {
     if (!originalState) return false;
-    
+
     const currentState = JSON.stringify({ form, questions });
     const original = JSON.stringify(originalState);
-    
+
     return currentState !== original;
   }, [form, questions, originalState]);
 
@@ -124,23 +138,29 @@ export default function ChallengeModalManage({
         const parsed = JSON.parse(draft);
         setForm(parsed.form);
         setQuestions(parsed.questions ?? []);
-        
+
         // Set original state from challenge, not draft
         const existingQuestions = challenge.metadata?.questions ?? [];
         setOriginalState({
           form: {
             title: challenge.title,
-            type: challenge.type === "quiz_group" ? "mixed" : challenge.type as ChallengeFormType,
+            type:
+              challenge.type === "quiz_group" ?
+                "mixed"
+              : (challenge.type as ChallengeFormType),
             difficulty: challenge.difficulty || "",
             order: challenge.order ? String(challenge.order) : "1",
             content: challenge.content,
             max_score: String(challenge.max_score),
             points: challenge.points ? String(challenge.points) : "",
-            allowed_attempts: challenge.allowed_attempts ? String(challenge.allowed_attempts) : "1",
+            allowed_attempts:
+              challenge.allowed_attempts ?
+                String(challenge.allowed_attempts)
+              : "1",
           },
           questions: existingQuestions,
         });
-        
+
         toast("Draft restored");
         setReadyToSave(true);
         return;
@@ -151,18 +171,32 @@ export default function ChallengeModalManage({
 
     // Load from challenge
     const existingQuestions = challenge.metadata?.questions ?? [];
-    
-    const initialForm = {
+
+    const initialForm: {
+      title: string;
+      type: ChallengeFormType;
+      difficulty: "" | "easy" | "medium" | "hard";
+      order: string;
+      content: string;
+      max_score: string;
+      points: string;
+      allowed_attempts: string;
+    } = {
       title: challenge.title,
-      type: challenge.type === "quiz_group" ? "mixed" : challenge.type as ChallengeFormType,
-      difficulty: challenge.difficulty || "",
+      type:
+        challenge.type === "quiz_group" ?
+          "mixed"
+        : (challenge.type as ChallengeFormType),
+      difficulty:
+        (challenge.difficulty as "" | "easy" | "medium" | "hard") || "",
       order: challenge.order ? String(challenge.order) : "1",
       content: challenge.content,
       max_score: String(challenge.max_score),
       points: challenge.points ? String(challenge.points) : "",
-      allowed_attempts: challenge.allowed_attempts ? String(challenge.allowed_attempts) : "1",
+      allowed_attempts:
+        challenge.allowed_attempts ? String(challenge.allowed_attempts) : "1",
     };
-    
+
     setForm(initialForm);
     setQuestions(existingQuestions);
     setOriginalState({
@@ -200,7 +234,9 @@ export default function ChallengeModalManage({
     const maxScore = Number(form.max_score);
     if (maxScore <= 0 || isNaN(maxScore)) return;
 
-    const mcqCount = questions.filter((q) => q.type === "multiple_choice").length;
+    const mcqCount = questions.filter(
+      (q) => q.type === "multiple_choice",
+    ).length;
     const essayCount = questions.filter((q) => q.type === "essay").length;
 
     const firstQuestion = questions[0];
@@ -315,7 +351,10 @@ export default function ChallengeModalManage({
     }
 
     if (errors.difficulty) {
-      difficultyRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      difficultyRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
       return;
     }
 
@@ -325,22 +364,34 @@ export default function ChallengeModalManage({
     }
 
     if (errors.max_score) {
-      maxScoreRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      maxScoreRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
       return;
     }
 
     if (errors.points) {
-      pointsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      pointsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
       return;
     }
 
     if (errors.allowed_attempts) {
-      allowedAttemptsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      allowedAttemptsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
       return;
     }
 
     if (errors.content) {
-      descriptionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      descriptionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
       return;
     }
 
@@ -364,7 +415,7 @@ export default function ChallengeModalManage({
         title: form.title,
         slug: challenge.slug,
         type: submissionType,
-        difficulty: form.difficulty,
+        difficulty: form.difficulty || undefined,
         order: Number(form.order),
         content: form.content,
         settings: challenge.settings,
@@ -379,13 +430,13 @@ export default function ChallengeModalManage({
       {
         onSuccess: () => {
           localStorage.removeItem(EDIT_STORAGE_KEY(challenge.id));
-          
+
           // Update original state to match new saved state
           setOriginalState({
             form,
             questions,
           });
-          
+
           onOpenChange(false);
           toast.success("Challenge updated successfully");
         },
@@ -416,7 +467,7 @@ export default function ChallengeModalManage({
   return (
     <>
       <Dialog open={isOpen} onOpenChange={handleCloseAttempt}>
-        <DialogContent 
+        <DialogContent
           className="sm:max-w-4xl max-h-[90vh] flex flex-col p-0"
           onEscapeKeyDown={(e) => {
             if (hasUnsavedChanges) {
@@ -443,27 +494,34 @@ export default function ChallengeModalManage({
               <div className="flex items-center gap-3">
                 {/* Status Indicator */}
                 <div className="flex items-center gap-1.5">
-                  {updateChallenge.isPending ? (
+                  {updateChallenge.isPending ?
                     <>
                       <div className="h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
-                      <span className="text-xs text-blue-600 font-medium">Saving...</span>
+                      <span className="text-xs text-blue-600 font-medium">
+                        Saving...
+                      </span>
                     </>
-                  ) : hasUnsavedChanges ? (
+                  : hasUnsavedChanges ?
                     <>
                       <AlertCircle className="h-3.5 w-3.5 text-orange-600" />
-                      <span className="text-xs text-orange-600 font-medium">Unsaved changes</span>
+                      <span className="text-xs text-orange-600 font-medium">
+                        Unsaved changes
+                      </span>
                     </>
-                  ) : saving ? (
+                  : saving ?
                     <>
                       <div className="h-2 w-2 rounded-full bg-gray-400 animate-pulse" />
-                      <span className="text-xs text-muted-foreground">Saving draft...</span>
+                      <span className="text-xs text-muted-foreground">
+                        Saving draft...
+                      </span>
                     </>
-                  ) : (
-                    <>
+                  : <>
                       <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
-                      <span className="text-xs text-green-600 font-medium">Saved</span>
+                      <span className="text-xs text-green-600 font-medium">
+                        Saved
+                      </span>
                     </>
-                  )}
+                  }
                 </div>
 
                 {/* Close Button */}
@@ -485,7 +543,9 @@ export default function ChallengeModalManage({
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-muted-foreground">Slug:</span>
-                <code className="font-mono text-xs bg-muted px-2 py-1 rounded">{challenge.slug}</code>
+                <code className="font-mono text-xs bg-muted px-2 py-1 rounded">
+                  {challenge.slug}
+                </code>
               </div>
             </div>
           </DialogHeader>
@@ -496,14 +556,18 @@ export default function ChallengeModalManage({
               {updateChallenge.error &&
                 updateChallenge.error.message !== "Validation errors" && (
                   <Alert variant="destructive">
-                    <AlertDescription>{updateChallenge.error.message}</AlertDescription>
+                    <AlertDescription>
+                      {updateChallenge.error.message}
+                    </AlertDescription>
                   </Alert>
                 )}
 
               {/* Challenge Information Section */}
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-lg font-semibold">Challenge Information</h3>
+                  <h3 className="text-lg font-semibold">
+                    Challenge Information
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     Basic details about the challenge
                   </p>
@@ -536,7 +600,10 @@ export default function ChallengeModalManage({
                           ...prev,
                           difficulty: value as "easy" | "medium" | "hard",
                         }));
-                        setFormErrors((prev) => ({ ...prev, difficulty: undefined }));
+                        setFormErrors((prev) => ({
+                          ...prev,
+                          difficulty: undefined,
+                        }));
                       }}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select difficulty" />
@@ -550,11 +617,19 @@ export default function ChallengeModalManage({
                     </Select>
 
                     {formErrors.difficulty && (
-                      <p className="text-sm text-red-500">{formErrors.difficulty}</p>
-                    )}
-                    {getFieldError(updateChallenge.error?.errors, "difficulty") && (
                       <p className="text-sm text-red-500">
-                        {getFieldError(updateChallenge.error?.errors, "difficulty")}
+                        {formErrors.difficulty}
+                      </p>
+                    )}
+                    {getFieldError(
+                      updateChallenge.error?.errors,
+                      "difficulty",
+                    ) && (
+                      <p className="text-sm text-red-500">
+                        {getFieldError(
+                          updateChallenge.error?.errors,
+                          "difficulty",
+                        )}
                       </p>
                     )}
                   </div>
@@ -577,7 +652,9 @@ export default function ChallengeModalManage({
                       </SelectTrigger>
 
                       <SelectContent>
-                        <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
+                        <SelectItem value="multiple_choice">
+                          Multiple Choice
+                        </SelectItem>
                         <SelectItem value="essay">Essay</SelectItem>
                         <SelectItem value="mixed">Mixed Quiz</SelectItem>
                       </SelectContent>
@@ -618,7 +695,9 @@ export default function ChallengeModalManage({
               {/* Scoring Configuration Section */}
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-lg font-semibold">Scoring Configuration</h3>
+                  <h3 className="text-lg font-semibold">
+                    Scoring Configuration
+                  </h3>
                   <p className="text-sm text-muted-foreground">
                     Set the total weight and reward points for this challenge
                   </p>
@@ -634,11 +713,15 @@ export default function ChallengeModalManage({
                       handleChange={handleChange}
                       error={
                         formErrors.max_score ??
-                        getFieldError(updateChallenge.error?.errors, "max_score")
+                        getFieldError(
+                          updateChallenge.error?.errors,
+                          "max_score",
+                        )
                       }
                     />
                     <p className="text-xs text-muted-foreground mt-1">
-                      Total weight of the challenge (distributed across questions)
+                      Total weight of the challenge (distributed across
+                      questions)
                     </p>
                   </div>
 
@@ -681,7 +764,10 @@ export default function ChallengeModalManage({
                     handleChange={handleChange}
                     error={
                       formErrors.allowed_attempts ??
-                      getFieldError(updateChallenge.error?.errors, "allowed_attempts")
+                      getFieldError(
+                        updateChallenge.error?.errors,
+                        "allowed_attempts",
+                      )
                     }
                   />
                   <p className="text-xs text-muted-foreground mt-1">
@@ -742,11 +828,14 @@ export default function ChallengeModalManage({
           <AlertDialogHeader>
             <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved changes. Are you sure you want to close? Your changes will be saved as a draft.
+              You have unsaved changes. Are you sure you want to close? Your
+              changes will be saved as a draft.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelClose}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel onClick={handleCancelClose}>
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmClose}>
               Close
             </AlertDialogAction>

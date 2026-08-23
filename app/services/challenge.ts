@@ -80,6 +80,14 @@ export const ChallengeService = {
     return response.data.data!;
   },
 
+  getByModule: async (moduleSlug: string): Promise<Challenge[]> => {
+    const response = await api.get<ApiResponse<Challenge[]>>(
+      `/modules/${moduleSlug}/challenges`,
+    );
+
+    return response.data.data!;
+  },
+
   getById: async (id: number): Promise<Challenge> => {
     const response = await api.get<ApiResponse<Challenge>>(`/challenges/${id}`);
 

@@ -1,9 +1,11 @@
 ﻿import type { Question } from "./challenge";
 
+export type ProfileAvatar = string | { url: string; expires_at: string } | null;
+
 export type Profile = {
   display_name: string | null;
   email: string | null;
-  avatar: string | null;
+  avatar: ProfileAvatar;
   points: number;
   study_class_id: number | null;
   roles: Role[];
@@ -48,6 +50,7 @@ export type Lesson = {
   content: string;
   video_url: string | null;
   order?: number | null;
+  attachments?: ChallengeAttachment[];
   deleted_at: string | null;
   created_at: string | null;
   updated_at: string | null;

@@ -1,5 +1,5 @@
 import { useGetTracks } from "@/hooks/tracks";
-import { useMyTracks, useEnrollTrack } from "@/students/hooks/enrollments";
+import { useMyTracks } from "@/students/hooks/enrollments";
 import { TrackCard } from "@/students/features/auth/tracks/track-card";
 import { TrackCardSkeleton } from "@/students/features/auth/tracks/track-card-skeleton";
 import { Card } from "@/components/ui/card";
@@ -9,23 +9,12 @@ import { FaGraduationCap, FaBook } from "react-icons/fa";
 export default function TracksIndex() {
   const { tracks, loading: tracksLoading, error: tracksError } = useGetTracks();
   const { myTracks, loading: myTracksLoading } = useMyTracks();
-  const enrollMutation = useEnrollTrack();
 
   const loading = tracksLoading || myTracksLoading;
 
   // Check if a track is enrolled
   const isTrackEnrolled = (trackSlug: string): boolean => {
     return myTracks.some((mt) => mt.slug === trackSlug);
-  };
-
-  // Check if a specific track is currently being enrolled
-  const isEnrolling = (trackSlug: string): boolean => {
-    return enrollMutation.isPending && enrollMutation.variables === trackSlug;
-  };
-
-  // Handle enrollment
-  const handleEnroll = (trackSlug: string) => {
-    enrollMutation.mutate(trackSlug);
   };
 
   if (loading) {
@@ -125,8 +114,6 @@ export default function TracksIndex() {
                 key={track.id}
                 track={track}
                 isEnrolled={isTrackEnrolled(track.slug)}
-                onEnroll={handleEnroll}
-                enrolling={isEnrolling(track.slug)}
               />
             ))}
           </div>

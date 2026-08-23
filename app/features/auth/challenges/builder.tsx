@@ -26,7 +26,7 @@ import ValidationSummary from "./validation-summary";
 import DeleteQuestionDialog from "./delete-question-dialog";
 import { useKeyboardShortcuts } from "@/hooks/use-keyboard-shortcuts";
 import { getFirstErrorQuestionIndex } from "@/helper/validate-question";
-import type { Question, ChallengeFormTypeQuestion } from "@/types/challenge";
+import type { Question, ChallengeFormType } from "@/types/challenge";
 
 type Props = {
   type: ChallengeFormType;
@@ -84,11 +84,9 @@ const QuestionCard = memo(function QuestionCard({
       <CardHeader className="cursor-pointer" onClick={onToggle}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {isOpen ? (
+            {isOpen ?
               <ChevronDown className="h-4 w-4" />
-            ) : (
-              <ChevronRight className="h-4 w-4" />
-            )}
+            : <ChevronRight className="h-4 w-4" />}
             <CardTitle>Question {index + 1}</CardTitle>
           </div>
 
@@ -99,9 +97,9 @@ const QuestionCard = memo(function QuestionCard({
               </span>
             )}
             <Badge variant="secondary">
-              {question.type === "multiple_choice"
-                ? "Multiple Choice"
-                : "Essay"}
+              {question.type === "multiple_choice" ?
+                "Multiple Choice"
+              : "Essay"}
             </Badge>
           </div>
         </div>
@@ -109,7 +107,7 @@ const QuestionCard = memo(function QuestionCard({
 
       {isOpen && (
         <CardContent className="space-y-6">
-          {question.type === "multiple_choice" ? (
+          {question.type === "multiple_choice" ?
             <MCQForm
               index={index}
               data={question}
@@ -118,8 +116,7 @@ const QuestionCard = memo(function QuestionCard({
               setQuestionErrors={setQuestionErrors}
               shouldAutoFocus={shouldAutoFocus}
             />
-          ) : (
-            <EssayForm
+          : <EssayForm
               index={index}
               data={question}
               onChange={onUpdate}
@@ -127,7 +124,7 @@ const QuestionCard = memo(function QuestionCard({
               setQuestionErrors={setQuestionErrors}
               shouldAutoFocus={shouldAutoFocus}
             />
-          )}
+          }
 
           <div className="flex justify-between border-t pt-5">
             <Button variant="destructive" type="button" onClick={onDelete}>
@@ -202,11 +199,11 @@ export default function Builder({
       const firstErrorIndex = getFirstErrorQuestionIndex(questionErrors);
       if (firstErrorIndex !== null && questions.length > 0) {
         setOpenIndex(firstErrorIndex);
-        
+
         // Scroll to error question after a short delay
         setTimeout(() => {
           const errorElement = document.querySelector(
-            `[data-question-index="${firstErrorIndex}"]`
+            `[data-question-index="${firstErrorIndex}"]`,
           );
           errorElement?.scrollIntoView({
             behavior: "smooth",
@@ -377,7 +374,7 @@ export default function Builder({
       <ValidationSummary errors={questionErrors} />
 
       <div>
-        {questions.length === 0 ? (
+        {questions.length === 0 ?
           <div className="border-2 border-dashed rounded-lg p-12 text-center space-y-4">
             <div className="space-y-2">
               <h3 className="text-lg font-semibold">No questions yet</h3>
@@ -388,8 +385,7 @@ export default function Builder({
             </div>
             <div className="flex gap-2 justify-center">{renderAddButton()}</div>
           </div>
-        ) : (
-          <>
+        : <>
             <div className="flex justify-end gap-2 mb-4">
               <Button
                 variant="outline"
@@ -414,9 +410,7 @@ export default function Builder({
                 <div
                   key={index}
                   data-question-index={index}
-                  ref={
-                    index === questions.length - 1 ? lastQuestionRef : null
-                  }>
+                  ref={index === questions.length - 1 ? lastQuestionRef : null}>
                   <QuestionCard
                     question={question}
                     index={index}
@@ -436,7 +430,7 @@ export default function Builder({
               ))}
             </div>
           </>
-        )}
+        }
       </div>
 
       <DeleteQuestionDialog

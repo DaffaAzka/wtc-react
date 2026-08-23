@@ -3,7 +3,7 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { toast } from "sonner";
 import TextareaForm from "@/components/custom/textarea-form";
 import Builder from "./builder";
-import type { Question } from "@/types/challenge";
+import type { Question, ChallengeFormType } from "@/types/challenge";
 import LoadingButton from "@/components/custom/loading-button";
 import {
   Select,
@@ -23,7 +23,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useStoreChallenge } from "@/hooks/challenges";
-import type { Lesson } from "@/types/model";
+import type { ChallengeContext } from "./challenge-manager";
 import { generateSlug, getFieldError } from "@/utils/global";
 import { useState, useEffect, useRef } from "react";
 import { calculateQuestionScore } from "@/helper/calculate-score";
@@ -31,23 +31,40 @@ import { validateAllQuestions } from "@/helper/validate-question";
 import { CheckCircle2 } from "lucide-react";
 
 type Props = {
-  lesson: Lesson;
+  context: ChallengeContext;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 };
-const STORAGE_KEY = (lessonId: number) => `challenge-draft-${lessonId}`;
+
+const STORAGE_KEY = (contextId: number, contextType: "lesson" | "module") =>
+  `challenge-draft-${contextType}-${contextId}`;
 
 export default function ChallengeModalAdd({
-  lesson,
+  context,
   isOpen,
   onOpenChange,
 }: Props) {
-  const storeChallenge = useStoreChallenge(lesson.id);
+  const contextId = context.id;
+  const contextType = context.type;
 
-  const [form, setForm] = useState({
+  const storeChallenge = useStoreChallenge(
+    context.type === "lesson" ? context.id : undefined,
+    context.type === "module" ? context.slug : undefined,
+  );
+
+  const [form, setForm] = useState<{
+    title: string;
+    type: ChallengeFormType;
+    difficulty: "" | "easy" | "medium" | "hard";
+    order: string;
+    content: string;
+    max_score: string;
+    points: string;
+    allowed_attempts: string;
+  }>({
     title: "",
-    type: "multiple_choice" as ChallengeFormType,
-    difficulty: "" as "" | "easy" | "medium" | "hard",
+    type: "multiple_choice",
+    difficulty: "",
     order: "1",
     content: "",
     max_score: "100",
@@ -56,7 +73,9 @@ export default function ChallengeModalAdd({
   });
 
   const [questions, setQuestions] = useState<Question[]>([]);
-  const [questionErrors, setQuestionErrors] = useState<Record<string, string>>({});
+  const [questionErrors, setQuestionErrors] = useState<Record<string, string>>(
+    {},
+  );
   const [formErrors, setFormErrors] = useState<{
     title?: string;
     difficulty?: string;
@@ -83,7 +102,7 @@ export default function ChallengeModalAdd({
 
     setReadyToSave(false);
 
-    const draft = localStorage.getItem(STORAGE_KEY(lesson.id));
+    const draft = localStorage.getItem(STORAGE_KEY(contextId, contextType));
 
     if (!draft) {
       setForm({
@@ -135,7 +154,7 @@ export default function ChallengeModalAdd({
     } finally {
       setReadyToSave(true);
     }
-  }, [lesson.id, isOpen]);
+  }, [contextId, isOpen]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -146,7 +165,7 @@ export default function ChallengeModalAdd({
 
     const timer = setTimeout(() => {
       localStorage.setItem(
-        STORAGE_KEY(lesson.id),
+        STORAGE_KEY(contextId, contextType),
         JSON.stringify({
           form: debouncedForm,
           questions: debouncedQuestions,
@@ -157,7 +176,7 @@ export default function ChallengeModalAdd({
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [debouncedForm, debouncedQuestions, lesson.id, readyToSave, isOpen]);
+  }, [debouncedForm, debouncedQuestions, contextId, readyToSave, isOpen]);
 
   useEffect(() => {
     if (!readyToSave) return;
@@ -206,7 +225,9 @@ export default function ChallengeModalAdd({
     setFormErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  const clearFormError = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const clearFormError = (
+    e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     setFormErrors((prev) => ({
       ...prev,
       [e.target.name]: undefined,
@@ -354,12 +375,12 @@ export default function ChallengeModalAdd({
 
     storeChallenge.mutate(
       {
-        module_id: null,
-        lesson_id: lesson.id,
+        module_id: context.type === "module" ? context.id : null,
+        lesson_id: context.type === "lesson" ? context.id : null,
         title: form.title,
         slug: generateSlug(form.title),
         type: submissionType,
-        difficulty: form.difficulty,
+        difficulty: form.difficulty || undefined,
         order: Number(form.order),
         content: form.content,
         settings: null,
@@ -372,7 +393,7 @@ export default function ChallengeModalAdd({
       },
       {
         onSuccess: () => {
-          localStorage.removeItem(STORAGE_KEY(lesson.id));
+          localStorage.removeItem(STORAGE_KEY(contextId, contextType));
 
           setForm({
             title: "",
@@ -404,26 +425,26 @@ export default function ChallengeModalAdd({
             <DialogTitle>Add Challenge</DialogTitle>
 
             <div className="flex items-center gap-1.5">
-              {saving ? (
+              {saving ?
                 <>
                   <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
                   <span className="text-xs text-muted-foreground">
                     Saving...
                   </span>
                 </>
-              ) : (
-                <>
+              : <>
                   <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
                   <span className="text-xs text-green-600 font-medium">
                     Saved
                   </span>
                 </>
-              )}
+              }
             </div>
           </div>
 
           <DialogDescription>
-            Lesson: <strong>{lesson.title}</strong>
+            {context.type === "lesson" ? "Lesson" : "Module"}:{" "}
+            <strong>{context.title}</strong>
           </DialogDescription>
         </DialogHeader>
 
@@ -496,9 +517,15 @@ export default function ChallengeModalAdd({
                       {formErrors.difficulty}
                     </p>
                   )}
-                  {getFieldError(storeChallenge.error?.errors, "difficulty") && (
+                  {getFieldError(
+                    storeChallenge.error?.errors,
+                    "difficulty",
+                  ) && (
                     <p className="text-sm text-red-500">
-                      {getFieldError(storeChallenge.error?.errors, "difficulty")}
+                      {getFieldError(
+                        storeChallenge.error?.errors,
+                        "difficulty",
+                      )}
                     </p>
                   )}
                 </div>
@@ -629,7 +656,10 @@ export default function ChallengeModalAdd({
                   handleChange={handleChange}
                   error={
                     formErrors.allowed_attempts ??
-                    getFieldError(storeChallenge.error?.errors, "allowed_attempts")
+                    getFieldError(
+                      storeChallenge.error?.errors,
+                      "allowed_attempts",
+                    )
                   }
                 />
                 <p className="text-xs text-muted-foreground mt-1">

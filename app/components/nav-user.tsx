@@ -13,10 +13,7 @@ export function NavUser({
   user: {
     name: string;
     email: string;
-    avatar?: {
-      url: string;
-      expires_at: string;
-    } | null;
+    avatar?: string | { url: string; expires_at: string } | null;
   };
 }) {
   const { isMobile } = useSidebar();
@@ -29,7 +26,7 @@ export function NavUser({
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
               <Avatar>
-                <AvatarImage src={user.avatar?.url ?? undefined} />
+                <AvatarImage src={typeof user.avatar === "string" ? user.avatar : (user.avatar?.url ?? undefined)} />
                 <AvatarFallback>{getTwoInitials(user.name)}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">

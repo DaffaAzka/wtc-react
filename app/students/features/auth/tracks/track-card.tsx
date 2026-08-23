@@ -3,27 +3,17 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Track } from "@/types/model";
-import { BookOpen } from "lucide-react";
+import { BookOpen, ArrowRight } from "lucide-react";
 
 interface TrackCardProps {
   track: Track;
   isEnrolled?: boolean;
-  onEnroll?: (trackSlug: string) => void;
-  enrolling?: boolean;
 }
 
-export function TrackCard({ 
-  track, 
+export function TrackCard({
+  track,
   isEnrolled = false,
-  onEnroll,
-  enrolling = false 
 }: TrackCardProps) {
-  const handleEnroll = () => {
-    if (onEnroll) {
-      onEnroll(track.slug);
-    }
-  };
-
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
       {/* Track Image */}
@@ -70,21 +60,12 @@ export function TrackCard({
       </CardContent>
 
       <CardFooter className="p-4 pt-0">
-        {isEnrolled ? (
-          <Button asChild variant="outline" className="w-full">
-            <Link to={`/student/classes/${track.slug}`}>
-              Lanjutkan Belajar
-            </Link>
-          </Button>
-        ) : (
-          <Button 
-            onClick={handleEnroll} 
-            className="w-full"
-            disabled={enrolling}
-          >
-            {enrolling ? "Mendaftar..." : "Ambil Kelas"}
-          </Button>
-        )}
+        <Button asChild variant={isEnrolled ? "default" : "outline"} className="w-full">
+          <Link to={`/student/classes/${track.slug}`}>
+            {isEnrolled ? "Lanjutkan Belajar" : "Ambil Kelas"}
+            <ArrowRight className="h-4 w-4 ml-2" />
+          </Link>
+        </Button>
       </CardFooter>
     </Card>
   );

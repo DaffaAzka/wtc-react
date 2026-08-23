@@ -37,7 +37,7 @@ export default function ModalEdit({
         title: data.title,
         slug: data.slug,
         description: data.description,
-        order: data.order.toString(),
+        order: data.order == null ? "" : data.order.toString(),
         image_url: data.image_url,
       });
     }
@@ -79,7 +79,7 @@ export default function ModalEdit({
       <DialogContent
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}>
-        <DialogHeader>  
+        <DialogHeader>
           <DialogTitle>Update Track</DialogTitle>
           <DialogDescription>
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
