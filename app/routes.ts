@@ -37,6 +37,7 @@ export default [
       // Submissions & Challenges
       route("/submissions", "routes/auth/student/submissions/index.tsx"),
       route("/challenges/:id", "routes/auth/student/challenges/$id.tsx"),
+      route("/challenges/:id/take", "routes/auth/student/challenges/$id.take.tsx"),
     ]),
   ]),
   layout("routes/auth/layout.tsx", [
