@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Upload, X, User } from "lucide-react";
+import { Loader2, Upload, X } from "lucide-react";
 import {
   useGetProfile,
   useUpdateProfile,
@@ -25,7 +25,6 @@ export function ProfileInfoForm() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Initialize form when profile loads
   useEffect(() => {
     if (profileData?.profile) {
       setFormData({
@@ -106,38 +105,39 @@ export function ProfileInfoForm() {
     );
   }
 
-  // Handle both possible API response structures:
-  // 1. { user: {...}, profile: {...} }
-  // 2. { ...userFields, profile: {...} }
   const user = profileData.user || profileData;
   const profile = profileData.profile;
 
   return (
-    <div className="space-y-6">
-      {/* Avatar Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Foto Profile</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center gap-6">
-            <Avatar className="h-24 w-24">
-              <AvatarImage src={avatarPreview || user.avatar?.url || undefined} />
-              <AvatarFallback>
-                <User className="h-12 w-12" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 space-y-2">
+    <div className="space-y-6 max-w-3xl">
+      {/* Profile Header */}
+      <div className="border-b pb-6">
+        <div className="flex items-start gap-6">
+          <Avatar className="h-24 w-24">
+            <AvatarImage
+              src={avatarPreview || user.avatar?.url || undefined}
+              alt={profile.display_name || user.name}
+            />
+            <AvatarFallback className="text-2xl">
+              {(profile.display_name || user.name).charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+
+          <div className="flex-1">
+            <h1 className="text-2xl font-semibold mb-1">
+              {profile.display_name || user.name}
+            </h1>
+            <p className="text-muted-foreground mb-3">{user.email}</p>
+
+            <div className="space-y-2">
               <Input
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 onChange={handleAvatarChange}
                 disabled={isUploading || isDeleting}
+                className="max-w-xs"
               />
-              <p className="text-xs text-muted-foreground">
-                JPG, PNG, atau GIF. Maksimal 2MB.
-              </p>
               <div className="flex gap-2">
                 {avatarFile && (
                   <Button
@@ -161,7 +161,7 @@ export function ProfileInfoForm() {
                 {user.avatar?.url && (
                   <Button
                     size="sm"
-                    variant="destructive"
+                    variant="outline"
                     onClick={handleAvatarDelete}
                     disabled={isDeleting}
                   >
@@ -170,19 +170,59 @@ export function ProfileInfoForm() {
                     ) : (
                       <X className="h-4 w-4 mr-2" />
                     )}
-                    Hapus
+                    Remove
                   </Button>
                 )}
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Profile Info Form */}
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-6 py-6 border-b">
+        <div>
+          <div className="text-2xl font-semibold">{profile.points.toLocaleString('id-ID')}</div>
+          <div className="text-sm text-muted-foreground">Poin</div>
+        </div>
+        <div>
+          <div className="text-2xl font-semibold">{profile.achievements?.length || 0}</div>
+          <div className="text-sm text-muted-foreground">Pencapaian</div>
+        </div>
+        <div>
+          <div className="text-2xl font-semibold">{profile.study_class?.name || '-'}</div>
+          <div className="text-sm text-muted-foreground">Kelas</div>
+        </div>
+      </div>
+
+      {/* Achievements */}
+      {profile.achievements && profile.achievements.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Pencapaian</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {profile.achievements.map((achievement) => (
+                <div key={achievement.id} className="flex items-start gap-3 py-3 border-b last:border-0">
+                  <div className="flex-1">
+                    <div className="font-medium">{achievement.title}</div>
+                    <div className="text-sm text-muted-foreground">{achievement.description}</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {new Date(achievement.earned_at).toLocaleDateString("id-ID")}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Profile Edit Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Informasi Profile</CardTitle>
+          <CardTitle>Edit Profil</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -206,11 +246,8 @@ export function ProfileInfoForm() {
                 name="display_name"
                 value={formData.display_name || ""}
                 onChange={handleInputChange}
-                placeholder="Nama yang akan ditampilkan"
+                placeholder="Nama yang ditampilkan"
               />
-              <p className="text-xs text-muted-foreground">
-                Nama yang akan ditampilkan di platform
-              </p>
             </div>
 
             <div className="space-y-2">
@@ -230,8 +267,11 @@ export function ProfileInfoForm() {
               )}
             </div>
 
-            <div className="pt-4">
-              <Button type="submit" disabled={isUpdating}>
+            <div className="flex justify-end pt-4">
+              <Button
+                type="submit"
+                disabled={isUpdating}
+              >
                 {isUpdating ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -243,37 +283,6 @@ export function ProfileInfoForm() {
               </Button>
             </div>
           </form>
-        </CardContent>
-      </Card>
-
-      {/* Profile Stats */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Statistik Profile</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="flex justify-between items-center py-2 border-b">
-            <span className="text-sm text-muted-foreground">Total Poin</span>
-            <span className="font-semibold">{profile.points}</span>
-          </div>
-          <div className="flex justify-between items-center py-2 border-b">
-            <span className="text-sm text-muted-foreground">Login Terakhir</span>
-            <span className="text-sm">
-              {new Date(profile.last_login_at).toLocaleString("id-ID")}
-            </span>
-          </div>
-          <div className="flex justify-between items-center py-2 border-b">
-            <span className="text-sm text-muted-foreground">Sinkronisasi Terakhir</span>
-            <span className="text-sm">
-              {new Date(profile.last_synced_at).toLocaleString("id-ID")}
-            </span>
-          </div>
-          <div className="flex justify-between items-center py-2">
-            <span className="text-sm text-muted-foreground">Bergabung Sejak</span>
-            <span className="text-sm">
-              {new Date(user.created_at).toLocaleDateString("id-ID")}
-            </span>
-          </div>
         </CardContent>
       </Card>
     </div>
