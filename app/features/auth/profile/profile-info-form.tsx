@@ -5,8 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Upload, X } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Upload, X, Clock, CheckCircle2 } from "lucide-react";
 import { useGetProfile, useUpdateProfile, useUploadAvatar, useDeleteAvatar } from "@/hooks/profile";
+import { useAllMySubmissions } from "@/hooks/submission";
 import type { ProfileUpdateRequest } from "@/services/profile";
 
 export function ProfileInfoForm() {
@@ -14,6 +16,7 @@ export function ProfileInfoForm() {
   const { mutate: updateProfile, isPending: isUpdating } = useUpdateProfile();
   const { mutate: uploadAvatar, isPending: isUploading } = useUploadAvatar();
   const { mutate: deleteAvatar, isPending: isDeleting } = useDeleteAvatar();
+  const { data: submissions, isLoading: isLoadingSubmissions } = useAllMySubmissions();
 
   const [formData, setFormData] = useState<ProfileUpdateRequest>({});
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -158,6 +161,72 @@ export function ProfileInfoForm() {
           <div className="text-sm text-muted-foreground">Kelas</div>
         </div>
       </div>
+
+      {/* Last Submission */}
+      {!isLoadingSubmissions && submissions && submissions.length > 0 && (() => {
+        // Get last submission (most recent by submitted_at or created_at)
+        const submittedSubmissions = submissions
+          .filter(s => {
+            const sub = s.submission || s;
+            return sub.submitted_at !== null && sub.submitted_at !== undefined;
+          })
+          .sort((a, b) => {
+            const aDate = new Date((a.submission || a).submitted_at || 0).getTime();
+            const bDate = new Date((b.submission || b).submitted_at || 0).getTime();
+            return bDate - aDate;
+          });
+
+        if (submittedSubmissions.length === 0) return null;
+
+        const lastSubmission = submittedSubmissions[0];
+        const submission = lastSubmission.submission || lastSubmission;
+        const challenge = lastSubmission.challenge || submission.challenge;
+
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Pengumpulan Terakhir</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="p-4 border rounded-lg">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg mb-1">
+                      {challenge?.title || 'Challenge'}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={submission.status === 'graded' ? 'default' : 'secondary'}>
+                        {submission.status}
+                      </Badge>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  {submission.submitted_at && (
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      {new Date(submission.submitted_at).toLocaleString('id-ID')}
+                    </span>
+                  )}
+                  {submission.score !== null && submission.score !== undefined && challenge?.max_score && (
+                    <span className="flex items-center gap-1 font-medium text-foreground">
+                      <CheckCircle2 className="h-4 w-4" />
+                      Skor: {submission.score}/{challenge.max_score}
+                    </span>
+                  )}
+                </div>
+
+                {submission.feedback && (
+                  <p className="text-sm mt-3 p-3 bg-muted rounded">
+                    <span className="font-medium">Feedback:</span> {submission.feedback}
+                  </p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        );
+      })()}
 
       {/* Achievements */}
       {profile.achievements && profile.achievements.length > 0 && (

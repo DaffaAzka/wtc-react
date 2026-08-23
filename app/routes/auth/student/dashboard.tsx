@@ -330,7 +330,7 @@ export default function Dashboard() {
               <Link key={track.id} to={`/student/classes/${track.slug}`}>
                 <Card className="shadow-sm p-0 hover:shadow-md transition-all duration-200 border-border/40 hover:border-border group overflow-hidden">
                   {track.image_url && (
-                    <div className="h-36 w-full overflow-hidden shrink-0" style={{ background: getPatternBackground(track.title) }}>
+                    <div className="h-48 w-full overflow-hidden shrink-0" style={{ background: getPatternBackground(track.title) }}>
                       <img
                         src={track.image_url}
                         alt={track.title}

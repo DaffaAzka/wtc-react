@@ -110,6 +110,14 @@ export function useLessonCompletion() {
       // Invalidate enrollment-related queries to update progress
       queryClient.invalidateQueries({ queryKey: ["enrollment"] });
       queryClient.invalidateQueries({ queryKey: lessonKeys.all });
+
+      // Invalidate all track overview queries to update lesson states
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey;
+          return Array.isArray(key) && key[0] === "tracks" && key[2] === "overview";
+        }
+      });
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "Gagal menyelesaikan lesson");
