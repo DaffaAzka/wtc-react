@@ -17,6 +17,13 @@ import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./contexts/theme";
 
+export const meta: Route.MetaFunction = () => {
+  return [
+    { title: "WTC - Webtech Training Camp" },
+    { name: "description", content: "Webtech Training Camp - Master Web Development" },
+  ];
+};
+
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
