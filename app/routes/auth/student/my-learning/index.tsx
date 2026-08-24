@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { getPatternBackground } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -170,15 +171,21 @@ export default function MyLearning() {
                   <Card
                     key={track.id}
                     className="overflow-hidden hover:shadow-lg transition-all duration-200">
-                    <div className="relative h-48 bg-muted">
+                    <div
+                      className="relative h-48"
+                      style={{ background: getPatternBackground(track.title) }}
+                    >
                       {track.image_url ? (
                         <img
                           src={track.image_url}
                           alt={track.title}
                           className="h-full w-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
                         />
                       ) : (
-                        <div className="flex h-full items-center justify-center" style={{ background: getPatternBackground(track.title) }}>
+                        <div className="flex h-full items-center justify-center">
                           <BookOpen className="h-16 w-16 text-white/20" />
                         </div>
                       )}
@@ -276,15 +283,21 @@ export default function MyLearning() {
                 <Card
                   key={track.id}
                   className="overflow-hidden hover:shadow-lg transition-all duration-200 border-l-4 border-l-primary">
-                  <div className="relative h-32 bg-muted">
+                  <div
+                    className="relative h-32"
+                    style={{ background: getPatternBackground(track.title) }}
+                  >
                     {track.image_url ? (
                       <img
                         src={track.image_url}
                         alt={track.title}
                         className="h-full w-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
                       />
                     ) : (
-                      <div className="flex h-full items-center justify-center" style={{ background: getPatternBackground(track.title) }}>
+                      <div className="flex h-full items-center justify-center">
                         <Trophy className="h-12 w-12 text-white/20" />
                       </div>
                     )}

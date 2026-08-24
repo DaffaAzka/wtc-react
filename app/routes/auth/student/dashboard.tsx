@@ -185,9 +185,9 @@ export default function Dashboard() {
           <p className="text-muted-foreground">Semangat belajar hari ini! 🚀</p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-4">
           <Avatar className="h-14 w-14 shadow-sm">
-            <AvatarImage src={user?.avatar?.url ?? undefined} alt={data.profile.display_name} />
+            <AvatarImage src={typeof user?.avatar === 'string' ? user.avatar : (user?.avatar && 'url' in user.avatar ? user.avatar.url : undefined)} alt={data.profile.display_name} />
             <AvatarFallback className="text-lg font-semibold">{data.profile.display_name?.charAt(0)?.toUpperCase()}</AvatarFallback>
           </Avatar>
           <div>
@@ -250,7 +250,7 @@ export default function Dashboard() {
       )}
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="shadow-sm border-border/40">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-3">
@@ -330,7 +330,7 @@ export default function Dashboard() {
               <Link key={track.id} to={`/student/classes/${track.slug}`}>
                 <Card className="shadow-sm p-0 hover:shadow-md transition-all duration-200 border-border/40 hover:border-border group overflow-hidden">
                   {track.image_url && (
-                    <div className="h-36 w-full overflow-hidden shrink-0" style={{ background: getPatternBackground(track.title) }}>
+                    <div className="h-48 w-full overflow-hidden shrink-0" style={{ background: getPatternBackground(track.title) }}>
                       <img
                         src={track.image_url}
                         alt={track.title}
