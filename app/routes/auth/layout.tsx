@@ -1,4 +1,4 @@
-import { Outlet, redirect } from "react-router";
+import { Outlet, redirect, useLocation } from "react-router";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import {
@@ -60,19 +60,7 @@ export default function AuthLayout() {
               orientation="vertical"
               className="mr-2 data-vertical:h-4 data-vertical:self-auto"
             />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                    Build Your Application
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+            <DynamicBreadcrumb />
           </div>
 
           <div className="flex items-center px-4">
@@ -84,5 +72,96 @@ export default function AuthLayout() {
         </div>
       </SidebarInset>
     </SidebarProvider>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Route segment → human-readable label map
+// Covers all routes defined in routes.ts under layout("routes/auth/layout.tsx")
+// ---------------------------------------------------------------------------
+const SEGMENT_LABELS: Record<string, string> = {
+  // Top-level admin pages
+  dashboard: "Dashboard",
+  courses: "Courses",
+
+  // Admin section
+  admin: "Admin",
+  "user-management": "User Management",
+  "course-management": "Course Management",
+  profile: "Profile",
+
+  // Materials / Pustaka PDF
+  materials: "Materi Pembelajaran",
+
+  // Tracks
+  tracks: "Tracks",
+
+  // Modules
+  modules: "Modules",
+
+  // Lessons
+  lessons: "Lessons",
+  create: "Create",
+  update: "Update",
+  view: "View",
+
+  // Challenges
+  challenges: "Challenges",
+};
+
+/** Convert a raw URL segment into a readable label */
+function segmentLabel(seg: string): string {
+  if (SEGMENT_LABELS[seg]) return SEGMENT_LABELS[seg];
+
+  // Dynamic segments (slugs, IDs): title-case, replace hyphens/underscores
+  return seg
+    .replace(/[-_]/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function DynamicBreadcrumb() {
+  const location = useLocation();
+
+  // Split pathname into non-empty segments
+  const segments = location.pathname.split("/").filter(Boolean);
+
+  if (segments.length === 0) {
+    return (
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbPage>Home</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+    );
+  }
+
+  // Build cumulative hrefs for each segment
+  const crumbs = segments.map((seg, i) => ({
+    label: segmentLabel(seg),
+    href: "/" + segments.slice(0, i + 1).join("/"),
+    isLast: i === segments.length - 1,
+  }));
+
+  return (
+    <Breadcrumb>
+      <BreadcrumbList>
+        {crumbs.map((crumb, i) => (
+          <span key={crumb.href} className="flex items-center gap-1.5">
+            {i > 0 && <BreadcrumbSeparator className="hidden md:block" />}
+            <BreadcrumbItem
+              className={i < crumbs.length - 1 ? "hidden md:block" : ""}
+            >
+              {crumb.isLast ? (
+                <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+              ) : (
+                <BreadcrumbLink href={crumb.href}>{crumb.label}</BreadcrumbLink>
+              )}
+            </BreadcrumbItem>
+          </span>
+        ))}
+      </BreadcrumbList>
+    </Breadcrumb>
   );
 }
