@@ -30,17 +30,19 @@ export function TrackCard({
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
       {/* Track Image */}
-      <div className="aspect-video w-full overflow-hidden bg-muted">
-        {track.image_url ? (
+      <div
+        className="aspect-video w-full overflow-hidden"
+        style={{ background: getPatternBackground(track.title) }}
+      >
+        {track.image_url && (
           <img
             src={track.image_url}
             alt={track.title}
             className="h-full w-full object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
           />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-            <BookOpen className="h-16 w-16 text-muted-foreground/20" />
-          </div>
         )}
       </div>
 

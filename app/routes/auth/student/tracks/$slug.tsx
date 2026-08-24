@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { EmptyState } from "@/students/components/empty-state";
 import { EnrollmentConfirmationModal } from "@/students/components/enrollment-confirmation-modal";
 import { useEnrollTrack, useMyTracks, useUnenrollTrack } from "@/students/hooks/enrollments";
-import { cn } from "@/lib/utils";
+import { cn, getPatternBackground } from "@/lib/utils";
 import { ArrowLeft, Award, BookOpen, CheckCircle, CheckCircle2, Clock, Loader2, PlayCircle, Lock, Play } from "lucide-react";
 import { toast } from "sonner";
 import type { LessonWithState } from "@/types/model";
@@ -145,21 +145,31 @@ export default function TrackDetail() {
                   </div>
 
                   {/* Right: Image with Effects (25%) */}
-                  {track.image_url && (
-                    <div className="lg:w-1/4 flex-shrink-0 flex items-start justify-center">
-                      <div className="relative w-full max-w-[200px] lg:max-w-none">
-                        {/* Background gradient effect */}
-                        <div className="absolute -inset-4 bg-gradient-to-br from-blue-500/20 via-cyan-500/20 to-indigo-500/20 rounded-3xl blur-2xl opacity-60" />
+                  <div className="lg:w-1/4 flex-shrink-0 flex items-start justify-center">
+                    <div className="relative w-full max-w-[200px] lg:max-w-none">
+                      {/* Background gradient effect */}
+                      <div className="absolute -inset-4 bg-gradient-to-br from-blue-500/20 via-cyan-500/20 to-indigo-500/20 rounded-3xl blur-2xl opacity-60" />
 
-                        {/* Image container */}
-                        <div className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-black/5 dark:ring-white/10">
-                          <img src={track.image_url} alt={track.title} className="w-full aspect-square object-cover" />
-                          {/* Subtle overlay gradient */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
-                        </div>
+                      {/* Image container */}
+                      <div
+                        className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-black/5 dark:ring-white/10"
+                        style={{ background: getPatternBackground(track.title) }}
+                      >
+                        {track.image_url && (
+                          <img
+                            src={track.image_url}
+                            alt={track.title}
+                            className="w-full aspect-square object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = "none";
+                            }}
+                          />
+                        )}
+                        {/* Subtle overlay gradient */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
                       </div>
                     </div>
-                  )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -326,21 +336,31 @@ export default function TrackDetail() {
             </div>
 
             {/* Right: Image with Effects (25%) */}
-            {track.image_url && (
-              <div className="lg:w-1/4 flex-shrink-0 flex items-start justify-center">
-                <div className="relative w-full max-w-[200px] lg:max-w-none">
-                  {/* Background gradient effect */}
-                  <div className="absolute -inset-4 bg-gradient-to-br from-green-500/20 via-blue-500/20 to-cyan-500/20 rounded-3xl blur-2xl opacity-60" />
+            <div className="lg:w-1/4 flex-shrink-0 flex items-start justify-center">
+              <div className="relative w-full max-w-[200px] lg:max-w-none">
+                {/* Background gradient effect */}
+                <div className="absolute -inset-4 bg-gradient-to-br from-green-500/20 via-blue-500/20 to-cyan-500/20 rounded-3xl blur-2xl opacity-60" />
 
-                  {/* Image container */}
-                  <div className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-black/5 dark:ring-white/10">
-                    <img src={track.image_url} alt={track.title} className="w-full aspect-square object-cover" />
-                    {/* Subtle overlay gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
-                  </div>
+                {/* Image container */}
+                <div
+                  className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-black/5 dark:ring-white/10"
+                  style={{ background: getPatternBackground(track.title) }}
+                >
+                  {track.image_url && (
+                    <img
+                      src={track.image_url}
+                      alt={track.title}
+                      className="w-full aspect-square object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                    />
+                  )}
+                  {/* Subtle overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </CardContent>
       </Card>
