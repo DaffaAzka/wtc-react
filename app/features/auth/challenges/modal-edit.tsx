@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useUpdateChallenge } from "@/hooks/challenges";
 import type { Challenge } from "@/types/model";
 import type { ChallengeFormType } from "@/types/challenge";
@@ -58,6 +59,10 @@ export default function ChallengeModalEdit({
       challenge.allowed_attempts ? String(challenge.allowed_attempts) : "1",
   });
 
+  const [isUnlimitedAttempts, setIsUnlimitedAttempts] = useState(
+    challenge.allowed_attempts === null
+  );
+
   const [formErrors, setFormErrors] = useState<{
     title?: string;
     difficulty?: string;
@@ -84,6 +89,7 @@ export default function ChallengeModalEdit({
           challenge.allowed_attempts ? String(challenge.allowed_attempts) : "1",
       });
       setFormErrors({});
+      setIsUnlimitedAttempts(challenge.allowed_attempts === null);
     }
   }, [isOpen, challenge]);
 
@@ -128,12 +134,14 @@ export default function ChallengeModalEdit({
       errors.points = "Points must be at least 0.";
     }
 
-    if (!form.allowed_attempts.trim()) {
-      errors.allowed_attempts = "Allowed Attempts is required.";
-    } else if (Number(form.allowed_attempts) < 1) {
-      errors.allowed_attempts = "Allowed Attempts must be at least 1.";
-    } else if (!Number.isInteger(Number(form.allowed_attempts))) {
-      errors.allowed_attempts = "Allowed Attempts must be an integer.";
+    if (!isUnlimitedAttempts) {
+      if (!form.allowed_attempts.trim()) {
+        errors.allowed_attempts = "Allowed Attempts is required.";
+      } else if (Number(form.allowed_attempts) < 1) {
+        errors.allowed_attempts = "Allowed Attempts must be at least 1.";
+      } else if (!Number.isInteger(Number(form.allowed_attempts))) {
+        errors.allowed_attempts = "Allowed Attempts must be an integer.";
+      }
     }
 
     if (!form.content.trim()) {
@@ -166,7 +174,7 @@ export default function ChallengeModalEdit({
       metadata: challenge.metadata,
       max_score: Number(form.max_score),
       points: Number(form.points),
-      allowed_attempts: Number(form.allowed_attempts),
+      allowed_attempts: isUnlimitedAttempts ? null : Number(form.allowed_attempts),
     };
 
     try {
@@ -377,23 +385,40 @@ export default function ChallengeModalEdit({
                 </p>
               </div>
 
-              <div className="max-w-md">
-                <InputNumberForm
-                  name="allowed_attempts"
-                  text="Allowed Attempts"
-                  value={form.allowed_attempts}
-                  handleChange={handleChange}
-                  error={
-                    formErrors.allowed_attempts ??
-                    getFieldError(
-                      updateChallenge.error?.errors,
-                      "allowed_attempts",
-                    )
-                  }
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Number of attempts students can make (minimum: 1)
-                </p>
+              <div className="max-w-md space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="unlimited-attempts"
+                    checked={isUnlimitedAttempts}
+                    onCheckedChange={(checked) => setIsUnlimitedAttempts(checked === true)}
+                  />
+                  <label
+                    htmlFor="unlimited-attempts"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Unlimited attempts
+                  </label>
+                </div>
+                <div>
+                  <InputNumberForm
+                    name="allowed_attempts"
+                    text="Allowed Attempts"
+                    value={isUnlimitedAttempts ? "" : form.allowed_attempts}
+                    handleChange={handleChange}
+                    isDisabled={isUnlimitedAttempts}
+                    placeholder={isUnlimitedAttempts ? "Unlimited" : ""}
+                    error={
+                      formErrors.allowed_attempts ??
+                      getFieldError(
+                        updateChallenge.error?.errors,
+                        "allowed_attempts",
+                      )
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Number of attempts students can make (minimum: 1)
+                  </p>
+                </div>
               </div>
             </div>
 

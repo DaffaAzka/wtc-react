@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useStoreChallenge } from "@/hooks/challenges";
 import type { ChallengeContext } from "./challenge-manager";
 import { generateSlug, getFieldError } from "@/utils/global";
@@ -56,7 +57,6 @@ export default function ChallengeModalAdd({
     title: string;
     type: ChallengeFormType;
     difficulty: "" | "easy" | "medium" | "hard";
-    order: string;
     content: string;
     max_score: string;
     points: string;
@@ -65,12 +65,13 @@ export default function ChallengeModalAdd({
     title: "",
     type: "multiple_choice",
     difficulty: "",
-    order: "1",
     content: "",
     max_score: "100",
     points: "",
     allowed_attempts: "1",
   });
+
+  const [isUnlimitedAttempts, setIsUnlimitedAttempts] = useState(false);
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [questionErrors, setQuestionErrors] = useState<Record<string, string>>(
@@ -79,7 +80,6 @@ export default function ChallengeModalAdd({
   const [formErrors, setFormErrors] = useState<{
     title?: string;
     difficulty?: string;
-    order?: string;
     content?: string;
     max_score?: string;
     points?: string;
@@ -91,7 +91,6 @@ export default function ChallengeModalAdd({
   const [readyToSave, setReadyToSave] = useState(false);
   const titleRef = useRef<HTMLDivElement>(null);
   const difficultyRef = useRef<HTMLDivElement>(null);
-  const orderRef = useRef<HTMLDivElement>(null);
   const maxScoreRef = useRef<HTMLDivElement>(null);
   const pointsRef = useRef<HTMLDivElement>(null);
   const allowedAttemptsRef = useRef<HTMLDivElement>(null);
@@ -109,13 +108,13 @@ export default function ChallengeModalAdd({
         title: "",
         type: "multiple_choice",
         difficulty: "",
-        order: "1",
         content: "",
         max_score: "100",
         points: "",
         allowed_attempts: "1",
       });
 
+      setIsUnlimitedAttempts(false);
       setQuestions([]);
 
       setReadyToSave(true);
@@ -130,12 +129,12 @@ export default function ChallengeModalAdd({
         title: parsed.form.title || "",
         type: parsed.form.type || "multiple_choice",
         difficulty: parsed.form.difficulty || "",
-        order: parsed.form.order || "1",
         content: parsed.form.content || "",
         max_score: parsed.form.max_score || "100",
         points: parsed.form.points || "",
         allowed_attempts: parsed.form.allowed_attempts || "1",
       });
+      setIsUnlimitedAttempts(parsed.isUnlimitedAttempts ?? false);
       setQuestions(parsed.questions ?? []);
 
       toast("Draft restored");
@@ -144,12 +143,12 @@ export default function ChallengeModalAdd({
         title: "",
         type: "multiple_choice",
         difficulty: "",
-        order: "1",
         content: "",
         max_score: "100",
         points: "",
         allowed_attempts: "1",
       });
+      setIsUnlimitedAttempts(false);
       setQuestions([]);
     } finally {
       setReadyToSave(true);
@@ -169,6 +168,7 @@ export default function ChallengeModalAdd({
         JSON.stringify({
           form: debouncedForm,
           questions: debouncedQuestions,
+          isUnlimitedAttempts,
         }),
       );
 
@@ -176,7 +176,7 @@ export default function ChallengeModalAdd({
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [debouncedForm, debouncedQuestions, contextId, readyToSave, isOpen]);
+  }, [debouncedForm, debouncedQuestions, contextId, readyToSave, isOpen, isUnlimitedAttempts]);
 
   useEffect(() => {
     if (!readyToSave) return;
@@ -243,7 +243,6 @@ export default function ChallengeModalAdd({
   const canSubmit =
     form.title.trim() !== "" &&
     form.difficulty !== "" &&
-    form.order.trim() !== "" &&
     form.max_score.trim() !== "" &&
     form.points.trim() !== "" &&
     form.allowed_attempts.trim() !== "" &&
@@ -271,14 +270,6 @@ export default function ChallengeModalAdd({
       errors.difficulty = "Difficulty is required.";
     }
 
-    if (!form.order.trim()) {
-      errors.order = "Order is required.";
-    } else if (Number(form.order) < 1) {
-      errors.order = "Order must be at least 1.";
-    } else if (!Number.isInteger(Number(form.order))) {
-      errors.order = "Order must be an integer.";
-    }
-
     if (!form.max_score.trim()) {
       errors.max_score = "Max Score is required.";
     } else if (Number(form.max_score) < 1) {
@@ -291,12 +282,14 @@ export default function ChallengeModalAdd({
       errors.points = "Points must be at least 0.";
     }
 
-    if (!form.allowed_attempts.trim()) {
-      errors.allowed_attempts = "Allowed Attempts is required.";
-    } else if (Number(form.allowed_attempts) < 1) {
-      errors.allowed_attempts = "Allowed Attempts must be at least 1.";
-    } else if (!Number.isInteger(Number(form.allowed_attempts))) {
-      errors.allowed_attempts = "Allowed Attempts must be an integer.";
+    if (!isUnlimitedAttempts) {
+      if (!form.allowed_attempts.trim()) {
+        errors.allowed_attempts = "Allowed Attempts is required.";
+      } else if (Number(form.allowed_attempts) < 1) {
+        errors.allowed_attempts = "Allowed Attempts must be at least 1.";
+      } else if (!Number.isInteger(Number(form.allowed_attempts))) {
+        errors.allowed_attempts = "Allowed Attempts must be an integer.";
+      }
     }
 
     if (!form.content.trim()) {
@@ -315,14 +308,6 @@ export default function ChallengeModalAdd({
 
     if (errors.difficulty) {
       difficultyRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-      return;
-    }
-
-    if (errors.order) {
-      orderRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
@@ -381,7 +366,6 @@ export default function ChallengeModalAdd({
         slug: generateSlug(form.title),
         type: submissionType,
         difficulty: form.difficulty || undefined,
-        order: Number(form.order),
         content: form.content,
         settings: null,
         metadata: {
@@ -389,7 +373,7 @@ export default function ChallengeModalAdd({
         },
         max_score: Number(form.max_score),
         points: Number(form.points),
-        allowed_attempts: Number(form.allowed_attempts),
+        allowed_attempts: isUnlimitedAttempts ? null : Number(form.allowed_attempts),
       },
       {
         onSuccess: () => {
@@ -399,13 +383,13 @@ export default function ChallengeModalAdd({
             title: "",
             type: "multiple_choice",
             difficulty: "",
-            order: "1",
             content: "",
             max_score: "100",
             points: "",
             allowed_attempts: "1",
           });
 
+          setIsUnlimitedAttempts(false);
           setQuestions([]);
 
           onOpenChange(false);
@@ -558,20 +542,6 @@ export default function ChallengeModalAdd({
                     </SelectContent>
                   </Select>
                 </div>
-
-                <div ref={orderRef}>
-                  <InputForm
-                    name="order"
-                    text="Order"
-                    type="number"
-                    value={form.order}
-                    handleChange={handleChange}
-                    error={
-                      formErrors.order ??
-                      getFieldError(storeChallenge.error?.errors, "order")
-                    }
-                  />
-                </div>
               </div>
 
               <div ref={descriptionRef}>
@@ -647,24 +617,41 @@ export default function ChallengeModalAdd({
                 </p>
               </div>
 
-              <div ref={allowedAttemptsRef} className="max-w-md">
-                <InputForm
-                  name="allowed_attempts"
-                  text="Allowed Attempts"
-                  type="number"
-                  value={form.allowed_attempts}
-                  handleChange={handleChange}
-                  error={
-                    formErrors.allowed_attempts ??
-                    getFieldError(
-                      storeChallenge.error?.errors,
-                      "allowed_attempts",
-                    )
-                  }
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Number of attempts students can make (minimum: 1)
-                </p>
+              <div className="max-w-md space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="unlimited-attempts"
+                    checked={isUnlimitedAttempts}
+                    onCheckedChange={(checked) => setIsUnlimitedAttempts(checked === true)}
+                  />
+                  <label
+                    htmlFor="unlimited-attempts"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Unlimited attempts
+                  </label>
+                </div>
+                <div ref={allowedAttemptsRef}>
+                  <InputForm
+                    name="allowed_attempts"
+                    text="Allowed Attempts"
+                    type="number"
+                    value={isUnlimitedAttempts ? "" : form.allowed_attempts}
+                    handleChange={handleChange}
+                    isDisabled={isUnlimitedAttempts}
+                    placeholder={isUnlimitedAttempts ? "Unlimited" : ""}
+                    error={
+                      formErrors.allowed_attempts ??
+                      getFieldError(
+                        storeChallenge.error?.errors,
+                        "allowed_attempts",
+                      )
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Number of attempts students can make (minimum: 1)
+                  </p>
+                </div>
               </div>
             </div>
 

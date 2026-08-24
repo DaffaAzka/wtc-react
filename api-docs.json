@@ -89,6 +89,34 @@
                 }
             }
         },
+        "\/attachments\/{attachment}\/download": {
+            "get": {
+                "operationId": "attachment.download",
+                "summary": "Direct download attachment file (streams from S3 through Laravel).\nAlternative to the file() method for simpler frontend implementation",
+                "tags": [
+                    "Attachment"
+                ],
+                "parameters": [
+                    {
+                        "name": "attachment",
+                        "in": "path",
+                        "required": true,
+                        "description": "The attachment ID",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "404": {
+                        "$ref": "#\/components\/responses\/ModelNotFoundException"
+                    },
+                    "401": {
+                        "$ref": "#\/components\/responses\/AuthenticationException"
+                    }
+                }
+            }
+        },
         "\/login": {
             "post": {
                 "operationId": "auth.login",
@@ -4940,7 +4968,10 @@
                                                             "type": "integer"
                                                         },
                                                         "allowed_attempts": {
-                                                            "type": "integer"
+                                                            "type": [
+                                                                "integer",
+                                                                "null"
+                                                            ]
                                                         }
                                                     },
                                                     "required": [
@@ -6577,18 +6608,32 @@
                         "type": "string"
                     },
                     "settings": {
-                        "type": [
-                            "array",
-                            "null"
-                        ],
-                        "items": {}
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {}
+                            },
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
                     },
                     "metadata": {
-                        "type": [
-                            "array",
-                            "null"
-                        ],
-                        "items": {}
+                        "anyOf": [
+                            {
+                                "type": "array",
+                                "items": {}
+                            },
+                            {
+                                "type": "null"
+                            },
+                            {
+                                "type": "string"
+                            }
+                        ]
                     },
                     "max_score": {
                         "type": "integer"
@@ -6597,7 +6642,10 @@
                         "type": "integer"
                     },
                     "allowed_attempts": {
-                        "type": "integer"
+                        "type": [
+                            "integer",
+                            "null"
+                        ]
                     },
                     "attachments": {
                         "type": "array",
@@ -6662,6 +6710,7 @@
                         "enum": [
                             "multiple_choice",
                             "fill_blank",
+                            "essay",
                             "code_editor",
                             "file_upload",
                             "github_submission",
@@ -6726,7 +6775,10 @@
                         "minimum": 0
                     },
                     "allowed_attempts": {
-                        "type": "integer",
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
                         "minimum": 1
                     }
                 },
@@ -6735,8 +6787,7 @@
                     "slug",
                     "type",
                     "content",
-                    "max_score",
-                    "allowed_attempts"
+                    "max_score"
                 ],
                 "title": "ChallengeStoreRequest"
             },
@@ -6770,6 +6821,7 @@
                         "enum": [
                             "multiple_choice",
                             "fill_blank",
+                            "essay",
                             "code_editor",
                             "file_upload",
                             "github_submission",
@@ -6834,7 +6886,10 @@
                         "minimum": 0
                     },
                     "allowed_attempts": {
-                        "type": "integer",
+                        "type": [
+                            "integer",
+                            "null"
+                        ],
                         "minimum": 1
                     }
                 },

@@ -9,6 +9,7 @@ type ChallengeRequest = Omit<
 
 export const ChallengeService = {
   store: async (request: ChallengeRequest): Promise<Challenge> => {
+    // Backend handles JSON casting automatically - send plain objects
     const response = await api.post<ApiResponse<Challenge>>(
       "/challenges",
       request,
@@ -21,6 +22,7 @@ export const ChallengeService = {
     id: number,
     request: ChallengeRequest,
   ): Promise<Challenge> => {
+    // Backend handles JSON casting automatically - send plain objects
     const response = await api.put<ApiResponse<Challenge>>(
       `/challenges/${id}`,
       request,
