@@ -9,22 +9,29 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { FaBook, FaArrowRight, FaLayerGroup } from "react-icons/fa";
 import { Link } from "react-router";
+import { getPatternBackground } from "@/lib/utils";
 
 export default function CourseCard({ data }: { data: Track }) {
   return (
     <Link to={`${data.slug}`}>
       <Card className="overflow-hidden group cursor-pointer border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl h-full flex flex-col">
         {/* Course Image with Overlay */}
-        <div className="relative h-48 overflow-hidden bg-muted">
-          <div
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
-            style={{
-              backgroundImage: `url(${data.image_url})`,
-            }}
-          >
-            {/* Gradient Overlay for Text */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-          </div>
+        <div
+          className="relative h-48 overflow-hidden"
+          style={{ background: getPatternBackground(data.title) }}
+        >
+          {data.image_url && (
+            <img
+              src={data.image_url}
+              alt={data.title}
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
+            />
+          )}
+          {/* Gradient Overlay for Text */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
           {/* Title Overlay on Image */}
           <div className="absolute bottom-0 left-0 right-0 p-4">

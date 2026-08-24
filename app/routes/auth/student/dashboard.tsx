@@ -185,7 +185,7 @@ export default function Dashboard() {
           <p className="text-muted-foreground">Semangat belajar hari ini! 🚀</p>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-4">
           <Avatar className="h-14 w-14 shadow-sm">
             <AvatarImage src={typeof user?.avatar === 'string' ? user.avatar : (user?.avatar && 'url' in user.avatar ? user.avatar.url : undefined)} alt={data.profile.display_name} />
             <AvatarFallback className="text-lg font-semibold">{data.profile.display_name?.charAt(0)?.toUpperCase()}</AvatarFallback>
@@ -250,7 +250,7 @@ export default function Dashboard() {
       )}
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="shadow-sm border-border/40">
           <CardContent className="p-6">
             <div className="flex items-center justify-between mb-3">
