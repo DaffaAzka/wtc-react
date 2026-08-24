@@ -96,14 +96,11 @@ export default function Login() {
 
       <div className={`relative z-[10] w-full max-w-[420px] transition-all duration-700 ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}>
         <div className="mb-8 flex flex-col items-center text-center">
-          <div className="group relative mb-4">
-            <div className="absolute inset-0 h-11 w-11 rotate-45 rounded-xl bg-primary/20 blur-xl transition-all duration-300 group-hover:bg-primary/30" />
-            <div className="relative h-11 w-11 rotate-45 rounded-xl bg-gradient-to-br from-primary via-primary to-primary/70 shadow-[0_0_40px_-8px_var(--primary)] transition-all duration-300 group-hover:shadow-[0_0_50px_-6px_var(--primary)]">
-              <span className="absolute inset-0 flex -rotate-45 items-center justify-center text-base font-bold text-primary-foreground">W</span>
-            </div>
-          </div>
-          <span className="text-2xl font-bold tracking-tight text-foreground">WTC</span>
-          <span className="mt-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground/80">Webtech Training Camp</span>
+          <img
+            src="/brand-pack/logo-v-dark.svg"
+            alt="WTC Logo"
+            className="h-24 w-auto"
+          />
         </div>
 
         <form
