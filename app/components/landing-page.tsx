@@ -145,9 +145,11 @@ export function LandingPage() {
           <div className={`lg:w-1/2 lg:pr-12 transition-all duration-700 ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}>
             {/* Logo Badge */}
             <div className="mb-8 inline-flex items-center gap-3 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 backdrop-blur-sm">
-              <div className="relative h-8 w-8 rotate-45 rounded-lg bg-gradient-to-br from-primary to-primary/60">
-                <span className="absolute inset-0 flex -rotate-45 items-center justify-center text-sm font-bold text-primary-foreground">W</span>
-              </div>
+              <img
+                src="/brand-pack/icon-2.svg"
+                alt="WTC Icon"
+                className="h-8 w-8"
+              />
               <span className="text-sm font-medium text-foreground">Webtech Training Camp</span>
             </div>
 
@@ -666,9 +668,11 @@ export function LandingPage() {
           <div className="grid gap-8 md:grid-cols-4">
             <div className="md:col-span-2">
               <div className="mb-4 inline-flex items-center gap-2">
-                <div className="relative h-8 w-8 rotate-45 rounded-lg bg-gradient-to-br from-primary to-primary/60">
-                  <span className="absolute inset-0 flex -rotate-45 items-center justify-center text-sm font-bold text-primary-foreground">W</span>
-                </div>
+                <img
+                  src="/brand-pack/icon-2.svg"
+                  alt="WTC Icon"
+                  className="h-8 w-8"
+                />
                 <span className="text-lg font-bold text-foreground">Webtech Training Camp</span>
               </div>
               <p className="mb-4 text-sm text-muted-foreground">Master web technology through hands-on learning and expert guidance</p>

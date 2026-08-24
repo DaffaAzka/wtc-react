@@ -40,6 +40,59 @@ export function useGetLessonsPaginated(
     refresh: query.refetch,
   };
 }
+export function useGetAllLessons(filters?: LessonFilter) {
+  const query = useQuery<Lesson[], ApiErrorResponse>({
+    queryKey: [...lessonKeys.all, "all", filters],
+    queryFn: async () => {
+      const perPage = 100;
+
+      const first = await LessonService.getAllPaginated({
+        ...filters,
+        page: 1,
+        per_page: perPage,
+      });
+
+      const lastPage = first.meta?.last_page ?? 1;
+      let allLessons = [...first.data];
+
+      if (lastPage <= 1) {
+        return allLessons;
+      }
+
+      const remainingPages = Array.from(
+        { length: lastPage - 1 },
+        (_, i) => i + 2,
+      );
+
+      const results = await Promise.all(
+        remainingPages.map((page) =>
+          LessonService.getAllPaginated({
+            ...filters,
+            page,
+            per_page: perPage,
+          }),
+        ),
+      );
+
+      results.forEach((res) => {
+        allLessons = allLessons.concat(res.data);
+      });
+      const uniqueLessons = Array.from(
+        new Map(allLessons.map((lesson) => [lesson.id, lesson])).values(),
+      );
+
+      return uniqueLessons;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  return {
+    lessons: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refresh: query.refetch,
+  };
+}
 
 export function useGetLesson(slug: string) {
   const query = useQuery<Lesson, ApiErrorResponse>({
@@ -110,9 +163,19 @@ export function useLessonCompletion() {
       // Invalidate enrollment-related queries to update progress
       queryClient.invalidateQueries({ queryKey: ["enrollment"] });
       queryClient.invalidateQueries({ queryKey: lessonKeys.all });
+
+      // Invalidate all track overview queries to update lesson states
+      queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey;
+          return Array.isArray(key) && key[0] === "tracks" && key[2] === "overview";
+        }
+      });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Gagal menyelesaikan lesson");
+      toast.error(
+        error.response?.data?.message || "Gagal menyelesaikan lesson",
+      );
     },
   });
 }
@@ -137,10 +200,14 @@ export function useAddLessonAttachment() {
       LessonService.addAttachment(lessonSlug, file, title, type, description),
     onSuccess: (_, variables) => {
       toast.success("Attachment berhasil ditambahkan!");
-      queryClient.invalidateQueries({ queryKey: lessonKeys.detail(variables.lessonSlug) });
+      queryClient.invalidateQueries({
+        queryKey: lessonKeys.detail(variables.lessonSlug),
+      });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Gagal menambahkan attachment");
+      toast.error(
+        error.response?.data?.message || "Gagal menambahkan attachment",
+      );
     },
   });
 }
@@ -159,10 +226,14 @@ export function useDeleteLessonAttachment() {
       LessonService.deleteAttachment(lessonSlug, attachmentId),
     onSuccess: (_, variables) => {
       toast.success("Attachment berhasil dihapus!");
-      queryClient.invalidateQueries({ queryKey: lessonKeys.detail(variables.lessonSlug) });
+      queryClient.invalidateQueries({
+        queryKey: lessonKeys.detail(variables.lessonSlug),
+      });
     },
     onError: (error: any) => {
-      toast.error(error.response?.data?.message || "Gagal menghapus attachment");
+      toast.error(
+        error.response?.data?.message || "Gagal menghapus attachment",
+      );
     },
   });
 }

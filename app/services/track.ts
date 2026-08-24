@@ -1,5 +1,5 @@
 import { api } from "@/lib/axios";
-import type { Track } from "@/types/model";
+import type { Track, TrackOverview } from "@/types/model";
 import type { ApiResponse, PaginatedResponse } from "@/types/response";
 
 type TrackRequest = Omit<Track, "id" | "created_at" | "updated_at">;
@@ -37,6 +37,11 @@ export const TrackService = {
 
   getBySlug: async (slug: string): Promise<Track> => {
     const response = await api.get<ApiResponse<Track>>(`/tracks/${slug}`);
+    return response.data.data!;
+  },
+
+  getOverview: async (slug: string): Promise<TrackOverview> => {
+    const response = await api.get<ApiResponse<TrackOverview>>(`/my/tracks/${slug}/overview`);
     return response.data.data!;
   },
 

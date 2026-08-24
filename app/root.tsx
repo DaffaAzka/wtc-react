@@ -25,6 +25,7 @@ export const meta: Route.MetaFunction = () => {
 };
 
 export const links: Route.LinksFunction = () => [
+  { rel: "icon", href: "/brand-pack/icon-2.svg", type: "image/svg+xml" },
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
     rel: "preconnect",

@@ -44,10 +44,12 @@ import {
   GitBranch,
   Award,
   Users,
+  FileText,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
 import { firstCharacterUppercase } from "@/utils/global";
 import { ModeToggle } from "./custom/mode-toggle";
+import { Separator } from "./ui/separator";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
@@ -91,8 +93,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       icon: GraduationCap,
     },
     { title: "Kelas", url: "/student/classes", icon: BookOpen },
-    { title: "Learning Path", url: "/student/learning-path", icon: GitBranch },
-    { title: "Profil", url: "/student/profile", icon: UserIcon },
+    // { title: "Learning Path", url: "/student/learning-path", icon: GitBranch },
   ];
 
   const studentNavLearning = [
@@ -108,6 +109,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       { title: "Tracks", url: "/tracks", icon: RouteIcon },
       { title: "Modules", url: "/modules", icon: ListTreeIcon },
       { title: "Lessons", url: "/lessons", icon: NotebookTextIcon },
+      { title: "Materi Pembelajaran", url: "/materials", icon: FileText },
       { title: "Challenges", url: "/challenges", icon: Award },
     ],
   };
@@ -149,37 +151,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </div>
         </div>
 
-        {/* Rest of content with padding restored */}
-        <div className="flex flex-col gap-4 px-4 pt-4">
-          <div className="flex items-center gap-3">
-            <Avatar className="h-11 w-11 border border-sidebar-border">
-              <AvatarImage
-                src={
-                  typeof user?.avatar === "string" ?
-                    user.avatar
-                  : (user?.avatar?.url ?? undefined)
-                }
-                alt={user?.display_name ?? ""}
-              />
-              <AvatarFallback className="bg-sidebar-accent text-sidebar-accent-foreground">
-                <UserIcon className="h-5 w-5" />
-              </AvatarFallback>
-            </Avatar>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-sidebar-foreground">
-                {user?.display_name ?? "Undefined"}
-              </p>
-              <span className="mt-0.5 inline-block rounded-full bg-chart-2 px-2 py-0.5 text-[11px] font-semibold text-sidebar">
-                {firstCharacterUppercase(user?.roles?.[0]?.name ?? "Undefined")}
-              </span>
-            </div>
-          </div>
-
-          <SidebarSeparator className="mx-0 bg-sidebar-border/60" />
-        </div>
+        <Separator />
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="pt-2">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -267,7 +242,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarGroup>
 
         {/* Student Learning Section */}
-        {!isAdmin && (
+        {/* {!isAdmin && (
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu>
@@ -284,7 +259,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-        )}
+        )} */}
       </SidebarContent>
 
       <SidebarFooter>

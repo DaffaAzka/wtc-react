@@ -1,44 +1,16 @@
 import { api } from "@/lib/axios";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, UserCog, Plus, X, ChevronLeft, ChevronRight } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 // Types based on API documentation
 type UserResource = {
@@ -174,13 +146,7 @@ export default function UserManagement() {
       const response = await api.get<ProfileResponse>(`/profiles/${profileId}`);
       if (response.data.success) {
         // Update the profile in the list
-        setProfiles((prev) =>
-          prev.map((p) =>
-            p.id === profileId
-              ? { ...p, roles: response.data.data.roles }
-              : p
-          )
-        );
+        setProfiles((prev) => prev.map((p) => (p.id === profileId ? { ...p, roles: response.data.data.roles } : p)));
         // Update selected profile
         if (selectedProfile && selectedProfile.id === profileId) {
           setSelectedProfile({ ...selectedProfile, roles: response.data.data.roles });
@@ -258,9 +224,7 @@ export default function UserManagement() {
     <div className="container mx-auto py-8 px-4">
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">User Management</h1>
-        <p className="text-muted-foreground">
-          Kelola users dan roles dalam aplikasi
-        </p>
+        <p className="text-muted-foreground">Kelola users dan roles dalam aplikasi</p>
       </div>
 
       {/* Filters */}
@@ -277,10 +241,13 @@ export default function UserManagement() {
             className="pl-10"
           />
         </div>
-        <Select value={roleFilter} onValueChange={(value) => {
-          setRoleFilter(value);
-          setCurrentPage(1); // Reset to first page on filter
-        }}>
+        <Select
+          value={roleFilter}
+          onValueChange={(value) => {
+            setRoleFilter(value);
+            setCurrentPage(1); // Reset to first page on filter
+          }}
+        >
           <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
@@ -349,16 +316,12 @@ export default function UserManagement() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar>
-                        <AvatarImage src={profile.user.avatar} alt={profile.user.name} />
-                        <AvatarFallback>
-                          {profile.user.name.charAt(0).toUpperCase()}
-                        </AvatarFallback>
+                        <AvatarImage src={typeof profile.user.avatar === 'string' ? profile.user.avatar : (profile.user.avatar as any)?.url ?? undefined} alt={profile.display_name ?? undefined} />
+                        <AvatarFallback>{profile.display_name?.charAt(0).toUpperCase() ?? '?'}</AvatarFallback>
                       </Avatar>
                       <div>
-                        <div className="font-medium">{profile.user.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          Profile ID: {profile.id.slice(0, 8)}...
-                        </div>
+                        <div className="font-medium">{profile.display_name}</div>
+                        <div className="text-sm text-muted-foreground">Profile ID: {profile.id.slice(0, 8)}...</div>
                       </div>
                     </div>
                   </TableCell>
@@ -375,18 +338,12 @@ export default function UserManagement() {
                           </Badge>
                         ))
                       ) : (
-                        <span className="text-sm text-muted-foreground">
-                          No roles
-                        </span>
+                        <span className="text-sm text-muted-foreground">No roles</span>
                       )}
                     </div>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => openRoleDialog(profile)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => openRoleDialog(profile)}>
                       <UserCog className="h-4 w-4 mr-2" />
                       Manage Roles
                     </Button>
@@ -405,24 +362,14 @@ export default function UserManagement() {
             Menampilkan {pagination.from} - {pagination.to} dari {pagination.total} profiles
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              disabled={currentPage === 1 || loading}
-            >
+            <Button variant="outline" size="sm" onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))} disabled={currentPage === 1 || loading}>
               <ChevronLeft className="h-4 w-4" />
               Previous
             </Button>
             <div className="text-sm font-medium">
               Page {pagination.current_page} of {pagination.last_page}
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage((prev) => Math.min(pagination.last_page, prev + 1))}
-              disabled={currentPage === pagination.last_page || loading}
-            >
+            <Button variant="outline" size="sm" onClick={() => setCurrentPage((prev) => Math.min(pagination.last_page, prev + 1))} disabled={currentPage === pagination.last_page || loading}>
               Next
               <ChevronRight className="h-4 w-4" />
             </Button>
@@ -439,13 +386,11 @@ export default function UserManagement() {
               {selectedProfile && (
                 <div className="flex items-center gap-3 mt-2">
                   <Avatar>
-                    <AvatarImage src={selectedProfile.user.avatar} alt={selectedProfile.user.name} />
-                    <AvatarFallback>
-                      {selectedProfile.user.name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
+                    <AvatarImage src={typeof selectedProfile.user.avatar === 'string' ? selectedProfile.user.avatar : (selectedProfile.user.avatar as any)?.url ?? undefined} alt={selectedProfile.display_name ?? undefined} />
+                    <AvatarFallback>{selectedProfile.display_name?.charAt(0).toUpperCase() ?? '?'}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-medium text-foreground">{selectedProfile.user.name}</div>
+                    <div className="font-medium text-foreground">{selectedProfile.display_name}</div>
                     <div className="text-sm">{selectedProfile.user.email}</div>
                   </div>
                 </div>
@@ -460,24 +405,21 @@ export default function UserManagement() {
               <div className="space-y-2">
                 {selectedProfile?.roles && selectedProfile.roles.length > 0 ? (
                   selectedProfile.roles.map((role) => (
-                    <div
-                      key={role.id}
-                      className="flex items-center justify-between p-3 rounded-lg border bg-card"
-                    >
+                    <div key={role.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
                       <div className="flex items-center gap-2">
                         <Badge variant="secondary">{role.name}</Badge>
-                        <span className="text-sm text-muted-foreground">
-                          ID: {role.id}
-                        </span>
+                        <span className="text-sm text-muted-foreground">ID: {role.id}</span>
                       </div>
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => setRoleToRemove({
-                          profileId: selectedProfile.id,
-                          roleId: role.id,
-                          roleName: role.name,
-                        })}
+                        onClick={() =>
+                          setRoleToRemove({
+                            profileId: selectedProfile.id,
+                            roleId: role.id,
+                            roleName: role.name,
+                          })
+                        }
                         disabled={removingRoleId === role.id}
                       >
                         <X className="h-4 w-4 mr-1" />
@@ -486,9 +428,7 @@ export default function UserManagement() {
                     </div>
                   ))
                 ) : (
-                  <div className="text-sm text-muted-foreground text-center py-4">
-                    Profile belum memiliki role
-                  </div>
+                  <div className="text-sm text-muted-foreground text-center py-4">Profile belum memiliki role</div>
                 )}
               </div>
             </div>
@@ -497,10 +437,7 @@ export default function UserManagement() {
             <div>
               <h4 className="text-sm font-medium mb-3">Add Role</h4>
               {getAvailableRoles().length > 0 ? (
-                <Select
-                  onValueChange={(value) => handleAssignRole(Number(value))}
-                  disabled={addingRole}
-                >
+                <Select onValueChange={(value) => handleAssignRole(Number(value))} disabled={addingRole}>
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih role untuk ditambahkan" />
                   </SelectTrigger>
@@ -509,18 +446,14 @@ export default function UserManagement() {
                       <SelectItem key={role.id} value={role.id.toString()}>
                         <div className="flex items-center gap-2">
                           <Badge variant="outline">{role.name}</Badge>
-                          <span className="text-xs text-muted-foreground">
-                            ID: {role.id}
-                          </span>
+                          <span className="text-xs text-muted-foreground">ID: {role.id}</span>
                         </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="text-sm text-muted-foreground text-center py-4 border rounded-lg">
-                  Semua role sudah di-assign ke user ini
-                </div>
+                <div className="text-sm text-muted-foreground text-center py-4 border rounded-lg">Semua role sudah di-assign ke user ini</div>
               )}
             </div>
           </div>
@@ -533,8 +466,7 @@ export default function UserManagement() {
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Role?</AlertDialogTitle>
             <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus role <strong>{roleToRemove?.roleName}</strong> dari profile ini?
-              Tindakan ini tidak dapat dibatalkan.
+              Apakah Anda yakin ingin menghapus role <strong>{roleToRemove?.roleName}</strong> dari profile ini? Tindakan ini tidak dapat dibatalkan.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

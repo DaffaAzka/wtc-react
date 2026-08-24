@@ -25,6 +25,7 @@ interface ModulesTableProps {
   loading?: boolean;
   error?: ApiErrorResponse | null;
   onRetry?: () => void;
+  total?: number;
 }
 
 function formatUpdated(dateString?: string | null) {
@@ -68,6 +69,7 @@ export default function ModulesTable({
   loading = false,
   error = null,
   onRetry,
+  total,
 }: ModulesTableProps) {
   const [search, setSearch] = useState("");
 
@@ -113,8 +115,8 @@ export default function ModulesTable({
         {showToolbar && (
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3">
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-foreground">{data.length}</span>{" "}
-              {data.length === 1 ? "module" : "modules"}
+              <span className="font-medium text-foreground">{total ?? data.length}</span>{" "}
+              {(total ?? data.length) === 1 ? "module" : "modules"}
               {filtered.length !== data.length && (
                 <span> · {filtered.length} shown</span>
               )}

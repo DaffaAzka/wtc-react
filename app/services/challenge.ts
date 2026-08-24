@@ -1,6 +1,6 @@
 ﻿import { api } from "@/lib/axios";
 import type { Challenge } from "@/types/model";
-import type { ApiResponse } from "@/types/response";
+import type { ApiResponse, PaginatedResponse } from "@/types/response";
 
 type ChallengeRequest = Omit<
   Challenge,
@@ -70,6 +70,17 @@ export const ChallengeService = {
     const response = await api.get<ApiResponse<Challenge[]>>("/challenges");
 
     return response.data.data!;
+  },
+
+  getAllPaginated: async (params?: {
+    page?: number;
+    per_page?: number;
+  }): Promise<PaginatedResponse<Challenge>> => {
+    const response = await api.get<PaginatedResponse<Challenge>>("/challenges", {
+      params: { ...params, pagination: true },
+    });
+
+    return response.data;
   },
 
   getByLesson: async (lessonId: number): Promise<Challenge[]> => {

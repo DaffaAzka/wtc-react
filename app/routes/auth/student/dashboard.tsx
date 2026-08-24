@@ -2,404 +2,371 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useAuth } from "@/contexts/auth";
 import { api } from "@/lib/axios";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ArrowRight, BookOpen, Award, TrendingUp, Target } from "lucide-react";
 
-interface Track {
-  id: string;
-  name: string;
-  description: string;
-  slug: string;
-  image_url?: string;
-  modules_count?: number;
+// Helper function to generate consistent pattern background based on text
+function getPatternBackground(text: string): string {
+  // Simple hash function
+  let hash = 0;
+  for (let i = 0; i < text.length; i++) {
+    hash = (hash << 5) - hash + text.charCodeAt(i);
+    hash = hash & hash;
+  }
+
+  // Map hash to theme colors (blue variations and grey)
+  const colors = [
+    { primary: "rgba(59, 130, 246, 0.1)", secondary: "rgba(59, 130, 246, 0.05)" }, // blue
+    { primary: "rgba(14, 165, 233, 0.1)", secondary: "rgba(14, 165, 233, 0.05)" }, // sky
+    { primary: "rgba(99, 102, 241, 0.1)", secondary: "rgba(99, 102, 241, 0.05)" }, // indigo
+    { primary: "rgba(100, 116, 139, 0.1)", secondary: "rgba(100, 116, 139, 0.05)" }, // slate
+  ];
+
+  const colorIndex = Math.abs(hash) % colors.length;
+  const selectedColor = colors[colorIndex];
+
+  return `radial-gradient(circle at 20% 50%, ${selectedColor.primary} 0%, transparent 50%),
+          radial-gradient(circle at 80% 80%, ${selectedColor.primary} 0%, transparent 50%),
+          radial-gradient(circle at 40% 20%, ${selectedColor.secondary} 0%, transparent 50%),
+          radial-gradient(circle at 90% 30%, ${selectedColor.secondary} 0%, transparent 50%),
+          radial-gradient(circle at 10% 80%, ${selectedColor.primary} 0%, transparent 50%)`;
 }
 
-interface Challenge {
+interface DashboardProfile {
+  id: string;
+  display_name: string;
+  nickname: string;
+  points: number;
+  study_class: {
+    name: string;
+  } | null;
+}
+
+interface DashboardStats {
+  active_tracks: number;
+  completed_tracks: number;
+  total_completed_challenges: number;
+  overall_progress: number;
+}
+
+interface DashboardTrack {
   id: string;
   title: string;
-  description: string;
-  difficulty: string;
-  points: number;
+  slug: string;
+  image_url?: string;
+  progress: {
+    percent: number;
+  };
 }
 
-interface StudyClass {
-  id: string;
-  name: string;
-  description: string;
+interface ContinueLearning {
+  track: {
+    title: string;
+    slug: string;
+  };
+  module: {
+    title: string;
+  };
+  lesson: {
+    title: string;
+    slug: string;
+  };
+}
+
+interface DashboardData {
+  profile: DashboardProfile;
+  stats: DashboardStats;
+  tracks: DashboardTrack[];
+  continue_learning: ContinueLearning | null;
 }
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [tracks, setTracks] = useState<Track[]>([]);
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [studyClasses, setStudyClasses] = useState<StudyClass[]>([]);
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
+    const fetchDashboard = async () => {
       try {
-        setLoading(true);
-
-        const [tracksRes, challengesRes, classesRes] = await Promise.all([
-          api.get("/tracks").catch(() => null),
-          api.get("/challenges").catch(() => null),
-          api.get("/study-classes").catch(() => null),
-        ]);
-
-        if (tracksRes?.data) {
-          const data = tracksRes.data;
-          setTracks(Array.isArray(data) ? data : data.data || []);
-        }
-
-        if (challengesRes?.data) {
-          const data = challengesRes.data;
-          setChallenges(Array.isArray(data) ? data : data.data || []);
-        }
-
-        if (classesRes?.data) {
-          const data = classesRes.data;
-          setStudyClasses(Array.isArray(data) ? data : data.data || []);
-        }
-      } catch (err) {
-        console.error("Error fetching dashboard data:", err);
+        const response = await api.get("/my/dashboard");
+        setData(response.data?.data || response.data);
+      } catch (error) {
+        console.error("Failed to fetch dashboard data:", error);
       } finally {
         setLoading(false);
       }
-    }
+    };
 
-    fetchData();
+    fetchDashboard();
   }, []);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour >= 5 && hour < 12) return "Selamat Pagi";
-    if (hour >= 12 && hour < 15) return "Selamat Siang";
-    if (hour >= 15 && hour < 18) return "Selamat Sore";
+    if (hour < 12) return "Selamat Pagi";
+    if (hour < 15) return "Selamat Siang";
+    if (hour < 18) return "Selamat Sore";
     return "Selamat Malam";
   };
 
-  // Calculate profile completion (mock)
-  const calculateProfileCompletion = () => {
-    let completion = 0;
-    if (user?.display_name) completion += 25;
-    if (user?.email) completion += 25;
-    if (user?.avatar) completion += 25;
-    if (user?.study_class_id) completion += 25;
-    return completion;
-  };
-
-  const profileCompletion = calculateProfileCompletion();
-
   if (loading) {
     return (
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-4 space-y-4">
-          <Skeleton className="h-64" />
-          <Skeleton className="h-48" />
+      <div className="space-y-8 animate-in fade-in-50 duration-300">
+        {/* Header Skeleton */}
+        <div className="flex items-start justify-between">
+          <div className="space-y-3">
+            <div className="h-9 w-80 bg-muted animate-pulse rounded-lg" />
+            <div className="h-5 w-48 bg-muted animate-pulse rounded-md" />
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="h-14 w-14 bg-muted animate-pulse rounded-full" />
+            <div className="space-y-2">
+              <div className="h-4 w-32 bg-muted animate-pulse rounded-md" />
+              <div className="h-3 w-24 bg-muted animate-pulse rounded-md" />
+            </div>
+          </div>
         </div>
-        <div className="col-span-8 space-y-4">
-          <Skeleton className="h-32" />
-          <Skeleton className="h-64" />
+
+        {/* Stats Skeleton */}
+        <div className="grid grid-cols-4 gap-4">
+          {[...Array(4)].map((_, i) => (
+            <Card key={i} className="shadow-sm">
+              <CardContent className="p-6">
+                <div className="h-8 w-20 bg-muted animate-pulse rounded-md mb-2" />
+                <div className="h-3 w-24 bg-muted animate-pulse rounded-md" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Tracks Skeleton */}
+        <div className="space-y-4">
+          <div className="h-6 w-40 bg-muted animate-pulse rounded-md" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="shadow-sm overflow-hidden">
+                <div className="h-36 w-full bg-muted animate-pulse" />
+                <CardContent className="p-4">
+                  <div className="h-5 w-3/4 bg-muted animate-pulse rounded-md mb-3" />
+                  <div className="h-3 w-1/2 bg-muted animate-pulse rounded-md mb-2" />
+                  <div className="h-2 w-full bg-muted animate-pulse rounded-full" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="text-center space-y-2">
+          <p className="text-muted-foreground">Gagal memuat data dashboard</p>
+          <Button onClick={() => window.location.reload()} variant="outline" size="sm">
+            Coba Lagi
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div>
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">
-          {getGreeting()} {user?.display_name?.trim() || "Student"}!
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Semoga aktivitas belajarmu menyenangkan.
-        </p>
-      </div>
-
-      {/* New Layout Structure - No Empty Space */}
-      <div className="space-y-6">
-        {/* Top Row: Profile + Stats Side by Side */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* User Profile Card - Dark */}
-          <Card className="bg-slate-900 dark:bg-slate-950 text-white border-slate-800">
-            <CardContent className="p-6">
-              <div className="flex flex-col items-center text-center space-y-4">
-                {/* Avatar */}
-                <div className="w-20 h-20 rounded-full bg-slate-700 flex items-center justify-center text-2xl font-bold">
-                  {user?.avatar ?
-                    <img
-                      src={
-                        typeof user.avatar === "string" ?
-                          user.avatar
-                        : (user.avatar?.url ?? undefined)
-                      }
-                      alt={user.display_name || "User"}
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  : <span>
-                      {user?.display_name?.charAt(0)?.toUpperCase() || "U"}
-                    </span>
-                  }
-                </div>
-
-                <div>
-                  <h3 className="font-semibold text-lg mb-1">
-                    {user?.display_name?.trim() || "Student"}
-                  </h3>
-                  <p className="text-sm text-slate-300 mb-1">
-                    {user?.email || ""}
-                  </p>
-                  {user?.roles && user.roles.length > 0 && (
-                    <Badge variant="secondary" className="text-xs mt-2">
-                      {user.roles[0].display_name || user.roles[0].name}
-                    </Badge>
-                  )}
-                </div>
-
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  asChild
-                  className="w-full">
-                  <Link to="/student/profile">Lihat Profil</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Stats Card */}
-          <Card>
-            <CardContent className="p-6 space-y-4">
-              <div>
-                <div className="text-sm font-medium text-muted-foreground mb-1">
-                  Total Poin
-                </div>
-                <div className="text-3xl font-bold">{user?.points || 0}</div>
-              </div>
-
-              <div className="pt-4 border-t space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Learning Paths</span>
-                  <span className="font-semibold">{tracks.length}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Tantangan</span>
-                  <span className="font-semibold">{challenges.length}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Kelas Aktif</span>
-                  <span className="font-semibold">{studyClasses.length}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+    <div className="space-y-8 animate-in fade-in-50 duration-300">
+      {/* Welcome Section */}
+      <div className="flex items-start justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">
+            {getGreeting()}, {data.profile.display_name}
+          </h1>
+          <p className="text-muted-foreground">Semangat belajar hari ini! 🚀</p>
         </div>
 
-        {/* Full Width Content Sections Below */}
-        <div className="space-y-6">
-          {/* Aktivitas Belajar */}
+        <div className="hidden lg:flex items-center gap-4">
+          <Avatar className="h-14 w-14 shadow-sm">
+            <AvatarImage src={typeof user?.avatar === 'string' ? user.avatar : (user?.avatar && 'url' in user.avatar ? user.avatar.url : undefined)} alt={data.profile.display_name} />
+            <AvatarFallback className="text-lg font-semibold">{data.profile.display_name?.charAt(0)?.toUpperCase()}</AvatarFallback>
+          </Avatar>
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Aktivitas Belajar</h2>
-              {tracks.length > 3 && (
-                <Link
-                  to="/student/learning-path"
-                  className="text-sm text-primary hover:underline">
-                  Selengkapnya
-                </Link>
-              )}
-            </div>
-
-            <div className="space-y-3">
-              {tracks.slice(0, 3).map((track) => (
-                <Card key={track.id} className="shadow-sm">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <div className="text-sm text-muted-foreground mb-1">
-                          Sedang dipelajari
-                        </div>
-                        <h3 className="font-semibold mb-1">{track.name}</h3>
-                        <p className="text-sm text-muted-foreground line-clamp-1">
-                          {track.description}
-                        </p>
-                      </div>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="text-primary"
-                        asChild>
-                        <Link to={`/student/learning-path/${track.slug}`}>
-                          Lanjutkan
-                        </Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-
-              {tracks.length === 0 && (
-                <Card>
-                  <CardContent className="p-8 text-center">
-                    <p className="text-muted-foreground text-sm">
-                      Belum ada aktivitas belajar. Mulai dengan memilih learning
-                      path!
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
+            <div className="font-semibold">{data.profile.display_name}</div>
+            {data.profile.study_class && <div className="text-sm text-muted-foreground">{data.profile.study_class.name}</div>}
           </div>
+        </div>
+      </div>
 
-          {/* Learning Paths Available */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">Learning Path</h2>
-              {tracks.length > 4 && (
-                <Link
-                  to="/student/learning-path"
-                  className="text-sm text-primary hover:underline">
-                  Selengkapnya
-                </Link>
-              )}
-            </div>
+      {/* Continue Learning Hero Card */}
+      {data.continue_learning && (
+        <Card className="relative overflow-hidden border-border/40 shadow-sm min-h-55">
+          {/* Background Layer - Image or Pattern */}
+          {(() => {
+            const trackImage = data.tracks.find((t) => t.slug === data.continue_learning?.track.slug)?.image_url;
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {tracks.slice(0, 4).map((track) => (
-                <Card
-                  key={track.id}
-                  className="overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-                  <Link
-                    to={`/student/learning-path/${track.slug}`}
-                    className="block">
-                    {track.image_url && (
-                      <div className="relative h-40 bg-muted">
-                        <img
-                          src={track.image_url}
-                          alt={track.name}
-                          className="w-full h-full object-cover"
-                        />
-                        {track.modules_count !== undefined && (
-                          <Badge className="absolute top-3 right-3 bg-white/95 text-black hover:bg-white text-xs">
-                            {track.modules_count} Modules
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold text-sm mb-2 line-clamp-1">
-                        {track.name}
-                      </h3>
-                      <p className="text-xs text-muted-foreground line-clamp-2 mb-3">
-                        {track.description}
-                      </p>
-                      <div className="text-xs text-primary font-medium">
-                        Lihat Detail →
-                      </div>
-                    </CardContent>
-                  </Link>
-                </Card>
-              ))}
-            </div>
-          </div>
+            if (trackImage) {
+              return (
+                <>
+                  <img
+                    src={trackImage}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                  <div className="absolute inset-0 bg-linear-to-tr from-background via-background/80 to-blue-800/20" />
+                </>
+              );
+            } else {
+              return <div className="absolute inset-0" style={{ background: getPatternBackground(data.continue_learning?.track.title || "") }} />;
+            }
+          })()}
 
-          {/* Tantangan */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-semibold">
-                Challenge yang Anda ikuti
-              </h2>
-              {challenges.length > 3 && (
-                <Link
-                  to="/student/challenges"
-                  className="text-sm text-primary hover:underline">
-                  Selengkapnya
-                </Link>
-              )}
-            </div>
-
-            <div className="space-y-3">
-              {challenges.slice(0, 3).map((challenge) => (
-                <Card key={challenge.id} className="shadow-sm">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <h3 className="font-semibold mb-1">
-                          {challenge.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground line-clamp-1 mb-2">
-                          {challenge.description}
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <Badge
-                            variant="outline"
-                            className="text-xs capitalize">
-                            {challenge.difficulty}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">
-                            • {challenge.points} poin
-                          </span>
-                        </div>
-                      </div>
-                      <Button size="sm" asChild>
-                        <Link to={`/student/challenges/${challenge.id}`}>
-                          Mulai
-                        </Link>
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-
-              {challenges.length === 0 && (
-                <Card>
-                  <CardContent className="p-8 text-center">
-                    <p className="text-muted-foreground text-sm">
-                      Telusuri challenge dari WebTech TC
-                    </p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </div>
-
-          {/* Kelas Saya */}
-          {studyClasses.length > 0 && (
-            <div>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold">Kelas Saya</h2>
-                {studyClasses.length > 2 && (
-                  <Link
-                    to="/student/study-classes"
-                    className="text-sm text-primary hover:underline">
-                    Selengkapnya
-                  </Link>
-                )}
+          {/* Content Layer */}
+          <CardContent className="relative z-10 p-8 h-full flex flex-col justify-center">
+            <div className="flex items-center justify-between gap-6">
+              <div className="flex-1 space-y-3">
+                <div className="flex items-center gap-2 text-blue-500">
+                  <BookOpen className="h-5 w-5" />
+                  <span className="text-sm font-medium uppercase tracking-wide">Lanjutkan Belajar</span>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold mb-1">{data.continue_learning.lesson.title}</div>
+                  <div className="text-sm text-muted-foreground">
+                    {data.continue_learning.track.title} • {data.continue_learning.module.title}
+                  </div>
+                </div>
               </div>
+              <Button size="lg" asChild className="shadow-sm">
+                <Link to={`/student/classes/${data.continue_learning.track.slug}`}>
+                  Lanjutkan
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
-              <div className="space-y-3">
-                {studyClasses.slice(0, 2).map((studyClass) => (
-                  <Card key={studyClass.id} className="shadow-sm">
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold mb-1">{studyClass.name}</h3>
-                      <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                        {studyClass.description}
-                      </p>
-                      <Button variant="outline" size="sm" className="w-full">
-                        Lanjutkan Belajar
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="shadow-sm border-border/40">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-blue-500/10 rounded-full">
+                <Award className="h-5 w-5 text-blue-500" />
               </div>
             </div>
+            <div className="text-3xl font-bold mb-1">{data.profile.points}</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-wide">Total Poin</div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border/40">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-sky-500/10 rounded-full">
+                <BookOpen className="h-5 w-5 text-sky-500" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold mb-1">{data.stats.active_tracks}</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-wide">Active Tracks</div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border/40">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-indigo-500/10 rounded-full">
+                <Target className="h-5 w-5 text-indigo-500" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold mb-1">{data.stats.total_completed_challenges}</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-wide">Challenges Done</div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border/40">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-cyan-500/10 rounded-full">
+                <TrendingUp className="h-5 w-5 text-cyan-500" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold mb-1">{Math.round(data.stats.overall_progress)}%</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-wide">Overall Progress</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* My Active Tracks */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Learning Paths Aktif</h2>
+          {data.tracks.length > 4 && (
+            <Button variant="link" size="sm" asChild className="gap-1">
+              <Link to="/student/progress">
+                Lihat Semua
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
           )}
         </div>
+
+        {data.tracks.length === 0 ? (
+          <Card className="shadow-sm">
+            <CardContent className="p-12 text-center">
+              <BookOpen className="h-12 w-12 mx-auto mb-4 text-muted-foreground/50" />
+              <p className="text-muted-foreground mb-4">Belum ada learning path yang aktif</p>
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/student/classes">Jelajahi Learning Paths</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {data.tracks.slice(0, 3).map((track) => (
+              <Link key={track.id} to={`/student/classes/${track.slug}`}>
+                <Card className="shadow-sm p-0 hover:shadow-md transition-all duration-200 border-border/40 hover:border-border group overflow-hidden">
+                  {track.image_url && (
+                    <div className="h-48 w-full overflow-hidden shrink-0" style={{ background: getPatternBackground(track.title) }}>
+                      <img
+                        src={track.image_url}
+                        alt={track.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                      />
+                    </div>
+                  )}
+                  <CardContent className="pb-8 pt-2 px-5 space-y-2">
+                    <div>
+                      <h3 className="font-semibold text-lg mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">{track.title}</h3>
+                      <div className="text-sm text-muted-foreground">{Math.round(track.progress.percent)}% selesai</div>
+                    </div>
+                    <Progress value={track.progress.percent} className="h-2" />
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        )}
       </div>
+
+      {/* Tip of The Day */}
+      <Card className="bg-gradient-to-r from-blue-50/50 to-sky-50/50 dark:from-blue-950/20 dark:to-sky-950/30 border-blue-200/50 dark:border-blue-800/30 shadow-sm">
+        <CardContent className="p-6">
+          <div className="flex items-start gap-3">
+            <div className="text-2xl">💡</div>
+            <div className="flex-1">
+              <div className="font-semibold text-sm mb-1">Tip of The Day</div>
+              <p className="text-sm text-muted-foreground italic">Konsistensi adalah kunci. Luangkan 30 menit setiap hari untuk belajar hal baru!</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

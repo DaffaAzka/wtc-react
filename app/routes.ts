@@ -28,6 +28,10 @@ export default [
         ),
       ]),
 
+      route("/tracks/:slug", "routes/auth/student/tracks/$slug.tsx", {
+        id: "student-track-alias",
+      }),
+
       // Progress/My Learning Page
       route("/progress", "routes/auth/student/my-learning/index.tsx"),
 
@@ -37,6 +41,10 @@ export default [
       // Submissions & Challenges
       route("/submissions", "routes/auth/student/submissions/index.tsx"),
       route("/challenges/:id", "routes/auth/student/challenges/$id.tsx"),
+      route(
+        "/challenges/:id/take",
+        "routes/auth/student/challenges/$id.take.tsx",
+      ),
     ]),
   ]),
   layout("routes/auth/layout.tsx", [
@@ -50,17 +58,27 @@ export default [
         "routes/auth/admin/course-management/index.tsx",
       ),
 
+      // Profile Management
+      route("/admin/profile", "routes/auth/admin/profile/index.tsx"),
+
+      // Pustaka PDF / Materials Management Routes
+      route("/materials", "routes/auth/admin/pustakaPdf/index.tsx"),
+      route(
+        "/materials/:lessonSlug/:attachmentId",
+        "routes/auth/admin/pustakaPdf/show.tsx",
+      ),
+
       // Track Routes
       ...prefix("/tracks", [index("routes/auth/admin/tracks/index.tsx")]),
 
-      // Module Routes � /:slug? covers both /modules and /:trackSlug/modules
+      // Module Routes — /:slug? covers both /modules and /:trackSlug/modules
       route("/:slug?/modules", "routes/auth/admin/modules/index.tsx"),
       route(
         "/:slug?/modules/:moduleSlug/challenges",
         "routes/auth/admin/modules/challenges/index.tsx",
       ),
 
-      // Lesson Routes � /:slug? covers both /lessons and /:moduleSlug/lessons
+      // Lesson Routes — /:slug? covers both /lessons and /:moduleSlug/lessons
       route("/:slug?/lessons", "routes/auth/admin/lessons/index.tsx"),
       route("/:slug?/lessons/create", "routes/auth/admin/lessons/create.tsx"),
       route(

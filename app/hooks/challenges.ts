@@ -1,6 +1,6 @@
 import { ChallengeService } from "@/services/challenge";
 import type { Challenge } from "@/types/model";
-import type { ApiErrorResponse } from "@/types/response";
+import type { ApiErrorResponse, PaginatedResponse } from "@/types/response";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const challengeKeys = {
@@ -18,6 +18,24 @@ export function useGetChallenges() {
 
   return {
     challenges: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refresh: query.refetch,
+  };
+}
+
+export function useGetChallengesPaginated(params?: {
+  page?: number;
+  per_page?: number;
+}) {
+  const query = useQuery<PaginatedResponse<Challenge>, ApiErrorResponse>({
+    queryKey: [...challengeKeys.all, "paginated", params],
+    queryFn: () => ChallengeService.getAllPaginated(params),
+  });
+
+  return {
+    challenges: query.data?.data ?? [],
+    pagination: query.data?.meta,
     loading: query.isLoading,
     error: query.error ?? null,
     refresh: query.refetch,

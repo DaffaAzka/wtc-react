@@ -6844,10 +6844,10 @@
                 "type": "object",
                 "properties": {
                     "id": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "lesson_id": {
-                        "type": "string"
+                        "type": "integer"
                     },
                     "profile_id": {
                         "type": "string"
@@ -7455,14 +7455,19 @@
                             "null"
                         ]
                     },
-                    "total_score": {
+                    "score": {
                         "type": "string"
+                    },
+                    "total_score": {
+                        "type": "string",
+                        "description": "Alias for FE compatibility"
                     },
                     "feedback": {
                         "type": [
                             "string",
                             "null"
-                        ]
+                        ],
+                        "description": "Keep for backward compatibility"
                     },
                     "submitted_at": {
                         "type": [
@@ -7487,6 +7492,7 @@
                     "file_url",
                     "auto_score",
                     "manual_score",
+                    "score",
                     "total_score",
                     "feedback",
                     "submitted_at",
