@@ -1,9 +1,10 @@
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Track } from "@/types/model";
-import { BookOpen, ArrowRight } from "lucide-react";
+import { BookOpen, ArrowRight, Loader2 } from "lucide-react";
+import { useEnrollTrack } from "@/students/hooks/enrollments";
 
 interface TrackCardProps {
   track: Track;
@@ -14,6 +15,18 @@ export function TrackCard({
   track,
   isEnrolled = false,
 }: TrackCardProps) {
+  const navigate = useNavigate();
+  const { mutate: enrollTrack, isPending: isEnrolling } = useEnrollTrack();
+
+  const handleEnroll = () => {
+    enrollTrack(track.slug, {
+      onSuccess: () => {
+        // Redirect to track detail after successful enrollment
+        navigate(`/student/classes/${track.slug}`);
+      },
+    });
+  };
+
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
       {/* Track Image */}
@@ -60,12 +73,33 @@ export function TrackCard({
       </CardContent>
 
       <CardFooter className="p-4 pt-0">
-        <Button asChild variant={isEnrolled ? "default" : "outline"} className="w-full">
-          <Link to={`/student/classes/${track.slug}`}>
-            {isEnrolled ? "Lanjutkan Belajar" : "Ambil Kelas"}
-            <ArrowRight className="h-4 w-4 ml-2" />
-          </Link>
-        </Button>
+        {isEnrolled ? (
+          <Button asChild variant="default" className="w-full">
+            <Link to={`/student/classes/${track.slug}`}>
+              Lanjutkan Belajar
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Link>
+          </Button>
+        ) : (
+          <Button
+            onClick={handleEnroll}
+            disabled={isEnrolling}
+            variant="outline"
+            className="w-full"
+          >
+            {isEnrolling ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                Mendaftar...
+              </>
+            ) : (
+              <>
+                Ambil Kelas
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </>
+            )}
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );

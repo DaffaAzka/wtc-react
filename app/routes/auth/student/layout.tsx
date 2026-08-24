@@ -8,8 +8,11 @@ import { ModeToggle } from "@/components/custom/mode-toggle";
 
 export default function StudentLayout() {
   // Detect if we're on a lesson page to auto-hide sidebar for more space
+  // Lesson route pattern: /student/classes/{trackSlug}/{moduleSlug}/{lessonSlug}
   const location = useLocation();
-  const isLessonPage = location.pathname.includes("/lessons/");
+  const pathSegments = location.pathname.split('/').filter(Boolean);
+  // Check if path has at least 5 segments (student/classes/track/module/lesson) and includes 'classes'
+  const isLessonPage = pathSegments.length >= 5 && location.pathname.includes('/classes/');
 
   return (
     <SidebarProvider defaultOpen={!isLessonPage}>
