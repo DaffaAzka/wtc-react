@@ -408,7 +408,7 @@ export default function ChallengeModalAdd({
           <div className="flex items-center justify-between">
             <DialogTitle>Add Challenge</DialogTitle>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-3">
               {saving ?
                 <>
                   <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
@@ -468,7 +468,7 @@ export default function ChallengeModalAdd({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div ref={difficultyRef} className="space-y-2">
+                <div ref={difficultyRef} className="space-y-4">
                   <Label>
                     Difficulty <span className="text-red-500">*</span>
                   </Label>
@@ -514,7 +514,7 @@ export default function ChallengeModalAdd({
                   )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <Label>
                     Challenge Type <span className="text-red-500">*</span>
                   </Label>

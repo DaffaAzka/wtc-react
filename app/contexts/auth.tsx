@@ -133,7 +133,7 @@ export function AuthProvider({
               setUser(userData);
             }
           } catch (error) {
-            console.error("Failed to parse stored user data", error);
+            // Failed to parse stored user data
           }
         }
 
@@ -151,11 +151,11 @@ export function AuthProvider({
               setToken(null);
             }
           } else {
-            console.warn("Failed to fetch fresh user data, using cached data", error);
+            // Failed to fetch fresh user data, using cached data
           }
         }
       } catch (error) {
-        console.error("Bootstrap error", error);
+        // Bootstrap error
 
         if (localStorage.getItem("token")) {
           clearSession();
@@ -201,8 +201,7 @@ export function AuthProvider({
 
       window.location.href = response.data.redirect_to ?? "/";
     } catch (error) {
-      console.error(error);
-
+      // Login callback error, redirect to home
       window.location.href = "/";
     }
   };

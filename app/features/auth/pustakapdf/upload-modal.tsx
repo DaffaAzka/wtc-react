@@ -136,7 +136,6 @@ export default function UploadMaterialModal({
       onSuccess();
       onClose();
     } catch (error: any) {
-      console.error("Upload error:", error);
       toast.error(error.message || "Gagal mengupload materi");
     } finally {
       setIsUploading(false);

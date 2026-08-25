@@ -1328,7 +1328,7 @@ function ColorPickerEyeDropper(props: ColorPickerEyeDropperProps) {
         store.setHsv(newHsv);
       }
     } catch (error) {
-      console.warn("EyeDropper error:", error);
+      // EyeDropper not supported or error occurred
     }
   }, [color, store]);
 

@@ -29,7 +29,6 @@ export default function StudentClassesPage() {
           : response.data.data || [];
         setStudyClasses(data);
       } catch (error) {
-        console.error("Error fetching study classes:", error);
         setStudyClasses([]);
       } finally {
         setLoading(false);
