@@ -9,6 +9,11 @@ import { Link } from "react-router";
 import ChallengeManager from "@/features/auth/challenges/challenge-manager";
 
 export default function ModuleChallengePage({ params }: Route.ComponentProps) {
+  // Build dynamic back URL based on route structure
+  const backUrl = params.slug
+    ? `/${params.slug}/modules`
+    : `/modules`;
+
   const {
     module,
     loading,
@@ -29,7 +34,7 @@ export default function ModuleChallengePage({ params }: Route.ComponentProps) {
     return (
       <>
         <div className="mb-6">
-          <Link to="../..">
+          <Link to={backUrl}>
             <Button variant="ghost" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Modules
@@ -51,7 +56,7 @@ export default function ModuleChallengePage({ params }: Route.ComponentProps) {
     return (
       <>
         <div className="mb-6">
-          <Link to="../..">
+          <Link to={backUrl}>
             <Button variant="ghost" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Modules
@@ -74,7 +79,7 @@ export default function ModuleChallengePage({ params }: Route.ComponentProps) {
         slug: module.slug,
         title: module.title,
       }}
-      backUrl="../.."
+      backUrl={backUrl}
       backLabel="Back to Modules"
     />
   );

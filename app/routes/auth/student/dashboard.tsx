@@ -94,7 +94,7 @@ export default function Dashboard() {
         const response = await api.get("/my/dashboard");
         setData(response.data?.data || response.data);
       } catch (error) {
-        console.error("Failed to fetch dashboard data:", error);
+        // Error silently handled
       } finally {
         setLoading(false);
       }

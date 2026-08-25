@@ -49,7 +49,7 @@ export function CopyButton({ editor, getCodeDOMNode }: Props) {
       setCopyCompleted(true);
       removeSuccessIcon();
     } catch (err) {
-      console.error("Failed to copy: ", err);
+      // Failed to copy
     }
   }
 

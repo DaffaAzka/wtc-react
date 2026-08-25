@@ -49,13 +49,10 @@ function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: stri
   // 🚨 ROUTE GUARD: Block if locked (unless bypassed after completion)
   useEffect(() => {
     if (bypassLockCheck) {
-      console.log("✅ Route guard BYPASSED - just completed previous lesson");
       return;
     }
 
     if (!trackLoading && lessonWithState && lessonWithState.state === "locked") {
-      console.log("🚫 ROUTE GUARD: Lesson is LOCKED, redirecting back to track overview");
-      console.log("🚫 Locked lesson:", lessonSlug, lessonWithState);
       toast.error("Lesson terkunci. Selesaikan lesson sebelumnya dulu.");
       navigate(`/student/classes/${trackSlug}`);
     }
@@ -107,36 +104,26 @@ function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: stri
 
     completeLesson(lessonSlug, {
       onSuccess: async () => {
-        console.log("✅ Lesson completed successfully");
-
         // Refresh track overview to update lesson states
         await refreshTrackOverview();
-        console.log("🔄 Track overview refreshed");
 
         // Navigate to next lesson if available
         const next = getNextLesson(lessonSlug);
-        console.log("🔍 Next lesson:", next);
-        console.log("🔍 Next lesson STATE:", next?.state);
 
         if (next) {
           const nextModuleSlug = findModuleSlugForLesson(next.slug);
-          console.log("📁 Next module slug:", nextModuleSlug);
-          console.log("📚 Track slug:", trackSlug);
 
           if (nextModuleSlug && trackSlug) {
-            console.log("➡️ Navigating to:", `/student/classes/${trackSlug}/${nextModuleSlug}/${next.slug}`);
             // Pass flag to bypass route guard since we just completed previous lesson
             navigate(`/student/classes/${trackSlug}/${nextModuleSlug}/${next.slug}`, {
               state: { bypassLockCheck: true }
             });
           } else {
-            console.error("❌ Cannot navigate: missing module or track slug");
             toast.error("Tidak dapat membuka lesson selanjutnya");
             // Fallback to track overview
             navigate(`/student/classes/${trackSlug}`);
           }
         } else {
-          console.log("🏁 No next lesson, going back to track overview");
           navigate(`/student/classes/${trackSlug}`);
         }
       },

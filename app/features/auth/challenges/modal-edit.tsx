@@ -225,7 +225,7 @@ export default function ChallengeModalEdit({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <Label>
                     Difficulty <span className="text-red-500">*</span>
                   </Label>
@@ -271,7 +271,7 @@ export default function ChallengeModalEdit({
                   )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <Label>
                     Challenge Type <span className="text-red-500">*</span>
                   </Label>
