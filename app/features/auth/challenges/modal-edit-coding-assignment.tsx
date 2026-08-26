@@ -80,7 +80,7 @@ export default function CodingAssignmentModalEdit({
   });
 
   const [isUnlimitedAttempts, setIsUnlimitedAttempts] = useState(
-    challenge.allowed_attempts === null
+    challenge.allowed_attempts === null,
   );
 
   const [formErrors, setFormErrors] = useState<{
@@ -150,7 +150,9 @@ export default function CodingAssignmentModalEdit({
             : "3"),
       });
 
-      setIsUnlimitedAttempts(parsed.isUnlimitedAttempts ?? (challenge.allowed_attempts === null));
+      setIsUnlimitedAttempts(
+        parsed.isUnlimitedAttempts ?? challenge.allowed_attempts === null,
+      );
       setFormErrors({});
       setSelectedFile(null);
       setFileError(null);
@@ -309,7 +311,9 @@ export default function CodingAssignmentModalEdit({
       metadata: (challenge.metadata || []) as any,
       max_score: Number(form.max_score),
       points: Number(form.points),
-      allowed_attempts: isUnlimitedAttempts ? null : Number(form.allowed_attempts),
+      allowed_attempts: isUnlimitedAttempts
+        ? null
+        : Number(form.allowed_attempts),
     };
 
     try {
@@ -412,7 +416,6 @@ export default function CodingAssignmentModalEdit({
 
         <div className="overflow-y-auto flex-1 px-6 pb-6">
           <form onSubmit={handleSubmit} className="flex flex-col gap-6 mt-4">
-            {" "}
             {updateChallenge.error &&
               updateChallenge.error.message !== "Validation errors" && (
                 <Alert variant="destructive">
@@ -443,12 +446,12 @@ export default function CodingAssignmentModalEdit({
                   }
                 />
               </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-4">
-                  <Label>
-                    Difficulty <span className="text-red-500">*</span>
-                  </Label>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-4">
+                <Label>
+                  Difficulty <span className="text-red-500">*</span>
+                </Label>
 
                 <Select
                   value={form.difficulty}
@@ -555,12 +558,13 @@ export default function CodingAssignmentModalEdit({
                   <Checkbox
                     id="unlimited-attempts"
                     checked={isUnlimitedAttempts}
-                    onCheckedChange={(checked) => setIsUnlimitedAttempts(checked === true)}
+                    onCheckedChange={(checked) =>
+                      setIsUnlimitedAttempts(checked === true)
+                    }
                   />
                   <label
                     htmlFor="unlimited-attempts"
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                     Unlimited attempts
                   </label>
                 </div>
@@ -587,7 +591,6 @@ export default function CodingAssignmentModalEdit({
                 </div>
               </div>
             </div>
-
             <Separator />
             {/* Current Attachment Section */}
             {currentAttachment && !removeAttachment && (

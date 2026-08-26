@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -29,7 +30,13 @@ import { generateSlug, getFieldError } from "@/utils/global";
 import { useState, useEffect, useRef } from "react";
 import { calculateQuestionScore } from "@/helper/calculate-score";
 import { validateAllQuestions } from "@/helper/validate-question";
-import { CheckCircle2 } from "lucide-react";
+import {
+  CheckCircle2,
+  Info,
+  Target,
+  RotateCw,
+  HelpCircle,
+} from "lucide-react";
 
 type Props = {
   context: ChallengeContext;
@@ -405,17 +412,22 @@ export default function ChallengeModalAdd({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col p-0">
-        {/* Fixed Header - Outside scroll container */}
+        {/* Fixed Header - Improved Design */}
         <DialogHeader className="shrink-0 border-b px-6 pt-6 pb-4 bg-background">
           <div className="flex items-center justify-between">
-            <DialogTitle>Add Challenge</DialogTitle>
+            <div className="space-y-2">
+              <DialogTitle>Add Challenge</DialogTitle>
+              <Badge variant="outline" className="text-xs">
+                {context.type === "lesson" ? "Lesson" : "Module"}: {context.title}
+              </Badge>
+            </div>
 
             <div className="flex items-center gap-3">
               {saving ?
                 <>
                   <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
                   <span className="text-xs text-muted-foreground">
-                    Saving...
+                    Saving draft...
                   </span>
                 </>
               : <>
@@ -427,11 +439,6 @@ export default function ChallengeModalAdd({
               }
             </div>
           </div>
-
-          <DialogDescription>
-            {context.type === "lesson" ? "Lesson" : "Module"}:{" "}
-            <strong>{context.title}</strong>
-          </DialogDescription>
         </DialogHeader>
 
         {/* Scrollable Content */}
@@ -448,11 +455,16 @@ export default function ChallengeModalAdd({
 
             {/* Challenge Information Section */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold">Challenge Information</h3>
-                <p className="text-sm text-muted-foreground">
-                  Basic details about the challenge
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-md bg-blue-500/10">
+                  <Info className="h-4 w-4 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Challenge Information</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Basic details about the challenge
+                  </p>
+                </div>
               </div>
 
               <div ref={titleRef}>
@@ -564,11 +576,16 @@ export default function ChallengeModalAdd({
 
             {/* Scoring Configuration Section */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold">Scoring Configuration</h3>
-                <p className="text-sm text-muted-foreground">
-                  Set the total weight and reward points for this challenge
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-md bg-amber-500/10">
+                  <Target className="h-4 w-4 text-amber-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Scoring Configuration</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Set the total weight and reward points for this challenge
+                  </p>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -612,11 +629,16 @@ export default function ChallengeModalAdd({
 
             {/* Attempt Settings Section */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold">Attempt Settings</h3>
-                <p className="text-sm text-muted-foreground">
-                  Configure how many times students can attempt this challenge
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-md bg-cyan-500/10">
+                  <RotateCw className="h-4 w-4 text-cyan-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Attempt Settings</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Configure how many times students can attempt this challenge
+                  </p>
+                </div>
               </div>
 
               <div className="max-w-md space-y-3">
@@ -661,11 +683,16 @@ export default function ChallengeModalAdd({
 
             {/* Question Builder Section */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold">Question Builder</h3>
-                <p className="text-sm text-muted-foreground">
-                  Add and configure questions for this challenge
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-md bg-indigo-500/10">
+                  <HelpCircle className="h-4 w-4 text-indigo-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Question Builder</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Add and configure questions for this challenge
+                  </p>
+                </div>
               </div>
 
               <Builder
@@ -679,11 +706,14 @@ export default function ChallengeModalAdd({
               />
             </div>
 
-            <LoadingButton
-              text="Create Challenge"
-              loading={storeChallenge.isPending}
-              disabled={!canSubmit}
-            />
+            {/* Sticky Submit Button */}
+            <div className="sticky bottom-0 bg-background pt-4 pb-2 border-t -mx-6 px-6 mt-6">
+              <LoadingButton
+                text="Create Challenge"
+                loading={storeChallenge.isPending}
+                disabled={!canSubmit}
+              />
+            </div>
           </form>
         </div>
       </DialogContent>

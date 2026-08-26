@@ -13,14 +13,12 @@ interface TrackCardProps {
 }
 
 export function TrackCard({ track, isEnrolled = false }: TrackCardProps) {
-
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-300">
       {/* Track Image */}
       <div
         className="aspect-video w-full overflow-hidden"
-        style={{ background: getPatternBackground(track.title) }}
-      >
+        style={{ background: getPatternBackground(track.title) }}>
         {track.image_url && (
           <img
             src={track.image_url}
@@ -41,11 +39,12 @@ export function TrackCard({ track, isEnrolled = false }: TrackCardProps) {
 
         {/* Meta Info */}
         <div className="flex items-center gap-2 mb-3">
-          {track.modules_count !== null && track.modules_count !== undefined && (
-            <Badge variant="secondary" className="text-xs">
-              {track.modules_count} Modul
-            </Badge>
-          )}
+          {track.modules_count !== null &&
+            track.modules_count !== undefined && (
+              <Badge variant="secondary" className="text-xs">
+                {track.modules_count} Modul
+              </Badge>
+            )}
           {isEnrolled && (
             <Badge variant="default" className="text-xs">
               Sedang Dipelajari
@@ -64,14 +63,14 @@ export function TrackCard({ track, isEnrolled = false }: TrackCardProps) {
       <CardFooter className="p-4 pt-0">
         {isEnrolled ? (
           <Button asChild variant="default" className="w-full">
-            <Link to={`/student/classes/${track.slug}`}>
+            <Link to={`/student/tracks/${track.slug}`}>
               Lanjutkan Belajar
               <ArrowRight className="h-4 w-4 ml-2" />
             </Link>
           </Button>
         ) : (
           <Button asChild variant="outline" className="w-full">
-            <Link to={`/student/classes/${track.slug}`}>
+            <Link to={`/student/tracks/${track.slug}`}>
               Ambil Kelas
               <ArrowRight className="h-4 w-4 ml-2" />
             </Link>
