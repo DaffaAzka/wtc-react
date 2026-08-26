@@ -27,7 +27,15 @@ import type { ChallengeContext } from "./challenge-manager";
 import { getFieldError } from "@/utils/global";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { Upload, X, FileIcon, AlertCircle, CheckCircle2, Download, Trash2 } from "lucide-react";
+import {
+  Upload,
+  X,
+  FileIcon,
+  AlertCircle,
+  CheckCircle2,
+  Download,
+  Trash2,
+} from "lucide-react";
 
 type Props = {
   challenge: Challenge;
@@ -36,7 +44,8 @@ type Props = {
   onOpenChange: (open: boolean) => void;
 };
 
-const STORAGE_KEY = (challengeId: number) => `coding-assignment-edit-draft-${challengeId}`;
+const STORAGE_KEY = (challengeId: number) =>
+  `coding-assignment-edit-draft-${challengeId}`;
 
 const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return "0 Bytes";
@@ -53,25 +62,25 @@ export default function CodingAssignmentModalEdit({
   onOpenChange,
 }: Props) {
   const updateChallenge = useUpdateChallenge(
-    context.type === 'lesson' ? context.id : undefined,
-    context.type === 'module' ? context.slug : undefined
+    context.type === "lesson" ? context.id : undefined,
+    context.type === "module" ? context.slug : undefined,
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({
     title: challenge.title,
     difficulty: challenge.difficulty || ("" as "" | "easy" | "medium" | "hard"),
-    order: challenge.order ? String(challenge.order) : "1",
     content: challenge.content,
     max_score: String(challenge.max_score),
     points: challenge.points ? String(challenge.points) : "",
-    allowed_attempts: challenge.allowed_attempts ? String(challenge.allowed_attempts) : "3",
+    allowed_attempts: challenge.allowed_attempts
+      ? String(challenge.allowed_attempts)
+      : "3",
   });
 
   const [formErrors, setFormErrors] = useState<{
     title?: string;
     difficulty?: string;
-    order?: string;
     content?: string;
     max_score?: string;
     points?: string;
@@ -84,7 +93,7 @@ export default function CodingAssignmentModalEdit({
   const [removeAttachment, setRemoveAttachment] = useState(false);
   const [saving, setSaving] = useState(false);
   const [readyToSave, setReadyToSave] = useState(false);
-  
+
   const debouncedForm = useDebounce(form);
 
   // Current attachment from challenge
@@ -102,11 +111,12 @@ export default function CodingAssignmentModalEdit({
       setForm({
         title: challenge.title,
         difficulty: challenge.difficulty || "",
-        order: challenge.order ? String(challenge.order) : "1",
         content: challenge.content,
         max_score: String(challenge.max_score),
         points: challenge.points ? String(challenge.points) : "",
-        allowed_attempts: challenge.allowed_attempts ? String(challenge.allowed_attempts) : "3",
+        allowed_attempts: challenge.allowed_attempts
+          ? String(challenge.allowed_attempts)
+          : "3",
       });
       setSelectedFile(null);
       setFileError(null);
@@ -122,11 +132,16 @@ export default function CodingAssignmentModalEdit({
       setForm({
         title: parsed.form.title || challenge.title,
         difficulty: parsed.form.difficulty || challenge.difficulty || "",
-        order: parsed.form.order || (challenge.order ? String(challenge.order) : "1"),
         content: parsed.form.content || challenge.content,
         max_score: parsed.form.max_score || String(challenge.max_score),
-        points: parsed.form.points || (challenge.points ? String(challenge.points) : ""),
-        allowed_attempts: parsed.form.allowed_attempts || (challenge.allowed_attempts ? String(challenge.allowed_attempts) : "3"),
+        points:
+          parsed.form.points ||
+          (challenge.points ? String(challenge.points) : ""),
+        allowed_attempts:
+          parsed.form.allowed_attempts ||
+          (challenge.allowed_attempts
+            ? String(challenge.allowed_attempts)
+            : "3"),
       });
 
       setFormErrors({});
@@ -139,11 +154,12 @@ export default function CodingAssignmentModalEdit({
       setForm({
         title: challenge.title,
         difficulty: challenge.difficulty || "",
-        order: challenge.order ? String(challenge.order) : "1",
         content: challenge.content,
         max_score: String(challenge.max_score),
         points: challenge.points ? String(challenge.points) : "",
-        allowed_attempts: challenge.allowed_attempts ? String(challenge.allowed_attempts) : "3",
+        allowed_attempts: challenge.allowed_attempts
+          ? String(challenge.allowed_attempts)
+          : "3",
       });
       setFormErrors({});
       setSelectedFile(null);
@@ -222,7 +238,7 @@ export default function CodingAssignmentModalEdit({
     if (currentAttachment) {
       // Construct download URL - adjust based on your backend API
       const downloadUrl = `/api/challenges/${challenge.id}/attachments/${currentAttachment.id}`;
-      window.open(downloadUrl, '_blank');
+      window.open(downloadUrl, "_blank");
     }
   };
 
@@ -237,14 +253,6 @@ export default function CodingAssignmentModalEdit({
 
     if (!form.difficulty) {
       errors.difficulty = "Difficulty is required.";
-    }
-
-    if (!form.order.trim()) {
-      errors.order = "Order is required.";
-    } else if (Number(form.order) < 1) {
-      errors.order = "Order must be at least 1.";
-    } else if (!Number.isInteger(Number(form.order))) {
-      errors.order = "Order must be an integer.";
     }
 
     if (!form.content.trim()) {
@@ -278,15 +286,15 @@ export default function CodingAssignmentModalEdit({
     }
 
     const payload = {
-      id: challenge.id,      module_id: null,
+      id: challenge.id,
+      module_id: null,
       lesson_id: challenge.lesson_id,
       title: form.title,
       slug: challenge.slug,
       type: challenge.type,
       difficulty: form.difficulty as "easy" | "medium" | "hard",
-      order: Number(form.order),
       content: form.content,
-      settings: challenge.settings || [] as any,
+      settings: challenge.settings || ([] as any),
       metadata: (challenge.metadata || []) as any,
       max_score: Number(form.max_score),
       points: Number(form.points),
@@ -300,7 +308,10 @@ export default function CodingAssignmentModalEdit({
         try {
           // Delete old attachment if exists
           if (currentAttachment) {
-            await ChallengeService.deleteAttachment(challenge.id, currentAttachment.id);
+            await ChallengeService.deleteAttachment(
+              challenge.id,
+              currentAttachment.id,
+            );
           }
 
           // Upload new attachment
@@ -313,19 +324,27 @@ export default function CodingAssignmentModalEdit({
 
           // Update challenge data
           await updateChallenge.mutateAsync(payload);
-          toast.success("Coding Assignment updated with new attachment successfully");
+          toast.success(
+            "Coding Assignment updated with new attachment successfully",
+          );
         } catch (uploadError) {
           toast.error("Failed to update attachment");
           return;
         } finally {
           setIsUploading(false);
-        }      } else if (removeAttachment && currentAttachment) {
+        }
+      } else if (removeAttachment && currentAttachment) {
         // User wants to remove attachment without adding new one
         setIsUploading(true);
         try {
-          await ChallengeService.deleteAttachment(challenge.id, currentAttachment.id);
+          await ChallengeService.deleteAttachment(
+            challenge.id,
+            currentAttachment.id,
+          );
           await updateChallenge.mutateAsync(payload);
-          toast.success("Attachment removed and challenge updated successfully");
+          toast.success(
+            "Attachment removed and challenge updated successfully",
+          );
         } catch (error) {
           toast.error("Failed to remove attachment");
           return;
@@ -381,7 +400,9 @@ export default function CodingAssignmentModalEdit({
         </DialogHeader>
 
         <div className="overflow-y-auto flex-1 px-6 pb-6">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6 mt-4">            {updateChallenge.error &&
+          <form onSubmit={handleSubmit} className="flex flex-col gap-6 mt-4">
+            {" "}
+            {updateChallenge.error &&
               updateChallenge.error.message !== "Validation errors" && (
                 <Alert variant="destructive">
                   <AlertDescription>
@@ -389,7 +410,6 @@ export default function CodingAssignmentModalEdit({
                   </AlertDescription>
                 </Alert>
               )}
-
             {/* Challenge Information Section */}
             <div className="space-y-4">
               <div>
@@ -412,57 +432,42 @@ export default function CodingAssignmentModalEdit({
                   }
                 />
               </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label>
+                  Difficulty <span className="text-red-500">*</span>
+                </Label>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>
-                    Difficulty <span className="text-red-500">*</span>
-                  </Label>
+                <Select
+                  value={form.difficulty}
+                  onValueChange={(value) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      difficulty: value as "" | "easy" | "medium" | "hard",
+                    }))
+                  }>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select difficulty" />
+                  </SelectTrigger>
 
-                  <Select
-                    value={form.difficulty}
-                    onValueChange={(value) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        difficulty: value as "" | "easy" | "medium" | "hard",
-                      }))
-                    }>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select difficulty" />
-                    </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="easy">Easy</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="hard">Hard</SelectItem>
+                  </SelectContent>
+                </Select>
 
-                    <SelectContent>
-                      <SelectItem value="easy">Easy</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="hard">Hard</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  {formErrors.difficulty && (
-                    <p className="text-sm text-red-500">
-                      {formErrors.difficulty}
-                    </p>
-                  )}
-                  {getFieldError(updateChallenge.error?.errors, "difficulty") && (
-                    <p className="text-sm text-red-500">
-                      {getFieldError(updateChallenge.error?.errors, "difficulty")}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <InputForm
-                    name="order"
-                    text="Order"
-                    type="number"
-                    value={form.order}
-                    handleChange={handleChange}
-                    error={
-                      formErrors.order ??
-                      getFieldError(updateChallenge.error?.errors, "order")
-                    }
-                  />
-                </div>
+                {formErrors.difficulty && (
+                  <p className="text-sm text-red-500">
+                    {formErrors.difficulty}
+                  </p>
+                )}
+                {getFieldError(updateChallenge.error?.errors, "difficulty") && (
+                  <p className="text-sm text-red-500">
+                    {getFieldError(updateChallenge.error?.errors, "difficulty")}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -478,9 +483,7 @@ export default function CodingAssignmentModalEdit({
                 />
               </div>
             </div>
-
             <Separator />
-
             {/* Scoring Configuration Section */}
             <div className="space-y-4">
               <div>
@@ -526,9 +529,7 @@ export default function CodingAssignmentModalEdit({
                 </div>
               </div>
             </div>
-
             <Separator />
-
             {/* Attempt Settings Section */}
             <div className="space-y-4">
               <div>
@@ -558,15 +559,15 @@ export default function CodingAssignmentModalEdit({
                 </p>
               </div>
             </div>
-
             <Separator />
-
             {/* Current Attachment Section */}
             {currentAttachment && !removeAttachment && (
               <>
                 <div className="space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold">Current Attachment</h3>
+                    <h3 className="text-lg font-semibold">
+                      Current Attachment
+                    </h3>
                     <p className="text-sm text-muted-foreground">
                       Existing file attached to this assignment
                     </p>
@@ -577,10 +578,14 @@ export default function CodingAssignmentModalEdit({
                       <div className="flex items-start gap-3 flex-1 min-w-0">
                         <FileIcon className="h-10 w-10 text-blue-500 shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{currentAttachment.file_name}</p>
+                          <p className="font-medium truncate">
+                            {currentAttachment.file_name}
+                          </p>
                           {currentAttachment.size && (
                             <p className="text-sm text-muted-foreground">
-                              {formatFileSize(Number(currentAttachment.size) || 0)}
+                              {formatFileSize(
+                                Number(currentAttachment.size) || 0,
+                              )}
                             </p>
                           )}
                         </div>
@@ -612,21 +617,23 @@ export default function CodingAssignmentModalEdit({
                 <Separator />
               </>
             )}
-
             {/* Upload New Attachment Section */}
             <div className="space-y-4">
               <div>
                 <h3 className="text-lg font-semibold">
-                  {currentAttachment && !removeAttachment ? "Replace" : "Upload"} Attachment{" "}
+                  {currentAttachment && !removeAttachment
+                    ? "Replace"
+                    : "Upload"}{" "}
+                  Attachment{" "}
                   <span className="text-sm font-normal text-muted-foreground">
                     (Optional)
                   </span>
                 </h3>
                 <p className="text-sm text-muted-foreground">
-                  {currentAttachment && !removeAttachment 
+                  {currentAttachment && !removeAttachment
                     ? "Upload a new file to replace the current attachment"
-                    : "Upload a starter file or example for students"
-                  } (Max: 50 MB)
+                    : "Upload a starter file or example for students"}{" "}
+                  (Max: 50 MB)
                 </p>
               </div>
 
@@ -660,7 +667,9 @@ export default function CodingAssignmentModalEdit({
                     <div className="flex items-start gap-3 flex-1 min-w-0">
                       <FileIcon className="h-10 w-10 text-muted-foreground shrink-0" />
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{selectedFile.name}</p>
+                        <p className="font-medium truncate">
+                          {selectedFile.name}
+                        </p>
                         <p className="text-sm text-muted-foreground">
                           {formatFileSize(selectedFile.size)}
                         </p>
@@ -694,7 +703,6 @@ export default function CodingAssignmentModalEdit({
                 </Alert>
               )}
             </div>
-
             <LoadingButton
               text={
                 isUploading

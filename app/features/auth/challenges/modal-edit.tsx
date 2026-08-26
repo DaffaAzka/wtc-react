@@ -50,7 +50,6 @@ export default function ChallengeModalEdit({
       "mixed"
     : challenge.type) as ChallengeFormType,
     difficulty: challenge.difficulty || ("" as "" | "easy" | "medium" | "hard"),
-    order: challenge.order ? String(challenge.order) : "1",
     content: challenge.content,
     max_score: String(challenge.max_score),
     points: challenge.points ? String(challenge.points) : "",
@@ -61,7 +60,6 @@ export default function ChallengeModalEdit({
   const [formErrors, setFormErrors] = useState<{
     title?: string;
     difficulty?: string;
-    order?: string;
     content?: string;
     max_score?: string;
     points?: string;
@@ -76,7 +74,6 @@ export default function ChallengeModalEdit({
           "mixed"
         : challenge.type) as ChallengeFormType,
         difficulty: challenge.difficulty || "",
-        order: challenge.order ? String(challenge.order) : "1",
         content: challenge.content,
         max_score: String(challenge.max_score),
         points: challenge.points ? String(challenge.points) : "",
@@ -106,14 +103,6 @@ export default function ChallengeModalEdit({
 
     if (!form.difficulty) {
       errors.difficulty = "Difficulty is required.";
-    }
-
-    if (!form.order.trim()) {
-      errors.order = "Order is required.";
-    } else if (Number(form.order) < 1) {
-      errors.order = "Order must be at least 1.";
-    } else if (!Number.isInteger(Number(form.order))) {
-      errors.order = "Order must be an integer.";
     }
 
     if (!form.max_score.trim()) {
@@ -160,7 +149,6 @@ export default function ChallengeModalEdit({
       type: submissionType,
       difficulty: (form.difficulty || undefined) as
         "easy" | "medium" | "hard" | undefined,
-      order: Number(form.order),
       content: form.content,
       settings: challenge.settings,
       metadata: challenge.metadata,
@@ -288,19 +276,6 @@ export default function ChallengeModalEdit({
                       <SelectItem value="mixed">Mixed Quiz</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-
-                <div>
-                  <InputNumberForm
-                    name="order"
-                    text="Order"
-                    value={form.order}
-                    handleChange={handleChange}
-                    error={
-                      formErrors.order ??
-                      getFieldError(updateChallenge.error?.errors, "order")
-                    }
-                  />
                 </div>
               </div>
 

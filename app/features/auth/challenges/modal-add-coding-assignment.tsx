@@ -62,7 +62,6 @@ export default function CodingAssignmentModalAdd({
   const [form, setForm] = useState({
     title: "",
     difficulty: "" as "" | "easy" | "medium" | "hard",
-    order: "1",
     content: "",
     max_score: "100",
     points: "",
@@ -72,7 +71,6 @@ export default function CodingAssignmentModalAdd({
   const [formErrors, setFormErrors] = useState<{
     title?: string;
     difficulty?: string;
-    order?: string;
     content?: string;
     max_score?: string;
     points?: string;
@@ -99,7 +97,6 @@ export default function CodingAssignmentModalAdd({
       setForm({
         title: "",
         difficulty: "",
-        order: "1",
         content: "",
         max_score: "100",
         points: "",
@@ -118,7 +115,6 @@ export default function CodingAssignmentModalAdd({
       setForm({
         title: parsed.form.title || "",
         difficulty: parsed.form.difficulty || "",
-        order: parsed.form.order || "1",
         content: parsed.form.content || "",
         max_score: parsed.form.max_score || "100",
         points: parsed.form.points || "",
@@ -134,7 +130,6 @@ export default function CodingAssignmentModalAdd({
       setForm({
         title: "",
         difficulty: "",
-        order: "1",
         content: "",
         max_score: "100",
         points: "",
@@ -219,14 +214,6 @@ export default function CodingAssignmentModalAdd({
       errors.difficulty = "Difficulty is required.";
     }
 
-    if (!form.order.trim()) {
-      errors.order = "Order is required.";
-    } else if (Number(form.order) < 1) {
-      errors.order = "Order must be at least 1.";
-    } else if (!Number.isInteger(Number(form.order))) {
-      errors.order = "Order must be an integer.";
-    }
-
     if (!form.content.trim()) {
       errors.content = "Description is required.";
     }
@@ -264,7 +251,6 @@ export default function CodingAssignmentModalAdd({
       slug: generateSlug(form.title),
       type: "file_upload" as const,
       difficulty: form.difficulty as "easy" | "medium" | "hard",
-      order: Number(form.order),
       content: form.content,
       settings: [] as any,
       metadata: [] as any,
@@ -402,20 +388,6 @@ export default function CodingAssignmentModalAdd({
                       {getFieldError(storeChallenge.error?.errors, "difficulty")}
                     </p>
                   )}
-                </div>
-
-                <div>
-                  <InputForm
-                    name="order"
-                    text="Order"
-                    type="number"
-                    value={form.order}
-                    handleChange={handleChange}
-                    error={
-                      formErrors.order ??
-                      getFieldError(storeChallenge.error?.errors, "order")
-                    }
-                  />
                 </div>
               </div>
 

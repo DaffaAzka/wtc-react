@@ -26,7 +26,6 @@ export default function ModalEdit({
   const [form, setForm] = useState({
     title: "",
     slug: "",
-    order: "",
     track_id: 0,
   });
 
@@ -35,7 +34,6 @@ export default function ModalEdit({
       setForm({
         title: data.title,
         slug: data.slug,
-        order: data.order == null ? "" : data.order.toString(),
         track_id: data.track_id,
       });
     }
@@ -53,7 +51,6 @@ export default function ModalEdit({
       {
         title: form.title,
         slug: form.slug,
-        order: Number.parseInt(form.order),
         track_id: form.track_id,
       },
       {
@@ -62,7 +59,6 @@ export default function ModalEdit({
           setForm({
             title: "",
             slug: "",
-            order: "",
             track_id: 0,
           });
         },
@@ -96,14 +92,6 @@ export default function ModalEdit({
                 value={form.title}
                 handleChange={handleChange}
                 error={getFieldError(updateModule.error?.errors, "title")}
-              />
-              <InputForm
-                name="order"
-                text="Module Order"
-                type="number"
-                value={form.order}
-                handleChange={handleChange}
-                error={getFieldError(updateModule.error?.errors, "order")}
               />
 
               <LoadingButton text="Update" loading={updateModule.isPending} />

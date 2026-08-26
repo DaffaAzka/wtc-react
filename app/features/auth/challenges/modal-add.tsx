@@ -56,7 +56,6 @@ export default function ChallengeModalAdd({
     title: string;
     type: ChallengeFormType;
     difficulty: "" | "easy" | "medium" | "hard";
-    order: string;
     content: string;
     max_score: string;
     points: string;
@@ -65,7 +64,6 @@ export default function ChallengeModalAdd({
     title: "",
     type: "multiple_choice",
     difficulty: "",
-    order: "1",
     content: "",
     max_score: "100",
     points: "",
@@ -79,7 +77,6 @@ export default function ChallengeModalAdd({
   const [formErrors, setFormErrors] = useState<{
     title?: string;
     difficulty?: string;
-    order?: string;
     content?: string;
     max_score?: string;
     points?: string;
@@ -91,7 +88,6 @@ export default function ChallengeModalAdd({
   const [readyToSave, setReadyToSave] = useState(false);
   const titleRef = useRef<HTMLDivElement>(null);
   const difficultyRef = useRef<HTMLDivElement>(null);
-  const orderRef = useRef<HTMLDivElement>(null);
   const maxScoreRef = useRef<HTMLDivElement>(null);
   const pointsRef = useRef<HTMLDivElement>(null);
   const allowedAttemptsRef = useRef<HTMLDivElement>(null);
@@ -109,7 +105,6 @@ export default function ChallengeModalAdd({
         title: "",
         type: "multiple_choice",
         difficulty: "",
-        order: "1",
         content: "",
         max_score: "100",
         points: "",
@@ -130,7 +125,6 @@ export default function ChallengeModalAdd({
         title: parsed.form.title || "",
         type: parsed.form.type || "multiple_choice",
         difficulty: parsed.form.difficulty || "",
-        order: parsed.form.order || "1",
         content: parsed.form.content || "",
         max_score: parsed.form.max_score || "100",
         points: parsed.form.points || "",
@@ -144,7 +138,6 @@ export default function ChallengeModalAdd({
         title: "",
         type: "multiple_choice",
         difficulty: "",
-        order: "1",
         content: "",
         max_score: "100",
         points: "",
@@ -243,7 +236,6 @@ export default function ChallengeModalAdd({
   const canSubmit =
     form.title.trim() !== "" &&
     form.difficulty !== "" &&
-    form.order.trim() !== "" &&
     form.max_score.trim() !== "" &&
     form.points.trim() !== "" &&
     form.allowed_attempts.trim() !== "" &&
@@ -256,7 +248,6 @@ export default function ChallengeModalAdd({
     const errors: {
       title?: string;
       difficulty?: string;
-      order?: string;
       content?: string;
       max_score?: string;
       points?: string;
@@ -269,14 +260,6 @@ export default function ChallengeModalAdd({
 
     if (!form.difficulty) {
       errors.difficulty = "Difficulty is required.";
-    }
-
-    if (!form.order.trim()) {
-      errors.order = "Order is required.";
-    } else if (Number(form.order) < 1) {
-      errors.order = "Order must be at least 1.";
-    } else if (!Number.isInteger(Number(form.order))) {
-      errors.order = "Order must be an integer.";
     }
 
     if (!form.max_score.trim()) {
@@ -315,14 +298,6 @@ export default function ChallengeModalAdd({
 
     if (errors.difficulty) {
       difficultyRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-      return;
-    }
-
-    if (errors.order) {
-      orderRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
@@ -371,7 +346,10 @@ export default function ChallengeModalAdd({
       return;
     }
 
-    const submissionType = form.type === "mixed" ? "quiz_group" : form.type;
+    const submissionType =
+      form.type === "mixed" ? "quiz_group"
+      : form.type === "essay" ? "fill_blank"
+      : form.type;
 
     storeChallenge.mutate(
       {
@@ -381,7 +359,6 @@ export default function ChallengeModalAdd({
         slug: generateSlug(form.title),
         type: submissionType,
         difficulty: form.difficulty || undefined,
-        order: Number(form.order),
         content: form.content,
         settings: null,
         metadata: {
@@ -399,7 +376,6 @@ export default function ChallengeModalAdd({
             title: "",
             type: "multiple_choice",
             difficulty: "",
-            order: "1",
             content: "",
             max_score: "100",
             points: "",
@@ -557,20 +533,6 @@ export default function ChallengeModalAdd({
                       <SelectItem value="mixed">Mixed Quiz</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-
-                <div ref={orderRef}>
-                  <InputForm
-                    name="order"
-                    text="Order"
-                    type="number"
-                    value={form.order}
-                    handleChange={handleChange}
-                    error={
-                      formErrors.order ??
-                      getFieldError(storeChallenge.error?.errors, "order")
-                    }
-                  />
                 </div>
               </div>
 

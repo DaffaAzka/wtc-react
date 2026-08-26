@@ -63,7 +63,6 @@ export default function ChallengeModalManage({
     title: string;
     type: ChallengeFormType;
     difficulty: "" | "easy" | "medium" | "hard";
-    order: string;
     content: string;
     max_score: string;
     points: string;
@@ -72,7 +71,6 @@ export default function ChallengeModalManage({
     title: challenge.title,
     type: challenge.type as ChallengeFormType,
     difficulty: challenge.difficulty || "",
-    order: challenge.order ? String(challenge.order) : "1",
     content: challenge.content,
     max_score: String(challenge.max_score),
     points: challenge.points ? String(challenge.points) : "",
@@ -87,7 +85,6 @@ export default function ChallengeModalManage({
   const [formErrors, setFormErrors] = useState<{
     title?: string;
     difficulty?: string;
-    order?: string;
     content?: string;
     max_score?: string;
     points?: string;
@@ -108,7 +105,6 @@ export default function ChallengeModalManage({
 
   const titleRef = useRef<HTMLDivElement>(null);
   const difficultyRef = useRef<HTMLDivElement>(null);
-  const orderRef = useRef<HTMLDivElement>(null);
   const maxScoreRef = useRef<HTMLDivElement>(null);
   const pointsRef = useRef<HTMLDivElement>(null);
   const allowedAttemptsRef = useRef<HTMLDivElement>(null);
@@ -149,7 +145,6 @@ export default function ChallengeModalManage({
                 "mixed"
               : (challenge.type as ChallengeFormType),
             difficulty: challenge.difficulty || "",
-            order: challenge.order ? String(challenge.order) : "1",
             content: challenge.content,
             max_score: String(challenge.max_score),
             points: challenge.points ? String(challenge.points) : "",
@@ -176,7 +171,6 @@ export default function ChallengeModalManage({
       title: string;
       type: ChallengeFormType;
       difficulty: "" | "easy" | "medium" | "hard";
-      order: string;
       content: string;
       max_score: string;
       points: string;
@@ -189,7 +183,6 @@ export default function ChallengeModalManage({
         : (challenge.type as ChallengeFormType),
       difficulty:
         (challenge.difficulty as "" | "easy" | "medium" | "hard") || "",
-      order: challenge.order ? String(challenge.order) : "1",
       content: challenge.content,
       max_score: String(challenge.max_score),
       points: challenge.points ? String(challenge.points) : "",
@@ -283,7 +276,6 @@ export default function ChallengeModalManage({
   const canSubmit =
     form.title.trim() !== "" &&
     form.difficulty !== "" &&
-    form.order.trim() !== "" &&
     form.max_score.trim() !== "" &&
     form.points.trim() !== "" &&
     form.allowed_attempts.trim() !== "" &&
@@ -296,7 +288,6 @@ export default function ChallengeModalManage({
     const errors: {
       title?: string;
       difficulty?: string;
-      order?: string;
       content?: string;
       max_score?: string;
       points?: string;
@@ -309,14 +300,6 @@ export default function ChallengeModalManage({
 
     if (!form.difficulty) {
       errors.difficulty = "Difficulty is required.";
-    }
-
-    if (!form.order.trim()) {
-      errors.order = "Order is required.";
-    } else if (Number(form.order) < 1) {
-      errors.order = "Order must be at least 1.";
-    } else if (!Number.isInteger(Number(form.order))) {
-      errors.order = "Order must be an integer.";
     }
 
     if (!form.max_score.trim()) {
@@ -355,11 +338,6 @@ export default function ChallengeModalManage({
         behavior: "smooth",
         block: "center",
       });
-      return;
-    }
-
-    if (errors.order) {
-      orderRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
 
@@ -416,7 +394,6 @@ export default function ChallengeModalManage({
         slug: challenge.slug,
         type: submissionType,
         difficulty: form.difficulty || undefined,
-        order: Number(form.order),
         content: form.content,
         settings: challenge.settings,
         metadata: {
@@ -572,6 +549,7 @@ export default function ChallengeModalManage({
                     Basic details about the challenge
                   </p>
                 </div>
+                </div>
 
                 <div ref={titleRef}>
                   <InputForm
@@ -660,21 +638,6 @@ export default function ChallengeModalManage({
                       </SelectContent>
                     </Select>
                   </div>
-
-                  <div ref={orderRef}>
-                    <InputForm
-                      name="order"
-                      text="Order"
-                      type="number"
-                      value={form.order}
-                      handleChange={handleChange}
-                      error={
-                        formErrors.order ??
-                        getFieldError(updateChallenge.error?.errors, "order")
-                      }
-                    />
-                  </div>
-                </div>
 
                 <div ref={descriptionRef}>
                   <TextareaForm
