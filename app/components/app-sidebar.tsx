@@ -47,12 +47,14 @@ import {
   FileText,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
+import { useTheme } from "@/contexts/theme";
 import { firstCharacterUppercase } from "@/utils/global";
 import { ModeToggle } from "./custom/mode-toggle";
 import { Separator } from "./ui/separator";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const [courseMgmtOpen, setCourseMgmtOpen] = React.useState(true); // ← tambahin ini
 
   // Time-based animation: Morning (6am-6pm) or Night (6pm-6am)
@@ -64,6 +66,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   const [videoSrc] = React.useState(getTimeBasedAnimation());
+
+  // Determine logo variant based on theme
+  const isDarkMode = theme === "dark" || (theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+  const logoSrc = isDarkMode ? "/brand-pack/logo-h-dark.svg" : "/brand-pack/logo-h-light.svg";
 
   const isAdmin =
     user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;
@@ -144,7 +150,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               WebTech TC.
             </span> */}
             <img
-              src="/brand-pack/logo-h-dark.svg"
+              src={logoSrc}
               alt="Logo"
               className="h-28 w-auto"
             />
