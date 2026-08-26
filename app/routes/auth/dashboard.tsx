@@ -233,7 +233,7 @@ export default function Dashboard() {
           </Avatar>
           <div>
             <div className="font-semibold">{user?.display_name?.trim() || user?.name || "Admin"}</div>
-            {user?.roles && user.roles.length > 0 && <div className="text-sm text-muted-foreground">{user.roles[0].display_name || user.roles[0].name || "Administrator"}</div>}
+            {user?.roles && user.roles.length > 0 && <div className="text-sm text-muted-foreground">{user.roles[1].name || "Administrator"}</div>}
           </div>
         </div>
       </div>
