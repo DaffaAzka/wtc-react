@@ -67,9 +67,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const [videoSrc] = React.useState(getTimeBasedAnimation());
 
-  // Determine logo variant based on theme
-  const isDarkMode = theme === "dark" || (theme === "system" && typeof window !== "undefined" && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  const logoSrc = isDarkMode ? "/brand-pack/logo-h-dark.svg" : "/brand-pack/logo-h-light.svg";
+  // Determine logo variant based on theme - client-side only to avoid hydration issues
+  const [logoSrc, setLogoSrc] = React.useState("/brand-pack/logo-h-light.svg");
+
+  React.useEffect(() => {
+    // Check actual applied theme from document root
+    const root = window.document.documentElement;
+    const isDark = root.classList.contains("dark");
+    setLogoSrc(isDark ? "/brand-pack/logo-h-dark.svg" : "/brand-pack/logo-h-light.svg");
+  }, [theme]); // Re-run when theme changes
 
   const isAdmin =
     user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;

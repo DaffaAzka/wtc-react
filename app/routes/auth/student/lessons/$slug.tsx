@@ -13,9 +13,11 @@ import { useGetChallengesByLesson } from "@/hooks/challenges";
 import { ChallengeSection } from "./ChallengeSection";
 import { toast } from "sonner";
 import { useEffect } from "react";
+import { useSidebar } from "@/components/ui/sidebar";
 
 function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: string; bypassLockCheck?: boolean }) {
   const navigate = useNavigate();
+  const { setOpen } = useSidebar();
 
   const { trackOverview, loading: trackLoading, findLessonBySlug, getNextLesson, refreshTrackOverview } = useTrackContext();
   const { mutate: completeLesson, isPending: completing } = useLessonCompletion();
@@ -74,7 +76,13 @@ function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: stri
       <div className="flex items-center justify-center h-[calc(100vh-5rem)]">
         <div className="text-center space-y-4">
           <p className="text-lg font-medium">Lesson tidak ditemukan</p>
-          <Button variant="outline" onClick={() => navigate(`/student/classes/${trackSlug}`)}>
+          <Button variant="outline" onClick={() => {
+            setOpen(true);
+            // Use setTimeout to ensure state update happens before navigation
+            setTimeout(() => {
+              navigate(`/student/classes/${trackSlug}`);
+            }, 0);
+          }}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Kembali ke Kelas
           </Button>
@@ -158,11 +166,15 @@ function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: stri
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b px-6 py-4">
         <div className="flex items-center justify-between max-w-7xl mx-auto">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to={`/student/classes/${trackSlug}`}>
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Kembali ke Kelas
-              </Link>
+            <Button variant="ghost" size="sm" onClick={() => {
+              setOpen(true);
+              // Use setTimeout to ensure state update happens before navigation
+              setTimeout(() => {
+                navigate(`/student/classes/${trackSlug}`);
+              }, 0);
+            }}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Kembali ke Kelas
             </Button>
             <div className="h-6 w-px bg-border" />
             <div className="flex items-center gap-3">
