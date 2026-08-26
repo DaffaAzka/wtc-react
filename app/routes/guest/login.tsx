@@ -96,11 +96,7 @@ export default function Login() {
 
       <div className={`relative z-[10] w-full max-w-[420px] transition-all duration-700 ${isLoaded ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}>
         <div className="mb-8 flex flex-col items-center text-center">
-          <img
-            src="/brand-pack/logo-v-dark.svg"
-            alt="WTC Logo"
-            className="h-24 w-auto"
-          />
+          <img src="/brand-pack/logo-v-dark.svg" alt="WTC Logo" className="h-48 w-auto" />
         </div>
 
         <form

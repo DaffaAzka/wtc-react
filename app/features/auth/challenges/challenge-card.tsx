@@ -159,16 +159,14 @@ export default function ChallengeCard({
           )}
           
           {/* Allowed Attempts */}
-          {challenge.allowed_attempts !== undefined && challenge.allowed_attempts !== null && (
-            <div className="col-span-2">
-              <p className="text-muted-foreground text-xs">Allowed Attempts</p>
-              <p className="font-medium">
-                {challenge.allowed_attempts === -1 || challenge.allowed_attempts === 0
-                  ? "Unlimited"
-                  : `${challenge.allowed_attempts} ${challenge.allowed_attempts === 1 ? 'Attempt' : 'Attempts'}`}
-              </p>
-            </div>
-          )}
+          <div className="col-span-2">
+            <p className="text-muted-foreground text-xs">Allowed Attempts</p>
+            <p className="font-medium">
+              {challenge.allowed_attempts === null || challenge.allowed_attempts === -1 || challenge.allowed_attempts === 0
+                ? "Unlimited"
+                : `${challenge.allowed_attempts} ${challenge.allowed_attempts === 1 ? 'Attempt' : 'Attempts'}`}
+            </p>
+          </div>
         </div>
       </CardContent>
     </Card>

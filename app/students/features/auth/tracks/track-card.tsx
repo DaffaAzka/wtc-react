@@ -3,8 +3,9 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { Track } from "@/types/model";
-import { ArrowRight } from "lucide-react";
+import { BookOpen, ArrowRight, Loader2 } from "lucide-react";
 import { getPatternBackground } from "@/lib/utils";
+import { useEnrollTrack } from "@/students/hooks/enrollments";
 
 interface TrackCardProps {
   track: Track;

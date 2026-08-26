@@ -42,7 +42,6 @@ export function useReport(): (arg0: string) => ReturnType<typeof setTimeout> {
 
   return useCallback(
     (content) => {
-      console.log(content);
       const element = getElement();
       if (timer.current !== null) {
         clearTimeout(timer.current);

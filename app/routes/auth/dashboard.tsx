@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Package, FileText, Trophy, Users, School, Activity } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { BookOpen, Package, FileText, Trophy, Users, School, Activity, ArrowRight } from "lucide-react";
 
 interface DashboardStats {
   tracks: number;
@@ -37,6 +38,14 @@ export default function Dashboard() {
   const [recentTracks, setRecentTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour < 12) return "Selamat Pagi";
+    if (hour < 15) return "Selamat Siang";
+    if (hour < 18) return "Selamat Sore";
+    return "Selamat Malam";
+  };
 
   useEffect(() => {
     async function fetchDashboardData() {
@@ -99,7 +108,6 @@ export default function Dashboard() {
         setStats(newStats);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load dashboard data");
-        console.error("Error fetching dashboard data:", err);
       } finally {
         setLoading(false);
       }
@@ -110,16 +118,37 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Skeleton className="h-32" />
-          <Skeleton className="h-32" />
+      <div className="space-y-8 animate-in fade-in-50 duration-300">
+        {/* Header Skeleton */}
+        <div className="flex items-start justify-between">
+          <div className="space-y-3">
+            <div className="h-9 w-80 bg-muted animate-pulse rounded-lg" />
+            <div className="h-5 w-48 bg-muted animate-pulse rounded-md" />
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="h-14 w-14 bg-muted animate-pulse rounded-full" />
+            <div className="space-y-2">
+              <div className="h-4 w-32 bg-muted animate-pulse rounded-md" />
+              <div className="h-3 w-24 bg-muted animate-pulse rounded-md" />
+            </div>
+          </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        {/* Stats Skeleton */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} className="h-28" />
+            <Card key={i} className="shadow-sm border-border/40">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="h-10 w-10 bg-muted animate-pulse rounded-full" />
+                </div>
+                <div className="h-8 w-16 bg-muted animate-pulse rounded-md mb-2" />
+                <div className="h-3 w-24 bg-muted animate-pulse rounded-md" />
+              </CardContent>
+            </Card>
           ))}
         </div>
+
         <Skeleton className="h-64" />
       </div>
     );
@@ -168,7 +197,7 @@ export default function Dashboard() {
       value: stats.challenges,
       icon: Trophy,
       description: "Tantangan",
-      link: "/student/challenges",
+      link: "/challenges",
     },
     {
       title: "Study Classes",
@@ -182,101 +211,123 @@ export default function Dashboard() {
       value: stats.users,
       icon: Users,
       description: "Pengguna terdaftar",
-      link: "/users",
+      link: "/user-management",
     },
   ];
 
   return (
-    <div className="space-y-6">
-      {/* Top Row: Admin Info + System Summary */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Admin Profile Card */}
-        <Card className="bg-slate-900 dark:bg-slate-950 text-white border-slate-800">
-          <CardContent className="p-6">
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-slate-700 flex items-center justify-center text-xl font-bold">
-                {user?.avatar ? (
-                  <img src={typeof user.avatar === "string" ? user.avatar : (user.avatar?.url ?? undefined)} alt={user.display_name || "Admin"} className="w-full h-full rounded-full object-cover" />
-                ) : (
-                  <span>{user?.display_name?.charAt(0)?.toUpperCase() || "A"}</span>
-                )}
-              </div>
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold mb-1">{user?.display_name?.trim() || "Admin"}</h2>
-                <p className="text-sm text-slate-300 mb-2">{user?.email || ""}</p>
-                {user?.roles && user.roles.length > 0 && (
-                  <Badge variant="secondary" className="text-xs">
-                    {user.roles[0].display_name || user.roles[0].name || "Administrator"}
-                  </Badge>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+    <div className="space-y-8 animate-in fade-in-50 duration-300">
+      {/* Welcome Section */}
+      <div className="flex items-start justify-between gap-6">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">
+            {getGreeting()}, {user?.display_name?.trim() || user?.name || "Admin"}
+          </h1>
+          <p className="text-muted-foreground">Dashboard Management & Overview 🚀</p>
+        </div>
 
-        {/* System Summary */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold">System Overview</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Total Content</span>
-              <span className="font-semibold">{stats.tracks + stats.modules + stats.lessons} items</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Avg Modules/Track</span>
-              <span className="font-semibold">{stats.tracks > 0 ? Math.round(stats.modules / stats.tracks) : 0}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Avg Lessons/Module</span>
-              <span className="font-semibold">{stats.modules > 0 ? Math.round(stats.lessons / stats.modules) : 0}</span>
-            </div>
-            <div className="flex justify-between text-sm pt-2 border-t">
-              <span className="text-muted-foreground">Active Users</span>
-              <span className="font-semibold">{stats.users}</span>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="hidden lg:flex items-center gap-4">
+          <Avatar className="h-14 w-14 shadow-sm">
+            <AvatarImage src={typeof user?.avatar === "string" ? user.avatar : user?.avatar && "url" in user.avatar ? user.avatar.url : undefined} alt={user?.display_name || user?.name || "Admin"} />
+            <AvatarFallback className="text-lg font-semibold">{(user?.display_name || user?.name)?.charAt(0)?.toUpperCase() || "A"}</AvatarFallback>
+          </Avatar>
+          <div>
+            <div className="font-semibold">{user?.display_name?.trim() || user?.name || "Admin"}</div>
+            {user?.roles && user.roles.length > 0 && <div className="text-sm text-muted-foreground">{user.roles[0].display_name || user.roles[0].name || "Administrator"}</div>}
+          </div>
+        </div>
       </div>
 
-      {/* Stats Cards Grid */}
-      <div>
-        <h2 className="text-lg font-semibold mb-4">Platform Statistics</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {statsCards.map((stat) => {
-            const Icon = stat.icon;
-            return (
-              <Link key={stat.title} to={stat.link}>
-                <Card className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800">
-                        <Icon className="h-4 w-4" />
-                      </div>
-                    </div>
-                    <div className="text-2xl font-bold mb-1">{stat.value}</div>
-                    <div className="text-xs text-muted-foreground">{stat.title}</div>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
+      {/* Quick Stats */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <Card className="shadow-sm border-border/40">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-blue-500/10 rounded-full">
+                <BookOpen className="h-5 w-5 text-blue-500" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold mb-1">{stats.tracks}</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-wide">Tracks</div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border/40">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-sky-500/10 rounded-full">
+                <Package className="h-5 w-5 text-sky-500" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold mb-1">{stats.modules}</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-wide">Modules</div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border/40">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-indigo-500/10 rounded-full">
+                <FileText className="h-5 w-5 text-indigo-500" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold mb-1">{stats.lessons}</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-wide">Lessons</div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border/40">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-purple-500/10 rounded-full">
+                <Trophy className="h-5 w-5 text-purple-500" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold mb-1">{stats.challenges}</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-wide">Challenges</div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border/40">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-cyan-500/10 rounded-full">
+                <School className="h-5 w-5 text-cyan-500" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold mb-1">{stats.studyClasses}</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-wide">Classes</div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-border/40">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-green-500/10 rounded-full">
+                <Users className="h-5 w-5 text-green-500" />
+              </div>
+            </div>
+            <div className="text-3xl font-bold mb-1">{stats.users}</div>
+            <div className="text-xs text-muted-foreground uppercase tracking-wide">Users</div>
+          </CardContent>
+        </Card>
       </div>
 
       {/* Content Sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Recent Tracks */}
-        <Card>
+        <Card className="shadow-sm border-border/40">
           <CardHeader className="flex flex-row items-center justify-between pb-3">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
+              <div className="p-2 bg-blue-500/10 rounded-full">
+                <BookOpen className="h-4 w-4 text-blue-500" />
+              </div>
               Recent Tracks
             </CardTitle>
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/tracks" className="text-xs">
+              <Link to="/tracks" className="text-xs flex items-center gap-1">
                 View All
+                <ArrowRight className="h-3 w-3" />
               </Link>
             </Button>
           </CardHeader>
@@ -286,9 +337,9 @@ export default function Dashboard() {
             ) : (
               <div className="space-y-2">
                 {recentTracks.map((track) => (
-                  <Link key={track.id} to={`/tracks/${track.slug}`} className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors border">
-                    <div className="p-2 rounded bg-slate-100 dark:bg-slate-800">
-                      <BookOpen className="h-4 w-4" />
+                  <Link key={track.id} to={`/tracks/${track.slug}`} className="flex items-start gap-3 p-3 rounded-lg hover:bg-muted/50 transition-colors border border-border/40">
+                    <div className="p-2 bg-blue-500/10 rounded-full">
+                      <BookOpen className="h-4 w-4 text-blue-500" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium truncate">{track.name}</p>
@@ -302,59 +353,73 @@ export default function Dashboard() {
         </Card>
 
         {/* Quick Actions */}
-        <Card>
+        <Card className="shadow-sm border-border/40">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <Activity className="h-4 w-4" />
+              <div className="p-2 bg-indigo-500/10 rounded-full">
+                <Activity className="h-4 w-4 text-indigo-500" />
+              </div>
               Quick Actions
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-3">
-              <Button variant="outline" className="justify-start h-auto py-3" asChild>
-                <Link to="/tracks">
-                  <div className="flex flex-col items-start gap-1 w-full">
-                    <BookOpen className="h-4 w-4 mb-1" />
+              <Button variant="outline" className="justify-start h-auto py-3 hover:bg-blue-500/5 hover:border-blue-500/20 transition-colors" asChild>
+                <Link to="/admin/tracks">
+                  <div className="flex items-center gap-2 w-full">
+                    <div className="p-1.5 bg-blue-500/10 rounded-full">
+                      <BookOpen className="h-3.5 w-3.5 text-blue-500" />
+                    </div>
                     <span className="text-xs font-medium">Manage Tracks</span>
                   </div>
                 </Link>
               </Button>
-              <Button variant="outline" className="justify-start h-auto py-3" asChild>
-                <Link to="/modules">
-                  <div className="flex flex-col items-start gap-1 w-full">
-                    <Package className="h-4 w-4 mb-1" />
+              <Button variant="outline" className="justify-start h-auto py-3 hover:bg-sky-500/5 hover:border-sky-500/20 transition-colors" asChild>
+                <Link to="/admin/modules">
+                  <div className="flex items-center gap-2 w-full">
+                    <div className="p-1.5 bg-sky-500/10 rounded-full">
+                      <Package className="h-3.5 w-3.5 text-sky-500" />
+                    </div>
                     <span className="text-xs font-medium">Manage Modules</span>
                   </div>
                 </Link>
               </Button>
-              <Button variant="outline" className="justify-start h-auto py-3" asChild>
-                <Link to="/lessons">
-                  <div className="flex flex-col items-start gap-1 w-full">
-                    <FileText className="h-4 w-4 mb-1" />
+              <Button variant="outline" className="justify-start h-auto py-3 hover:bg-indigo-500/5 hover:border-indigo-500/20 transition-colors" asChild>
+                <Link to="/admin/lessons">
+                  <div className="flex items-center gap-2 w-full">
+                    <div className="p-1.5 bg-indigo-500/10 rounded-full">
+                      <FileText className="h-3.5 w-3.5 text-indigo-500" />
+                    </div>
                     <span className="text-xs font-medium">Manage Lessons</span>
                   </div>
                 </Link>
               </Button>
-              <Button variant="outline" className="justify-start h-auto py-3" asChild>
-                <Link to="/student/challenges">
-                  <div className="flex flex-col items-start gap-1 w-full">
-                    <Trophy className="h-4 w-4 mb-1" />
-                    <span className="text-xs font-medium">View Challenges</span>
+              <Button variant="outline" className="justify-start h-auto py-3 hover:bg-purple-500/5 hover:border-purple-500/20 transition-colors" asChild>
+                <Link to="/challenges">
+                  <div className="flex items-center gap-2 w-full">
+                    <div className="p-1.5 bg-purple-500/10 rounded-full">
+                      <Trophy className="h-3.5 w-3.5 text-purple-500" />
+                    </div>
+                    <span className="text-xs font-medium">Manage Challenges</span>
                   </div>
                 </Link>
               </Button>
-              <Button variant="outline" className="justify-start h-auto py-3" asChild>
-                <Link to="/study-classes">
-                  <div className="flex flex-col items-start gap-1 w-full">
-                    <School className="h-4 w-4 mb-1" />
+              <Button variant="outline" className="justify-start h-auto py-3 hover:bg-cyan-500/5 hover:border-cyan-500/20 transition-colors" asChild>
+                <Link to="/admin/study-classes">
+                  <div className="flex items-center gap-2 w-full">
+                    <div className="p-1.5 bg-cyan-500/10 rounded-full">
+                      <School className="h-3.5 w-3.5 text-cyan-500" />
+                    </div>
                     <span className="text-xs font-medium">Study Classes</span>
                   </div>
                 </Link>
               </Button>
-              <Button variant="outline" className="justify-start h-auto py-3" asChild>
-                <Link to="/users">
-                  <div className="flex flex-col items-start gap-1 w-full">
-                    <Users className="h-4 w-4 mb-1" />
+              <Button variant="outline" className="justify-start h-auto py-3 hover:bg-green-500/5 hover:border-green-500/20 transition-colors" asChild>
+                <Link to="/user-management">
+                  <div className="flex items-center gap-2 w-full">
+                    <div className="p-1.5 bg-green-500/10 rounded-full">
+                      <Users className="h-3.5 w-3.5 text-green-500" />
+                    </div>
                     <span className="text-xs font-medium">Manage Users</span>
                   </div>
                 </Link>

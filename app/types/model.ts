@@ -110,7 +110,7 @@ export type Challenge = {
   metadata: ChallengeMetadata | null;
   max_score: number;
   points?: number;
-  allowed_attempts?: number;
+  allowed_attempts: number | null;
   attachments?: ChallengeAttachment[];
   created_at: string | null;
   updated_at: string | null;
