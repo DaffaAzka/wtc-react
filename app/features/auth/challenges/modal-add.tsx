@@ -66,6 +66,7 @@ export default function ChallengeModalAdd({
     difficulty: "" | "easy" | "medium" | "hard";
     content: string;
     max_score: string;
+    minimum_score: string;
     points: string;
     allowed_attempts: string;
   }>({
@@ -74,6 +75,7 @@ export default function ChallengeModalAdd({
     difficulty: "",
     content: "",
     max_score: "100",
+    minimum_score: "0",
     points: "",
     allowed_attempts: "1",
   });
@@ -89,6 +91,7 @@ export default function ChallengeModalAdd({
     difficulty?: string;
     content?: string;
     max_score?: string;
+    minimum_score?: string;
     points?: string;
     allowed_attempts?: string;
   }>({});
@@ -99,9 +102,26 @@ export default function ChallengeModalAdd({
   const titleRef = useRef<HTMLDivElement>(null);
   const difficultyRef = useRef<HTMLDivElement>(null);
   const maxScoreRef = useRef<HTMLDivElement>(null);
+  const minimumScoreRef = useRef<HTMLDivElement>(null);
   const pointsRef = useRef<HTMLDivElement>(null);
   const allowedAttemptsRef = useRef<HTMLDivElement>(null);
   const descriptionRef = useRef<HTMLDivElement>(null);
+
+  // Auto-calculate points based on difficulty
+  useEffect(() => {
+    if (!form.difficulty) return;
+
+    const pointsMap: Record<"easy" | "medium" | "hard", string> = {
+      easy: "10",
+      medium: "20",
+      hard: "30",
+    };
+
+    setForm((prev) => ({
+      ...prev,
+      points: pointsMap[form.difficulty as "easy" | "medium" | "hard"],
+    }));
+  }, [form.difficulty]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -264,6 +284,7 @@ export default function ChallengeModalAdd({
       difficulty?: string;
       content?: string;
       max_score?: string;
+      minimum_score?: string;
       points?: string;
       allowed_attempts?: string;
     } = {};
@@ -280,6 +301,14 @@ export default function ChallengeModalAdd({
       errors.max_score = "Max Score is required.";
     } else if (Number(form.max_score) < 1) {
       errors.max_score = "Max Score must be at least 1.";
+    }
+
+    if (!form.minimum_score.trim()) {
+      errors.minimum_score = "Minimum Score is required.";
+    } else if (Number(form.minimum_score) < 0) {
+      errors.minimum_score = "Minimum Score cannot be negative.";
+    } else if (Number(form.minimum_score) > Number(form.max_score)) {
+      errors.minimum_score = "Minimum Score cannot exceed Max Score.";
     }
 
     if (!form.points.trim()) {
@@ -322,6 +351,14 @@ export default function ChallengeModalAdd({
 
     if (errors.max_score) {
       maxScoreRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+      return;
+    }
+
+    if (errors.minimum_score) {
+      minimumScoreRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
@@ -441,9 +478,11 @@ export default function ChallengeModalAdd({
           </div>
         </DialogHeader>
 
-        {/* Scrollable Content */}
-        <div className="overflow-y-auto flex-1 px-6 pb-6">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6 mt-4">
+        {/* Form wraps both scrollable content and button footer */}
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto px-6">
+            <div className="flex flex-col gap-6 py-6">
             {storeChallenge.error &&
               storeChallenge.error.message !== "Validation errors" && (
                 <Alert variant="destructive">
@@ -588,7 +627,7 @@ export default function ChallengeModalAdd({
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div ref={maxScoreRef}>
                   <InputForm
                     name="max_score"
@@ -606,6 +645,23 @@ export default function ChallengeModalAdd({
                   </p>
                 </div>
 
+                <div ref={minimumScoreRef}>
+                  <InputForm
+                    name="minimum_score"
+                    text="Minimum Score"
+                    type="number"
+                    value={form.minimum_score}
+                    handleChange={handleChange}
+                    error={
+                      formErrors.minimum_score ??
+                      getFieldError(storeChallenge.error?.errors, "minimum_score")
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Minimum score required to pass this challenge
+                  </p>
+                </div>
+
                 <div ref={pointsRef}>
                   <InputForm
                     name="points"
@@ -613,13 +669,14 @@ export default function ChallengeModalAdd({
                     type="number"
                     value={form.points}
                     handleChange={handleChange}
+                    isDisabled={true}
                     error={
                       formErrors.points ??
                       getFieldError(storeChallenge.error?.errors, "points")
                     }
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Reward points (EXP) earned upon completion
+                    Reward points (EXP) earned upon completion (auto-calculated based on difficulty)
                   </p>
                 </div>
               </div>
@@ -705,17 +762,18 @@ export default function ChallengeModalAdd({
                 isModalOpen={isOpen}
               />
             </div>
-
-            {/* Sticky Submit Button */}
-            <div className="sticky bottom-0 bg-background pt-4 pb-2 border-t -mx-6 px-6 mt-6">
-              <LoadingButton
-                text="Create Challenge"
-                loading={storeChallenge.isPending}
-                disabled={!canSubmit}
-              />
             </div>
-          </form>
-        </div>
+          </div>
+
+          {/* Fixed Button Footer - outside scrollable area but inside form */}
+          <div className="shrink-0 border-t px-6 py-4 bg-background">
+            <LoadingButton
+              text="Create Challenge"
+              loading={storeChallenge.isPending}
+              disabled={!canSubmit}
+            />
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );
