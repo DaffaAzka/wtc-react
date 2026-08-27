@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { useGetProfile, useUpdateProfile, useUploadAvatar, useDeleteAvatar } from "@/hooks/profile";
 
 export function AdminProfileInfoForm() {
@@ -43,12 +43,9 @@ export function AdminProfileInfoForm() {
         setAvatarPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-    }
-  };
 
-  const handleAvatarUpload = () => {
-    if (avatarFile) {
-      uploadAvatar(avatarFile, {
+      // Auto-upload langsung setelah file dipilih
+      uploadAvatar(file, {
         onSuccess: () => {
           setAvatarFile(null);
           setAvatarPreview(null);
@@ -110,24 +107,22 @@ export function AdminProfileInfoForm() {
             <p className="text-muted-foreground mb-3">{user.email}</p>
 
             <div className="space-y-2">
-              <Input ref={fileInputRef} type="file" accept="image/*" onChange={handleAvatarChange} disabled={isUploading || isDeleting} className="max-w-xs" />
-              <div className="flex gap-2">
-                {avatarFile && (
-                  <Button size="sm" onClick={handleAvatarUpload} disabled={isUploading}>
-                    {isUploading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="h-4 w-4 mr-2" />
-                        Upload
-                      </>
-                    )}
-                  </Button>
+              <Input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                disabled={isUploading || isDeleting}
+                className="max-w-xs"
+              />
+              <div className="flex gap-2 items-center">
+                {isUploading && (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Uploading avatar...
+                  </div>
                 )}
-                {user.avatar?.url && (
+                {user.avatar?.url && !isUploading && (
                   <Button size="sm" variant="outline" onClick={handleAvatarDelete} disabled={isDeleting}>
                     {isDeleting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <X className="h-4 w-4 mr-2" />}
                     Remove

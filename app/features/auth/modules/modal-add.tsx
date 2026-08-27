@@ -21,7 +21,6 @@ export default function ModalAdd({ trackId }: { trackId: number }) {
   const [form, setForm] = useState({
     title: "",
     slug: "",
-    order: "",
   });
 
   const storeModule = useStoreModule();
@@ -35,7 +34,6 @@ export default function ModalAdd({ trackId }: { trackId: number }) {
       {
         title: form.title,
         slug: generateSlug(form.title),
-        order: Number.parseInt(form.order),
         track_id: trackId,
       },
       {
@@ -44,7 +42,6 @@ export default function ModalAdd({ trackId }: { trackId: number }) {
           setForm({
             title: "",
             slug: "",
-            order: "",
           });
         },
       },
@@ -81,14 +78,6 @@ export default function ModalAdd({ trackId }: { trackId: number }) {
                 value={form.title}
                 handleChange={handleChange}
                 error={getFieldError(storeModule.error?.errors, "title")}
-              />
-              <InputForm
-                name="order"
-                text="Module Order"
-                type="number"
-                value={form.order}
-                handleChange={handleChange}
-                error={getFieldError(storeModule.error?.errors, "order")}
               />
 
               <LoadingButton text="Create" loading={storeModule.isPending} />

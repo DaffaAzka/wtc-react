@@ -10,6 +10,12 @@ import { Link } from "react-router";
 import ChallengeManager from "@/features/auth/challenges/challenge-manager";
 
 export default function ChallengePage({ params }: Route.ComponentProps) {
+  // Build dynamic back URL based on route structure
+  // Back to lessons LIST, not lesson view
+  const backUrl = params.slug
+    ? `/${params.slug}/lessons`
+    : `/lessons`;
+
   const {
     lesson,
     loading: lessonLoading,
@@ -43,7 +49,7 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
     return (
       <>
         <div className="mb-6">
-          <Link to="..">
+          <Link to={backUrl}>
             <Button variant="ghost" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Lessons
@@ -68,7 +74,7 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
     return (
       <>
         <div className="mb-6">
-          <Link to="..">
+          <Link to={backUrl}>
             <Button variant="ghost" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Lessons
@@ -81,17 +87,6 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
         />
       </>
     );
-  }
-
-  // Log for debugging if module not found (backend filtering issue)
-  if (!module) {
-    console.warn('Module not found for lesson - Backend filtering issue:', {
-      lesson_id: lesson.id,
-      lesson_slug: lesson.slug,
-      lesson_module_id: lesson.module_id,
-      available_modules: modules.map(m => ({ id: m.id, slug: m.slug, title: m.title })),
-      track_slug: params.slug || 'none (direct access)',
-    });
   }
 
   // Always render ChallengeManager (module context not critical for managing challenges)
@@ -109,7 +104,7 @@ export default function ChallengePage({ params }: Route.ComponentProps) {
           },
         }),
       }}
-      backUrl=".."
+      backUrl={backUrl}
       backLabel="Back to Lessons"
     />
   );

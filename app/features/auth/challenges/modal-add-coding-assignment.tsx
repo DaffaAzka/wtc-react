@@ -19,6 +19,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useStoreChallenge } from "@/hooks/challenges";
 import { ChallengeService } from "@/services/challenge";
@@ -62,17 +63,17 @@ export default function CodingAssignmentModalAdd({
   const [form, setForm] = useState({
     title: "",
     difficulty: "" as "" | "easy" | "medium" | "hard",
-    order: "1",
     content: "",
     max_score: "100",
     points: "",
     allowed_attempts: "3",
   });
 
+  const [isUnlimitedAttempts, setIsUnlimitedAttempts] = useState(false);
+
   const [formErrors, setFormErrors] = useState<{
     title?: string;
     difficulty?: string;
-    order?: string;
     content?: string;
     max_score?: string;
     points?: string;
@@ -99,12 +100,12 @@ export default function CodingAssignmentModalAdd({
       setForm({
         title: "",
         difficulty: "",
-        order: "1",
         content: "",
         max_score: "100",
         points: "",
         allowed_attempts: "3",
       });
+      setIsUnlimitedAttempts(false);
       setSelectedFile(null);
       setFileError(null);
       setFormErrors({});
@@ -118,13 +119,13 @@ export default function CodingAssignmentModalAdd({
       setForm({
         title: parsed.form.title || "",
         difficulty: parsed.form.difficulty || "",
-        order: parsed.form.order || "1",
         content: parsed.form.content || "",
         max_score: parsed.form.max_score || "100",
         points: parsed.form.points || "",
         allowed_attempts: parsed.form.allowed_attempts || "3",
       });
 
+      setIsUnlimitedAttempts(parsed.isUnlimitedAttempts ?? false);
       setFormErrors({});
       setSelectedFile(null);
       setFileError(null);
@@ -134,12 +135,12 @@ export default function CodingAssignmentModalAdd({
       setForm({
         title: "",
         difficulty: "",
-        order: "1",
         content: "",
         max_score: "100",
         points: "",
         allowed_attempts: "3",
       });
+      setIsUnlimitedAttempts(false);
       setFormErrors({});
       setSelectedFile(null);
       setFileError(null);
@@ -160,6 +161,7 @@ export default function CodingAssignmentModalAdd({
         STORAGE_KEY(contextId, contextType),
         JSON.stringify({
           form: debouncedForm,
+          isUnlimitedAttempts,
         }),
       );
 
@@ -167,7 +169,7 @@ export default function CodingAssignmentModalAdd({
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [debouncedForm, contextId, readyToSave, isOpen]);
+  }, [debouncedForm, contextId, readyToSave, isOpen, isUnlimitedAttempts]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -219,14 +221,6 @@ export default function CodingAssignmentModalAdd({
       errors.difficulty = "Difficulty is required.";
     }
 
-    if (!form.order.trim()) {
-      errors.order = "Order is required.";
-    } else if (Number(form.order) < 1) {
-      errors.order = "Order must be at least 1.";
-    } else if (!Number.isInteger(Number(form.order))) {
-      errors.order = "Order must be an integer.";
-    }
-
     if (!form.content.trim()) {
       errors.content = "Description is required.";
     }
@@ -243,12 +237,14 @@ export default function CodingAssignmentModalAdd({
       errors.points = "Points must be at least 0.";
     }
 
-    if (!form.allowed_attempts.trim()) {
-      errors.allowed_attempts = "Allowed Attempts is required.";
-    } else if (Number(form.allowed_attempts) < 1) {
-      errors.allowed_attempts = "Allowed Attempts must be at least 1.";
-    } else if (!Number.isInteger(Number(form.allowed_attempts))) {
-      errors.allowed_attempts = "Allowed Attempts must be an integer.";
+    if (!isUnlimitedAttempts) {
+      if (!form.allowed_attempts.trim()) {
+        errors.allowed_attempts = "Allowed Attempts is required.";
+      } else if (Number(form.allowed_attempts) < 1) {
+        errors.allowed_attempts = "Allowed Attempts must be at least 1.";
+      } else if (!Number.isInteger(Number(form.allowed_attempts))) {
+        errors.allowed_attempts = "Allowed Attempts must be an integer.";
+      }
     }
 
     setFormErrors(errors);
@@ -264,13 +260,12 @@ export default function CodingAssignmentModalAdd({
       slug: generateSlug(form.title),
       type: "file_upload" as const,
       difficulty: form.difficulty as "easy" | "medium" | "hard",
-      order: Number(form.order),
       content: form.content,
       settings: [] as any,
       metadata: [] as any,
       max_score: Number(form.max_score),
       points: Number(form.points),
-      allowed_attempts: Number(form.allowed_attempts),
+      allowed_attempts: isUnlimitedAttempts ? null : Number(form.allowed_attempts),
     };
 
     try {
@@ -309,7 +304,7 @@ export default function CodingAssignmentModalAdd({
           <div className="flex items-center justify-between">
             <DialogTitle>Add Coding Assignment</DialogTitle>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-3">
               {saving ? (
                 <>
                   <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
@@ -368,7 +363,7 @@ export default function CodingAssignmentModalAdd({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <Label>
                     Difficulty <span className="text-red-500">*</span>
                   </Label>
@@ -402,20 +397,6 @@ export default function CodingAssignmentModalAdd({
                       {getFieldError(storeChallenge.error?.errors, "difficulty")}
                     </p>
                   )}
-                </div>
-
-                <div>
-                  <InputForm
-                    name="order"
-                    text="Order"
-                    type="number"
-                    value={form.order}
-                    handleChange={handleChange}
-                    error={
-                      formErrors.order ??
-                      getFieldError(storeChallenge.error?.errors, "order")
-                    }
-                  />
                 </div>
               </div>
 
@@ -492,24 +473,41 @@ export default function CodingAssignmentModalAdd({
                 </p>
               </div>
 
-              <div className="max-w-md">
-                <InputForm
-                  name="allowed_attempts"
-                  text="Allowed Attempts"
-                  type="number"
-                  value={form.allowed_attempts}
-                  handleChange={handleChange}
-                  error={
-                    formErrors.allowed_attempts ??
-                    getFieldError(
-                      storeChallenge.error?.errors,
-                      "allowed_attempts",
-                    )
-                  }
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Number of attempts students can make (minimum: 1)
-                </p>
+              <div className="max-w-md space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="unlimited-attempts"
+                    checked={isUnlimitedAttempts}
+                    onCheckedChange={(checked) => setIsUnlimitedAttempts(checked === true)}
+                  />
+                  <label
+                    htmlFor="unlimited-attempts"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Unlimited attempts
+                  </label>
+                </div>
+                <div>
+                  <InputForm
+                    name="allowed_attempts"
+                    text="Allowed Attempts"
+                    type="number"
+                    value={isUnlimitedAttempts ? "" : form.allowed_attempts}
+                    handleChange={handleChange}
+                    isDisabled={isUnlimitedAttempts}
+                    placeholder={isUnlimitedAttempts ? "Unlimited" : ""}
+                    error={
+                      formErrors.allowed_attempts ??
+                      getFieldError(
+                        storeChallenge.error?.errors,
+                        "allowed_attempts",
+                      )
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Number of attempts students can make (minimum: 1)
+                  </p>
+                </div>
               </div>
             </div>
 

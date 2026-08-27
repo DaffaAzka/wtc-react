@@ -20,15 +20,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useStoreChallenge } from "@/hooks/challenges";
 import type { ChallengeContext } from "./challenge-manager";
 import { generateSlug, getFieldError } from "@/utils/global";
 import { useState, useEffect, useRef } from "react";
 import { calculateQuestionScore } from "@/helper/calculate-score";
 import { validateAllQuestions } from "@/helper/validate-question";
-import { CheckCircle2 } from "lucide-react";
+import {
+  CheckCircle2,
+  Info,
+  Target,
+  RotateCw,
+  HelpCircle,
+} from "lucide-react";
 
 type Props = {
   context: ChallengeContext;
@@ -56,7 +64,6 @@ export default function ChallengeModalAdd({
     title: string;
     type: ChallengeFormType;
     difficulty: "" | "easy" | "medium" | "hard";
-    order: string;
     content: string;
     max_score: string;
     points: string;
@@ -65,12 +72,13 @@ export default function ChallengeModalAdd({
     title: "",
     type: "multiple_choice",
     difficulty: "",
-    order: "1",
     content: "",
     max_score: "100",
     points: "",
     allowed_attempts: "1",
   });
+
+  const [isUnlimitedAttempts, setIsUnlimitedAttempts] = useState(false);
 
   const [questions, setQuestions] = useState<Question[]>([]);
   const [questionErrors, setQuestionErrors] = useState<Record<string, string>>(
@@ -79,7 +87,6 @@ export default function ChallengeModalAdd({
   const [formErrors, setFormErrors] = useState<{
     title?: string;
     difficulty?: string;
-    order?: string;
     content?: string;
     max_score?: string;
     points?: string;
@@ -91,7 +98,6 @@ export default function ChallengeModalAdd({
   const [readyToSave, setReadyToSave] = useState(false);
   const titleRef = useRef<HTMLDivElement>(null);
   const difficultyRef = useRef<HTMLDivElement>(null);
-  const orderRef = useRef<HTMLDivElement>(null);
   const maxScoreRef = useRef<HTMLDivElement>(null);
   const pointsRef = useRef<HTMLDivElement>(null);
   const allowedAttemptsRef = useRef<HTMLDivElement>(null);
@@ -109,13 +115,13 @@ export default function ChallengeModalAdd({
         title: "",
         type: "multiple_choice",
         difficulty: "",
-        order: "1",
         content: "",
         max_score: "100",
         points: "",
         allowed_attempts: "1",
       });
 
+      setIsUnlimitedAttempts(false);
       setQuestions([]);
 
       setReadyToSave(true);
@@ -130,12 +136,12 @@ export default function ChallengeModalAdd({
         title: parsed.form.title || "",
         type: parsed.form.type || "multiple_choice",
         difficulty: parsed.form.difficulty || "",
-        order: parsed.form.order || "1",
         content: parsed.form.content || "",
         max_score: parsed.form.max_score || "100",
         points: parsed.form.points || "",
         allowed_attempts: parsed.form.allowed_attempts || "1",
       });
+      setIsUnlimitedAttempts(parsed.isUnlimitedAttempts ?? false);
       setQuestions(parsed.questions ?? []);
 
       toast("Draft restored");
@@ -144,12 +150,12 @@ export default function ChallengeModalAdd({
         title: "",
         type: "multiple_choice",
         difficulty: "",
-        order: "1",
         content: "",
         max_score: "100",
         points: "",
         allowed_attempts: "1",
       });
+      setIsUnlimitedAttempts(false);
       setQuestions([]);
     } finally {
       setReadyToSave(true);
@@ -169,6 +175,7 @@ export default function ChallengeModalAdd({
         JSON.stringify({
           form: debouncedForm,
           questions: debouncedQuestions,
+          isUnlimitedAttempts,
         }),
       );
 
@@ -176,7 +183,7 @@ export default function ChallengeModalAdd({
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [debouncedForm, debouncedQuestions, contextId, readyToSave, isOpen]);
+  }, [debouncedForm, debouncedQuestions, contextId, readyToSave, isOpen, isUnlimitedAttempts]);
 
   useEffect(() => {
     if (!readyToSave) return;
@@ -243,7 +250,6 @@ export default function ChallengeModalAdd({
   const canSubmit =
     form.title.trim() !== "" &&
     form.difficulty !== "" &&
-    form.order.trim() !== "" &&
     form.max_score.trim() !== "" &&
     form.points.trim() !== "" &&
     form.allowed_attempts.trim() !== "" &&
@@ -256,7 +262,6 @@ export default function ChallengeModalAdd({
     const errors: {
       title?: string;
       difficulty?: string;
-      order?: string;
       content?: string;
       max_score?: string;
       points?: string;
@@ -271,14 +276,6 @@ export default function ChallengeModalAdd({
       errors.difficulty = "Difficulty is required.";
     }
 
-    if (!form.order.trim()) {
-      errors.order = "Order is required.";
-    } else if (Number(form.order) < 1) {
-      errors.order = "Order must be at least 1.";
-    } else if (!Number.isInteger(Number(form.order))) {
-      errors.order = "Order must be an integer.";
-    }
-
     if (!form.max_score.trim()) {
       errors.max_score = "Max Score is required.";
     } else if (Number(form.max_score) < 1) {
@@ -291,12 +288,14 @@ export default function ChallengeModalAdd({
       errors.points = "Points must be at least 0.";
     }
 
-    if (!form.allowed_attempts.trim()) {
-      errors.allowed_attempts = "Allowed Attempts is required.";
-    } else if (Number(form.allowed_attempts) < 1) {
-      errors.allowed_attempts = "Allowed Attempts must be at least 1.";
-    } else if (!Number.isInteger(Number(form.allowed_attempts))) {
-      errors.allowed_attempts = "Allowed Attempts must be an integer.";
+    if (!isUnlimitedAttempts) {
+      if (!form.allowed_attempts.trim()) {
+        errors.allowed_attempts = "Allowed Attempts is required.";
+      } else if (Number(form.allowed_attempts) < 1) {
+        errors.allowed_attempts = "Allowed Attempts must be at least 1.";
+      } else if (!Number.isInteger(Number(form.allowed_attempts))) {
+        errors.allowed_attempts = "Allowed Attempts must be an integer.";
+      }
     }
 
     if (!form.content.trim()) {
@@ -315,14 +314,6 @@ export default function ChallengeModalAdd({
 
     if (errors.difficulty) {
       difficultyRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "center",
-      });
-      return;
-    }
-
-    if (errors.order) {
-      orderRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "center",
       });
@@ -371,7 +362,10 @@ export default function ChallengeModalAdd({
       return;
     }
 
-    const submissionType = form.type === "mixed" ? "quiz_group" : form.type;
+    const submissionType =
+      form.type === "mixed" ? "quiz_group"
+      : form.type === "essay" ? "fill_blank"
+      : form.type;
 
     storeChallenge.mutate(
       {
@@ -381,7 +375,6 @@ export default function ChallengeModalAdd({
         slug: generateSlug(form.title),
         type: submissionType,
         difficulty: form.difficulty || undefined,
-        order: Number(form.order),
         content: form.content,
         settings: null,
         metadata: {
@@ -389,7 +382,7 @@ export default function ChallengeModalAdd({
         },
         max_score: Number(form.max_score),
         points: Number(form.points),
-        allowed_attempts: Number(form.allowed_attempts),
+        allowed_attempts: isUnlimitedAttempts ? null : Number(form.allowed_attempts),
       },
       {
         onSuccess: () => {
@@ -399,13 +392,13 @@ export default function ChallengeModalAdd({
             title: "",
             type: "multiple_choice",
             difficulty: "",
-            order: "1",
             content: "",
             max_score: "100",
             points: "",
             allowed_attempts: "1",
           });
 
+          setIsUnlimitedAttempts(false);
           setQuestions([]);
 
           onOpenChange(false);
@@ -419,17 +412,22 @@ export default function ChallengeModalAdd({
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col p-0">
-        {/* Fixed Header - Outside scroll container */}
+        {/* Fixed Header - Improved Design */}
         <DialogHeader className="shrink-0 border-b px-6 pt-6 pb-4 bg-background">
           <div className="flex items-center justify-between">
-            <DialogTitle>Add Challenge</DialogTitle>
+            <div className="space-y-2">
+              <DialogTitle>Add Challenge</DialogTitle>
+              <Badge variant="outline" className="text-xs">
+                {context.type === "lesson" ? "Lesson" : "Module"}: {context.title}
+              </Badge>
+            </div>
 
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-3">
               {saving ?
                 <>
                   <div className="h-2 w-2 rounded-full bg-orange-500 animate-pulse" />
                   <span className="text-xs text-muted-foreground">
-                    Saving...
+                    Saving draft...
                   </span>
                 </>
               : <>
@@ -441,11 +439,6 @@ export default function ChallengeModalAdd({
               }
             </div>
           </div>
-
-          <DialogDescription>
-            {context.type === "lesson" ? "Lesson" : "Module"}:{" "}
-            <strong>{context.title}</strong>
-          </DialogDescription>
         </DialogHeader>
 
         {/* Scrollable Content */}
@@ -462,11 +455,16 @@ export default function ChallengeModalAdd({
 
             {/* Challenge Information Section */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold">Challenge Information</h3>
-                <p className="text-sm text-muted-foreground">
-                  Basic details about the challenge
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-md bg-blue-500/10">
+                  <Info className="h-4 w-4 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Challenge Information</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Basic details about the challenge
+                  </p>
+                </div>
               </div>
 
               <div ref={titleRef}>
@@ -484,7 +482,7 @@ export default function ChallengeModalAdd({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div ref={difficultyRef} className="space-y-2">
+                <div ref={difficultyRef} className="space-y-4">
                   <Label>
                     Difficulty <span className="text-red-500">*</span>
                   </Label>
@@ -530,7 +528,7 @@ export default function ChallengeModalAdd({
                   )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <Label>
                     Challenge Type <span className="text-red-500">*</span>
                   </Label>
@@ -558,20 +556,6 @@ export default function ChallengeModalAdd({
                     </SelectContent>
                   </Select>
                 </div>
-
-                <div ref={orderRef}>
-                  <InputForm
-                    name="order"
-                    text="Order"
-                    type="number"
-                    value={form.order}
-                    handleChange={handleChange}
-                    error={
-                      formErrors.order ??
-                      getFieldError(storeChallenge.error?.errors, "order")
-                    }
-                  />
-                </div>
               </div>
 
               <div ref={descriptionRef}>
@@ -592,11 +576,16 @@ export default function ChallengeModalAdd({
 
             {/* Scoring Configuration Section */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold">Scoring Configuration</h3>
-                <p className="text-sm text-muted-foreground">
-                  Set the total weight and reward points for this challenge
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-md bg-amber-500/10">
+                  <Target className="h-4 w-4 text-amber-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Scoring Configuration</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Set the total weight and reward points for this challenge
+                  </p>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -640,31 +629,53 @@ export default function ChallengeModalAdd({
 
             {/* Attempt Settings Section */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold">Attempt Settings</h3>
-                <p className="text-sm text-muted-foreground">
-                  Configure how many times students can attempt this challenge
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-md bg-cyan-500/10">
+                  <RotateCw className="h-4 w-4 text-cyan-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Attempt Settings</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Configure how many times students can attempt this challenge
+                  </p>
+                </div>
               </div>
 
-              <div ref={allowedAttemptsRef} className="max-w-md">
-                <InputForm
-                  name="allowed_attempts"
-                  text="Allowed Attempts"
-                  type="number"
-                  value={form.allowed_attempts}
-                  handleChange={handleChange}
-                  error={
-                    formErrors.allowed_attempts ??
-                    getFieldError(
-                      storeChallenge.error?.errors,
-                      "allowed_attempts",
-                    )
-                  }
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Number of attempts students can make (minimum: 1)
-                </p>
+              <div className="max-w-md space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="unlimited-attempts"
+                    checked={isUnlimitedAttempts}
+                    onCheckedChange={(checked) => setIsUnlimitedAttempts(checked === true)}
+                  />
+                  <label
+                    htmlFor="unlimited-attempts"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Unlimited attempts
+                  </label>
+                </div>
+                <div ref={allowedAttemptsRef}>
+                  <InputForm
+                    name="allowed_attempts"
+                    text="Allowed Attempts"
+                    type="number"
+                    value={isUnlimitedAttempts ? "" : form.allowed_attempts}
+                    handleChange={handleChange}
+                    isDisabled={isUnlimitedAttempts}
+                    placeholder={isUnlimitedAttempts ? "Unlimited" : ""}
+                    error={
+                      formErrors.allowed_attempts ??
+                      getFieldError(
+                        storeChallenge.error?.errors,
+                        "allowed_attempts",
+                      )
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Number of attempts students can make (minimum: 1)
+                  </p>
+                </div>
               </div>
             </div>
 
@@ -672,11 +683,16 @@ export default function ChallengeModalAdd({
 
             {/* Question Builder Section */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold">Question Builder</h3>
-                <p className="text-sm text-muted-foreground">
-                  Add and configure questions for this challenge
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-md bg-indigo-500/10">
+                  <HelpCircle className="h-4 w-4 text-indigo-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Question Builder</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Add and configure questions for this challenge
+                  </p>
+                </div>
               </div>
 
               <Builder
@@ -690,11 +706,14 @@ export default function ChallengeModalAdd({
               />
             </div>
 
-            <LoadingButton
-              text="Create Challenge"
-              loading={storeChallenge.isPending}
-              disabled={!canSubmit}
-            />
+            {/* Sticky Submit Button */}
+            <div className="sticky bottom-0 bg-background pt-4 pb-2 border-t -mx-6 px-6 mt-6">
+              <LoadingButton
+                text="Create Challenge"
+                loading={storeChallenge.isPending}
+                disabled={!canSubmit}
+              />
+            </div>
           </form>
         </div>
       </DialogContent>

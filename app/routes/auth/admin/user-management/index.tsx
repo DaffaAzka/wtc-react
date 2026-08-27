@@ -102,7 +102,6 @@ export default function UserManagement() {
         setAllRoles(response.data.data);
       }
     } catch (error: any) {
-      console.error("Error fetching roles:", error);
       toast.error(error?.message || "Gagal memuat daftar role");
     }
   };
@@ -130,10 +129,8 @@ export default function UserManagement() {
       if (response.data.success) {
         setProfiles(response.data.data.profiles);
         setPagination(response.data.data.pagination);
-        console.log(`✅ Loaded ${response.data.data.profiles.length} profiles with roles`);
       }
     } catch (error: any) {
-      console.error("Error fetching profiles:", error);
       toast.error(error?.message || "Gagal memuat daftar profiles");
     } finally {
       setLoading(false);
@@ -153,7 +150,6 @@ export default function UserManagement() {
         }
       }
     } catch (error: any) {
-      console.error("Error fetching profile roles:", error);
       toast.error(error?.message || "Gagal memuat role profile");
     }
   };
@@ -171,7 +167,6 @@ export default function UserManagement() {
       toast.success("Role berhasil ditambahkan");
       await fetchProfileRoles(selectedProfile.id);
     } catch (error: any) {
-      console.error("Error assigning role:", error);
       toast.error(error?.message || "Gagal menambahkan role");
     } finally {
       setAddingRole(false);
@@ -190,7 +185,6 @@ export default function UserManagement() {
       await fetchProfileRoles(selectedProfile.id);
       setRoleToRemove(null);
     } catch (error: any) {
-      console.error("Error removing role:", error);
       toast.error(error?.message || "Gagal menghapus role");
     } finally {
       setRemovingRoleId(null);
@@ -389,9 +383,18 @@ export default function UserManagement() {
                     <AvatarImage src={typeof selectedProfile.user.avatar === 'string' ? selectedProfile.user.avatar : (selectedProfile.user.avatar as any)?.url ?? undefined} alt={selectedProfile.display_name ?? undefined} />
                     <AvatarFallback>{selectedProfile.display_name?.charAt(0).toUpperCase() ?? '?'}</AvatarFallback>
                   </Avatar>
-                  <div>
+                  <div className="flex-1">
                     <div className="font-medium text-foreground">{selectedProfile.display_name}</div>
                     <div className="text-sm">{selectedProfile.user.email}</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      Dibuat: {new Date(selectedProfile.user.created_at).toLocaleDateString('id-ID', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </div>
                   </div>
                 </div>
               )}

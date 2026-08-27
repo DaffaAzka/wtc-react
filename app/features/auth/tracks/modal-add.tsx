@@ -22,7 +22,6 @@ export default function ModalAdd() {
     title: "",
     slug: "",
     description: "",
-    order: "",
     image_url: "",
   });
 
@@ -38,7 +37,6 @@ export default function ModalAdd() {
         title: form.title,
         slug: generateSlug(form.title),
         description: form.description,
-        order: Number.parseInt(form.order),
         image_url: form.image_url,
       },
       {
@@ -48,7 +46,6 @@ export default function ModalAdd() {
             title: "",
             slug: "",
             description: "",
-            order: "",
             image_url: "",
           });
         },
@@ -97,14 +94,6 @@ export default function ModalAdd() {
             value={form.description}
             handleChange={handleChange}
             error={getFieldError(storeTrack.error?.errors, "description")}
-          />
-          <InputForm
-            name="order"
-            text="Track Order"
-            type="number"
-            value={form.order}
-            handleChange={handleChange}
-            error={getFieldError(storeTrack.error?.errors, "order")}
           />
           <InputForm
             name="image_url"

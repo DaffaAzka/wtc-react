@@ -47,12 +47,14 @@ import {
   FileText,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
+import { useTheme } from "@/contexts/theme";
 import { firstCharacterUppercase } from "@/utils/global";
 import { ModeToggle } from "./custom/mode-toggle";
 import { Separator } from "./ui/separator";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
+  const { theme } = useTheme();
   const [courseMgmtOpen, setCourseMgmtOpen] = React.useState(true); // ← tambahin ini
 
   // Time-based animation: Morning (6am-6pm) or Night (6pm-6am)
@@ -64,6 +66,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   const [videoSrc] = React.useState(getTimeBasedAnimation());
+
+  // Determine logo variant based on theme - client-side only to avoid hydration issues
+  const [logoSrc, setLogoSrc] = React.useState("/brand-pack/logo-h-light.svg");
+
+  React.useEffect(() => {
+    // Check actual applied theme from document root
+    const root = window.document.documentElement;
+    const isDark = root.classList.contains("dark");
+    setLogoSrc(isDark ? "/brand-pack/logo-h-dark.svg" : "/brand-pack/logo-h-light.svg");
+  }, [theme]); // Re-run when theme changes
 
   const isAdmin =
     user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;
@@ -144,7 +156,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               WebTech TC.
             </span> */}
             <img
-              src="/brand-pack/logo-h-dark.svg"
+              src={logoSrc}
               alt="Logo"
               className="h-28 w-auto"
             />

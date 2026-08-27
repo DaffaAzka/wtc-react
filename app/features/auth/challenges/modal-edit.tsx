@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useUpdateChallenge } from "@/hooks/challenges";
 import type { Challenge } from "@/types/model";
 import type { ChallengeFormType } from "@/types/challenge";
@@ -50,7 +51,6 @@ export default function ChallengeModalEdit({
       "mixed"
     : challenge.type) as ChallengeFormType,
     difficulty: challenge.difficulty || ("" as "" | "easy" | "medium" | "hard"),
-    order: challenge.order ? String(challenge.order) : "1",
     content: challenge.content,
     max_score: String(challenge.max_score),
     points: challenge.points ? String(challenge.points) : "",
@@ -58,10 +58,13 @@ export default function ChallengeModalEdit({
       challenge.allowed_attempts ? String(challenge.allowed_attempts) : "1",
   });
 
+  const [isUnlimitedAttempts, setIsUnlimitedAttempts] = useState(
+    challenge.allowed_attempts === null
+  );
+
   const [formErrors, setFormErrors] = useState<{
     title?: string;
     difficulty?: string;
-    order?: string;
     content?: string;
     max_score?: string;
     points?: string;
@@ -76,7 +79,6 @@ export default function ChallengeModalEdit({
           "mixed"
         : challenge.type) as ChallengeFormType,
         difficulty: challenge.difficulty || "",
-        order: challenge.order ? String(challenge.order) : "1",
         content: challenge.content,
         max_score: String(challenge.max_score),
         points: challenge.points ? String(challenge.points) : "",
@@ -84,6 +86,7 @@ export default function ChallengeModalEdit({
           challenge.allowed_attempts ? String(challenge.allowed_attempts) : "1",
       });
       setFormErrors({});
+      setIsUnlimitedAttempts(challenge.allowed_attempts === null);
     }
   }, [isOpen, challenge]);
 
@@ -108,14 +111,6 @@ export default function ChallengeModalEdit({
       errors.difficulty = "Difficulty is required.";
     }
 
-    if (!form.order.trim()) {
-      errors.order = "Order is required.";
-    } else if (Number(form.order) < 1) {
-      errors.order = "Order must be at least 1.";
-    } else if (!Number.isInteger(Number(form.order))) {
-      errors.order = "Order must be an integer.";
-    }
-
     if (!form.max_score.trim()) {
       errors.max_score = "Max Score is required.";
     } else if (Number(form.max_score) < 1) {
@@ -128,12 +123,14 @@ export default function ChallengeModalEdit({
       errors.points = "Points must be at least 0.";
     }
 
-    if (!form.allowed_attempts.trim()) {
-      errors.allowed_attempts = "Allowed Attempts is required.";
-    } else if (Number(form.allowed_attempts) < 1) {
-      errors.allowed_attempts = "Allowed Attempts must be at least 1.";
-    } else if (!Number.isInteger(Number(form.allowed_attempts))) {
-      errors.allowed_attempts = "Allowed Attempts must be an integer.";
+    if (!isUnlimitedAttempts) {
+      if (!form.allowed_attempts.trim()) {
+        errors.allowed_attempts = "Allowed Attempts is required.";
+      } else if (Number(form.allowed_attempts) < 1) {
+        errors.allowed_attempts = "Allowed Attempts must be at least 1.";
+      } else if (!Number.isInteger(Number(form.allowed_attempts))) {
+        errors.allowed_attempts = "Allowed Attempts must be an integer.";
+      }
     }
 
     if (!form.content.trim()) {
@@ -160,13 +157,12 @@ export default function ChallengeModalEdit({
       type: submissionType,
       difficulty: (form.difficulty || undefined) as
         "easy" | "medium" | "hard" | undefined,
-      order: Number(form.order),
       content: form.content,
       settings: challenge.settings,
       metadata: challenge.metadata,
       max_score: Number(form.max_score),
       points: Number(form.points),
-      allowed_attempts: Number(form.allowed_attempts),
+      allowed_attempts: isUnlimitedAttempts ? null : Number(form.allowed_attempts),
     };
 
     try {
@@ -217,7 +213,7 @@ export default function ChallengeModalEdit({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <Label>
                     Difficulty <span className="text-red-500">*</span>
                   </Label>
@@ -263,7 +259,7 @@ export default function ChallengeModalEdit({
                   )}
                 </div>
 
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <Label>
                     Challenge Type <span className="text-red-500">*</span>
                   </Label>
@@ -288,19 +284,6 @@ export default function ChallengeModalEdit({
                       <SelectItem value="mixed">Mixed Quiz</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
-
-                <div>
-                  <InputNumberForm
-                    name="order"
-                    text="Order"
-                    value={form.order}
-                    handleChange={handleChange}
-                    error={
-                      formErrors.order ??
-                      getFieldError(updateChallenge.error?.errors, "order")
-                    }
-                  />
                 </div>
               </div>
 
@@ -377,23 +360,40 @@ export default function ChallengeModalEdit({
                 </p>
               </div>
 
-              <div className="max-w-md">
-                <InputNumberForm
-                  name="allowed_attempts"
-                  text="Allowed Attempts"
-                  value={form.allowed_attempts}
-                  handleChange={handleChange}
-                  error={
-                    formErrors.allowed_attempts ??
-                    getFieldError(
-                      updateChallenge.error?.errors,
-                      "allowed_attempts",
-                    )
-                  }
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Number of attempts students can make (minimum: 1)
-                </p>
+              <div className="max-w-md space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="unlimited-attempts"
+                    checked={isUnlimitedAttempts}
+                    onCheckedChange={(checked) => setIsUnlimitedAttempts(checked === true)}
+                  />
+                  <label
+                    htmlFor="unlimited-attempts"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Unlimited attempts
+                  </label>
+                </div>
+                <div>
+                  <InputNumberForm
+                    name="allowed_attempts"
+                    text="Allowed Attempts"
+                    value={isUnlimitedAttempts ? "" : form.allowed_attempts}
+                    handleChange={handleChange}
+                    isDisabled={isUnlimitedAttempts}
+                    placeholder={isUnlimitedAttempts ? "Unlimited" : ""}
+                    error={
+                      formErrors.allowed_attempts ??
+                      getFieldError(
+                        updateChallenge.error?.errors,
+                        "allowed_attempts",
+                      )
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Number of attempts students can make (minimum: 1)
+                  </p>
+                </div>
               </div>
             </div>
 

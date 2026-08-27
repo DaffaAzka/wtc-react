@@ -24,7 +24,6 @@ export default function ModalAdd({ moduleId }: { moduleId: number }) {
     slug: "",
     content: "",
     video_url: "",
-    order: "",
   });
 
   const storeLesson = useStoreLesson();
@@ -41,7 +40,6 @@ export default function ModalAdd({ moduleId }: { moduleId: number }) {
         content: form.content,
         slug: generateSlug(form.title),
         video_url: form.video_url || null,
-        order: Number.parseInt(form.order),
         module_id: moduleId,
       },
       {
@@ -52,7 +50,6 @@ export default function ModalAdd({ moduleId }: { moduleId: number }) {
             content: "",
             slug: "",
             video_url: "",
-            order: "",
           });
         },
       },
@@ -112,15 +109,6 @@ export default function ModalAdd({ moduleId }: { moduleId: number }) {
             value={form.video_url}
             handleChange={handleChange}
             error={getFieldError(storeLesson.error?.errors, "video_url")}
-          />
-
-          <InputForm
-            name="order"
-            text="Lesson Order"
-            type="number"
-            value={form.order}
-            handleChange={handleChange}
-            error={getFieldError(storeLesson.error?.errors, "order")}
           />
 
           <LoadingButton text="Create" loading={storeLesson.isPending} />
