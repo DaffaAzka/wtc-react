@@ -26,6 +26,7 @@ import {
   GitBranch,
   Box,
   Timer,
+  User,
 } from "lucide-react";
 
 type Props = {
@@ -230,6 +231,19 @@ export default function ChallengeCard({
               challenge.allowed_attempts === 0
                 ? "Unlimited"
                 : challenge.allowed_attempts}
+            </span>
+          </div>
+
+          {/* Created By */}
+          <div className="flex items-center gap-2 text-sm">
+            <div className="p-1.5 rounded-md bg-purple-500/10">
+              <User className="h-3.5 w-3.5 text-purple-600" />
+            </div>
+            <div className="flex-1">
+              <span className="text-muted-foreground text-xs">Created By</span>
+            </div>
+            <span className="font-semibold text-sm">
+              {(challenge as any).created_by?.name || "Admin"}
             </span>
           </div>
         </div>
