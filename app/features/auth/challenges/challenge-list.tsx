@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import ChallengeModalEdit from "./modal-edit";
 import CodingAssignmentModalEdit from "./modal-edit-coding-assignment";
-import ChallengeModalManage from "./modal-manage";
 
 type Props = {
   challenges: Challenge[];
@@ -40,14 +39,6 @@ export default function ChallengeList({ challenges, context }: Props) {
   });
 
   const [editModal, setEditModal] = useState<{
-    challenge: Challenge | null;
-    isOpen: boolean;
-  }>({
-    challenge: null,
-    isOpen: false,
-  });
-
-  const [manageModal, setManageModal] = useState<{
     challenge: Challenge | null;
     isOpen: boolean;
   }>({
@@ -78,12 +69,13 @@ export default function ChallengeList({ challenges, context }: Props) {
           <ChallengeCard
             key={challenge.id}
             challenge={challenge}
-            onEdit={(challenge) => setEditModal({ challenge, isOpen: true })}
+            onEdit={(challenge) => {
+              console.log('[ChallengeList] onEdit called for challenge:', challenge.id, challenge.title);
+              setEditModal({ challenge, isOpen: true });
+              console.log('[ChallengeList] editModal state set to:', { challengeId: challenge.id, isOpen: true });
+            }}
             onDelete={(challenge) =>
               setDeleteDialog({ challenge, isOpen: true })
-            }
-            onManage={(challenge) =>
-              setManageModal({ challenge, isOpen: true })
             }
             onViewSubmissions={handleViewSubmissions}
           />
@@ -139,18 +131,6 @@ export default function ChallengeList({ challenges, context }: Props) {
               setEditModal((prev) => ({ ...prev, isOpen: open }))
             }
           />)}
-
-      {/* Manage Modal (Full Edit with Builder) */}
-      {manageModal.challenge && (
-        <ChallengeModalManage
-          key={`manage-${manageModal.challenge.id}`}
-          challenge={manageModal.challenge}
-          isOpen={manageModal.isOpen}
-          onOpenChange={(open) =>
-            setManageModal((prev) => ({ ...prev, isOpen: open }))
-          }
-        />
-      )}
     </>
   );
 }

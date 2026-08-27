@@ -30,10 +30,6 @@ export default function Header({ module }: { module: Module }) {
         </Link>
         {/* <ModalAdd moduleId={module.id} /> */}
 
-        <Button variant="outline">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Challenge
-        </Button>
       </div>
     </div>
   );

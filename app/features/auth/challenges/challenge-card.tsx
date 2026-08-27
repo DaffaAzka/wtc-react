@@ -33,7 +33,6 @@ type Props = {
   challenge: Challenge;
   onEdit?: (challenge: Challenge) => void;
   onDelete?: (challenge: Challenge) => void;
-  onManage?: (challenge: Challenge) => void;
   onViewSubmissions?: (challenge: Challenge) => void;
 };
 
@@ -77,7 +76,6 @@ export default function ChallengeCard({
   challenge,
   onEdit,
   onDelete,
-  onManage,
   onViewSubmissions,
 }: Props) {
   const questionCount = getQuestionCount(challenge);
@@ -127,14 +125,11 @@ export default function ChallengeCard({
                       <DropdownMenuSeparator />
                     </>
                   )}
-                  {onManage && (
-                    <DropdownMenuItem onClick={() => onManage(challenge)}>
-                      <Settings className="h-4 w-4 mr-2" />
-                      Manage
-                    </DropdownMenuItem>
-                  )}
                   {onEdit && (
-                    <DropdownMenuItem onClick={() => onEdit(challenge)}>
+                    <DropdownMenuItem onClick={() => {
+                      console.log('[ChallengeCard] Edit clicked for challenge:', challenge.id, challenge.title);
+                      onEdit(challenge);
+                    }}>
                       <Edit className="h-4 w-4 mr-2" />
                       Edit
                     </DropdownMenuItem>
@@ -250,16 +245,6 @@ export default function ChallengeCard({
 
         {/* Action Buttons */}
         <div className="flex gap-2 pt-2">
-          {onManage && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex-1 gap-1.5"
-              onClick={() => onManage(challenge)}>
-              <Settings className="h-3.5 w-3.5" />
-              Manage
-            </Button>
-          )}
           {onViewSubmissions && (
             <Button
               size="sm"
