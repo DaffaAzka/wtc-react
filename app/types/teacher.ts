@@ -70,7 +70,7 @@ export type TeacherDashboardStats = {
 export type TeacherDashboard = {
   stats: TeacherDashboardStats;
   pending_submissions: TeacherSubmission[];
-  leaderboard_preview: LeaderboardEntry[];
+  leaderboard: LeaderboardEntry[];
 };
 
 // ---------------------------------------------------------------------------

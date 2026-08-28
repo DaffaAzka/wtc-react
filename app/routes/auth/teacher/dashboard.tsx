@@ -97,7 +97,7 @@ export default function TeacherDashboardPage() {
                   </div>
                 ))}
               </div>
-            ) : isError ? null : data.leaderboard_preview.length === 0 ? (
+            ) : isError ? null : (data?.leaderboard ?? []).length === 0 ? (
               <p className="py-4 text-center text-xs text-muted-foreground">
                 No leaderboard data yet.
               </p>
@@ -111,7 +111,7 @@ export default function TeacherDashboardPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {data.leaderboard_preview.map((entry) => (
+                  {(data?.leaderboard ?? []).map((entry) => (
                     <TableRow key={entry.profile_id}>
                       <TableCell>
                         <Badge variant="outline" className="tabular-nums">
