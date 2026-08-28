@@ -1,6 +1,6 @@
-import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { useTeacherSubmissions } from "@/hooks/teacher";
+import { useGetChallenges } from "@/hooks/challenges";
 import {
   Table,
   TableBody,
@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -58,8 +57,7 @@ export default function TeacherSubmissionsIndexPage() {
   const challengeParam = searchParams.get("challenge_id");
   const pageParam = Number(searchParams.get("page") ?? "1");
 
-  // Local input state — challenge title search, no UUID
-  const [challengeInput, setChallengeInput] = useState(challengeParam ?? "");
+  const { challenges } = useGetChallenges();
 
   const filters = {
     status: statusParam ?? undefined,
@@ -91,10 +89,10 @@ export default function TeacherSubmissionsIndexPage() {
     });
   }
 
-  function applyNumericFilters() {
+  function applyFilters(challengeId: string) {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
-      if (challengeInput) next.set("challenge_id", challengeInput);
+      if (challengeId && challengeId !== "all") next.set("challenge_id", challengeId);
       else next.delete("challenge_id");
       next.delete("page");
       return next;
@@ -143,30 +141,34 @@ export default function TeacherSubmissionsIndexPage() {
               </Select>
             </div>
 
-            {/* Challenge ID */}
+            {/* Challenge dropdown */}
             <div className="space-y-1">
               <label className="text-xs font-medium text-muted-foreground">
-                Challenge ID
+                Challenge
               </label>
-              <Input
-                type="number"
-                placeholder="e.g. 42"
-                value={challengeInput}
-                onChange={(e) => setChallengeInput(e.target.value)}
-                className="w-28"
-              />
+              <Select
+                value={challengeParam ?? "all"}
+                onValueChange={(v) => applyFilters(v)}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="All challenges" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All challenges</SelectItem>
+                  {(challenges ?? []).map((c) => (
+                    <SelectItem key={c.id} value={String(c.id)}>
+                      {c.title}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-
-            <Button size="sm" variant="outline" onClick={applyNumericFilters}>
-              Apply
-            </Button>
 
             {(statusParam || challengeParam) && (
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => {
-                  setChallengeInput("");
                   setSearchParams({});
                 }}
               >
