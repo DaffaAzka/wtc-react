@@ -103,7 +103,10 @@ export default [
   layout("routes/auth/teacher/layout.tsx", [
     ...prefix("/teacher", [
       route("/dashboard", "routes/auth/teacher/dashboard.tsx"),
-      route("/content", "routes/auth/teacher/content.tsx"),
+      route("/tracks", "routes/auth/teacher/tracks.tsx"),
+      route("/modules", "routes/auth/teacher/modules.tsx"),
+      route("/lessons", "routes/auth/teacher/lessons.tsx"),
+      route("/challenges", "routes/auth/teacher/challenges.tsx"),
       ...prefix("/submissions", [
         index("routes/auth/teacher/submissions/index.tsx"),
         route("/:id", "routes/auth/teacher/submissions/$id.tsx"),

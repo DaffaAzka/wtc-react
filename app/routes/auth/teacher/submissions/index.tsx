@@ -56,17 +56,14 @@ export default function TeacherSubmissionsIndexPage() {
   // Derive filter state from URL so back/forward works
   const statusParam = searchParams.get("status") as TeacherSubmissionStatus | null;
   const challengeParam = searchParams.get("challenge_id");
-  const profileParam = searchParams.get("profile_id");
   const pageParam = Number(searchParams.get("page") ?? "1");
 
-  // Local input state (challenge_id / profile_id are numeric ids)
+  // Local input state — challenge title search, no UUID
   const [challengeInput, setChallengeInput] = useState(challengeParam ?? "");
-  const [profileInput, setProfileInput] = useState(profileParam ?? "");
 
   const filters = {
     status: statusParam ?? undefined,
     challenge_id: challengeParam ? Number(challengeParam) : undefined,
-    profile_id: profileParam ? Number(profileParam) : undefined,
     page: pageParam,
     per_page: 20,
   };
@@ -99,8 +96,6 @@ export default function TeacherSubmissionsIndexPage() {
       const next = new URLSearchParams(prev);
       if (challengeInput) next.set("challenge_id", challengeInput);
       else next.delete("challenge_id");
-      if (profileInput) next.set("profile_id", profileInput);
-      else next.delete("profile_id");
       next.delete("page");
       return next;
     });
@@ -162,31 +157,16 @@ export default function TeacherSubmissionsIndexPage() {
               />
             </div>
 
-            {/* Profile ID */}
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">
-                Profile ID
-              </label>
-              <Input
-                type="number"
-                placeholder="e.g. 7"
-                value={profileInput}
-                onChange={(e) => setProfileInput(e.target.value)}
-                className="w-28"
-              />
-            </div>
-
             <Button size="sm" variant="outline" onClick={applyNumericFilters}>
               Apply
             </Button>
 
-            {(statusParam || challengeParam || profileParam) && (
+            {(statusParam || challengeParam) && (
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => {
                   setChallengeInput("");
-                  setProfileInput("");
                   setSearchParams({});
                 }}
               >

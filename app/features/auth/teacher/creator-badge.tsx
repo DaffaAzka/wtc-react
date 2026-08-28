@@ -18,7 +18,14 @@ export default function CreatorBadge({
   creator?: Creator | null;
 }) {
   if (!creator) {
-    return <span className="text-muted-foreground">—</span>;
+    return (
+      <div className="flex items-center gap-2 min-w-0">
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground">
+          A
+        </div>
+        <p className="truncate text-xs font-medium leading-none text-foreground">Admin</p>
+      </div>
+    );
   }
 
   const avatarUrl = resolveAvatarUrl(creator.avatar);

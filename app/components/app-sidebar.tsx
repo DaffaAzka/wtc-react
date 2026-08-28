@@ -89,13 +89,21 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     (user?.roles?.some((role) => role.name.toLowerCase() === "teacher") ??
       false);
 
+  const [teacherContentOpen, setTeacherContentOpen] = React.useState(false);
+
   // Teacher navigation
-  const teacherNav = [
+  const teacherNavFlat = [
     { title: "Dashboard", url: "/teacher/dashboard", icon: LayoutDashboard },
-    { title: "Content", url: "/teacher/content", icon: BookOpen },
     { title: "Submissions", url: "/teacher/submissions", icon: ClipboardList },
     { title: "Leaderboard", url: "/teacher/leaderboard", icon: Trophy },
     { title: "Audit Logs", url: "/teacher/audit-logs", icon: ShieldCheck },
+  ];
+
+  const teacherContentItems = [
+    { title: "Tracks", url: "/teacher/tracks", icon: RouteIcon },
+    { title: "Modules", url: "/teacher/modules", icon: LayersIcon },
+    { title: "Lessons", url: "/teacher/lessons", icon: NotebookTextIcon },
+    { title: "Challenges", url: "/teacher/challenges", icon: TerminalSquareIcon },
   ];
 
   // Admin navigation
@@ -255,7 +263,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               {/* Teacher Navigation */}
               {isTeacher && (
                 <>
-                  {teacherNav.map((item) => (
+                  {teacherNavFlat.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild>
                         <NavLink
@@ -269,6 +277,37 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   ))}
+                  {/* Content collapsible */}
+                  <SidebarMenuItem>
+                    <SidebarMenuButton
+                      onClick={() => setTeacherContentOpen((o) => !o)}
+                      className="cursor-pointer"
+                    >
+                      <BookOpen />
+                      <span>Content</span>
+                      <ChevronDown
+                        className={`ml-auto h-4 w-4 transition-transform ${teacherContentOpen ? "rotate-180" : ""}`}
+                      />
+                    </SidebarMenuButton>
+                    {teacherContentOpen && (
+                      <SidebarMenuSub>
+                        {teacherContentItems.map((item) => (
+                          <SidebarMenuSubItem key={item.title}>
+                            <SidebarMenuSubButton asChild>
+                              <NavLink
+                                to={item.url}
+                                className={({ isActive }) =>
+                                  isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""
+                                }>
+                                <item.icon />
+                                <span>{item.title}</span>
+                              </NavLink>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    )}
+                  </SidebarMenuItem>
                 </>
               )}
 
