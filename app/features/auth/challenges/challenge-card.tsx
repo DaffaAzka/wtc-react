@@ -9,8 +9,10 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import type { Challenge } from "@/types/model";
+import { Link } from "react-router";
 import {
   Edit,
+  Eye,
   MoreVertical,
   Trash2,
   Settings,
@@ -116,6 +118,13 @@ export default function ChallengeCard({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <Link to={`/admin/challenges/${challenge.id}`}>
+                    <DropdownMenuItem>
+                      <Eye className="h-4 w-4 mr-2" />
+                      View
+                    </DropdownMenuItem>
+                  </Link>
+                  <DropdownMenuSeparator />
                   {onViewSubmissions && (
                     <>
                       <DropdownMenuItem onClick={() => onViewSubmissions(challenge)}>

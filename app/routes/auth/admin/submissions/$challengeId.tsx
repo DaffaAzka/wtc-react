@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Link, useParams } from "react-router";
+import { useParams, useNavigate, Link } from "react-router";
 import { useGetChallengeSubmissions } from "@/hooks/submission";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -58,6 +58,7 @@ function getStatusLabel(status: string) {
 export default function SubmissionReviewPage() {
   const { challengeId: challengeIdParam } = useParams();
   const challengeId = Number(challengeIdParam);
+  const navigate = useNavigate();
   const { data, isLoading, error, refetch } =
     useGetChallengeSubmissions(challengeId);
 
@@ -126,12 +127,10 @@ export default function SubmissionReviewPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <Link to="/admin/challenges">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Challenges
-          </Button>
-        </Link>
+        <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
         <ErrorState
           title="Unable to load submissions"
           message={
@@ -146,12 +145,10 @@ export default function SubmissionReviewPage() {
   if (!data) {
     return (
       <div className="space-y-6">
-        <Link to="/admin/challenges">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Challenges
-          </Button>
-        </Link>
+        <Button variant="ghost" size="sm" onClick={() => navigate(-1)}>
+          <ArrowLeft className="h-4 w-4 mr-2" />
+          Back
+        </Button>
         <ErrorState
           title="Challenge not found"
           message="The requested challenge could not be found."
@@ -168,14 +165,13 @@ export default function SubmissionReviewPage() {
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <Link to="/admin/challenges">
-              <Button
+            <Button
                 variant="ghost"
                 size="icon"
-                aria-label="Back to challenges">
+                onClick={() => navigate(-1)}
+                aria-label="Back">
                 <ArrowLeft className="h-4 w-4" />
               </Button>
-            </Link>
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Submissions</h1>
               <p className="text-muted-foreground text-sm">

@@ -96,6 +96,9 @@ export default [
 
       // Global Challenges Routes
       route("/challenges", "routes/auth/admin/all-challenges/index.tsx"),
+      route("/admin/challenges/:id", "routes/auth/admin/challenges/$id.tsx"),
+      route("/admin/challenges/:id/edit", "routes/auth/admin/challenges/$id.edit.tsx"),
+      route("/admin/submissions/:challengeId", "routes/auth/admin/submissions/$challengeId.tsx"),
     ]),
   ]),
 ] satisfies RouteConfig;

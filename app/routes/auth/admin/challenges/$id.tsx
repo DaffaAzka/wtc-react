@@ -1,15 +1,32 @@
-import { useParams, Link } from "react-router-dom";
-import { ArrowLeft, Edit, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { useParams, useNavigate } from "react-router";
 import { useGetChallenge } from "@/hooks/challenges";
-import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  ArrowLeft,
+  Pencil,
+  FileText,
+  CheckCircle2,
+  Circle,
+  AlignLeft,
+} from "lucide-react";
+import { ChallengeDetails } from "@/features/auth/challenges/challenge-details";
 import ErrorState from "@/components/custom/error-state";
+import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
 
-export default function ViewChallengePage() {
+function getDifficultyVariant(difficulty?: string) {
+  if (difficulty === "easy") return "default";
+  if (difficulty === "medium") return "secondary";
+  if (difficulty === "hard") return "destructive";
+  return "outline";
+}
+
+export default function AdminChallengeViewPage() {
   const { id } = useParams<{ id: string }>();
-  const challengeId = parseInt(id || "0", 10);
+  const navigate = useNavigate();
+  const challengeId = Number(id);
 
   const { challenge, loading, error } = useGetChallenge(challengeId);
 
@@ -17,7 +34,7 @@ export default function ViewChallengePage() {
     return (
       <div className="space-y-6">
         <PageHeaderSkeleton />
-        <div className="h-96 animate-pulse rounded-lg bg-muted" />
+        <div className="h-64 animate-pulse rounded-lg bg-muted" />
       </div>
     );
   }
@@ -27,177 +44,208 @@ export default function ViewChallengePage() {
       <ErrorState
         title="Unable to load challenge"
         message={error?.message || "Challenge not found"}
-        actionLabel="Back to Challenges"
-        onAction={() => window.history.back()}
+        onRetry={() => navigate(-1)}
       />
     );
   }
 
-  const difficultyColors = {
-    easy: "bg-green-500/10 text-green-600 border-green-500/20",
-    medium: "bg-yellow-500/10 text-yellow-600 border-yellow-500/20",
-    hard: "bg-red-500/10 text-red-600 border-red-500/20",
-  };
+  const questions: any[] = (challenge.metadata as any)?.questions ?? [];
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-3 mb-2">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/admin/all-challenges">
-                <ArrowLeft className="h-4 w-4 mr-1.5" />
-                Back
-              </Link>
-            </Button>
-          </div>
+      {/* Admin Header */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="space-y-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate(-1)}
+            className="mb-1 -ml-2">
+            <ArrowLeft className="h-4 w-4 mr-1.5" />
+            Back
+          </Button>
           <h1 className="text-2xl font-bold">{challenge.title}</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {challenge.slug}
-          </p>
+          <div className="flex flex-wrap items-center gap-2 mt-1">
+            <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs text-muted-foreground">
+              /{challenge.slug}
+            </span>
+            {challenge.difficulty && (
+              <Badge
+                variant={getDifficultyVariant(challenge.difficulty)}
+                className="text-xs capitalize">
+                {challenge.difficulty}
+              </Badge>
+            )}
+            <Badge variant="outline" className="text-xs">
+              {challenge.type.replace(/_/g, " ")}
+            </Badge>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" asChild>
-            <Link to={`/admin/challenges/${challenge.id}/edit`}>
-              <Edit className="h-4 w-4 mr-1.5" />
-              Edit
-            </Link>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate(`/admin/submissions/${challenge.id}`)}>
+            <FileText className="h-4 w-4 mr-1.5" />
+            Submissions
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => navigate(`/admin/challenges/${challenge.id}/edit`)}>
+            <Pencil className="h-4 w-4 mr-1.5" />
+            Edit
           </Button>
         </div>
       </div>
 
-      {/* Basic Info Card */}
+      {/* Challenge Details - matches student view */}
+      <ChallengeDetails
+        challenge={challenge}
+        submissionCount={0}
+        remainingAttempts={Infinity}
+      />
+
+      {/* Questions (read-only) */}
+      {questions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <AlignLeft className="h-4 w-4" />
+              Questions
+              <Badge variant="secondary" className="ml-1">
+                {questions.length}
+              </Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {questions.map((question: any, index: number) => (
+              <div key={index} className="rounded-lg border p-4 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start gap-3 flex-1">
+                    <span className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-muted text-xs font-medium">
+                      {index + 1}
+                    </span>
+                    <p className="text-sm font-medium leading-relaxed">
+                      {question.question || question.text || "No question text"}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Badge variant="outline" className="text-xs">
+                      {question.type || "unknown"}
+                    </Badge>
+                    {question.score !== undefined && (
+                      <span className="text-xs text-muted-foreground">
+                        {question.score} pts
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* MCQ options */}
+                {question.options && Array.isArray(question.options) && (
+                  <div className="ml-9 space-y-1.5">
+                    {question.options.map((option: any, optIdx: number) => {
+                      const text =
+                        typeof option === "string" ? option
+                        : option.text || option.value || "";
+                      const isCorrect =
+                        typeof option === "object" &&
+                        (option.is_correct || option.isCorrect);
+                      return (
+                        <div
+                          key={optIdx}
+                          className={`flex items-center gap-2 rounded-md px-3 py-2 text-sm ${
+                            isCorrect
+                              ? "bg-green-500/10 text-green-700 dark:text-green-400"
+                              : "bg-muted/50 text-muted-foreground"
+                          }`}>
+                          {isCorrect ?
+                            <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-600" />
+                          : <Circle className="h-3.5 w-3.5 shrink-0" />}
+                          <span>{text}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Essay / explanation */}
+                {question.explanation && (
+                  <div className="ml-9 rounded-md bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+                    <span className="font-medium">Explanation: </span>
+                    {question.explanation}
+                  </div>
+                )}
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Scoring summary */}
       <Card>
         <CardHeader>
-          <CardTitle>Basic Information</CardTitle>
+          <CardTitle className="text-base">Scoring & Settings</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <CardContent>
+          <div className="grid grid-cols-2 gap-y-3 text-sm sm:grid-cols-4">
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Type</label>
-              <div className="mt-1">
-                <Badge variant="outline">{challenge.type}</Badge>
-              </div>
+              <p className="text-xs text-muted-foreground">Max Score</p>
+              <p className="font-semibold">{challenge.max_score}</p>
             </div>
-
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Difficulty</label>
-              <div className="mt-1">
-                <Badge className={difficultyColors[challenge.difficulty as keyof typeof difficultyColors]}>
-                  {challenge.difficulty}
-                </Badge>
-              </div>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Max Score</label>
-              <p className="mt-1 text-sm">{challenge.max_score}</p>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Points (EXP)</label>
-              <p className="mt-1 text-sm">{challenge.points}</p>
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-muted-foreground">Allowed Attempts</label>
-              <p className="mt-1 text-sm">
-                {challenge.allowed_attempts === null || challenge.allowed_attempts === -1
-                  ? "Unlimited"
-                  : challenge.allowed_attempts}
+              <p className="text-xs text-muted-foreground">Min Score</p>
+              <p className="font-semibold">
+                {(challenge.settings as any)?.minimum_score ?? "—"}
               </p>
             </div>
-
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Context</label>
-              <p className="mt-1 text-sm">
-                {challenge.lesson_id
-                  ? `Lesson #${challenge.lesson_id}`
-                  : challenge.module_id
-                    ? `Module #${challenge.module_id}`
-                    : "—"}
+              <p className="text-xs text-muted-foreground">Points (EXP)</p>
+              <p className="font-semibold">{challenge.points ?? "—"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground">
+                Allowed Attempts
+              </p>
+              <p className="font-semibold">
+                {challenge.allowed_attempts === null ||
+                challenge.allowed_attempts === -1 ?
+                  "Unlimited"
+                : challenge.allowed_attempts}
               </p>
             </div>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Description Card */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Description</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div
-            className="prose prose-sm max-w-none dark:prose-invert"
-            dangerouslySetInnerHTML={{ __html: challenge.content || "No description provided." }}
-          />
-        </CardContent>
-      </Card>
-
-      {/* Questions/Metadata Card */}
-      {challenge.metadata && typeof challenge.metadata === "object" && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Questions & Configuration</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {(challenge.metadata as any).questions && Array.isArray((challenge.metadata as any).questions) ? (
-              <div className="space-y-4">
-                {(challenge.metadata as any).questions.map((question: any, index: number) => (
-                  <div key={index} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <h4 className="font-medium">Question {index + 1}</h4>
-                      <Badge variant="outline" className="text-xs">
-                        {question.type || "unknown"}
-                      </Badge>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {question.question || question.text || "No question text"}
-                    </p>
-                    {question.options && Array.isArray(question.options) && (
-                      <div className="space-y-1">
-                        <p className="text-xs font-medium text-muted-foreground">Options:</p>
-                        {question.options.map((option: any, optIndex: number) => (
-                          <div key={optIndex} className="text-sm flex items-center gap-2">
-                            <span className="text-muted-foreground">•</span>
-                            <span>{typeof option === "string" ? option : option.text || option.value}</span>
-                            {(typeof option === "object" && option.isCorrect) && (
-                              <Badge variant="default" className="text-xs ml-auto">Correct</Badge>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    <div className="mt-2 text-xs text-muted-foreground">
-                      Score: {question.score || question.points || "—"}
-                    </div>
-                  </div>
-                ))}
+          {questions.length > 0 && (
+            <>
+              <Separator className="my-4" />
+              <div className="grid grid-cols-2 gap-y-3 text-sm sm:grid-cols-3">
+                <div>
+                  <p className="text-xs text-muted-foreground">Total Questions</p>
+                  <p className="font-semibold">{questions.length}</p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">MCQ</p>
+                  <p className="font-semibold">
+                    {
+                      questions.filter(
+                        (q) => q.type === "multiple_choice",
+                      ).length
+                    }
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-muted-foreground">Essay</p>
+                  <p className="font-semibold">
+                    {questions.filter((q) => q.type === "essay").length}
+                  </p>
+                </div>
               </div>
-            ) : (
-              <pre className="text-xs bg-muted p-4 rounded-md overflow-auto">
-                {JSON.stringify(challenge.metadata, null, 2)}
-              </pre>
-            )}
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Settings Card */}
-      {challenge.settings && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Settings</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <pre className="text-xs bg-muted p-4 rounded-md overflow-auto">
-              {JSON.stringify(challenge.settings, null, 2)}
-            </pre>
-          </CardContent>
-        </Card>
-      )}
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
