@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Link } from "react-router";
+import { Link, NavLink, useLocation } from "react-router";
 
 import { NavUser } from "@/components/nav-user";
 import {
@@ -45,6 +45,10 @@ import {
   Award,
   Users,
   FileText,
+  ClipboardList,
+  ScrollText,
+  Trophy,
+  ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
 import { useTheme } from "@/contexts/theme";
@@ -79,6 +83,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const isAdmin =
     user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;
+
+  const isTeacher =
+    !isAdmin &&
+    (user?.roles?.some((role) => role.name.toLowerCase() === "teacher") ??
+      false);
+
+  // Teacher navigation
+  const teacherNav = [
+    { title: "Dashboard", url: "/teacher/dashboard", icon: LayoutDashboard },
+    { title: "Content", url: "/teacher/content", icon: BookOpen },
+    { title: "Submissions", url: "/teacher/submissions", icon: ClipboardList },
+    { title: "Leaderboard", url: "/teacher/leaderboard", icon: Trophy },
+    { title: "Audit Logs", url: "/teacher/audit-logs", icon: ShieldCheck },
+  ];
 
   // Admin navigation
   const navFlat = [
@@ -234,8 +252,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </>
               )}
 
+              {/* Teacher Navigation */}
+              {isTeacher && (
+                <>
+                  {teacherNav.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton asChild>
+                        <NavLink
+                          to={item.url}
+                          className={({ isActive }) =>
+                            isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : ""
+                          }>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </NavLink>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </>
+              )}
+
               {/* Student Navigation */}
-              {!isAdmin && (
+              {!isAdmin && !isTeacher && (
                 <>
                   {studentNavMain.map((item) => (
                     <SidebarMenuItem key={item.title}>

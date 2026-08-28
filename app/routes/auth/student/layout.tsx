@@ -1,5 +1,7 @@
 import React from "react";
-import { Link, Outlet, useLocation } from "react-router";
+import { Link, Outlet, redirect, useLocation } from "react-router";
+import { getToken, getUser } from "@/utils/auth-storage";
+import { hasRole, resolveLandingPath } from "@/utils/roles";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
@@ -13,6 +15,30 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ModeToggle } from "@/components/custom/mode-toggle";
 import { cn } from "@/lib/utils";
+
+export async function clientLoader() {
+  if (!getToken()) {
+    throw redirect("/");
+  }
+
+  const user = getUser();
+  if (!user) {
+    throw redirect("/");
+  }
+
+  // Recognized non-student roles take precedence — send to their own landing path.
+  if (hasRole(user, "teacher") || hasRole(user, "admin")) {
+    throw redirect(resolveLandingPath(user));
+  }
+
+  // Authenticated but holds no recognized role (empty or unknown roles) — go to root,
+  // not resolveLandingPath which would return /student/dashboard and loop.
+  if (!hasRole(user, "student")) {
+    throw redirect("/");
+  }
+
+  return null;
+}
 
 // Enhanced SidebarTrigger with visual indicator for lesson pages
 function EnhancedSidebarTrigger() {
