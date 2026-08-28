@@ -2,6 +2,8 @@
 
 export type ProfileAvatar = string | { url: string; expires_at: string } | null;
 
+export type RoleName = "admin" | "teacher" | "student";
+
 export type Profile = {
   display_name: string | null;
   email: string | null;

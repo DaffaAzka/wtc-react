@@ -98,4 +98,18 @@ export default [
       route("/challenges", "routes/auth/admin/all-challenges/index.tsx"),
     ]),
   ]),
+
+  // Teacher workspace
+  layout("routes/auth/teacher/layout.tsx", [
+    ...prefix("/teacher", [
+      route("/dashboard", "routes/auth/teacher/dashboard.tsx"),
+      route("/content", "routes/auth/teacher/content.tsx"),
+      ...prefix("/submissions", [
+        index("routes/auth/teacher/submissions/index.tsx"),
+        route("/:id", "routes/auth/teacher/submissions/$id.tsx"),
+      ]),
+      route("/leaderboard", "routes/auth/teacher/leaderboard.tsx"),
+      route("/audit-logs", "routes/auth/teacher/audit-logs.tsx"),
+    ]),
+  ]),
 ] satisfies RouteConfig;

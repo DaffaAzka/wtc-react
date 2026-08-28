@@ -1,16 +1,30 @@
-import { Outlet, redirect, useLocation } from "react-router";
+import { Link, Outlet, redirect, useLocation } from "react-router";
+import type { Route } from "../+types/layout";
 
 import { AppSidebar } from "@/components/app-sidebar";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import type { Route } from "./+types/layout";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/custom/mode-toggle";
 import { getToken, getUser } from "@/utils/auth-storage";
-import { resolveLandingPath } from "@/utils/roles";
+import { hasRole, resolveLandingPath } from "@/utils/roles";
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: "WTC LMS" }, { name: "description", content: "Welcome to WTC LMS!" }];
+  return [
+    { title: "WTC LMS" },
+    { name: "description", content: "Welcome to WTC LMS!" },
+  ];
 }
 
 export async function clientLoader() {
@@ -19,15 +33,20 @@ export async function clientLoader() {
   }
 
   const user = getUser();
-  const landingPath = resolveLandingPath(user);
-  if (user && landingPath !== "/dashboard") {
-    throw redirect(landingPath);
+
+  if (!user) {
+    throw redirect("/");
+  }
+
+  // Admit teachers and admins (admins can access teacher area)
+  if (!hasRole(user, "teacher") && !hasRole(user, "admin")) {
+    throw redirect(resolveLandingPath(user));
   }
 
   return null;
 }
 
-export default function AuthLayout() {
+export default function TeacherLayout() {
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -35,10 +54,12 @@ export default function AuthLayout() {
         <header className="flex h-16 shrink-0 items-center justify-between gap-2">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger className="-ml-1" />
-            <Separator orientation="vertical" className="mr-2 data-vertical:h-4 data-vertical:self-auto" />
-            <DynamicBreadcrumb />
+            <Separator
+              orientation="vertical"
+              className="mr-2 data-vertical:h-4 data-vertical:self-auto"
+            />
+            <TeacherBreadcrumb />
           </div>
-
           <div className="flex items-center px-4">
             <ModeToggle />
           </div>
@@ -52,51 +73,34 @@ export default function AuthLayout() {
 }
 
 // ---------------------------------------------------------------------------
-// Route segment → human-readable label map
-// Covers all routes defined in routes.ts under layout("routes/auth/layout.tsx")
+// Segment label map for teacher routes
 // ---------------------------------------------------------------------------
+
 const SEGMENT_LABELS: Record<string, string> = {
-  // Top-level admin pages
+  teacher: "Teacher",
   dashboard: "Dashboard",
-  courses: "Courses",
-
-  // Admin section
-  admin: "Admin",
-  "user-management": "User Management",
-  "course-management": "Course Management",
+  content: "Content",
+  submissions: "Submissions",
+  leaderboard: "Leaderboard",
+  "audit-logs": "Audit Logs",
   profile: "Profile",
-
-  // Materials / Pustaka PDF
-  materials: "Materi Pembelajaran",
-
-  // Tracks
   tracks: "Tracks",
-
-  // Modules
   modules: "Modules",
-
-  // Lessons
   lessons: "Lessons",
+  challenges: "Challenges",
   create: "Create",
   update: "Update",
   view: "View",
-
-  // Challenges
-  challenges: "Challenges",
 };
 
-/** Convert a raw URL segment into a readable label */
 function segmentLabel(seg: string): string {
   if (SEGMENT_LABELS[seg]) return SEGMENT_LABELS[seg];
-
-  // Dynamic segments (slugs, IDs): title-case, replace hyphens/underscores
   return seg.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function DynamicBreadcrumb() {
+function TeacherBreadcrumb() {
   const location = useLocation();
 
-  // Split pathname into non-empty segments
   const segments = location.pathname.split("/").filter(Boolean);
 
   if (segments.length === 0) {
@@ -104,14 +108,13 @@ function DynamicBreadcrumb() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbPage>Home</BreadcrumbPage>
+            <BreadcrumbPage>Teacher</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
     );
   }
 
-  // Build cumulative hrefs for each segment
   const crumbs = segments.map((seg, i) => ({
     label: segmentLabel(seg),
     href: "/" + segments.slice(0, i + 1).join("/"),
@@ -124,8 +127,16 @@ function DynamicBreadcrumb() {
         {crumbs.map((crumb, i) => (
           <span key={crumb.href} className="flex items-center gap-1.5">
             {i > 0 && <BreadcrumbSeparator className="hidden md:block" />}
-            <BreadcrumbItem className={i < crumbs.length - 1 ? "hidden md:block" : ""}>
-              {crumb.isLast ? <BreadcrumbPage>{crumb.label}</BreadcrumbPage> : <BreadcrumbLink href={crumb.href}>{crumb.label}</BreadcrumbLink>}
+            <BreadcrumbItem
+              className={i < crumbs.length - 1 ? "hidden md:block" : ""}
+            >
+              {crumb.isLast ? (
+                <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+              ) : (
+                <BreadcrumbLink asChild>
+                  <Link to={crumb.href}>{crumb.label}</Link>
+                </BreadcrumbLink>
+              )}
             </BreadcrumbItem>
           </span>
         ))}
