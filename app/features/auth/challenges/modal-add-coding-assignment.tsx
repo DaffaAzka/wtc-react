@@ -60,6 +60,13 @@ export default function CodingAssignmentModalAdd({
     context.type === 'module' ? context.slug : undefined
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const difficultyRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const maxScoreRef = useRef<HTMLDivElement>(null);
+  const minimumScoreRef = useRef<HTMLDivElement>(null);
+  const pointsRef = useRef<HTMLDivElement>(null);
+  const allowedAttemptsRef = useRef<HTMLDivElement>(null);
 
   const [form, setForm] = useState({
     title: "",
@@ -121,6 +128,7 @@ export default function CodingAssignmentModalAdd({
         difficulty: "",
         content: "",
         max_score: "100",
+        minimum_score: "0",
         points: "",
         allowed_attempts: "3",
       });
@@ -140,6 +148,7 @@ export default function CodingAssignmentModalAdd({
         difficulty: parsed.form.difficulty || "",
         content: parsed.form.content || "",
         max_score: parsed.form.max_score || "100",
+        minimum_score: parsed.form.minimum_score ?? "0",
         points: parsed.form.points || "",
         allowed_attempts: parsed.form.allowed_attempts || "3",
       });
@@ -156,6 +165,7 @@ export default function CodingAssignmentModalAdd({
         difficulty: "",
         content: "",
         max_score: "100",
+        minimum_score: "0",
         points: "",
         allowed_attempts: "3",
       });
@@ -276,7 +286,32 @@ export default function CodingAssignmentModalAdd({
 
     setFormErrors(errors);
 
-    if (Object.keys(errors).length > 0) {
+    if (errors.title) {
+      titleRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.difficulty) {
+      difficultyRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.content) {
+      contentRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.max_score) {
+      maxScoreRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.minimum_score) {
+      minimumScoreRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.points) {
+      pointsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.allowed_attempts) {
+      allowedAttemptsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
 
@@ -288,7 +323,9 @@ export default function CodingAssignmentModalAdd({
       type: "file_upload" as const,
       difficulty: form.difficulty as "easy" | "medium" | "hard",
       content: form.content,
-      settings: [] as any,
+      settings: {
+        minimum_score: Number(form.minimum_score),
+      } as any,
       metadata: [] as any,
       max_score: Number(form.max_score),
       points: Number(form.points),
@@ -388,7 +425,7 @@ export default function CodingAssignmentModalAdd({
                 </div>
               </div>
 
-              <div>
+              <div ref={titleRef}>
                 <InputForm
                   name="title"
                   text="Title"
@@ -403,7 +440,7 @@ export default function CodingAssignmentModalAdd({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-4">
+                <div ref={difficultyRef} className="space-y-4">
                   <Label>
                     Difficulty <span className="text-red-500">*</span>
                   </Label>
@@ -440,7 +477,7 @@ export default function CodingAssignmentModalAdd({
                 </div>
               </div>
 
-              <div>
+              <div ref={contentRef}>
                 <TextareaForm
                   name="content"
                   text="Description"
@@ -471,7 +508,7 @@ export default function CodingAssignmentModalAdd({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
+                <div ref={maxScoreRef}>
                   <InputForm
                     name="max_score"
                     text="Max Score"
@@ -488,7 +525,7 @@ export default function CodingAssignmentModalAdd({
                   </p>
                 </div>
 
-                <div>
+                <div ref={minimumScoreRef}>
                   <InputForm
                     name="minimum_score"
                     text="Minimum Score"
@@ -505,7 +542,7 @@ export default function CodingAssignmentModalAdd({
                   </p>
                 </div>
 
-                <div>
+                <div ref={pointsRef}>
                   <InputForm
                     name="points"
                     text="Points"
@@ -555,7 +592,7 @@ export default function CodingAssignmentModalAdd({
                     Unlimited attempts
                   </label>
                 </div>
-                <div>
+                <div ref={allowedAttemptsRef}>
                   <InputForm
                     name="allowed_attempts"
                     text="Allowed Attempts"

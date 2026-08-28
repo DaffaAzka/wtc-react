@@ -29,7 +29,6 @@ export default function Header({ module }: { module: Module }) {
           <Button>Add Lesson</Button>
         </Link>
         {/* <ModalAdd moduleId={module.id} /> */}
-
       </div>
     </div>
   );

@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Code } from "lucide-react";
+import { Plus, Code } from "lucide-react";
 import { useGetChallengesByLesson, useGetChallengesByModule } from "@/hooks/challenges";
 import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
 import { ChallengeGridSkeleton } from "@/components/skeletons/challenge-card";
-import ErrorState from "@/components/custom/error-state";
 import ChallengeModal from "./modal-add";
 import CodingAssignmentModal from "./modal-add-coding-assignment";
 import ChallengeList from "./challenge-list";
@@ -36,7 +35,6 @@ export default function ChallengeManager({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddCodingAssignmentOpen, setIsAddCodingAssignmentOpen] = useState(false);
 
-  // Conditional fetching based on context type
   const lessonChallenges = useGetChallengesByLesson(
     context.type === "lesson" ? context.id : 0
   );
@@ -71,9 +69,9 @@ export default function ChallengeManager({
         {/* Breadcrumb - Proper Navigation */}
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
           {/* Root: Modules */}
-          <Link to="/modules" className="hover:text-foreground transition-colors">
+          {/* <Link to="/modules" className="hover:text-foreground transition-colors">
             Modules
-          </Link>
+          </Link> */}
 
           {/* Parent Module (if exists) */}
           {context.parentInfo && (
@@ -89,7 +87,7 @@ export default function ChallengeManager({
           )}
 
           {/* Current Context (Lesson/Module) */}
-          {context.type === "module" ? (
+          {/* {context.type === "module" ? (
             <>
               <span>•</span>
               <Link to={backUrl} className="hover:text-foreground transition-colors">
@@ -103,11 +101,11 @@ export default function ChallengeManager({
                 {context.title}
               </Link>
             </>
-          )}
+          )} */}
 
           {/* Current Page */}
-          <span>•</span>
-          <span className="text-foreground">Challenges</span>
+          {/* <span>•</span> */}
+          {/* <span className="text-foreground">Challenges</span> */}
         </div>
 
         {/* Title & Actions - Bold Title + Normal Context */}

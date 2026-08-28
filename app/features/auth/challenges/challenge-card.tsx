@@ -127,7 +127,6 @@ export default function ChallengeCard({
                   )}
                   {onEdit && (
                     <DropdownMenuItem onClick={() => {
-                      console.log('[ChallengeCard] Edit clicked for challenge:', challenge.id, challenge.title);
                       onEdit(challenge);
                     }}>
                       <Edit className="h-4 w-4 mr-2" />

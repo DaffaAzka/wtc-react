@@ -137,6 +137,7 @@ export default function ChallengeModalAdd({
         difficulty: "",
         content: "",
         max_score: "100",
+        minimum_score: "0",
         points: "",
         allowed_attempts: "1",
       });
@@ -158,6 +159,7 @@ export default function ChallengeModalAdd({
         difficulty: parsed.form.difficulty || "",
         content: parsed.form.content || "",
         max_score: parsed.form.max_score || "100",
+        minimum_score: parsed.form.minimum_score ?? "0",
         points: parsed.form.points || "",
         allowed_attempts: parsed.form.allowed_attempts || "1",
       });
@@ -172,6 +174,7 @@ export default function ChallengeModalAdd({
         difficulty: "",
         content: "",
         max_score: "100",
+        minimum_score: "0",
         points: "",
         allowed_attempts: "1",
       });
@@ -413,7 +416,9 @@ export default function ChallengeModalAdd({
         type: submissionType,
         difficulty: form.difficulty || undefined,
         content: form.content,
-        settings: null,
+        settings: {
+          minimum_score: Number(form.minimum_score),
+        },
         metadata: {
           questions,
         },
@@ -431,6 +436,7 @@ export default function ChallengeModalAdd({
             difficulty: "",
             content: "",
             max_score: "100",
+            minimum_score: "0",
             points: "",
             allowed_attempts: "1",
           });
@@ -770,7 +776,7 @@ export default function ChallengeModalAdd({
             <LoadingButton
               text="Create Challenge"
               loading={storeChallenge.isPending}
-              disabled={!canSubmit}
+              disabled={storeChallenge.isPending}
             />
           </div>
         </form>

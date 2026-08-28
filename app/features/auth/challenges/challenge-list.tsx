@@ -70,9 +70,7 @@ export default function ChallengeList({ challenges, context }: Props) {
             key={challenge.id}
             challenge={challenge}
             onEdit={(challenge) => {
-              console.log('[ChallengeList] onEdit called for challenge:', challenge.id, challenge.title);
               setEditModal({ challenge, isOpen: true });
-              console.log('[ChallengeList] editModal state set to:', { challengeId: challenge.id, isOpen: true });
             }}
             onDelete={(challenge) =>
               setDeleteDialog({ challenge, isOpen: true })

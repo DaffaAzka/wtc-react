@@ -69,8 +69,6 @@ export default function ChallengeModalEdit({
   isOpen,
   onOpenChange,
 }: Props) {
-  console.log('[ChallengeModalEdit] Component render - isOpen:', isOpen, 'challenge:', challenge.id, challenge.title);
-
   const updateChallenge = useUpdateChallenge(
     context.type === "lesson" ? context.id : undefined,
     context.type === "module" ? context.slug : undefined,
@@ -115,8 +113,7 @@ export default function ChallengeModalEdit({
     allowed_attempts?: string;
   }>({});
   const [saving, setSaving] = useState(false);
-  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
-  const [pendingClose, setPendingClose] = useState(false);
+  const [pendingTypeChange, setPendingTypeChange] = useState<ChallengeFormType | null>(null);
   const debouncedForm = useDebounce(form);
   const debouncedQuestions = useDebounce(questions);
   const [readyToSave, setReadyToSave] = useState(false);
@@ -157,7 +154,10 @@ export default function ChallengeModalEdit({
     if (draft) {
       try {
         const parsed = JSON.parse(draft);
-        setForm(parsed.form);
+        setForm({
+          ...parsed.form,
+          minimum_score: parsed.form.minimum_score ?? "0",
+        });
         setQuestions(parsed.questions ?? []);
         setIsUnlimitedAttempts(parsed.isUnlimitedAttempts ?? (challenge.allowed_attempts === null));
 
@@ -173,7 +173,9 @@ export default function ChallengeModalEdit({
             difficulty: challenge.difficulty || "",
             content: challenge.content,
             max_score: String(challenge.max_score),
-            minimum_score: "0",
+            minimum_score: challenge.settings?.minimum_score !== undefined
+              ? String(challenge.settings.minimum_score)
+              : "0",
             points: challenge.points ? String(challenge.points) : "",
             allowed_attempts:
               challenge.allowed_attempts ?
@@ -214,7 +216,9 @@ export default function ChallengeModalEdit({
         (challenge.difficulty as "" | "easy" | "medium" | "hard") || "",
       content: challenge.content,
       max_score: String(challenge.max_score),
-      minimum_score: "0",
+      minimum_score: challenge.settings?.minimum_score !== undefined
+        ? String(challenge.settings.minimum_score)
+        : "0",
       points: challenge.points ? String(challenge.points) : "",
       allowed_attempts:
         challenge.allowed_attempts ? String(challenge.allowed_attempts) : "1",
@@ -323,6 +327,7 @@ export default function ChallengeModalEdit({
       difficulty?: string;
       content?: string;
       max_score?: string;
+      minimum_score?: string;
       points?: string;
       allowed_attempts?: string;
     } = {};
@@ -446,7 +451,10 @@ export default function ChallengeModalEdit({
         type: submissionType,
         difficulty: form.difficulty || undefined,
         content: form.content,
-        settings: challenge.settings,
+        settings: {
+          ...challenge.settings,
+          minimum_score: Number(form.minimum_score),
+        },
         metadata: {
           ...challenge.metadata,
           questions,
@@ -473,23 +481,7 @@ export default function ChallengeModalEdit({
   };
 
   const handleCloseAttempt = (open: boolean) => {
-    if (!open && hasUnsavedChanges) {
-      setShowCloseConfirm(true);
-      setPendingClose(true);
-    } else {
-      onOpenChange(open);
-    }
-  };
-
-  const handleConfirmClose = () => {
-    setShowCloseConfirm(false);
-    setPendingClose(false);
-    onOpenChange(false);
-  };
-
-  const handleCancelClose = () => {
-    setShowCloseConfirm(false);
-    setPendingClose(false);
+    onOpenChange(open);
   };
 
   return (
@@ -497,18 +489,8 @@ export default function ChallengeModalEdit({
       <Dialog open={isOpen} onOpenChange={handleCloseAttempt}>
         <DialogContent
           className="sm:max-w-4xl max-h-[90vh] flex flex-col p-0"
-          onEscapeKeyDown={(e) => {
-            if (hasUnsavedChanges) {
-              e.preventDefault();
-              setShowCloseConfirm(true);
-            }
-          }}
-          onPointerDownOutside={(e) => {
-            if (hasUnsavedChanges) {
-              e.preventDefault();
-              setShowCloseConfirm(true);
-            }
-          }}>
+          onEscapeKeyDown={undefined}
+          onPointerDownOutside={undefined}>
           {/* Fixed Header */}
           <DialogHeader className="shrink-0 border-b px-6 pt-6 pb-4 bg-background">
             <div className="flex items-center justify-between">
@@ -530,9 +512,9 @@ export default function ChallengeModalEdit({
                   </>
                 : hasUnsavedChanges ?
                   <>
-                    <AlertCircle className="h-3.5 w-3.5 text-orange-600" />
-                    <span className="text-xs text-orange-600 font-medium">
-                      Unsaved changes
+                    <CheckCircle2 className="h-3.5 w-3.5 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground font-medium">
+                      Draft saved
                     </span>
                   </>
                 : saving ?
@@ -666,12 +648,14 @@ export default function ChallengeModalEdit({
 
                     <Select
                       value={form.type}
-                      onValueChange={(value) =>
-                        setForm((prev) => ({
-                          ...prev,
-                          type: value as ChallengeFormType,
-                        }))
-                      }>
+                      onValueChange={(value) => {
+                        const newType = value as ChallengeFormType;
+                        if (questions.length > 0 && newType !== form.type) {
+                          setPendingTypeChange(newType);
+                        } else {
+                          setForm((prev) => ({ ...prev, type: newType }));
+                        }
+                      }}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -881,29 +865,37 @@ export default function ChallengeModalEdit({
               <LoadingButton
                 text="Update Challenge"
                 loading={updateChallenge.isPending}
-                disabled={!canSubmit}
+                disabled={!canSubmit || !hasUnsavedChanges}
               />
             </div>
           </form>
         </DialogContent>
       </Dialog>
 
-      {/* Close Confirmation Dialog */}
-      <AlertDialog open={showCloseConfirm} onOpenChange={setShowCloseConfirm}>
+      {/* Type Change Confirmation Dialog */}
+      <AlertDialog open={pendingTypeChange !== null} onOpenChange={(open) => { if (!open) setPendingTypeChange(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+            <AlertDialogTitle>Change Challenge Type?</AlertDialogTitle>
             <AlertDialogDescription>
-              You have unsaved changes. Are you sure you want to close? Your
-              changes will be saved as a draft.
+              Changing the challenge type will delete all {questions.length} existing question{questions.length !== 1 ? "s" : ""}. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCancelClose}>
+            <AlertDialogCancel onClick={() => setPendingTypeChange(null)}>
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmClose}>
-              Close
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (pendingTypeChange) {
+                  setForm((prev) => ({ ...prev, type: pendingTypeChange }));
+                  setQuestions([]);
+                  setQuestionErrors({});
+                  setPendingTypeChange(null);
+                }
+              }}>
+              Change Type &amp; Delete Questions
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

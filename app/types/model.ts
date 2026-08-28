@@ -66,6 +66,7 @@ export type ChallengeSettings = {
   shuffle_options?: boolean;
   options?: ChallengeOption[];
   explanation?: string;
+  minimum_score?: number;
   [key: string]: unknown;
 };
 
