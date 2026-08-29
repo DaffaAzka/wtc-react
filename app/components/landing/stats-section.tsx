@@ -40,7 +40,7 @@ export function StatsSection() {
     <section
       id="features"
       ref={ref}
-      className="w-full flex flex-col pt-24 pb-16 px-6 lg:px-20"
+      className="min-h-screen flex flex-col justify-center w-full pt-20 pb-16 px-6 lg:px-20"
       style={{ background: "#000000" }}>
       {/* 1. TOP PART: Heading (Kiri) & Checklists (Kanan) */}
       <div className="mx-auto w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center mb-24">

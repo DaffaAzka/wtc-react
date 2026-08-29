@@ -51,7 +51,7 @@ export function FaqSection() {
     <section
       id="faq"
       ref={ref}
-      className="w-full"
+      className="min-h-screen flex flex-col justify-center w-full pt-20 pb-16 px-6 lg:px-20"
       style={{ background: "#ffffff" }}>
       {/* Lebar container disesuaikan biar teks FAQ ga terlalu panjang/melebar */}
       <div className="mx-auto max-w-4xl px-6 py-24">

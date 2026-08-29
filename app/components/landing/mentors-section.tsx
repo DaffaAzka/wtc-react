@@ -56,7 +56,7 @@ export function MentorsSection() {
     <section
       id="mentors"
       ref={ref}
-      className="w-full"
+      className="min-h-screen flex flex-col justify-center w-full pt-20 pb-16 px-6 lg:px-20"
       style={{ background: "#ffffff" }}>
       <div className="mx-auto w-full max-w-6xl px-6 py-24">
         {/* Header Section (Animasi Fade Up) */}
