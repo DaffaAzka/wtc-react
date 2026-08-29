@@ -11,11 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+import { Collapsible, CollapsibleContent } from "@/components/ui/collapsible";
 import {
   Sidebar,
   SidebarContent,
@@ -27,7 +23,6 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
 import {
   LayoutDashboard,
@@ -46,7 +41,6 @@ import {
   GraduationCap,
   BookOpen,
   ChevronDown,
-  ChevronRight,
   Settings2,
   LogOut,
   ChevronsUpDown,
@@ -55,10 +49,7 @@ import {
 import { useAuth } from "@/contexts/auth";
 import { useTheme } from "@/contexts/theme";
 import { getTwoInitials } from "@/utils/global";
-import { hasRole } from "@/utils/roles";
 import { ModeToggle } from "./custom/mode-toggle";
-
-// ── Types ────────────────────────────────────────────────────────────────────
 
 type NavItem = {
   title: string;
@@ -72,8 +63,6 @@ type NavGroup = {
   items: NavItem[];
 };
 
-// ── Active nav link helper ───────────────────────────────────────────────────
-
 function NavItem({ item }: { item: NavItem }) {
   return (
     <SidebarMenuItem>
@@ -82,10 +71,9 @@ function NavItem({ item }: { item: NavItem }) {
           to={item.url}
           className={({ isActive }) =>
             isActive
-              ? "bg-[#1c81ff]/10 text-[#1c81ff] font-bold"
-              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 font-medium"
-          }
-        >
+              ? "bg-[#1c81ff]/10 text-gray-900 dark:text-white font-bold"
+              : "text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5 font-medium"
+          }>
           <item.icon className="h-4 w-4 shrink-0" />
           <span>{item.title}</span>
         </NavLink>
@@ -99,21 +87,23 @@ function NavItem({ item }: { item: NavItem }) {
 function NavGroup({ group }: { group: NavGroup }) {
   const location = useLocation();
   const isGroupActive = group.items.some((item) =>
-    location.pathname.startsWith(item.url)
+    location.pathname.startsWith(item.url),
   );
   const [open, setOpen] = React.useState(isGroupActive);
 
   return (
-    <Collapsible open={open} onOpenChange={setOpen} className="group/collapsible">
+    <Collapsible
+      open={open}
+      onOpenChange={setOpen}
+      className="group/collapsible">
       <SidebarMenuItem className="relative">
         <SidebarMenuButton
           onClick={() => setOpen((o) => !o)}
           className={`cursor-pointer font-medium ${
             isGroupActive
-              ? "text-[#1c81ff]"
-              : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-          }`}
-        >
+              ? "font-bold text-gray-900 dark:text-white"
+              : "text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+          }`}>
           <group.icon className="h-4 w-4 shrink-0" />
           <span>{group.title}</span>
           <ChevronDown
@@ -133,11 +123,10 @@ function NavGroup({ group }: { group: NavGroup }) {
                     className={({ isActive }) =>
                       `flex items-center gap-2 ${
                         isActive
-                          ? "text-[#1c81ff] font-bold"
-                          : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+                          ? "font-bold text-gray-900 dark:text-white"
+                          : "text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
                       }`
-                    }
-                  >
+                    }>
                     <sub.icon className="h-3.5 w-3.5 shrink-0" />
                     <span>{sub.title}</span>
                   </NavLink>
@@ -151,8 +140,6 @@ function NavGroup({ group }: { group: NavGroup }) {
   );
 }
 
-// ── Section label ────────────────────────────────────────────────────────────
-
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
     <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 dark:text-gray-600">
@@ -160,8 +147,6 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
     </p>
   );
 }
-
-// ── Main sidebar ─────────────────────────────────────────────────────────────
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, logout } = useAuth();
@@ -179,7 +164,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     const root = window.document.documentElement;
     const isDark = root.classList.contains("dark");
     setLogoSrc(
-      isDark ? "/brand-pack/logo-h-dark.svg" : "/brand-pack/logo-h-light.svg"
+      isDark ? "/brand-pack/logo-h-dark.svg" : "/brand-pack/logo-h-light.svg",
     );
   }, [theme]);
 
@@ -209,54 +194,63 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     title: "Course Management",
     icon: LayersIcon,
     items: [
-      { title: "Tracks",    url: "/tracks",    icon: RouteIcon },
-      { title: "Modules",   url: "/modules",   icon: LayersIcon },
-      { title: "Lessons",   url: "/lessons",   icon: NotebookTextIcon },
+      { title: "Tracks", url: "/tracks", icon: RouteIcon },
+      { title: "Modules", url: "/modules", icon: LayersIcon },
+      { title: "Lessons", url: "/lessons", icon: NotebookTextIcon },
       { title: "Materials", url: "/materials", icon: FileText },
-      { title: "Challenges",url: "/challenges",icon: Award },
+      { title: "Challenges", url: "/challenges", icon: Award },
     ],
   };
 
   const adminManage: NavItem[] = [
-    { title: "User Management",  url: "/user-management",  icon: UsersIcon },
+    { title: "User Management", url: "/user-management", icon: UsersIcon },
     { title: "Student Progress", url: "/student-progress", icon: Users },
-    { title: "Recycle Bin",      url: "/recycle-bin",      icon: Trash2 },
+    { title: "Recycle Bin", url: "/recycle-bin", icon: Trash2 },
   ];
 
-  // ── Teacher nav ─────────────────────────────────────────────────────────────
-
   const teacherMain: NavItem[] = [
-    { title: "Dashboard",        url: "/teacher/dashboard",        icon: LayoutDashboard },
-    { title: "Submissions",      url: "/teacher/submissions",      icon: ClipboardList },
-    { title: "Leaderboard",      url: "/teacher/leaderboard",      icon: Trophy },
-    { title: "Student Progress", url: "/teacher/student-progress", icon: Users },
+    { title: "Dashboard", url: "/teacher/dashboard", icon: LayoutDashboard },
+    { title: "Submissions", url: "/teacher/submissions", icon: ClipboardList },
+    { title: "Leaderboard", url: "/teacher/leaderboard", icon: Trophy },
+    {
+      title: "Student Progress",
+      url: "/teacher/student-progress",
+      icon: Users,
+    },
   ];
 
   const teacherContentGroup: NavGroup = {
     title: "Content",
     icon: BookOpen,
     items: [
-      { title: "Tracks",     url: "/teacher/tracks",     icon: RouteIcon },
-      { title: "Modules",    url: "/teacher/modules",    icon: LayersIcon },
-      { title: "Lessons",    url: "/teacher/lessons",    icon: NotebookTextIcon },
-      { title: "Challenges", url: "/teacher/challenges", icon: TerminalSquareIcon },
+      { title: "Tracks", url: "/teacher/tracks", icon: RouteIcon },
+      { title: "Modules", url: "/teacher/modules", icon: LayersIcon },
+      { title: "Lessons", url: "/teacher/lessons", icon: NotebookTextIcon },
+      {
+        title: "Challenges",
+        url: "/teacher/challenges",
+        icon: TerminalSquareIcon,
+      },
     ],
   };
 
   // ── Student nav ─────────────────────────────────────────────────────────────
 
   const studentMain: NavItem[] = [
-    { title: "Beranda",          url: "/student/dashboard", icon: Home },
-    { title: "Progress Belajar", url: "/student/progress",  icon: GraduationCap },
-    { title: "Kelas",            url: "/student/classes",   icon: BookOpen },
+    { title: "Beranda", url: "/student/dashboard", icon: Home },
+    {
+      title: "Progress Belajar",
+      url: "/student/progress",
+      icon: GraduationCap,
+    },
+    { title: "Kelas", url: "/student/classes", icon: BookOpen },
   ];
 
   return (
     <Sidebar
       variant="sidebar"
       className="border-r border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0f12]"
-      {...props}
-    >
+      {...props}>
       {/* ── Header ── */}
       <SidebarHeader className="gap-0 p-0">
         <div className="relative overflow-hidden">
@@ -265,16 +259,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             loop
             muted
             playsInline
-            className="h-32 w-full object-cover opacity-80"
-            key={videoSrc}
-          >
+            className="h-32 w-full object-cover dark:opacity-80"
+            key={videoSrc}>
             <source src={videoSrc} type="video/mp4" />
           </video>
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/60 dark:to-[#0a0f12]/80" />
-          {/* Logo */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <img src={logoSrc} alt="WTC" className="h-20 w-auto drop-shadow-md" />
+          {/* Logo — kiri atas */}
+          <div className="absolute -top-8 left-3">
+            {" "}
+            <img src={logoSrc} alt="WTC" className="h-28 w-auto" />
           </div>
         </div>
         <div className="h-px bg-gray-200 dark:bg-white/10" />
@@ -337,7 +329,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <DropdownMenuTrigger asChild>
               <button className="flex flex-1 min-w-0 items-center gap-3 rounded-xl px-3 py-2.5 text-left hover:bg-gray-100 dark:hover:bg-white/5 transition-colors group">
                 <Avatar className="h-8 w-8 shrink-0 ring-1 ring-gray-200 dark:ring-white/10">
-                  <AvatarImage src={avatarSrc} alt={user?.display_name ?? undefined} />
+                  <AvatarImage
+                    src={avatarSrc}
+                    alt={user?.display_name ?? undefined}
+                  />
                   <AvatarFallback className="text-xs font-bold bg-[#1c81ff]/10 text-[#1c81ff]">
                     {getTwoInitials(user?.display_name || user?.name || "?")}
                   </AvatarFallback>
@@ -356,12 +351,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <DropdownMenuContent
               side="top"
               align="start"
-              className="w-56 rounded-xl mb-1"
-            >
+              className="w-56 rounded-xl mb-1">
               <DropdownMenuLabel className="p-0">
                 <div className="flex items-center gap-3 px-3 py-3 border-b border-gray-100 dark:border-white/5">
                   <Avatar className="h-9 w-9 ring-1 ring-gray-200 dark:ring-white/10">
-                    <AvatarImage src={avatarSrc} alt={user?.display_name ?? undefined} />
+                    <AvatarImage
+                      src={avatarSrc}
+                      alt={user?.display_name ?? undefined}
+                    />
                     <AvatarFallback className="text-xs font-bold bg-[#1c81ff]/10 text-[#1c81ff]">
                       {getTwoInitials(user?.display_name || user?.name || "?")}
                     </AvatarFallback>
@@ -392,8 +389,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={logout}
-                  className="rounded-lg text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-500/10"
-                >
+                  className="rounded-lg text-red-500 focus:text-red-500 focus:bg-red-50 dark:focus:bg-red-500/10">
                   <LogOut className="h-4 w-4" />
                   Log out
                 </DropdownMenuItem>
