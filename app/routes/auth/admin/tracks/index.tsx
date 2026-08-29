@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import TracksTable from "@/features/auth/tracks/table";
 import { useGetTracksPaginated } from "@/hooks/tracks";
 import { Pagination } from "@/components/ui/pagination";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router";
 import { Plus } from "lucide-react";

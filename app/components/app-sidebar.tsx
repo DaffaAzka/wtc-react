@@ -33,9 +33,6 @@ import {
   UsersIcon,
   Trash2,
   Users,
-  FileText,
-  Award,
-  ClipboardList,
   Trophy,
   Home,
   GraduationCap,
@@ -45,6 +42,9 @@ import {
   LogOut,
   ChevronsUpDown,
   ShieldCheck,
+  Library,
+  Layers,
+  ClipboardList,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
 import { useTheme } from "@/contexts/theme";
@@ -62,6 +62,8 @@ type NavGroup = {
   icon: React.ElementType;
   items: NavItem[];
 };
+
+// ── Flat nav item ────────────────────────────────────────────────────────────
 
 function NavItem({ item }: { item: NavItem }) {
   return (
@@ -101,8 +103,8 @@ function NavGroup({ group }: { group: NavGroup }) {
           onClick={() => setOpen((o) => !o)}
           className={`cursor-pointer font-medium ${
             isGroupActive
-              ? "font-bold text-gray-900 dark:text-white"
-              : "text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              ? "bg-[#1c81ff]/10 font-bold text-gray-900 dark:text-white"
+              : "text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5"
           }`}>
           <group.icon className="h-4 w-4 shrink-0" />
           <span>{group.title}</span>
@@ -148,6 +150,60 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
   );
 }
 
+// ── Nav definitions ──────────────────────────────────────────────────────────
+
+const adminMain: NavItem[] = [
+  { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
+];
+
+const adminCourseGroup: NavGroup = {
+  title: "Course Management",
+  icon: Layers,
+  items: [
+    { title: "Tracks", url: "/tracks", icon: RouteIcon },
+    { title: "Modules", url: "/modules", icon: LayersIcon },
+    { title: "Lessons", url: "/lessons", icon: NotebookTextIcon },
+    { title: "Challenges", url: "/challenges", icon: TerminalSquareIcon },
+    { title: "Materials", url: "/materials", icon: Library },
+  ],
+};
+
+const adminManage: NavItem[] = [
+  { title: "Users", url: "/user-management", icon: UsersIcon },
+  { title: "Student Progress", url: "/student-progress", icon: Users },
+  { title: "Recycle Bin", url: "/recycle-bin", icon: Trash2 },
+];
+
+const teacherMain: NavItem[] = [
+  { title: "Dashboard", url: "/teacher/dashboard", icon: LayoutDashboard },
+  { title: "Submissions", url: "/teacher/submissions", icon: ClipboardList },
+  { title: "Leaderboard", url: "/teacher/leaderboard", icon: Trophy },
+  { title: "Student Progress", url: "/teacher/student-progress", icon: Users },
+];
+
+const teacherContentGroup: NavGroup = {
+  title: "Content",
+  icon: BookOpen,
+  items: [
+    { title: "Tracks", url: "/teacher/tracks", icon: RouteIcon },
+    { title: "Modules", url: "/teacher/modules", icon: LayersIcon },
+    { title: "Lessons", url: "/teacher/lessons", icon: NotebookTextIcon },
+    {
+      title: "Challenges",
+      url: "/teacher/challenges",
+      icon: TerminalSquareIcon,
+    },
+  ],
+};
+
+const studentMain: NavItem[] = [
+  { title: "Beranda", url: "/student/dashboard", icon: Home },
+  { title: "Progress Belajar", url: "/student/progress", icon: GraduationCap },
+  { title: "Kelas", url: "/student/classes", icon: BookOpen },
+];
+
+// ── Main component ───────────────────────────────────────────────────────────
+
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, logout } = useAuth();
   const { theme } = useTheme();
@@ -170,58 +226,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const isAdmin =
     user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;
-
   const { pathname } = useLocation();
   const isTeacher =
     !isAdmin &&
     (user?.roles?.some((r) => r.name.toLowerCase() === "teacher") ?? false);
   const isStudent = !isAdmin && !isTeacher;
 
-  const profileRoute = isAdmin ? "/admin/profile" : "/student/profile";
+  const profileRoute = isAdmin
+    ? "/admin/profile"
+    : isTeacher
+      ? "/teacher/profile"
+      : "/student/profile";
 
-  const contentPaths = ["/tracks", "/modules", "/lessons", "/challenges", "/materials"];
-  const isOnContentPage = contentPaths.some((p) => pathname.startsWith(p));
-
-  const [teacherContentOpen, setTeacherContentOpen] = React.useState(isOnContentPage);
-
-  // Teacher navigation
-  const teacherNavFlat = [
-    { title: "Dashboard", url: "/teacher/dashboard", icon: LayoutDashboard },
-    { title: "Submissions", url: "/teacher/submissions", icon: ClipboardList },
-    { title: "Leaderboard", url: "/teacher/leaderboard", icon: Trophy },
-    {
-      title: "Student Progress",
-      url: "/teacher/student-progress",
-      icon: Users,
-    },
-  ];
-
-  const teacherContentGroup: NavGroup = {
-    title: "Content",
-    icon: BookOpen,
-    items: [
-      { title: "Tracks", url: "/teacher/tracks", icon: RouteIcon },
-      { title: "Modules", url: "/teacher/modules", icon: LayersIcon },
-      { title: "Lessons", url: "/teacher/lessons", icon: NotebookTextIcon },
-      {
-        title: "Challenges",
-        url: "/teacher/challenges",
-        icon: TerminalSquareIcon,
-      },
-    ],
-  };
-
-  // ── Student nav ─────────────────────────────────────────────────────────────
-
-  const studentMain: NavItem[] = [
-    { title: "Beranda", url: "/student/dashboard", icon: Home },
-    {
-      title: "Progress Belajar",
-      url: "/student/progress",
-      icon: GraduationCap,
-    },
-    { title: "Kelas", url: "/student/classes", icon: BookOpen },
-  ];
+  const avatarSrc = user?.profile?.avatar ?? user?.avatar ?? undefined;
 
   return (
     <Sidebar
@@ -242,7 +259,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </video>
           {/* Logo — kiri atas */}
           <div className="absolute -top-8 left-3">
-            {" "}
             <img src={logoSrc} alt="WTC" className="h-28 w-auto" />
           </div>
         </div>

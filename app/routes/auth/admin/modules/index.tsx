@@ -93,6 +93,7 @@ export default function IndexPage({ params }: Route.ComponentProps) {
         onRetry={refresh}
         total={pagination?.total}
         basePath={basePath}
+        trackSlug={params.slug}
       />
 
       {/* Pagination */}

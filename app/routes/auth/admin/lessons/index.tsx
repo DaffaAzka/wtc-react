@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import SelectForm from "@/components/custom/select-form";
 import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
 import { TableSkeleton } from "@/components/skeletons/table";
@@ -14,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
 import { Plus } from "lucide-react";
 import type { Route } from "./+types/index";
+import { useEffect } from "react";
 
 export default function LessonsPage({ params }: Route.ComponentProps) {
   const slug = (params as { slug?: string }).slug;

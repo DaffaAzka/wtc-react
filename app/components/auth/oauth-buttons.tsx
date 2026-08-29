@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 
 export function OAuthButtons() {
   const authUrl = import.meta.env.VITE_AUTH_URL;

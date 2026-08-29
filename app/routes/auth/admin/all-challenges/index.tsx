@@ -190,7 +190,7 @@ export default function AllChallengesPage() {
                   <td className="hidden px-5 py-3.5 text-[13px] text-gray-500 dark:text-gray-400 lg:table-cell">{formatUpdated(challenge.updated_at)}</td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Link to={`/admin/challenges/${challenge.id}`}
+                      <Link to={`/challenges/${challenge.id}`}
                         className="rounded-lg px-2.5 py-1 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white transition-colors">
                         View
                       </Link>
@@ -201,7 +201,7 @@ export default function AllChallengesPage() {
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="rounded-xl">
-                          <Link to={`/admin/challenges/${challenge.id}`}>
+                          <Link to={`/challenges/${challenge.id}`}>
                             <DropdownMenuItem className="rounded-lg">
                               <Eye className="h-4 w-4 mr-2" />
                               View
@@ -212,7 +212,7 @@ export default function AllChallengesPage() {
                             Edit
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem className="rounded-lg" onClick={() => navigate(`/admin/submissions/${challenge.id}`)}>
+                          <DropdownMenuItem className="rounded-lg" onClick={() => navigate(`/submissions/${challenge.id}`)}>
                             <FileText className="h-4 w-4 mr-2" />
                             Submissions
                           </DropdownMenuItem>
