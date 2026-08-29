@@ -220,7 +220,7 @@ export default function LeaderboardTable() {
               </tr>
             ) : (
               (entries ?? []).map((entry) => (
-                <tr key={entry.profile_id} className="hover:bg-muted/30">
+                <tr key={(entry as any).profile?.id ?? entry.rank} className="hover:bg-muted/30">
                   <td className="px-4 py-3">
                     <RankCell rank={entry.rank} />
                   </td>
@@ -228,15 +228,15 @@ export default function LeaderboardTable() {
                     <div className="flex items-center gap-2.5">
                       <Avatar className="h-8 w-8">
                         <AvatarImage
-                          src={entry.avatar ?? undefined}
-                          alt={entry.display_name ?? "Student"}
+                          src={(entry as any).profile?.avatar?.url ?? undefined}
+                          alt={(entry as any).profile?.display_name ?? "Student"}
                         />
                         <AvatarFallback className="text-xs">
-                          {entry.display_name?.charAt(0).toUpperCase() ?? "?"}
+                          {((entry as any).profile?.display_name ?? "?").charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
                       <span className="font-medium text-foreground">
-                        {entry.display_name ?? <span className="text-muted-foreground italic">Unknown</span>}
+                        {(entry as any).profile?.display_name ?? <span className="text-muted-foreground italic">Unknown</span>}
                       </span>
                     </div>
                   </td>
