@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
-import { Plus, Code } from "lucide-react";
+import { Plus, Code, Sparkles } from "lucide-react";
 import { useGetChallengesByLesson, useGetChallengesByModule } from "@/hooks/challenges";
 import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
 import { ChallengeGridSkeleton } from "@/components/skeletons/challenge-card";
 import ChallengeModal from "./modal-add";
 import CodingAssignmentModal from "./modal-add-coding-assignment";
+import GenerateChallengeModal from "./modal-generate-challenge";
 import ChallengeList from "./challenge-list";
 import ChallengeEmpty from "./challenge-empty";
+import type { GeneratedChallenge } from "@/services/ai";
 
 export type ChallengeContext = {
   type: "lesson" | "module";
@@ -34,6 +36,8 @@ export default function ChallengeManager({
 }: Props) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddCodingAssignmentOpen, setIsAddCodingAssignmentOpen] = useState(false);
+  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
+  const [prefillData, setPrefillData] = useState<GeneratedChallenge | undefined>(undefined);
 
   const lessonChallenges = useGetChallengesByLesson(
     context.type === "lesson" ? context.id : 0
@@ -120,7 +124,16 @@ export default function ChallengeManager({
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Button onClick={() => setIsAddModalOpen(true)} size="sm" className="gap-2">
+            <Button
+              onClick={() => setIsGenerateModalOpen(true)}
+              variant="outline"
+              size="sm"
+              className="gap-2 border-violet-500/50 text-violet-600 hover:bg-violet-500/10 hover:text-violet-600"
+            >
+              <Sparkles className="h-4 w-4" />
+              Generate with AI
+            </Button>
+            <Button onClick={() => { setPrefillData(undefined); setIsAddModalOpen(true); }} size="sm" className="gap-2">
               <Plus className="h-4 w-4" />
               Add Challenge
             </Button>
@@ -148,13 +161,12 @@ export default function ChallengeManager({
       )}
 
       {/* Add Challenge Modal */}
-      {isAddModalOpen && (
-        <ChallengeModal
-          context={context}
-          isOpen={isAddModalOpen}
-          onOpenChange={setIsAddModalOpen}
-        />
-      )}
+      <ChallengeModal
+        context={context}
+        isOpen={isAddModalOpen}
+        onOpenChange={setIsAddModalOpen}
+        prefill={prefillData}
+      />
 
       {/* Add Coding Assignment Modal */}
       {isAddCodingAssignmentOpen && (
@@ -164,6 +176,18 @@ export default function ChallengeManager({
           onOpenChange={setIsAddCodingAssignmentOpen}
         />
       )}
+
+      {/* Generate Challenge with AI Modal */}
+      <GenerateChallengeModal
+        context={context}
+        isOpen={isGenerateModalOpen}
+        onOpenChange={setIsGenerateModalOpen}
+        onGenerated={(data) => {
+          setPrefillData(data);
+          setIsGenerateModalOpen(false);
+          setTimeout(() => setIsAddModalOpen(true), 50);
+        }}
+      />
     </div>
   );
 }
