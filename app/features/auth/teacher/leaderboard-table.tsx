@@ -117,8 +117,8 @@ export default function LeaderboardTable() {
   const { data, isLoading, isError, refetch } = useTeacherLeaderboard(params);
   const { studyClasses } = useGetStudyClasses();
 
-  const entries: LeaderboardEntry[] = Array.isArray(data?.data) ? data.data : (data?.data as any)?.data ?? [];
-  const meta = data?.meta;
+  const entries: LeaderboardEntry[] = (data as any)?.data?.leaderboard ?? [];
+  const meta = (data as any)?.data?.pagination;
 
   const handlePeriodChange = (value: string) => {
     setPeriod(value as LeaderboardPeriod);
