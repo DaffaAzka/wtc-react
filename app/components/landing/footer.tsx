@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { useEffect, useState, useRef } from "react";
+import { useInView } from "./use-in-view";
 
 // Hanya bahasa Inggris
 const copy = {
@@ -25,25 +25,12 @@ const copy = {
 };
 
 export function Footer() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  // Efek Scroll Reveal
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
-      { threshold: 0.15 },
-    );
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
+  const { ref, inView } = useInView();
 
   return (
     <footer
       ref={ref}
-      className="min-h-screen flex flex-col justify-center w-full pt-20 pb-16 px-6 lg:px-20"
+      className="relative flex flex-col justify-center min-h-screen pt-20 px-6 sm:px-10 lg:px-20 overflow-hidden"
       style={{ background: "#000000" }}>
       {/* Background Glow tipis di area CTA */}
       <div
@@ -59,7 +46,7 @@ export function Footer() {
         className="relative z-10">
         <div
           className={`mx-auto max-w-6xl px-6 py-24 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10 transition-all duration-700 ease-out ${
-            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}>
           <h2
             className="font-extrabold m-0"
@@ -108,7 +95,7 @@ export function Footer() {
           {/* Brand & Social (Animasi ke-1) */}
           <div
             className={`col-span-2 transition-all duration-700 delay-100 ease-out ${
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}>
             <Link to="/" className="flex items-center gap-2 mb-6 inline-block">
               <img
@@ -183,7 +170,7 @@ export function Footer() {
           {/* Learn links (Animasi ke-2) */}
           <div
             className={`transition-all duration-700 delay-200 ease-out ${
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}>
             <h4
               className="text-[13px] font-bold uppercase tracking-[0.1em] mb-6"
@@ -207,7 +194,7 @@ export function Footer() {
           {/* Company links (Animasi ke-3) */}
           <div
             className={`transition-all duration-700 delay-300 ease-out ${
-              visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+              inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
             }`}>
             <h4
               className="text-[13px] font-bold uppercase tracking-[0.1em] mb-6"
@@ -232,7 +219,7 @@ export function Footer() {
         {/* Copyright (Animasi Terakhir) */}
         <div
           className={`mt-16 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-1000 delay-500 ease-out ${
-            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+            inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
           style={{ borderTop: "1px solid #1a1a1a" }}>
           <p className="text-[14px] font-medium" style={{ color: "#555555" }}>

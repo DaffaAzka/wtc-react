@@ -1,5 +1,6 @@
-import { useRef, useState, useEffect } from "react";
-import { teamPhotos } from "@/components/custom/team-photos"; // Pastikan path ini bener
+import { useState, useEffect } from "react";
+import { teamPhotos } from "@/components/custom/team-photos";
+import { useInView } from "./use-in-view";
 
 const copy = {
   tag: "About Us",
@@ -10,21 +11,8 @@ const copy = {
 };
 
 export function AboutSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  const { ref, inView } = useInView();
   const [currentSlide, setCurrentSlide] = useState(0);
-
-  // Efek Scroll Reveal
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
-      { threshold: 0.2 },
-    );
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
 
   // Efek Auto-Slide untuk Foto
   useEffect(() => {
@@ -39,13 +27,13 @@ export function AboutSection() {
     <section
       id="about"
       ref={ref}
-      className="w-full flex flex-col pt-24 pb-24 px-6 lg:px-20 overflow-hidden"
+      className="relative flex flex-col justify-center min-h-screen pt-20 px-6 sm:px-10 lg:px-20 overflow-hidden"
       style={{ background: "#000000" }}>
       <div className="mx-auto w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         {/* KIRI: Teks & Deskripsi */}
         <div
           className={`transition-all duration-700 ease-out ${
-            visible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
+            inView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
           }`}>
           <p
             className="text-[13px] font-bold uppercase tracking-[0.15em] mb-6"
@@ -100,7 +88,7 @@ export function AboutSection() {
         {/* KANAN: Slideshow Foto (Crossfade) */}
         <div
           className={`relative w-full transition-all duration-1000 ease-out delay-200 ${
-            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
+            inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
           }`}>
           {/* Frame Foto */}
           <div

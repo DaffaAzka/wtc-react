@@ -1,4 +1,5 @@
-import { useRef, useState, useEffect } from "react";
+import { useState } from "react";
+import { useInView, fadeUpStyle, staggerDelay } from "./use-in-view";
 import { Plus } from "lucide-react";
 
 // Hanya bahasa Inggris
@@ -32,20 +33,7 @@ const copy = {
 
 export function FaqSection() {
   const [open, setOpen] = useState<number | null>(null);
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  // Efek Scroll Reveal
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
-      { threshold: 0.2 },
-    );
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
+  const { ref, inView } = useInView();
 
   return (
     <section
@@ -58,7 +46,7 @@ export function FaqSection() {
         {/* Header (Animasi Muncul) */}
         <div
           className={`mb-16 text-center transition-all duration-700 ease-out ${
-            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}>
           <p
             className="text-[13px] font-bold uppercase tracking-[0.15em] mb-4"
@@ -90,8 +78,8 @@ export function FaqSection() {
               style={{
                 borderBottom: "1px solid #eaeaea",
                 transitionDelay: `${i * 100}ms`,
-                opacity: visible ? 1 : 0,
-                transform: visible ? "translateY(0)" : "translateY(20px)",
+                opacity: inView ? 1 : 0,
+                transform: inView ? "translateY(0)" : "translateY(20px)",
               }}>
               {/* Tombol Pertanyaan */}
               <button

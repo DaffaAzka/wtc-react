@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useInView, fadeUpStyle, staggerDelay } from "./use-in-view";
 import {
   SiReact,
   SiVuedotjs,
@@ -44,20 +44,7 @@ const techs = [
 ];
 
 export function TracksSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  // Efek Scroll Reveal kayak di section Stats
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
-      { threshold: 0.15 }, // Trigger pas 15% section ini masuk layar
-    );
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
+  const { ref, inView } = useInView();
 
   return (
     <section
@@ -69,7 +56,7 @@ export function TracksSection() {
         {/* Header Section (Animasi barengan) */}
         <div
           className={`mb-16 transition-all duration-700 ease-out ${
-            visible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+            inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
           }`}>
           <p
             className="text-[13px] font-bold uppercase tracking-[0.15em] mb-4"
@@ -105,8 +92,8 @@ export function TracksSection() {
               className="transition-all duration-500 ease-out"
               style={{
                 transitionDelay: `${i * 50}ms`, // Stagger: munculnya gilir-giliran per 50ms
-                opacity: visible ? 1 : 0,
-                transform: visible ? "translateY(0)" : "translateY(20px)",
+                opacity: inView ? 1 : 0,
+                transform: inView ? "translateY(0)" : "translateY(20px)",
               }}>
               {/* Card Konten Utama */}
               <div

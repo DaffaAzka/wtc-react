@@ -8,6 +8,7 @@ import {
   SiNodedotjs,
   SiPostgresql,
 } from "react-icons/si";
+import { HeroSquiggle } from "./hero-squiggle";
 
 const copy = {
   headline1: "Master Software",
@@ -22,41 +23,6 @@ const copy = {
 const StarIcon = () => (
   <svg className="h-4 w-4" fill="#f6b60b" viewBox="0 0 20 20">
     <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-  </svg>
-);
-
-// 1. SQUIGGLE DIPERBARUI: Turun dari tengah, bentuk zigzag menyamping ala Skillshare
-const HeroSquiggle = () => (
-  <svg
-    // Posisi diubah jadi turun (top-[20%] atau top-32) dan lebih masuk ke dalem
-    className="absolute -left-10 lg:left-0 top-32 lg:top-[20%] h-[70%] lg:h-[80%] w-[350px] lg:w-[450px] pointer-events-none z-0 opacity-90"
-    viewBox="0 0 400 800"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg">
-    <path
-      // Pola Zigzag menyamping: Kiri atas -> Kanan bawah -> Kiri bawah -> Kanan Bawah
-      d="M 20 80 L 320 200 L 80 420 L 360 580 L 150 780"
-      stroke="url(#skillshare-gradient)"
-      strokeWidth="42"
-      strokeLinecap="round"
-      strokeLinejoin="round" // Biar sudut zigzag-nya tumpul halus (gak tajem)
-      className="drop-shadow-xl"
-    />
-    <defs>
-      <linearGradient
-        id="skillshare-gradient"
-        x1="0"
-        y1="0"
-        x2="400"
-        y2="800"
-        gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#00E676" /> {/* Hijau Terang */}
-        <stop offset="25%" stopColor="#00D2FF" /> {/* Cyan */}
-        <stop offset="50%" stopColor="#3A7BD5" /> {/* Biru */}
-        <stop offset="75%" stopColor="#8A2387" /> {/* Ungu */}
-        <stop offset="100%" stopColor="#E94057" /> {/* Pink */}
-      </linearGradient>
-    </defs>
   </svg>
 );
 

@@ -50,7 +50,7 @@ export function ExperienceSection() {
     <section
       id="experience"
       ref={ref}
-      className="min-h-screen flex flex-col justify-center w-full pt-20 pb-16 px-6 lg:px-20"
+      className="w-full flex flex-col pt-24 pb-20 px-6 lg:px-20"
       style={{ background: "#000000" }}>
       <div className="mx-auto w-full max-w-6xl">
         {/* Header (Animasi Muncul Duluan) */}

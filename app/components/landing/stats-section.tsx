@@ -1,5 +1,4 @@
-import { useRef, useState, useEffect } from "react";
-// Import CheckCircle dan Star dari Lucide
+import { useInView, fadeUpStyle, staggerDelay } from "./use-in-view";
 import { CheckCircle2, Star } from "lucide-react";
 
 // Karena lu bilang cuma mau bahasa Inggris, gw hapus multi-bahasanya
@@ -22,19 +21,7 @@ const copy = {
 };
 
 export function StatsSection() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setVisible(true);
-      },
-      { threshold: 0.2 },
-    );
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
+  const { ref, inView } = useInView();
 
   return (
     <section
@@ -70,8 +57,8 @@ export function StatsSection() {
               className="flex items-center gap-4 transition-all duration-700"
               style={{
                 transitionDelay: `${i * 150}ms`,
-                opacity: visible ? 1 : 0,
-                transform: visible ? "translateX(0)" : "translateX(20px)",
+                opacity: inView ? 1 : 0,
+                transform: inView ? "translateX(0)" : "translateX(20px)",
               }}>
               {/* Check Icon dari Lucide (Warna cyan/biru terang kayak referensi) */}
               <CheckCircle2
@@ -98,8 +85,8 @@ export function StatsSection() {
                 background: "#1a1a1a", // Abu-abu gelap ala card skillshare
                 border: "1px solid #2a2a2a",
                 transitionDelay: `${i * 100}ms`,
-                opacity: visible ? 1 : 0,
-                transform: visible ? "translateY(0)" : "translateY(20px)",
+                opacity: inView ? 1 : 0,
+                transform: inView ? "translateY(0)" : "translateY(20px)",
               }}>
               {/* Value / Angka Gede */}
               <div className="flex items-center gap-2 mb-2">
