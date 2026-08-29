@@ -7,13 +7,15 @@ export type Submission = {
   id: number;
   challenge_id: number;
   profile_id: string | number;
+  attempt_number: number;
   status: SubmissionStatus;
+  auto_score: number | null;
+  manual_score: number | null;
   score: number | null;
   feedback: string | null;
   file_path: string | null;
   content: string | null;
   submitted_at: string | null;
-  graded_at: string | null;
   created_at: string;
   updated_at: string;
 };

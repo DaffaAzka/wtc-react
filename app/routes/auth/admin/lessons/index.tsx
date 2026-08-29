@@ -8,7 +8,9 @@ import { useGetLessons, useGetLessonsPaginated } from "@/hooks/lessons";
 import { useGetModule, useGetModules } from "@/hooks/modules";
 import { useGetTracks } from "@/hooks/tracks";
 import type { LessonFilter } from "@/types/filter";
-import { Link } from "react-router";
+import { useState } from "react";
+import { Link, useLocation } from "react-router";
+import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
 import { Plus } from "lucide-react";
 import type { Route } from "./+types/index";
@@ -21,6 +23,8 @@ export default function LessonsPage({ params }: Route.ComponentProps) {
 // ── Module-scoped view (/modules/:slug/lessons) ─────────────────────────────
 
 function ModuleScopedLessons({ slug }: { slug: string }) {
+  const { pathname } = useLocation();
+  const basePath = pathname.startsWith("/teacher") ? "/teacher" : "";
   const { module, loading, error } = useGetModule(slug);
   const {
     lessons,
@@ -127,12 +131,11 @@ function StandaloneLessons() {
           </p>
         </div>
         {selectedModule && (
-          <Link
-            to={`/${selectedModule.slug}/lessons/create`}
-            className="shrink-0 mt-1 flex items-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-2.5 px-5 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 text-sm"
-          >
-            <Plus className="h-4 w-4" />
-            Add Lesson
+          <Link to={`${basePath}/${selectedModule.slug}/lessons/create`}>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Lesson
+            </Button>
           </Link>
         )}
       </div>

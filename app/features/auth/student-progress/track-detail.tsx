@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -48,10 +48,12 @@ function TrackImagePlaceholder({ seed }: { seed: number }) {
 
 interface TrackDetailProps {
   slug: string;
-  backTo: string;
+  /** Kept for backwards compatibility — back button now uses navigate(-1) */
+  backTo?: string;
 }
 
-export default function TrackDetail({ slug, backTo }: TrackDetailProps) {
+export default function TrackDetail({ slug }: TrackDetailProps) {
+  const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState("");
   const [status, setStatus] = useState<"all" | "in_progress" | "completed">("all");
   const [sort, setSort] = useState<"progress_desc" | "progress_asc" | "name_asc">("name_asc");
@@ -70,15 +72,24 @@ export default function TrackDetail({ slug, backTo }: TrackDetailProps) {
     ? allProfiles.filter((p) => p.display_name.toLowerCase().includes(searchInput.trim().toLowerCase()))
     : allProfiles;
 
-  // ── Loading ─────────────────────────────────────────────────────────────────
-  if (isLoading) {
-    return (
-      <div className="space-y-8">
-        <Skeleton className="h-4 w-44 rounded-lg" />
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
-          <Skeleton className="h-28 w-44 shrink-0 rounded-2xl" />
-          <div className="space-y-3 flex-1">
-            <Skeleton className="h-8 w-64 rounded-xl" />
+  const skeletonRows = Array.from({ length: 8 });
+
+  return (
+    <div className="space-y-6">
+      {/* Back button */}
+      <div>
+        <Button variant="ghost" size="sm" className="-ml-2" onClick={() => navigate(-1)}>
+          <ArrowLeft className="mr-1.5 h-4 w-4" />
+          Back to Student Progress
+        </Button>
+      </div>
+
+      {/* Track header */}
+      {isLoading ? (
+        <div className="flex items-start gap-4">
+          <Skeleton className="h-20 w-32 rounded-lg" />
+          <div className="space-y-2 flex-1">
+            <Skeleton className="h-7 w-64" />
             <div className="flex gap-4">
               <Skeleton className="h-4 w-24 rounded-md" />
               <Skeleton className="h-4 w-24 rounded-md" />

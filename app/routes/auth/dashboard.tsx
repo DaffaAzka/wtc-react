@@ -312,14 +312,8 @@ export default function Dashboard() {
             </AvatarFallback>
           </Avatar>
           <div>
-            <div className="font-bold text-gray-900 dark:text-white">
-              {user?.display_name?.trim() || user?.name || "Admin"}
-            </div>
-            {user?.roles && user.roles.length > 0 && (
-              <div className="text-[13px] text-gray-500 dark:text-gray-400">
-                {user.roles[0].display_name || user.roles[0].name || "Administrator"}
-              </div>
-            )}
+            <div className="font-semibold">{user?.display_name?.trim() || user?.name || "Admin"}</div>
+            {user?.roles && user.roles.length > 0 && <div className="text-sm text-muted-foreground">{user.roles[1].name || "Administrator"}</div>}
           </div>
         </div>
       </div>

@@ -48,9 +48,14 @@ export default function TeacherModulesPage() {
         />
       </div>
 
-      <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden">
-        <ModulesTable data={modules} loading={loading} error={error} onRetry={refresh} total={pagination?.total} />
-      </div>
+      <ModulesTable
+        data={modules}
+        loading={loading}
+        error={error}
+        onRetry={refresh}
+        total={pagination?.total}
+        basePath="/teacher"
+      />
 
       {pagination && (
         <Pagination

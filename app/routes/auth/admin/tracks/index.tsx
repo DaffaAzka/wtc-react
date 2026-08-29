@@ -2,10 +2,16 @@ import { useState, useEffect } from "react";
 import TracksTable from "@/features/auth/tracks/table";
 import { useGetTracksPaginated } from "@/hooks/tracks";
 import { Pagination } from "@/components/ui/pagination";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Link, useLocation } from "react-router";
+import { Plus } from "lucide-react";
 import ModalAdd from "@/features/auth/tracks/modal-add";
 import { BookOpen } from "lucide-react";
 
 export default function IndexPage() {
+  const { pathname } = useLocation();
+  const basePath = pathname.startsWith("/teacher") ? "/teacher" : "";
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(15);
   const [mounted, setMounted] = useState(false);
@@ -47,16 +53,14 @@ export default function IndexPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden">
-        <TracksTable
-          data={tracks}
-          loading={loading}
-          error={error}
-          onRetry={refresh}
-          total={pagination?.total}
-        />
-      </div>
+      <TracksTable
+        data={tracks}
+        loading={loading}
+        error={error}
+        onRetry={refresh}
+        total={pagination?.total}
+        basePath={basePath}
+      />
 
       {/* Pagination */}
       {pagination && (

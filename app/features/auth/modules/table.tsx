@@ -26,6 +26,7 @@ interface ModulesTableProps {
   error?: ApiErrorResponse | null;
   onRetry?: () => void;
   total?: number;
+  basePath?: string;
 }
 
 function formatUpdated(dateString?: string | null) {
@@ -46,6 +47,7 @@ export default function ModulesTable({
   error = null,
   onRetry,
   total,
+  basePath = "",
 }: ModulesTableProps) {
   const [search, setSearch] = useState("");
   const [editModal, setEditModal] = useState<{ data: Module | null; isOpen: boolean }>({ data: null, isOpen: false });
@@ -133,49 +135,72 @@ export default function ModulesTable({
                 <th className="w-36 px-5 py-3" />
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-              {filtered.map((module) => (
-                <tr key={module.id} className="group hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold text-[14px] text-gray-900 dark:text-white">{module.title}</span>
-                      <code className="rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-1.5 py-0.5 font-mono text-[11px] text-gray-400 dark:text-gray-600">
-                        /{module.slug}
-                      </code>
-                    </div>
-                  </td>
-                  <td className="hidden px-5 py-3.5 text-[13px] text-gray-500 dark:text-gray-400 tabular-nums md:table-cell">
-                    {formatUpdated(module.updated_at)}
-                  </td>
-                  <td className="px-5 py-3.5">
-                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Link to={`/${module.slug}/lessons`}
-                        className="rounded-lg px-2.5 py-1 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        Lessons
-                      </Link>
-                      <Link to={`${module.slug}/challenges`}
-                        className="rounded-lg px-2.5 py-1 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        Challenges
-                      </Link>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button aria-label="open menu"
-                            className="flex items-center justify-center h-7 w-7 rounded-lg text-gray-400 dark:text-gray-600 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
-                            <EllipsisIcon className="h-4 w-4" />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="rounded-xl">
-                          <Link to={`/${module.slug}/lessons`}>
-                            <DropdownMenuItem className="rounded-lg">View Lessons</DropdownMenuItem>
-                          </Link>
-                          <DropdownMenuItem className="rounded-lg" onClick={() => setEditModal({ data: module, isOpen: true })}>Update</DropdownMenuItem>
-                          <DropdownMenuItem variant="destructive" className="rounded-lg" onClick={() => setDeleteModal({ data: module, isOpen: true })}>Delete</DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+            <tbody className="divide-y divide-border">
+              {filtered.map((module) => {
+                const updated = formatUpdated(module.updated_at);
+                return (
+                  <tr key={module.id} className="group hover:bg-muted/40">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-foreground">
+                          {module.title}
+                        </span>
+                        <span className="rounded bg-muted px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
+                          /{module.slug}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="hidden px-4 py-3 text-xs text-muted-foreground md:table-cell">
+                      {updated}
+                    </td>
+                    <td className="hidden px-4 py-3 text-xs text-muted-foreground lg:table-cell">
+                      {(module as any).created_by?.name || "Admin"}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+                        <Link
+                          to={`${basePath}/${module.slug}/lessons`}
+                          className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+                          Lessons
+                        </Link>
+                        <Link
+                          to={`${basePath}/${module.slug}/challenges`}
+                          className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
+                          Challenges
+                        </Link>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 text-muted-foreground hover:text-foreground">
+                              <EllipsisIcon className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <Link to={`${basePath}/${module.slug}/lessons`}>
+                              <DropdownMenuItem>View</DropdownMenuItem>
+                            </Link>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                setEditModal({ data: module, isOpen: true })
+                              }>
+                              Update
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              variant="destructive"
+                              onClick={() =>
+                                setDeleteModal({ data: module, isOpen: true })
+                              }>
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

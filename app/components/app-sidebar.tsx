@@ -169,7 +169,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, [theme]);
 
   const isAdmin =
-    user?.roles?.some((r) => r.name.toLowerCase() === "admin") ?? false;
+    user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;
+
+  const { pathname } = useLocation();
   const isTeacher =
     !isAdmin &&
     (user?.roles?.some((r) => r.name.toLowerCase() === "teacher") ?? false);
@@ -177,38 +179,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const profileRoute = isAdmin ? "/admin/profile" : "/student/profile";
 
-  const avatarSrc =
-    typeof user?.avatar === "string"
-      ? user.avatar
-      : user?.avatar && "url" in user.avatar
-        ? user.avatar.url
-        : undefined;
+  const contentPaths = ["/tracks", "/modules", "/lessons", "/challenges", "/materials"];
+  const isOnContentPage = contentPaths.some((p) => pathname.startsWith(p));
 
-  // ── Admin nav ───────────────────────────────────────────────────────────────
+  const [teacherContentOpen, setTeacherContentOpen] = React.useState(isOnContentPage);
 
-  const adminMain: NavItem[] = [
-    { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
-  ];
-
-  const adminCourseGroup: NavGroup = {
-    title: "Course Management",
-    icon: LayersIcon,
-    items: [
-      { title: "Tracks", url: "/tracks", icon: RouteIcon },
-      { title: "Modules", url: "/modules", icon: LayersIcon },
-      { title: "Lessons", url: "/lessons", icon: NotebookTextIcon },
-      { title: "Materials", url: "/materials", icon: FileText },
-      { title: "Challenges", url: "/challenges", icon: Award },
-    ],
-  };
-
-  const adminManage: NavItem[] = [
-    { title: "User Management", url: "/user-management", icon: UsersIcon },
-    { title: "Student Progress", url: "/student-progress", icon: Users },
-    { title: "Recycle Bin", url: "/recycle-bin", icon: Trash2 },
-  ];
-
-  const teacherMain: NavItem[] = [
+  // Teacher navigation
+  const teacherNavFlat = [
     { title: "Dashboard", url: "/teacher/dashboard", icon: LayoutDashboard },
     { title: "Submissions", url: "/teacher/submissions", icon: ClipboardList },
     { title: "Leaderboard", url: "/teacher/leaderboard", icon: Trophy },

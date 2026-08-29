@@ -6,8 +6,10 @@ import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
 import { ChallengeGridSkeleton } from "@/components/skeletons/challenge-card";
 import ChallengeModal from "./modal-add";
 import CodingAssignmentModal from "./modal-add-coding-assignment";
+import GenerateChallengeModal from "./modal-generate-challenge";
 import ChallengeList from "./challenge-list";
 import ChallengeEmpty from "./challenge-empty";
+import type { GeneratedChallenge } from "@/services/ai";
 
 export type ChallengeContext = {
   type: "lesson" | "module";
@@ -30,6 +32,8 @@ export default function ChallengeManager({
 }: Props) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddCodingAssignmentOpen, setIsAddCodingAssignmentOpen] = useState(false);
+  const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
+  const [prefillData, setPrefillData] = useState<GeneratedChallenge | undefined>(undefined);
 
   const lessonChallenges = useGetChallengesByLesson(
     context.type === "lesson" ? context.id : 0,
@@ -131,6 +135,18 @@ export default function ChallengeManager({
           onOpenChange={setIsAddCodingAssignmentOpen}
         />
       )}
+
+      {/* Generate Challenge with AI Modal */}
+      <GenerateChallengeModal
+        context={context}
+        isOpen={isGenerateModalOpen}
+        onOpenChange={setIsGenerateModalOpen}
+        onGenerated={(data) => {
+          setPrefillData(data);
+          setIsGenerateModalOpen(false);
+          setTimeout(() => setIsAddModalOpen(true), 50);
+        }}
+      />
     </div>
   );
 }

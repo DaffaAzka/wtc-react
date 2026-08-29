@@ -31,6 +31,15 @@ export default function TeacherTracksPage() {
         <TracksTable data={tracks} loading={loading} error={error} onRetry={refresh} total={pagination?.total} />
       </div>
 
+      <TracksTable
+        data={tracks}
+        loading={loading}
+        error={error}
+        onRetry={refresh}
+        total={pagination?.total}
+        basePath="/teacher"
+      />
+
       {pagination && (
         <Pagination
           currentPage={pagination.current_page}

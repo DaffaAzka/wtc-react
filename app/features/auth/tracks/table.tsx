@@ -26,6 +26,7 @@ interface TracksTableProps {
   error?: ApiErrorResponse | null;
   onRetry?: () => void;
   total?: number;
+  basePath?: string;
 }
 
 function formatUpdated(dateString?: string) {
@@ -46,6 +47,7 @@ export default function TracksTable({
   error = null,
   onRetry,
   total,
+  basePath = "",
 }: TracksTableProps) {
   const [search, setSearch] = useState("");
   const [editModal, setEditModal] = useState<{ data: Track | null; isOpen: boolean }>({ data: null, isOpen: false });
@@ -152,9 +154,8 @@ export default function TracksTable({
                     <td className="px-5 py-3.5">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                         <Link
-                          to={`/${track.slug}/modules`}
-                          className="rounded-lg px-2.5 py-1 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white transition-colors"
-                        >
+                          to={`${basePath}/${track.slug}/modules`}
+                          className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
                           Modules
                         </Link>
                         <DropdownMenu>
@@ -166,9 +167,9 @@ export default function TracksTable({
                               <EllipsisIcon className="h-4 w-4" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="rounded-xl">
-                            <Link to={`/${track.slug}/modules`}>
-                              <DropdownMenuItem className="rounded-lg">View Modules</DropdownMenuItem>
+                          <DropdownMenuContent align="end">
+                            <Link to={`${basePath}/${track.slug}/modules`}>
+                              <DropdownMenuItem>View</DropdownMenuItem>
                             </Link>
                             <DropdownMenuItem className="rounded-lg" onClick={() => setEditModal({ data: track, isOpen: true })}>
                               Update

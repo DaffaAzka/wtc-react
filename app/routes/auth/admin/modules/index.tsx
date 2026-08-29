@@ -9,10 +9,13 @@ import ModalAdd from "@/features/auth/modules/modal-add";
 import type { Track } from "@/types/model";
 import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
 import { Pagination } from "@/components/ui/pagination";
+import { useLocation } from "react-router";
 
 export default function IndexPage({ params }: Route.ComponentProps) {
-  const { tracks, loading: trackLoading } = useGetTracks();
-  const track: Track | undefined = tracks.find((t) => t.slug === params.slug);
+  const { pathname } = useLocation();
+  const basePath = pathname.startsWith("/teacher") ? "/teacher" : "";
+  const { tracks, loading: trackLoading, error: trackError } = useGetTracks();
+  const track: Track | undefined = tracks.find((track) => track.slug === params.slug);
 
   const [filters, setFilters] = useState<ModuleFilter>({});
   const [page, setPage] = useState(1);
@@ -83,16 +86,14 @@ export default function IndexPage({ params }: Route.ComponentProps) {
         />
       </div>
 
-      {/* Table */}
-      <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden">
-        <ModulesTable
-          data={modules}
-          loading={loading}
-          error={error}
-          onRetry={refresh}
-          total={pagination?.total}
-        />
-      </div>
+      <ModulesTable
+        data={modules}
+        loading={loading}
+        error={error}
+        onRetry={refresh}
+        total={pagination?.total}
+        basePath={basePath}
+      />
 
       {/* Pagination */}
       {pagination && (
