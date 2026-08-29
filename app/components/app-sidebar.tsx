@@ -59,6 +59,7 @@ type NavItem = {
 
 type NavGroup = {
   title: string;
+  url?: string;
   icon: React.ElementType;
   items: NavItem[];
 };
@@ -88,10 +89,10 @@ function NavItem({ item }: { item: NavItem }) {
 
 function NavGroup({ group }: { group: NavGroup }) {
   const location = useLocation();
-  const isGroupActive = group.items.some((item) =>
-    location.pathname.startsWith(item.url),
-  );
-  const [open, setOpen] = React.useState(isGroupActive);
+  const isGroupActive =
+    (group.url && location.pathname === group.url) ||
+    group.items.some((item) => location.pathname.startsWith(item.url));
+  const [open, setOpen] = React.useState(true);
 
   return (
     <Collapsible
@@ -99,21 +100,48 @@ function NavGroup({ group }: { group: NavGroup }) {
       onOpenChange={setOpen}
       className="group/collapsible">
       <SidebarMenuItem className="relative">
-        <SidebarMenuButton
-          onClick={() => setOpen((o) => !o)}
-          className={`cursor-pointer font-medium ${
+        {/* Row: icon + title (navigates) + chevron (toggles) */}
+        <div
+          className={`flex items-center rounded-md px-2 py-1.5 ${
             isGroupActive
-              ? "bg-[#1c81ff]/10 font-bold text-gray-900 dark:text-white"
-              : "text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/5"
+              ? "bg-[#1c81ff]/10"
+              : "hover:bg-gray-100 dark:hover:bg-white/5"
           }`}>
-          <group.icon className="h-4 w-4 shrink-0" />
-          <span>{group.title}</span>
-          <ChevronDown
-            className={`ml-auto h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${
-              open ? "" : "-rotate-90"
-            }`}
-          />
-        </SidebarMenuButton>
+          {/* Title area — navigates if group.url exists */}
+          {group.url ? (
+            <NavLink
+              to={group.url}
+              className={`flex flex-1 min-w-0 items-center gap-2 text-[14px] font-medium ${
+                isGroupActive
+                  ? "font-bold text-gray-900 dark:text-white"
+                  : "text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              }`}>
+              <group.icon className="h-4 w-4 shrink-0" />
+              <span>{group.title}</span>
+            </NavLink>
+          ) : (
+            <button
+              onClick={() => setOpen((o) => !o)}
+              className={`flex flex-1 min-w-0 items-center gap-2 text-[14px] font-medium ${
+                isGroupActive
+                  ? "font-bold text-gray-900 dark:text-white"
+                  : "text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              }`}>
+              <group.icon className="h-4 w-4 shrink-0" />
+              <span>{group.title}</span>
+            </button>
+          )}
+          {/* Chevron — always just toggles */}
+          <button
+            onClick={() => setOpen((o) => !o)}
+            className="ml-auto p-0.5 rounded text-gray-400 dark:text-gray-600 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
+            <ChevronDown
+              className={`h-3.5 w-3.5 shrink-0 transition-transform duration-200 ${
+                open ? "" : "-rotate-90"
+              }`}
+            />
+          </button>
+        </div>
 
         <CollapsibleContent>
           <SidebarMenuSub className="border-l border-gray-200 dark:border-white/10 ml-3">
@@ -158,6 +186,7 @@ const adminMain: NavItem[] = [
 
 const adminCourseGroup: NavGroup = {
   title: "Course Management",
+  url: "/course-management",
   icon: Layers,
   items: [
     { title: "Tracks", url: "/tracks", icon: RouteIcon },

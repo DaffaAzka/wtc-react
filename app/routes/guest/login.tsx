@@ -7,6 +7,7 @@ import { getFieldError } from "@/utils/global";
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { teamPhotos } from "@/components/custom/team-photos";
+import { Eye, EyeOff } from "lucide-react";
 
 export function meta() {
   return [
@@ -19,6 +20,7 @@ export default function Login() {
   const login = useLogin();
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
     email: "",
@@ -47,9 +49,9 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-[#ffffff] overflow-hidden font-sans">
+    <div className="flex min-h-screen w-full bg-[#ffffff] dark:bg-[#0a0f12] overflow-hidden font-sans">
       {/* KIRI - Form Area (Modern Solid Structure) */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 lg:px-24 xl:px-[10%] relative z-10 bg-[#ffffff]">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 lg:px-24 xl:px-[10%] relative z-10 bg-[#ffffff] dark:bg-[#0a0f12]">
         <div
           className={`w-full max-w-[400px] mx-auto transition-all duration-1000 ease-out ${isLoaded ? "translate-x-0 opacity-100" : "-translate-x-12 opacity-0"}`}>
           {/* Logo WTC */}
@@ -57,7 +59,12 @@ export default function Login() {
             <img
               src="/brand-pack/logo-h-dark.svg"
               alt="WTC Logo"
-              className="h-24 md:h-28 lg:h-32 w-auto transition-all duration-300 hover:scale-105"
+              className="h-24 md:h-28 lg:h-32 w-auto transition-all duration-300 hover:scale-105 dark:hidden"
+            />
+            <img
+              src="/brand-pack/logo-h-light.svg"
+              alt="WTC Logo"
+              className="h-24 md:h-28 lg:h-32 w-auto transition-all duration-300 hover:scale-105 hidden dark:block"
             />
           </Link>
 
@@ -69,7 +76,7 @@ export default function Login() {
               Welcome Back
             </p>
             <h1
-              className="font-extrabold mb-3 text-gray-900"
+              className="font-extrabold mb-3 text-gray-900 dark:text-white"
               style={{
                 fontSize: "clamp(32px, 4vw, 42px)",
                 lineHeight: "1.1",
@@ -79,7 +86,7 @@ export default function Login() {
               <br />
               account.
             </h1>
-            <p className="text-[15px] leading-relaxed text-gray-500">
+            <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400">
               Continue your learning journey and build your future in tech.
             </p>
           </div>
@@ -89,15 +96,14 @@ export default function Login() {
             {login.error && login.error?.message !== "Validation errors" && (
               <Alert
                 variant="destructive"
-                className="mb-6 bg-red-50 border border-red-200 text-red-600 rounded-lg p-3">
+                className="mb-6 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-lg p-3">
                 <AlertDescription className="font-medium text-sm">
                   {login.error?.message ?? "An unknown error occurred."}
                 </AlertDescription>
               </Alert>
             )}
 
-            {/* OVERRIDE CSS Input: Bikin kotak abu-abu elegan, bukan polos transparan */}
-            <div className="flex flex-col gap-5 [&_input]:w-full [&_input]:bg-slate-50 [&_input]:border [&_input]:border-slate-200 [&_input]:rounded-xl [&_input]:px-4 [&_input]:py-3.5 [&_input]:text-[15px] [&_input]:text-gray-900 [&_input]:shadow-sm focus:[&_input]:outline-none focus:[&_input]:border-[#1c81ff] focus:[&_input]:ring-1 focus:[&_input]:ring-[#1c81ff] transition-all [&_label]:text-[13px] [&_label]:font-bold [&_label]:text-gray-700 [&_label]:mb-1.5 [&_label]:block">
+            <div className="flex flex-col gap-5 [&_input]:w-full [&_input]:bg-slate-50 dark:[&_input]:bg-[#1a1a1a] [&_input]:border [&_input]:border-slate-200 dark:[&_input]:border-white/10 [&_input]:rounded-xl [&_input]:px-4 [&_input]:py-3.5 [&_input]:text-[15px] [&_input]:text-gray-900 dark:[&_input]:text-white [&_input]:shadow-sm focus:[&_input]:outline-none focus:[&_input]:border-[#1c81ff] focus:[&_input]:ring-1 focus:[&_input]:ring-[#1c81ff] transition-all [&_label]:text-[13px] [&_label]:font-bold [&_label]:text-gray-700 dark:[&_label]:text-gray-300 [&_label]:mb-1.5 [&_label]:block">
               <InputForm
                 name="email"
                 placeholder="you@webtech.camp"
@@ -112,11 +118,21 @@ export default function Login() {
                 <InputForm
                   name="password"
                   text="Password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   value={form.password}
                   handleChange={handleChange}
                   error={getFieldError(login.error?.errors, "password")}
+                  rightElement={
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((v) => !v)}
+                      tabIndex={-1}
+                      className="text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+                      aria-label={showPassword ? "Hide password" : "Show password"}>
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  }
                 />
                 <div className="flex justify-end mt-2">
                   <Link
@@ -150,11 +166,11 @@ export default function Login() {
           </form>
 
           {/* Footer Link */}
-          <p className="mt-8 text-center text-[14px] text-gray-500">
+          <p className="mt-8 text-center text-[14px] text-gray-500 dark:text-gray-400">
             Don't have an account?{" "}
             <Link
               to="/register"
-              className="font-bold text-gray-900 transition-colors hover:underline">
+              className="font-bold text-gray-900 dark:text-white transition-colors hover:underline">
               Create one
             </Link>
           </p>
@@ -209,16 +225,13 @@ export default function Login() {
           </h2>
 
           <div className="flex items-center gap-4">
-            {/* Foto Profile / Logo */}
             <div className="h-12 w-12 rounded-full flex items-center justify-center border-[2px] border-white/20 shadow-lg overflow-hidden bg-white">
               <img
                 src="/brand-pack/icon-2.svg"
                 alt="WTC Creator"
-                className="h-full w-full object-cover p-1.5" /* p-1.5 ngasih jarak aman biar logo gak kepotong border */
+                className="h-full w-full object-cover p-1.5"
               />
             </div>
-
-            {/* Teks Nama */}
             <div>
               <p className="text-white font-bold text-[15px]">Pinat Dev Team</p>
               <p className="text-gray-400 text-[12px] uppercase tracking-widest mt-0.5">

@@ -7,6 +7,7 @@ import { getFieldError } from "@/utils/global";
 import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { teamPhotos } from "@/components/custom/team-photos";
+import { Eye, EyeOff } from "lucide-react";
 
 export function meta() {
   return [
@@ -19,6 +20,8 @@ export default function Register() {
   const register = useRegister();
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -45,10 +48,10 @@ export default function Register() {
   };
 
   return (
-    <div className="flex min-h-screen w-full bg-[#ffffff] overflow-hidden font-sans">
+    <div className="flex min-h-screen w-full bg-[#ffffff] dark:bg-[#0a0f12] overflow-hidden font-sans">
 
       {/* KIRI — Form Area */}
-      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 lg:px-24 xl:px-[10%] relative z-10 bg-[#ffffff] py-12">
+      <div className="w-full lg:w-1/2 flex flex-col justify-center px-8 sm:px-16 lg:px-24 xl:px-[10%] relative z-10 bg-[#ffffff] dark:bg-[#0a0f12] py-12">
         <div
           className={`w-full max-w-[400px] mx-auto transition-all duration-1000 ease-out ${
             isLoaded ? "translate-x-0 opacity-100" : "-translate-x-12 opacity-0"
@@ -59,7 +62,12 @@ export default function Register() {
             <img
               src="/brand-pack/logo-h-dark.svg"
               alt="WTC Logo"
-              className="h-8 lg:h-9 w-auto hover:opacity-80 transition-opacity"
+              className="h-8 lg:h-9 w-auto hover:opacity-80 transition-opacity dark:hidden"
+            />
+            <img
+              src="/brand-pack/logo-h-light.svg"
+              alt="WTC Logo"
+              className="h-8 lg:h-9 w-auto hover:opacity-80 transition-opacity hidden dark:block"
             />
           </Link>
 
@@ -72,7 +80,7 @@ export default function Register() {
               Get Started
             </p>
             <h1
-              className="font-extrabold mb-3 text-gray-900"
+              className="font-extrabold mb-3 text-gray-900 dark:text-white"
               style={{
                 fontSize: "clamp(28px, 3.5vw, 38px)",
                 lineHeight: "1.1",
@@ -83,7 +91,7 @@ export default function Register() {
               <br />
               account.
             </h1>
-            <p className="text-[15px] leading-relaxed text-gray-500">
+            <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400">
               Join hundreds of developers building their careers with WTC.
             </p>
           </div>
@@ -93,7 +101,7 @@ export default function Register() {
             {register.error && register.error?.message !== "Validation errors" && (
               <Alert
                 variant="destructive"
-                className="mb-5 bg-red-50 border border-red-200 text-red-600 rounded-lg p-3"
+                className="mb-5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-lg p-3"
               >
                 <AlertDescription className="font-medium text-sm">
                   {register.error?.message ?? "An unknown error occurred."}
@@ -101,7 +109,7 @@ export default function Register() {
               </Alert>
             )}
 
-            <div className="flex flex-col gap-4 [&_input]:w-full [&_input]:bg-slate-50 [&_input]:border [&_input]:border-slate-200 [&_input]:rounded-xl [&_input]:px-4 [&_input]:py-3.5 [&_input]:text-[15px] [&_input]:text-gray-900 [&_input]:shadow-sm focus:[&_input]:outline-none focus:[&_input]:border-[#1c81ff] focus:[&_input]:ring-1 focus:[&_input]:ring-[#1c81ff] transition-all [&_label]:text-[13px] [&_label]:font-bold [&_label]:text-gray-700 [&_label]:mb-1.5 [&_label]:block">
+            <div className="flex flex-col gap-4 [&_input]:w-full [&_input]:bg-slate-50 dark:[&_input]:bg-[#1a1a1a] [&_input]:border [&_input]:border-slate-200 dark:[&_input]:border-white/10 [&_input]:rounded-xl [&_input]:px-4 [&_input]:py-3.5 [&_input]:text-[15px] [&_input]:text-gray-900 dark:[&_input]:text-white [&_input]:shadow-sm focus:[&_input]:outline-none focus:[&_input]:border-[#1c81ff] focus:[&_input]:ring-1 focus:[&_input]:ring-[#1c81ff] transition-all [&_label]:text-[13px] [&_label]:font-bold [&_label]:text-gray-700 dark:[&_label]:text-gray-300 [&_label]:mb-1.5 [&_label]:block">
               <InputForm
                 name="name"
                 placeholder="John Doe"
@@ -125,21 +133,41 @@ export default function Register() {
               <InputForm
                 name="password"
                 text="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="••••••••"
                 value={form.password}
                 handleChange={handleChange}
                 error={getFieldError(register.error?.errors, "password")}
+                rightElement={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    tabIndex={-1}
+                    className="text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+                    aria-label={showPassword ? "Hide password" : "Show password"}>
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                }
               />
 
               <InputForm
                 name="password_confirmation"
                 text="Confirm Password"
-                type="password"
+                type={showConfirm ? "text" : "password"}
                 placeholder="••••••••"
                 value={form.password_confirmation}
                 handleChange={handleChange}
                 error={getFieldError(register.error?.errors, "password_confirmation")}
+                rightElement={
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirm((v) => !v)}
+                    tabIndex={-1}
+                    className="text-gray-400 dark:text-gray-600 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+                    aria-label={showConfirm ? "Hide password" : "Show password"}>
+                    {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                }
               />
             </div>
 
@@ -164,11 +192,11 @@ export default function Register() {
           </form>
 
           {/* Footer link */}
-          <p className="mt-7 text-center text-[14px] text-gray-500">
+          <p className="mt-7 text-center text-[14px] text-gray-500 dark:text-gray-400">
             Already have an account?{" "}
             <Link
               to="/login"
-              className="font-bold text-gray-900 transition-colors hover:underline"
+              className="font-bold text-gray-900 dark:text-white transition-colors hover:underline"
             >
               Sign in
             </Link>
