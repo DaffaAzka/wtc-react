@@ -219,7 +219,7 @@ export default function LeaderboardTable() {
                 </td>
               </tr>
             ) : (
-              entries.map((entry) => (
+              (entries ?? []).map((entry) => (
                 <tr key={entry.profile_id} className="hover:bg-muted/30">
                   <td className="px-4 py-3">
                     <RankCell rank={entry.rank} />

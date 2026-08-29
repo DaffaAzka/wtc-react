@@ -49,6 +49,7 @@ import {
   ScrollText,
   Trophy,
   ShieldCheck,
+  Trash2,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
 import { useTheme } from "@/contexts/theme";
@@ -96,7 +97,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     { title: "Dashboard", url: "/teacher/dashboard", icon: LayoutDashboard },
     { title: "Submissions", url: "/teacher/submissions", icon: ClipboardList },
     { title: "Leaderboard", url: "/teacher/leaderboard", icon: Trophy },
-    { title: "Audit Logs", url: "/teacher/audit-logs", icon: ShieldCheck },
   ];
 
   const teacherContentItems = [
@@ -154,6 +154,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const navSecondary = [
     { title: "User Management", url: "/user-management", icon: UsersIcon },
+    { title: "Recycle Bin", url: "/recycle-bin", icon: Trash2 },
     { title: "Support", url: "#", icon: LifeBuoyIcon },
     { title: "Feedback", url: "#", icon: SendIcon },
   ];

@@ -96,6 +96,9 @@ export default [
 
       // Global Challenges Routes
       route("/challenges", "routes/auth/admin/all-challenges/index.tsx"),
+
+      // Recycle Bin
+      route("/recycle-bin", "routes/auth/admin/recycle-bin.tsx"),
     ]),
   ]),
 
