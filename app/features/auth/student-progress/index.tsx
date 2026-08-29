@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,100 +21,50 @@ import {
   Search,
   TriangleAlert,
   Users,
+  BookOpen,
 } from "lucide-react";
 import { useDebounce } from "@/hooks/use-debounce";
 import {
   useProgressProfiles,
   useProgressProfile,
   useProgressTracks,
-  useProgressTrack,
 } from "@/hooks/student-progress";
 import type {
   ProfileProgressSort,
   TrackProgressSort,
-  ProgressAvatar,
   ProgressProfileSummary,
   ProgressTrackSummary,
 } from "@/types/student-progress";
+import { resolveAvatar, initials, ProgressBar, EmptyState } from "./_shared";
 
 // ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function resolveAvatar(avatar: ProgressAvatar): string | undefined {
-  if (!avatar) return undefined;
-  if (typeof avatar === "string") return avatar;
-  return avatar.url;
-}
-
-function initials(name: string): string {
-  return name
-    .split(" ")
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? "")
-    .join("");
-}
-
-// ---------------------------------------------------------------------------
-// Progress bar
-// ---------------------------------------------------------------------------
-
-function ProgressBar({
-  value,
-  className = "",
-}: {
-  value: number;
-  className?: string;
-}) {
-  const pct = Math.min(100, Math.max(0, value));
-  const color =
-    pct >= 100
-      ? "bg-emerald-500"
-      : pct >= 60
-        ? "bg-blue-500"
-        : pct >= 30
-          ? "bg-amber-500"
-          : "bg-muted-foreground/40";
-  return (
-    <div
-      className={`h-1.5 w-full overflow-hidden rounded-full bg-muted ${className}`}
-    >
-      <div
-        className={`h-full rounded-full transition-all ${color}`}
-        style={{ width: `${pct}%` }}
-      />
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Pagination controls (shared)
+// Pagination row
 // ---------------------------------------------------------------------------
 
 function PaginationRow({
   page,
   lastPage,
-  from,
-  to,
   total,
+  perPage,
   loading,
   onPrev,
   onNext,
 }: {
   page: number;
   lastPage: number;
-  from: number | null;
-  to: number | null;
   total: number;
+  perPage: number;
   loading: boolean;
   onPrev: () => void;
   onNext: () => void;
 }) {
   if (lastPage <= 1) return null;
+  const from = (page - 1) * perPage + 1;
+  const to = Math.min(page * perPage, total);
   return (
     <div className="flex items-center justify-between text-sm">
       <span className="text-muted-foreground">
-        {from ?? 0}–{to ?? 0} of {total}
+        {from}–{to} of {total}
       </span>
       <div className="flex items-center gap-2">
         <Button
@@ -145,37 +96,10 @@ function PaginationRow({
 }
 
 // ---------------------------------------------------------------------------
-// Empty / error states
+// Profile expand panel — shows that profile's track breakdown
 // ---------------------------------------------------------------------------
 
-function EmptyState({
-  icon: Icon,
-  title,
-  description,
-  action,
-}: {
-  icon: typeof Inbox;
-  title: string;
-  description: string;
-  action?: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col items-center gap-2 py-16 text-center">
-      <Icon className="h-5 w-5 text-muted-foreground" />
-      <div>
-        <p className="text-sm font-medium text-foreground">{title}</p>
-        <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
-      </div>
-      {action}
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Profile row expand panel — fetches detail on demand
-// ---------------------------------------------------------------------------
-
-function ProfileExpandPanel({ profileId }: { profileId: number }) {
+function ProfileExpandPanel({ profileId }: { profileId: string }) {
   const { data, isLoading, isError } = useProgressProfile(profileId);
 
   if (isLoading) {
@@ -195,7 +119,7 @@ function ProfileExpandPanel({ profileId }: { profileId: number }) {
   if (isError || !data) {
     return (
       <p className="px-4 py-3 text-sm text-muted-foreground">
-        Failed to load track progress.
+        Failed to load track data.
       </p>
     );
   }
@@ -203,18 +127,15 @@ function ProfileExpandPanel({ profileId }: { profileId: number }) {
   if (data.tracks.length === 0) {
     return (
       <p className="px-4 py-3 text-sm text-muted-foreground">
-        No track enrollments found.
+        No tracks enrolled.
       </p>
     );
   }
 
   return (
-    <div className="divide-y divide-border bg-muted/20">
+    <div className="divide-y divide-border">
       {data.tracks.map((track) => (
-        <div
-          key={track.id}
-          className="flex items-center gap-3 px-6 py-2.5 text-sm"
-        >
+        <div key={track.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
           <span className="w-48 truncate font-medium text-foreground lg:w-64">
             {track.title}
           </span>
@@ -235,94 +156,25 @@ function ProfileExpandPanel({ profileId }: { profileId: number }) {
 }
 
 // ---------------------------------------------------------------------------
-// Track card expand panel — fetches detail on demand
+// BY PROFILE TAB — receives all filter state as props
 // ---------------------------------------------------------------------------
 
-function TrackExpandPanel({ trackSlug }: { trackSlug: string }) {
-  const { data, isLoading, isError } = useProgressTrack(trackSlug);
-
-  if (isLoading) {
-    return (
-      <div className="space-y-2 p-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3">
-            <Skeleton className="h-7 w-7 rounded-full" />
-            <Skeleton className="h-3.5 w-32" />
-            <Skeleton className="h-1.5 flex-1 rounded-full" />
-            <Skeleton className="h-3.5 w-10" />
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  if (isError || !data) {
-    return (
-      <p className="p-4 text-sm text-muted-foreground">
-        Failed to load enrolled students.
-      </p>
-    );
-  }
-
-  if (data.profiles.length === 0) {
-    return (
-      <p className="p-4 text-sm text-muted-foreground">
-        No students enrolled in this track.
-      </p>
-    );
-  }
-
-  return (
-    <div className="divide-y divide-border">
-      {data.profiles.map((profile) => (
-        <div
-          key={profile.id}
-          className="flex items-center gap-3 p-3 text-sm"
-        >
-          <Avatar className="h-7 w-7 shrink-0">
-            <AvatarImage
-              src={resolveAvatar(profile.avatar)}
-              alt={profile.display_name}
-            />
-            <AvatarFallback className="text-xs">
-              {initials(profile.display_name)}
-            </AvatarFallback>
-          </Avatar>
-          <span className="w-36 truncate font-medium text-foreground lg:w-48">
-            {profile.display_name}
-          </span>
-          <ProgressBar
-            value={profile.progress_percentage}
-            className="flex-1"
-          />
-          <span className="w-10 text-right tabular-nums text-xs text-muted-foreground">
-            {profile.progress_percentage}%
-          </span>
-          <Badge
-            variant={profile.status === "completed" ? "default" : "secondary"}
-            className="hidden w-24 justify-center text-xs sm:flex"
-          >
-            {profile.status === "completed" ? "Completed" : "In Progress"}
-          </Badge>
-        </div>
-      ))}
-    </div>
-  );
+interface ByProfileTabProps {
+  search: string;
+  sort: ProfileProgressSort;
+  statusFilter: "all" | "in_progress" | "completed";
+  page: number;
+  onPageChange: (page: number) => void;
 }
 
-// ---------------------------------------------------------------------------
-// BY PROFILE TAB
-// ---------------------------------------------------------------------------
-
-function ByProfileTab() {
-  const [searchInput, setSearchInput] = useState("");
-  const search = useDebounce(searchInput, 400);
-  const [sort, setSort] = useState<ProfileProgressSort>("name_asc");
-  const [statusFilter, setStatusFilter] = useState<
-    "all" | "in_progress" | "completed"
-  >("all");
-  const [page, setPage] = useState(1);
-  const [expandedId, setExpandedId] = useState<number | null>(null);
+function ByProfileTab({
+  search,
+  sort,
+  statusFilter,
+  page,
+  onPageChange,
+}: ByProfileTabProps) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const params = {
     search: search || undefined,
@@ -333,32 +185,23 @@ function ByProfileTab() {
 
   const { data, isLoading, isError, refetch } = useProgressProfiles(params);
 
-  const profiles = data?.profiles ?? [];
-  const pagination = data?.pagination;
+  const profiles = data?.data ?? [];
+  const pagination = data?.meta;
 
-  // Client-side status filter (server doesn't filter profiles by status,
-  // only the profile detail endpoint does — so we filter after fetch)
+  // Client-side status filter
   const filtered =
     statusFilter === "all"
       ? profiles
       : profiles.filter((p) => {
           if (statusFilter === "completed")
-            return p.completed_tracks_count > 0 &&
-              p.completed_tracks_count >= p.enrolled_tracks_count;
+            return (
+              p.completed_tracks_count > 0 &&
+              p.completed_tracks_count >= p.enrolled_tracks_count
+            );
           return p.in_progress_tracks_count > 0;
         });
 
-  const handleSortChange = (value: string) => {
-    setSort(value as ProfileProgressSort);
-    setPage(1);
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchInput(e.target.value);
-    setPage(1);
-  };
-
-  const toggleExpand = (id: number) => {
+  const toggleExpand = (id: string) => {
     setExpandedId((prev) => (prev === id ? null : id));
   };
 
@@ -366,58 +209,6 @@ function ByProfileTab() {
 
   return (
     <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3">
-        {/* Search */}
-        <div className="relative flex-1 min-w-48 max-w-72">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={searchInput}
-            onChange={handleSearchChange}
-            placeholder="Search by student name…"
-            className="w-full rounded-md border border-border bg-transparent py-1.5 pl-8 pr-3 text-sm outline-none placeholder:text-muted-foreground focus:border-foreground/30"
-          />
-        </div>
-
-        {/* Sort */}
-        <Select value={sort} onValueChange={handleSortChange}>
-          <SelectTrigger className="w-52" aria-label="Sort profiles">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="name_asc">Name A–Z</SelectItem>
-            <SelectItem value="progress_desc">Progress High to Low</SelectItem>
-            <SelectItem value="progress_asc">Progress Low to High</SelectItem>
-            <SelectItem value="points_desc">Points High to Low</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Sub-tabs */}
-      <div className="flex items-center gap-1 rounded-lg border border-border bg-muted/30 p-1 w-fit">
-        {(
-          [
-            { value: "all", label: "All" },
-            { value: "in_progress", label: "On Progress" },
-            { value: "completed", label: "Completed" },
-          ] as const
-        ).map((tab) => (
-          <button
-            key={tab.value}
-            type="button"
-            onClick={() => setStatusFilter(tab.value)}
-            className={`rounded-md px-3 py-1 text-sm font-medium transition-colors ${
-              statusFilter === tab.value
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Table */}
       <div className="overflow-hidden rounded-md border border-border">
         {isLoading ? (
           <table className="w-full text-sm">
@@ -547,7 +338,7 @@ function ByProfileTab() {
                       </td>
                       <td className="hidden px-4 py-3 text-right md:table-cell">
                         <span className="tabular-nums font-medium text-blue-600 dark:text-blue-400">
-                          {profile.total_points.toLocaleString()}
+                          {profile.points.toLocaleString()}
                           <span className="ml-0.5 text-xs font-normal text-muted-foreground">
                             pts
                           </span>
@@ -563,7 +354,7 @@ function ByProfileTab() {
                     </tr>
                     {isExpanded && (
                       <tr key={`${profile.id}-expand`}>
-                        <td colSpan={6} className="p-0">
+                        <td colSpan={6} className="p-0 bg-muted/20">
                           <ProfileExpandPanel profileId={profile.id} />
                         </td>
                       </tr>
@@ -576,19 +367,15 @@ function ByProfileTab() {
         )}
       </div>
 
-      {/* Pagination */}
       {pagination && (
         <PaginationRow
           page={pagination.current_page}
           lastPage={pagination.last_page}
-          from={pagination.from}
-          to={pagination.to}
           total={pagination.total}
+          perPage={pagination.per_page}
           loading={isLoading}
-          onPrev={() => setPage((p) => Math.max(1, p - 1))}
-          onNext={() =>
-            setPage((p) => Math.min(pagination.last_page, p + 1))
-          }
+          onPrev={() => onPageChange(Math.max(1, page - 1))}
+          onNext={() => onPageChange(Math.min(pagination.last_page, page + 1))}
         />
       )}
     </div>
@@ -596,16 +383,205 @@ function ByProfileTab() {
 }
 
 // ---------------------------------------------------------------------------
-// BY TRACKS TAB
+// Track image placeholder
 // ---------------------------------------------------------------------------
 
-function ByTracksTab() {
-  const [searchInput, setSearchInput] = useState("");
-  const search = useDebounce(searchInput, 400);
-  const [sort, setSort] = useState<TrackProgressSort>("title_asc");
-  const [page, setPage] = useState(1);
-  const [expandedSlug, setExpandedSlug] = useState<string | null>(null);
+const GRADIENT_PLACEHOLDERS = [
+  "from-violet-500 to-indigo-600",
+  "from-sky-500 to-blue-600",
+  "from-emerald-500 to-teal-600",
+  "from-amber-500 to-orange-600",
+  "from-rose-500 to-pink-600",
+  "from-fuchsia-500 to-purple-600",
+];
 
+function TrackImagePlaceholder({ seed }: { seed: number }) {
+  const gradient = GRADIENT_PLACEHOLDERS[seed % GRADIENT_PLACEHOLDERS.length];
+  return (
+    <div
+      className={`flex h-full w-full items-center justify-center bg-gradient-to-br ${gradient}`}
+    >
+      <BookOpen className="h-8 w-8 text-white/70" />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Track card
+// ---------------------------------------------------------------------------
+
+function TrackCard({
+  track,
+  to,
+}: {
+  track: ProgressTrackSummary;
+  to: string;
+}) {
+  return (
+    <Link
+      to={to}
+      className="group overflow-hidden rounded-lg border border-border bg-card transition-colors hover:border-foreground/20 hover:bg-muted/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+    >
+      {/* Track image */}
+      <div className="relative h-32 w-full overflow-hidden bg-muted">
+        {track.image_url ? (
+          <img
+            src={track.image_url}
+            alt={track.title}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <TrackImagePlaceholder seed={track.id} />
+        )}
+      </div>
+
+      {/* Card body */}
+      <div className="p-4">
+        <h3 className="line-clamp-2 font-semibold leading-snug text-foreground">
+          {track.title}
+        </h3>
+
+        <div className="mt-3 space-y-1.5">
+          <div className="flex items-center justify-between text-xs text-muted-foreground">
+            <span>Avg Progress</span>
+            <span className="tabular-nums font-medium text-foreground">
+              {track.avg_progress_percentage}%
+            </span>
+          </div>
+          <ProgressBar value={track.avg_progress_percentage} />
+        </div>
+
+        <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1">
+            <Users className="h-3.5 w-3.5" />
+            <span>
+              <span className="tabular-nums font-medium text-foreground">
+                {track.enrolled_count}
+              </span>{" "}
+              enrolled
+            </span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span>
+              <span className="tabular-nums font-medium text-emerald-600 dark:text-emerald-400">
+                {track.completed_count}
+              </span>{" "}
+              completed
+            </span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Unenrolled tracks section
+// ---------------------------------------------------------------------------
+
+function UnenrolledTracksSection() {
+  const [open, setOpen] = useState(false);
+  const { data, isLoading, isError } = useProgressTracks(
+    { enrolled: false, per_page: 50 },
+    { enabled: open },
+  );
+
+  const tracks = open ? (data?.data ?? []) : [];
+
+  return (
+    <div className="mt-6 border-t border-border pt-4">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+      >
+        {open ? (
+          <ChevronUp className="h-4 w-4" />
+        ) : (
+          <ChevronDown className="h-4 w-4" />
+        )}
+        Tracks with No Enrollments
+      </button>
+
+      {open && (
+        <div className="mt-3">
+          {isLoading ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="rounded-lg border border-border bg-card p-4 space-y-3 opacity-60"
+                >
+                  <Skeleton className="h-32 w-full rounded" />
+                  <Skeleton className="h-5 w-40" />
+                  <Skeleton className="h-1.5 w-full rounded-full" />
+                </div>
+              ))}
+            </div>
+          ) : isError ? (
+            <p className="text-sm text-muted-foreground">
+              Failed to load unenrolled tracks.
+            </p>
+          ) : tracks.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              All tracks have at least one enrollment.
+            </p>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 opacity-60">
+              {tracks.map((track: ProgressTrackSummary) => (
+                <div
+                  key={track.id}
+                  className="overflow-hidden rounded-lg border border-border bg-card"
+                  aria-label={`${track.title} — no enrollments`}
+                >
+                  <div className="relative h-32 w-full overflow-hidden bg-muted">
+                    {track.image_url ? (
+                      <img
+                        src={track.image_url}
+                        alt={track.title}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <TrackImagePlaceholder seed={track.id} />
+                    )}
+                  </div>
+                  <div className="p-4">
+                    <h3 className="line-clamp-2 font-semibold leading-snug text-foreground">
+                      {track.title}
+                    </h3>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      No students enrolled
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// BY TRACKS TAB — receives filter state as props, navigates to detail page
+// ---------------------------------------------------------------------------
+
+interface ByTracksTabProps {
+  search: string;
+  sort: TrackProgressSort;
+  page: number;
+  trackBasePath: string;
+  onPageChange: (page: number) => void;
+}
+
+function ByTracksTab({
+  search,
+  sort,
+  page,
+  trackBasePath,
+  onPageChange,
+}: ByTracksTabProps) {
   const params = {
     search: search || undefined,
     sort,
@@ -615,69 +591,28 @@ function ByTracksTab() {
 
   const { data, isLoading, isError, refetch } = useProgressTracks(params);
 
-  const tracks = data?.tracks ?? [];
-  const pagination = data?.pagination;
-
-  const handleSortChange = (value: string) => {
-    setSort(value as TrackProgressSort);
-    setPage(1);
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchInput(e.target.value);
-    setPage(1);
-  };
-
-  const toggleExpand = (slug: string) => {
-    setExpandedSlug((prev) => (prev === slug ? null : slug));
-  };
+  const tracks = data?.data ?? [];
+  const pagination = data?.meta;
 
   const skeletonCards = Array.from({ length: 6 });
 
   return (
     <div className="space-y-4">
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="relative flex-1 min-w-48 max-w-72">
-          <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={searchInput}
-            onChange={handleSearchChange}
-            placeholder="Search by track title…"
-            className="w-full rounded-md border border-border bg-transparent py-1.5 pl-8 pr-3 text-sm outline-none placeholder:text-muted-foreground focus:border-foreground/30"
-          />
-        </div>
-
-        <Select value={sort} onValueChange={handleSortChange}>
-          <SelectTrigger className="w-56" aria-label="Sort tracks">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="title_asc">Name A–Z</SelectItem>
-            <SelectItem value="avg_progress_desc">
-              Avg Progress High to Low
-            </SelectItem>
-            <SelectItem value="avg_progress_asc">
-              Avg Progress Low to High
-            </SelectItem>
-            <SelectItem value="enrolled_desc">Most Enrolled</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Grid */}
       {isLoading ? (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {skeletonCards.map((_, i) => (
             <div
               key={i}
-              className="rounded-lg border border-border bg-card p-4 space-y-3"
+              className="overflow-hidden rounded-lg border border-border bg-card space-y-3"
             >
-              <Skeleton className="h-5 w-40" />
-              <Skeleton className="h-1.5 w-full rounded-full" />
-              <div className="flex gap-4">
-                <Skeleton className="h-4 w-20" />
-                <Skeleton className="h-4 w-20" />
+              <Skeleton className="h-32 w-full" />
+              <div className="p-4 space-y-3">
+                <Skeleton className="h-5 w-40" />
+                <Skeleton className="h-1.5 w-full rounded-full" />
+                <div className="flex gap-4">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-20" />
+                </div>
               </div>
             </div>
           ))}
@@ -706,89 +641,29 @@ function ByTracksTab() {
         />
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {tracks.map((track: ProgressTrackSummary) => {
-            const isExpanded = expandedSlug === track.slug;
-            return (
-              <div
-                key={track.id}
-                className="overflow-hidden rounded-lg border border-border bg-card"
-              >
-                {/* Card header — clickable */}
-                <button
-                  type="button"
-                  className="w-full p-4 text-left hover:bg-muted/40 transition-colors"
-                  onClick={() => toggleExpand(track.slug)}
-                  aria-expanded={isExpanded}
-                >
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-semibold text-foreground leading-snug line-clamp-2">
-                      {track.title}
-                    </h3>
-                    {isExpanded ? (
-                      <ChevronUp className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                    ) : (
-                      <ChevronDown className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
-                    )}
-                  </div>
-
-                  <div className="mt-3 space-y-1.5">
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>Avg Progress</span>
-                      <span className="tabular-nums font-medium text-foreground">
-                        {track.avg_progress_percentage}%
-                      </span>
-                    </div>
-                    <ProgressBar value={track.avg_progress_percentage} />
-                  </div>
-
-                  <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Users className="h-3.5 w-3.5" />
-                      <span>
-                        <span className="tabular-nums font-medium text-foreground">
-                          {track.enrolled_count}
-                        </span>{" "}
-                        enrolled
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span>
-                        <span className="tabular-nums font-medium text-emerald-600 dark:text-emerald-400">
-                          {track.completed_count}
-                        </span>{" "}
-                        completed
-                      </span>
-                    </div>
-                  </div>
-                </button>
-
-                {/* Expanded student list */}
-                {isExpanded && (
-                  <div className="border-t border-border">
-                    <TrackExpandPanel trackSlug={track.slug} />
-                  </div>
-                )}
-              </div>
-            );
-          })}
+          {tracks.map((track: ProgressTrackSummary) => (
+            <TrackCard
+              key={track.id}
+              track={track}
+              to={`${trackBasePath}/${track.slug}`}
+            />
+          ))}
         </div>
       )}
 
-      {/* Pagination */}
       {pagination && (
         <PaginationRow
           page={pagination.current_page}
           lastPage={pagination.last_page}
-          from={pagination.from}
-          to={pagination.to}
           total={pagination.total}
+          perPage={pagination.per_page}
           loading={isLoading}
-          onPrev={() => setPage((p) => Math.max(1, p - 1))}
-          onNext={() =>
-            setPage((p) => Math.min(pagination.last_page, p + 1))
-          }
+          onPrev={() => onPageChange(Math.max(1, page - 1))}
+          onNext={() => onPageChange(Math.min(pagination.last_page, page + 1))}
         />
       )}
+
+      <UnenrolledTracksSection />
     </div>
   );
 }
@@ -799,8 +674,56 @@ function ByTracksTab() {
 
 type MainTab = "profiles" | "tracks";
 
-export default function StudentProgressPage() {
+export default function StudentProgressPage({
+  trackBasePath,
+}: {
+  trackBasePath: string;
+}) {
   const [tab, setTab] = useState<MainTab>("profiles");
+
+  // Profile tab filter state
+  const [profileSearchInput, setProfileSearchInput] = useState("");
+  const profileSearch = useDebounce(profileSearchInput, 400);
+  const [profileSort, setProfileSort] = useState<ProfileProgressSort>("name_asc");
+  const [profileStatus, setProfileStatus] = useState<
+    "all" | "in_progress" | "completed"
+  >("all");
+  const [profilePage, setProfilePage] = useState(1);
+
+  // Track tab filter state
+  const [trackSearchInput, setTrackSearchInput] = useState("");
+  const trackSearch = useDebounce(trackSearchInput, 400);
+  const [trackSort, setTrackSort] = useState<TrackProgressSort>("title_asc");
+  const [trackPage, setTrackPage] = useState(1);
+
+  const handleTabChange = (value: string) => {
+    setTab(value as MainTab);
+  };
+
+  const handleProfileSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setProfileSearchInput(e.target.value);
+    setProfilePage(1);
+  };
+
+  const handleProfileSortChange = (value: string) => {
+    setProfileSort(value as ProfileProgressSort);
+    setProfilePage(1);
+  };
+
+  const handleProfileStatusChange = (value: string) => {
+    setProfileStatus(value as "all" | "in_progress" | "completed");
+    setProfilePage(1);
+  };
+
+  const handleTrackSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setTrackSearchInput(e.target.value);
+    setTrackPage(1);
+  };
+
+  const handleTrackSortChange = (value: string) => {
+    setTrackSort(value as TrackProgressSort);
+    setTrackPage(1);
+  };
 
   return (
     <div className="space-y-6">
@@ -812,34 +735,102 @@ export default function StudentProgressPage() {
         </p>
       </div>
 
-      {/* Main tabs — same pill/border style used across admin pages */}
-      <div className="flex items-center gap-1 rounded-lg border border-border bg-muted/30 p-1 w-fit">
-        <button
-          type="button"
-          onClick={() => setTab("profiles")}
-          className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
-            tab === "profiles"
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          By Profile
-        </button>
-        <button
-          type="button"
-          onClick={() => setTab("tracks")}
-          className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
-            tab === "tracks"
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          By Tracks
-        </button>
+      {/* Single toolbar row */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        {/* Left: View dropdown */}
+        <Select value={tab} onValueChange={handleTabChange}>
+          <SelectTrigger className="h-8 w-40 text-sm" aria-label="View">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="profiles">By Profile</SelectItem>
+            <SelectItem value="tracks">By Tracks</SelectItem>
+          </SelectContent>
+        </Select>
+
+        {/* Right: inline filter controls for active tab */}
+        {tab === "profiles" ? (
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Search */}
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={profileSearchInput}
+                onChange={handleProfileSearchChange}
+                placeholder="Search by student name…"
+                className="h-8 w-48 rounded-md border border-border bg-transparent py-1.5 pl-8 pr-3 text-sm outline-none placeholder:text-muted-foreground focus:border-foreground/30"
+              />
+            </div>
+            {/* Sort */}
+            <Select value={profileSort} onValueChange={handleProfileSortChange}>
+              <SelectTrigger className="h-8 w-48 text-sm" aria-label="Sort profiles">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name_asc">Name A–Z</SelectItem>
+                <SelectItem value="progress_desc">Progress High to Low</SelectItem>
+                <SelectItem value="progress_asc">Progress Low to High</SelectItem>
+                <SelectItem value="points_desc">Points High to Low</SelectItem>
+              </SelectContent>
+            </Select>
+            {/* Status */}
+            <Select value={profileStatus} onValueChange={handleProfileStatusChange}>
+              <SelectTrigger className="h-8 w-36 text-sm" aria-label="Filter by status">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="in_progress">On Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        ) : (
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Search */}
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={trackSearchInput}
+                onChange={handleTrackSearchChange}
+                placeholder="Search by track title…"
+                className="h-8 w-48 rounded-md border border-border bg-transparent py-1.5 pl-8 pr-3 text-sm outline-none placeholder:text-muted-foreground focus:border-foreground/30"
+              />
+            </div>
+            {/* Sort */}
+            <Select value={trackSort} onValueChange={handleTrackSortChange}>
+              <SelectTrigger className="h-8 w-52 text-sm" aria-label="Sort tracks">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="title_asc">Name A–Z</SelectItem>
+                <SelectItem value="avg_progress_desc">Avg Progress High to Low</SelectItem>
+                <SelectItem value="avg_progress_asc">Avg Progress Low to High</SelectItem>
+                <SelectItem value="enrolled_desc">Most Enrolled</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </div>
 
       {/* Tab content */}
-      {tab === "profiles" ? <ByProfileTab /> : <ByTracksTab />}
+      {tab === "profiles" ? (
+        <ByProfileTab
+          search={profileSearch}
+          sort={profileSort}
+          statusFilter={profileStatus}
+          page={profilePage}
+          onPageChange={setProfilePage}
+        />
+      ) : (
+        <ByTracksTab
+          search={trackSearch}
+          sort={trackSort}
+          page={trackPage}
+          trackBasePath={trackBasePath}
+          onPageChange={setTrackPage}
+        />
+      )}
     </div>
   );
 }

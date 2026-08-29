@@ -30,7 +30,7 @@ export async function getProgressProfiles(
  * One student's profile info plus per-track progress breakdown.
  */
 export async function getProgressProfile(
-  profileId: number,
+  profileId: string,
   params?: GetProgressProfileDetailParams,
 ): Promise<ProgressProfileDetail> {
   const response = await api.get<ApiResponse<ProgressProfileDetail>>(
@@ -42,7 +42,7 @@ export async function getProgressProfile(
 
 /**
  * GET /api/student-progress/tracks
- * Paginated list of tracks that have at least one enrollment.
+ * Paginated list of tracks. Pass enrolled=false to get tracks with no enrollments.
  */
 export async function getProgressTracks(
   params?: GetProgressTracksParams,

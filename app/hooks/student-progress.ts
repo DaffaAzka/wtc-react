@@ -22,7 +22,7 @@ export const studentProgressKeys = {
   profiles: (params?: GetProgressProfilesParams) =>
     [...studentProgressKeys.all, "profiles", params ?? {}] as const,
 
-  profile: (profileId: number, params?: GetProgressProfileDetailParams) =>
+  profile: (profileId: string, params?: GetProgressProfileDetailParams) =>
     [...studentProgressKeys.all, "profile", profileId, params ?? {}] as const,
 
   tracks: (params?: GetProgressTracksParams) =>
@@ -44,20 +44,24 @@ export function useProgressProfiles(params?: GetProgressProfilesParams) {
 }
 
 export function useProgressProfile(
-  profileId: number,
+  profileId: string,
   params?: GetProgressProfileDetailParams,
 ) {
   return useQuery({
     queryKey: studentProgressKeys.profile(profileId, params),
     queryFn: () => getProgressProfile(profileId, params),
-    enabled: profileId > 0,
+    enabled: !!profileId,
   });
 }
 
-export function useProgressTracks(params?: GetProgressTracksParams) {
+export function useProgressTracks(
+  params?: GetProgressTracksParams,
+  options?: { enabled?: boolean },
+) {
   return useQuery({
     queryKey: studentProgressKeys.tracks(params),
     queryFn: () => getProgressTracks(params),
+    enabled: options?.enabled !== false,
   });
 }
 

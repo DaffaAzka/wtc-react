@@ -101,7 +101,10 @@ export default [
       route("/recycle-bin", "routes/auth/admin/recycle-bin.tsx"),
 
       // Student Progress
-      route("/student-progress", "routes/auth/admin/student-progress.tsx"),
+      ...prefix("/student-progress", [
+        index("routes/auth/admin/student-progress/index.tsx"),
+        route("/tracks/:slug", "routes/auth/admin/student-progress/tracks.$slug.tsx"),
+      ]),
     ]),
   ]),
 
@@ -118,7 +121,11 @@ export default [
         route("/:id", "routes/auth/teacher/submissions/$id.tsx"),
       ]),
       route("/leaderboard", "routes/auth/teacher/leaderboard.tsx"),
-      route("/student-progress", "routes/auth/teacher/student-progress.tsx"),
+      // Student Progress
+      ...prefix("/student-progress", [
+        index("routes/auth/teacher/student-progress/index.tsx"),
+        route("/tracks/:slug", "routes/auth/teacher/student-progress/tracks.$slug.tsx"),
+      ]),
       route("/audit-logs", "routes/auth/teacher/audit-logs.tsx"),
       route("/admin/challenges/:id", "routes/auth/admin/challenges/$id.tsx"),
       route("/admin/challenges/:id/edit", "routes/auth/admin/challenges/$id.edit.tsx"),

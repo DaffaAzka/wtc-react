@@ -1,24 +1,39 @@
 // ---------------------------------------------------------------------------
-// Avatar — the backend returns either a raw URL string or a signed-URL object
+// Shared types
 // ---------------------------------------------------------------------------
-export type ProgressAvatar = string | { url: string; expires_at?: string } | null;
+
+export type ProgressAvatar =
+  | string
+  | { url: string; expires_at: string }
+  | null
+  | undefined;
+
+export type ProgressPagination = {
+  current_page: number;
+  per_page: number;
+  total: number;
+  last_page: number;
+};
 
 // ---------------------------------------------------------------------------
 // Profile list (GET /student-progress/profiles)
 // ---------------------------------------------------------------------------
+
 export type ProgressProfileSummary = {
-  id: number;
+  id: string;
   display_name: string;
   avatar: ProgressAvatar;
+  points: number;
   enrolled_tracks_count: number;
   completed_tracks_count: number;
   in_progress_tracks_count: number;
-  total_points: number;
+  overall_progress: number;
 };
 
 // ---------------------------------------------------------------------------
 // Profile detail (GET /student-progress/profiles/{profile})
 // ---------------------------------------------------------------------------
+
 export type ProfileTrackProgress = {
   id: number;
   title: string;
@@ -28,14 +43,15 @@ export type ProfileTrackProgress = {
   completed_lessons: number;
   progress_percentage: number;
   status: "in_progress" | "completed";
+  enrolled_at: string | null;
 };
 
 export type ProgressProfileDetail = {
   profile: {
-    id: number;
+    id: string;
     display_name: string;
     avatar: ProgressAvatar;
-    total_points: number;
+    points: number;
   };
   tracks: ProfileTrackProgress[];
 };
@@ -43,10 +59,12 @@ export type ProgressProfileDetail = {
 // ---------------------------------------------------------------------------
 // Track list (GET /student-progress/tracks)
 // ---------------------------------------------------------------------------
+
 export type ProgressTrackSummary = {
   id: number;
   title: string;
   slug: string;
+  image_url: string | null;
   modules_count: number;
   total_lessons: number;
   enrolled_count: number;
@@ -57,15 +75,17 @@ export type ProgressTrackSummary = {
 // ---------------------------------------------------------------------------
 // Track detail (GET /student-progress/tracks/{track})
 // ---------------------------------------------------------------------------
+
 export type TrackProfileProgress = {
-  id: number;
+  id: string;
   display_name: string;
   avatar: ProgressAvatar;
+  points: number;
   completed_lessons: number;
   total_lessons: number;
   progress_percentage: number;
   status: "in_progress" | "completed";
-  points: number;
+  enrolled_at: string | null;
 };
 
 export type ProgressTrackDetail = {
@@ -73,53 +93,43 @@ export type ProgressTrackDetail = {
     id: number;
     title: string;
     slug: string;
+    image_url: string | null;
     modules_count: number;
     total_lessons: number;
+    enrolled_count: number;
   };
   profiles: TrackProfileProgress[];
 };
 
 // ---------------------------------------------------------------------------
-// Shared pagination shape
+// Paginated response shapes (matching backend {data: [...], meta: {...}})
 // ---------------------------------------------------------------------------
-export type ProgressPagination = {
-  current_page: number;
-  per_page: number;
-  total: number;
-  last_page: number;
-  from: number | null;
-  to: number | null;
-};
 
-// ---------------------------------------------------------------------------
-// Paginated list responses
-// ---------------------------------------------------------------------------
 export type ProgressProfilesResponse = {
-  profiles: ProgressProfileSummary[];
-  pagination: ProgressPagination;
+  data: ProgressProfileSummary[];
+  meta: ProgressPagination;
 };
 
 export type ProgressTracksResponse = {
-  tracks: ProgressTrackSummary[];
-  pagination: ProgressPagination;
+  data: ProgressTrackSummary[];
+  meta: ProgressPagination;
 };
 
 // ---------------------------------------------------------------------------
 // Query param types
 // ---------------------------------------------------------------------------
+
 export type ProfileProgressSort =
+  | "name_asc"
   | "progress_desc"
   | "progress_asc"
-  | "name_asc"
   | "points_desc";
 
 export type TrackProgressSort =
+  | "title_asc"
   | "avg_progress_desc"
   | "avg_progress_asc"
-  | "enrolled_desc"
-  | "title_asc";
-
-export type ProgressStatus = "in_progress" | "completed";
+  | "enrolled_desc";
 
 export type GetProgressProfilesParams = {
   search?: string;
@@ -128,19 +138,21 @@ export type GetProgressProfilesParams = {
   per_page?: number;
 };
 
+export type GetProgressProfileDetailParams = {
+  status?: "in_progress" | "completed";
+  sort?: "progress_desc" | "progress_asc" | "title_asc";
+};
+
 export type GetProgressTracksParams = {
   search?: string;
   sort?: TrackProgressSort;
   page?: number;
   per_page?: number;
-};
-
-export type GetProgressProfileDetailParams = {
-  status?: ProgressStatus;
-  sort?: "progress_desc" | "progress_asc" | "title_asc";
+  /** Pass false to fetch tracks with no enrollments */
+  enrolled?: boolean;
 };
 
 export type GetProgressTrackDetailParams = {
-  status?: ProgressStatus;
+  status?: "in_progress" | "completed";
   sort?: "progress_desc" | "progress_asc" | "name_asc";
 };
