@@ -97,6 +97,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     { title: "Dashboard", url: "/teacher/dashboard", icon: LayoutDashboard },
     { title: "Submissions", url: "/teacher/submissions", icon: ClipboardList },
     { title: "Leaderboard", url: "/teacher/leaderboard", icon: Trophy },
+    { title: "Student Progress", url: "/teacher/student-progress", icon: Users },
   ];
 
   const teacherContentItems = [
@@ -154,6 +155,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const navSecondary = [
     { title: "User Management", url: "/user-management", icon: UsersIcon },
+    { title: "Student Progress", url: "/student-progress", icon: Users },
     { title: "Recycle Bin", url: "/recycle-bin", icon: Trash2 },
     { title: "Support", url: "#", icon: LifeBuoyIcon },
     { title: "Feedback", url: "#", icon: SendIcon },
