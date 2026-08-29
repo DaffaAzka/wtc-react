@@ -1,6 +1,9 @@
+import { useState } from "react";
 import { Link, useSearchParams } from "react-router";
 import { useTeacherSubmissions } from "@/hooks/teacher";
 import { useGetChallenges } from "@/hooks/challenges";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -52,16 +55,19 @@ const ALL_STATUSES: TeacherSubmissionStatus[] = [
 export default function TeacherSubmissionsIndexPage() {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Derive filter state from URL so back/forward works
   const statusParam = searchParams.get("status") as TeacherSubmissionStatus | null;
   const challengeParam = searchParams.get("challenge_id");
+  const searchParam = searchParams.get("search") ?? "";
   const pageParam = Number(searchParams.get("page") ?? "1");
+
+  const [searchInput, setSearchInput] = useState(searchParam);
 
   const { challenges } = useGetChallenges();
 
   const filters = {
     status: statusParam ?? undefined,
     challenge_id: challengeParam ? Number(challengeParam) : undefined,
+    search: searchParam || undefined,
     page: pageParam,
     per_page: 20,
   };
@@ -99,85 +105,96 @@ export default function TeacherSubmissionsIndexPage() {
     });
   }
 
+  function applySearch() {
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (searchInput.trim()) next.set("search", searchInput.trim());
+      else next.delete("search");
+      next.delete("page");
+      return next;
+    });
+  }
+
+  function clearAll() {
+    setSearchInput("");
+    setSearchParams({});
+  }
+
   const currentPage = data?.meta.current_page ?? pageParam;
   const lastPage = data?.meta.last_page ?? 1;
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold">Submissions</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Review and grade student submissions.
-        </p>
-      </div>
+      {/* Header + inline filters */}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">Submissions</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Review and grade student submissions.
+          </p>
+        </div>
 
-      {/* Filters */}
-      <Card className="shadow-sm border-border/40">
-        <CardHeader className="pb-3">
-          <CardTitle>Filters</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap items-end gap-3">
-            {/* Status */}
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">
-                Status
-              </label>
-              <Select
-                value={statusParam ?? "all"}
-                onValueChange={(v) => setParam("status", v)}
-              >
-                <SelectTrigger className="w-36">
-                  <SelectValue placeholder="All statuses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All statuses</SelectItem>
-                  {ALL_STATUSES.map((s) => (
-                    <SelectItem key={s} value={s} className="capitalize">
-                      {s}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Challenge dropdown */}
-            <div className="space-y-1">
-              <label className="text-xs font-medium text-muted-foreground">
-                Challenge
-              </label>
-              <Select
-                value={challengeParam ?? "all"}
-                onValueChange={(v) => applyFilters(v)}
-              >
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="All challenges" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All challenges</SelectItem>
-                  {(challenges ?? []).map((c) => (
-                    <SelectItem key={c.id} value={String(c.id)}>
-                      {c.title}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {(statusParam || challengeParam) && (
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => {
-                  setSearchParams({});
-                }}
-              >
-                Clear
-              </Button>
-            )}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Search by student name */}
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+            <Input
+              className="pl-8 h-8 w-48 text-sm"
+              placeholder="Search student..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && applySearch()}
+            />
           </div>
-        </CardContent>
-      </Card>
+
+          {/* Status */}
+          <Select
+            value={statusParam ?? "all"}
+            onValueChange={(v) => setParam("status", v)}
+          >
+            <SelectTrigger className="w-36 h-8 text-sm">
+              <SelectValue placeholder="All statuses" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All statuses</SelectItem>
+              {ALL_STATUSES.map((s) => (
+                <SelectItem key={s} value={s} className="capitalize">
+                  {s}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Challenge */}
+          <Select
+            value={challengeParam ?? "all"}
+            onValueChange={(v) => applyFilters(v)}
+          >
+            <SelectTrigger className="w-44 h-8 text-sm">
+              <SelectValue placeholder="All challenges" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All challenges</SelectItem>
+              {(challenges ?? []).map((c) => (
+                <SelectItem key={c.id} value={String(c.id)}>
+                  {c.title}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {(statusParam || challengeParam || searchParam) && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 px-2 text-muted-foreground hover:text-foreground"
+              onClick={clearAll}
+            >
+              Clear
+            </Button>
+          )}
+        </div>
+      </div>
 
       {/* Table */}
       <Card className="shadow-sm border-border/40">
