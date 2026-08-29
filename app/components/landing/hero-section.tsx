@@ -1,6 +1,13 @@
 import { Link } from "react-router";
 import { useEffect, useState } from "react";
 import { teamPhotos } from "@/components/custom/team-photos";
+import {
+  SiHtml5,
+  SiFigma,
+  SiReact,
+  SiNodedotjs,
+  SiPostgresql,
+} from "react-icons/si";
 
 const copy = {
   headline1: "Master Software",
@@ -56,6 +63,8 @@ const HeroSquiggle = () => (
 const floatingTagsData = [
   {
     label: "Web Development",
+    icon: SiHtml5,
+    iconColor: "#e34c26",
     top: "10%",
     left: "10%",
     delay: "0s",
@@ -63,6 +72,8 @@ const floatingTagsData = [
   },
   {
     label: "UI/UX Design",
+    icon: SiFigma,
+    iconColor: "#a259ff",
     top: "25%",
     right: "5%",
     delay: "1.5s",
@@ -70,6 +81,8 @@ const floatingTagsData = [
   },
   {
     label: "React & Next.js",
+    icon: SiReact,
+    iconColor: "#61dafb",
     top: "45%",
     left: "5%",
     delay: "0.5s",
@@ -77,6 +90,8 @@ const floatingTagsData = [
   },
   {
     label: "Backend API",
+    icon: SiNodedotjs,
+    iconColor: "#339933",
     top: "60%",
     right: "10%",
     delay: "2s",
@@ -84,6 +99,8 @@ const floatingTagsData = [
   },
   {
     label: "Database",
+    icon: SiPostgresql,
+    iconColor: "#4169e1",
     top: "80%",
     left: "20%",
     delay: "1s",
@@ -96,7 +113,7 @@ function FloatingTag({ tag }: { tag: (typeof floatingTagsData)[0] }) {
 
   return (
     <div
-      className="absolute flex items-center justify-center px-6 py-3.5 rounded-full cursor-default transition-all duration-300"
+      className="absolute flex items-center gap-2 justify-center px-6 py-3.5 rounded-full cursor-default transition-all duration-300"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       style={{
@@ -115,6 +132,7 @@ function FloatingTag({ tag }: { tag: (typeof floatingTagsData)[0] }) {
           ? `0 12px 24px -8px ${tag.solidColor}80`
           : "0 4px 12px rgba(0,0,0,0.05)",
       }}>
+      <tag.icon style={{ color: tag.iconColor, width: 18, height: 18, flexShrink: 0 }} />
       <span className="text-[15px] font-bold tracking-wide">{tag.label}</span>
     </div>
   );

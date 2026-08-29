@@ -32,21 +32,17 @@ export function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
 
-  // Deteksi Scroll & Warna Section
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
 
-      // Radar buat ngecek section apa yang lagi di bawah Navbar
       const sections = document.querySelectorAll("section");
       sections.forEach((sec) => {
         const rect = sec.getBoundingClientRect();
-        // Kalau section lagi nyentuh area atas layar (di bawah navbar)
         if (rect.top <= 80 && rect.bottom >= 80) {
           const bg =
             sec.style.background ||
             window.getComputedStyle(sec).backgroundColor;
-          // Cek kalau backgroundnya hitam (rgb(0, 0, 0) atau #000000)
           if (bg.includes("0, 0, 0") || bg.includes("#000000")) {
             setTheme("dark");
           } else {
@@ -60,6 +56,21 @@ export function Navbar() {
     handleScroll(); // Trigger pertama kali load
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Fungsi buat smooth scroll pas menu diklik
+  const handleSmoothScroll = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string,
+  ) => {
+    e.preventDefault();
+    const targetElement = document.querySelector(href);
+    if (targetElement) {
+      targetElement.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
 
   // Setel warna teks & background berdasarkan tema
   const isDark = theme === "dark";
@@ -86,7 +97,7 @@ export function Navbar() {
           : "1px solid transparent",
       }}>
       <div className="mx-auto flex h-full max-w-6xl items-center px-6 lg:px-10">
-        {/* KIRI - Logo otomatis ganti */}
+        {/* KIRI - Logo Diperbesar */}
         <div className="flex flex-1 justify-start">
           <Link to="/" className="flex items-center shrink-0">
             <img
@@ -96,13 +107,12 @@ export function Navbar() {
                   : "/brand-pack/logo-h-dark.svg"
               }
               alt="Webtech Training Camp"
-              className="h-8 md:h-9 w-auto transition-all duration-300 hover:scale-105"
-              style={{ maxWidth: "180px" }}
+              className="h-24 md:h-28 lg:h-32 w-auto transition-all duration-300 hover:scale-105"
             />
           </Link>
         </div>
 
-        {/* TENGAH - Navigasi */}
+        {/* TENGAH - Navigasi dengan Smooth Scroll */}
         <nav className="hidden md:flex items-center justify-center gap-8 shrink-0">
           <div className="relative group cursor-pointer h-full flex items-center">
             <span
@@ -133,7 +143,8 @@ export function Navbar() {
             <a
               key={href}
               href={href}
-              className="text-[14px] font-semibold opacity-70 transition-opacity duration-200 hover:opacity-100"
+              onClick={(e) => handleSmoothScroll(e, href)}
+              className="text-[14px] font-semibold opacity-70 transition-opacity duration-200 hover:opacity-100 cursor-pointer"
               style={{ color: textColor }}>
               {label}
             </a>
