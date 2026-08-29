@@ -4,22 +4,11 @@ import { ArrowRight, BookOpen, Boxes, Check, Route, Search } from "lucide-react"
 import { useEffect, useMemo, useState } from "react";
 
 const data: ManagementData[] = [
-  {
-    name: "Tracks",
-    url: "/tracks",
-  },
-  {
-    name: "Modules",
-    url: "/modules",
-  },
-  {
-    name: "Lessons",
-    url: "/lessons",
-  },
+  { name: "Tracks",  url: "/tracks"  },
+  { name: "Modules", url: "/modules" },
+  { name: "Lessons", url: "/lessons" },
 ];
 
-// Presentation-only metadata, keyed by name — ManagementData (name/url)
-// stays the single source of truth from the API/type.
 interface SectionMeta {
   description: string;
   detail: string;
@@ -59,92 +48,89 @@ export default function IndexPage() {
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
 
-  const filtered = useMemo(() => data.filter((item) => item.name.toLowerCase().includes(query.trim().toLowerCase())), [query]);
+  const filtered = useMemo(
+    () => data.filter((item) => item.name.toLowerCase().includes(query.trim().toLowerCase())),
+    [query]
+  );
 
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [query]);
+  useEffect(() => { setActiveIndex(0); }, [query]);
 
   const active = filtered[activeIndex];
   const activeInfo = active ? meta[active.name] : undefined;
   const ActiveIcon = activeInfo?.icon ?? Route;
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Escape") {
-      setQuery("");
-      return;
-    }
+    if (e.key === "Escape") { setQuery(""); return; }
     if (filtered.length === 0) return;
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setActiveIndex((i) => (i + 1) % filtered.length);
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setActiveIndex((i) => (i - 1 + filtered.length) % filtered.length);
-    } else if (e.key === "Enter") {
-      navigate(filtered[activeIndex].url);
-    }
+    if (e.key === "ArrowDown") { e.preventDefault(); setActiveIndex((i) => (i + 1) % filtered.length); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); setActiveIndex((i) => (i - 1 + filtered.length) % filtered.length); }
+    else if (e.key === "Enter") { navigate(filtered[activeIndex].url); }
   };
 
   return (
-    <div className="relative mx-auto w-full max-w-8xl overflow-hidden ">
-      {/* subtle dot-grid, fills the negative space around the card */}
-      <div
-        className="pointer-events-none absolute -inset-x-12 -inset-y-8 -z-10 opacity-[0.4]"
-        style={{
-          backgroundImage: "radial-gradient(circle, var(--border) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-          maskImage: "radial-gradient(ellipse 80% 70% at 50% 30%, black, transparent)",
-        }}
-      />
-
-      <div className="flex items-baseline justify-between">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight text-foreground">Management</h1>
-          <p className="mt-1.5 text-base text-muted-foreground">Configure the building blocks of your curriculum.</p>
-        </div>
-        <span className="hidden font-mono text-xs text-muted-foreground sm:inline">{data.length} sections</span>
+    <div className="mx-auto w-full max-w-4xl space-y-8">
+      {/* Header */}
+      <div>
+        <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#1c81ff] mb-2">Admin</p>
+        <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight" style={{ letterSpacing: "-0.02em" }}>
+          Course Management
+        </h1>
+        <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400 mt-1">
+          Configure the building blocks of your curriculum.
+        </p>
       </div>
 
-      <div className="mt-8 overflow-hidden rounded-2xl border border-border bg-card shadow-lg shadow-black/[0.03]">
-        <div className="grid grid-cols-1 md:grid-cols-[340px_1fr]">
-          {/* left: search + filtered list */}
-          <div className="border-b border-border md:border-r md:border-b-0">
-            <div className="flex items-center gap-3 border-b border-border px-5 py-4">
-              <Search className="h-4.5 w-4.5 shrink-0 text-muted-foreground" />
+      {/* Command palette card */}
+      <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0b1215] shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-[300px_1fr]">
+          {/* Left: search + list */}
+          <div className="border-b border-gray-100 dark:border-white/5 md:border-r md:border-b-0">
+            {/* Search */}
+            <div className="flex items-center gap-3 border-b border-gray-100 dark:border-white/5 px-5 py-3.5">
+              <Search className="h-4 w-4 shrink-0 text-gray-400 dark:text-gray-600" />
               <input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Jump to a section..."
-                className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+                placeholder="Jump to a section…"
+                className="w-full bg-transparent text-[14px] text-gray-900 dark:text-white outline-none placeholder:text-gray-400 dark:placeholder:text-gray-600"
               />
             </div>
 
-            <div className="p-3">
+            {/* Items */}
+            <div className="p-2">
               {filtered.length > 0 ? (
                 filtered.map((item, index) => {
                   const info = meta[item.name];
                   const Icon = info?.icon ?? Route;
                   const isActive = index === activeIndex;
-
                   return (
                     <Link
-                      to={item.url}
                       key={item.url}
+                      to={item.url}
                       onMouseEnter={() => setActiveIndex(index)}
-                      className={`flex items-center justify-between gap-3 rounded-xl px-3 py-3.5 transition-colors ${isActive ? "bg-primary/10 text-primary" : "text-foreground hover:bg-muted/60"}`}
+                      className={`flex items-center justify-between gap-3 rounded-xl px-3 py-3 transition-colors ${
+                        isActive
+                          ? "bg-[#1c81ff]/10 text-[#1c81ff]"
+                          : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5"
+                      }`}
                     >
                       <div className="flex items-center gap-3">
-                        <Icon className={`h-4.5 w-4.5 shrink-0 ${isActive ? "text-primary" : "text-muted-foreground"}`} />
+                        <Icon className={`h-4 w-4 shrink-0 ${isActive ? "text-[#1c81ff]" : "text-gray-400 dark:text-gray-600"}`} />
                         <div>
-                          <span className="block text-sm font-medium">{item.name}</span>
-                          <span className={`block text-xs ${isActive ? "text-primary/70" : "text-muted-foreground"}`}>{info?.description}</span>
+                          <span className="block text-[14px] font-bold">{item.name}</span>
+                          <span className={`block text-[12px] ${isActive ? "text-[#1c81ff]/70" : "text-gray-400 dark:text-gray-600"}`}>
+                            {info?.description}
+                          </span>
                         </div>
                       </div>
                       {info?.key && (
-                        <kbd className={`shrink-0 rounded border px-1.5 py-0.5 font-mono text-[10px] ${isActive ? "border-primary/40 text-primary" : "border-border bg-muted text-muted-foreground"}`}>
+                        <kbd className={`shrink-0 rounded-lg border px-1.5 py-0.5 font-mono text-[10px] font-bold ${
+                          isActive
+                            ? "border-[#1c81ff]/30 text-[#1c81ff]"
+                            : "border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-gray-400 dark:text-gray-600"
+                        }`}>
                           {info.key}
                         </kbd>
                       )}
@@ -152,29 +138,37 @@ export default function IndexPage() {
                   );
                 })
               ) : (
-                <p className="px-3 py-10 text-center text-sm text-muted-foreground">No matches for "{query}"</p>
+                <p className="px-3 py-10 text-center text-[14px] text-gray-400 dark:text-gray-600">
+                  No matches for "{query}"
+                </p>
               )}
             </div>
           </div>
 
-          {/* right: preview panel for the active selection */}
+          {/* Right: preview panel */}
           <div className="relative flex flex-col justify-between overflow-hidden p-8">
             {active && activeInfo ? (
               <>
-                <ActiveIcon className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 text-primary/[0.04]" aria-hidden />
-                <div className="relative">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                    <ActiveIcon className="h-6 w-6" />
-                  </div>
-                  <h2 className="mt-5 text-xl font-semibold text-foreground">{active.name}</h2>
-                  <p className="text-sm text-muted-foreground">{activeInfo.description}</p>
-                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{activeInfo.detail}</p>
+                {/* Ghost icon background */}
+                <ActiveIcon className="pointer-events-none absolute -right-8 -top-8 h-40 w-40 text-[#1c81ff]/[0.04]" aria-hidden />
 
-                  <ul className="mt-5 space-y-2 border-t border-border pt-5">
-                    {activeInfo.capabilities.map((capability) => (
-                      <li key={capability} className="flex items-start gap-2 text-sm text-foreground">
-                        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
-                        {capability}
+                <div className="relative space-y-5">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#1c81ff]/10">
+                    <ActiveIcon className="h-6 w-6 text-[#1c81ff]" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-extrabold text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>
+                      {active.name}
+                    </h2>
+                    <p className="text-[13px] text-gray-500 dark:text-gray-400">{activeInfo.description}</p>
+                    <p className="mt-3 text-[15px] leading-relaxed text-gray-500 dark:text-gray-400">{activeInfo.detail}</p>
+                  </div>
+
+                  <ul className="space-y-2 border-t border-gray-100 dark:border-white/5 pt-4">
+                    {activeInfo.capabilities.map((cap) => (
+                      <li key={cap} className="flex items-start gap-2 text-[14px] text-gray-700 dark:text-gray-300">
+                        <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-[#1c81ff]" />
+                        {cap}
                       </li>
                     ))}
                   </ul>
@@ -182,32 +176,26 @@ export default function IndexPage() {
 
                 <Link
                   to={active.url}
-                  className="relative mt-8 inline-flex w-fit items-center gap-1.5 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90"
+                  className="relative mt-8 inline-flex w-fit items-center gap-1.5 rounded-xl bg-[#1c81ff] px-5 py-2.5 text-[14px] font-bold text-white shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95"
                 >
                   Open {active.name}
                   <ArrowRight className="h-3.5 w-3.5" />
                 </Link>
               </>
             ) : (
-              <p className="text-sm text-muted-foreground">No section selected.</p>
+              <p className="text-[14px] text-gray-400 dark:text-gray-600">No section selected.</p>
             )}
           </div>
         </div>
 
-        {/* footer — keyboard hints, fills the command palette's usual bottom bar */}
-        <div className="flex items-center gap-4 border-t border-border bg-muted/30 px-5 py-3">
-          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <kbd className="rounded border border-border bg-card px-1.5 py-0.5 font-mono text-[10px]">↑↓</kbd>
-            Navigate
-          </span>
-          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <kbd className="rounded border border-border bg-card px-1.5 py-0.5 font-mono text-[10px]">↵</kbd>
-            Open
-          </span>
-          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <kbd className="rounded border border-border bg-card px-1.5 py-0.5 font-mono text-[10px]">esc</kbd>
-            Clear
-          </span>
+        {/* Footer keyboard hints */}
+        <div className="flex items-center gap-5 border-t border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/[0.02] px-5 py-3">
+          {[["↑↓", "Navigate"], ["↵", "Open"], ["esc", "Clear"]].map(([key, label]) => (
+            <span key={key} className="flex items-center gap-1.5 text-[12px] text-gray-400 dark:text-gray-600">
+              <kbd className="rounded-md border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0b1215] px-1.5 py-0.5 font-mono text-[10px]">{key}</kbd>
+              {label}
+            </span>
+          ))}
         </div>
       </div>
     </div>

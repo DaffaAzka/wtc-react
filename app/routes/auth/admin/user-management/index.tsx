@@ -1,18 +1,46 @@
-import { api } from "@/lib/axios";
 import { useState, useEffect } from "react";
+import { api } from "@/lib/axios";
 import { toast } from "sonner";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, UserCog, Plus, X, ChevronLeft, ChevronRight } from "lucide-react";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import {
+  Search,
+  UserCog,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Users,
+  Plus,
+  Inbox,
+  ShieldCheck,
+} from "lucide-react";
 
-// Types based on API documentation
+// ── Types ───────────────────────────────────────────────────────────────────
+
 type UserResource = {
   id: string;
   puid: string | null;
@@ -33,7 +61,7 @@ type RoleResource = {
 };
 
 type ProfileWithUser = {
-  id: string; // Profile ID
+  id: string;
   user_id: string;
   study_class_id: number | null;
   display_name: string | null;
@@ -42,8 +70,8 @@ type ProfileWithUser = {
   last_synced_at: string;
   created_at: string;
   updated_at: string;
-  user: UserResource; // Embedded user data
-  roles: RoleResource[]; // Profile roles
+  user: UserResource;
+  roles: RoleResource[];
 };
 
 type PaginationMeta = {
@@ -58,10 +86,7 @@ type PaginationMeta = {
 type ProfilesResponse = {
   success: boolean;
   message: string;
-  data: {
-    profiles: ProfileWithUser[];
-    pagination: PaginationMeta;
-  };
+  data: { profiles: ProfileWithUser[]; pagination: PaginationMeta };
 };
 
 type RolesResponse = {
@@ -76,413 +101,443 @@ type ProfileResponse = {
   data: ProfileWithUser;
 };
 
+// ── Role badge color ────────────────────────────────────────────────────────
+
+const ROLE_COLORS: Record<string, { bg: string; text: string }> = {
+  admin:   { bg: "bg-[#ff007b]/10",  text: "text-[#ff007b]" },
+  teacher: { bg: "bg-[#1c81ff]/10",  text: "text-[#1c81ff]" },
+  student: { bg: "bg-[#00E676]/10",  text: "text-[#00E676]" },
+};
+
+function RoleBadge({ name }: { name: string }) {
+  const c = ROLE_COLORS[name.toLowerCase()] ?? { bg: "bg-gray-100 dark:bg-white/5", text: "text-gray-500 dark:text-gray-400" };
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] ${c.bg} ${c.text}`}>
+      {name}
+    </span>
+  );
+}
+
+// ── Main page ───────────────────────────────────────────────────────────────
+
 export default function UserManagement() {
-  // State management - now working with profiles instead of users
   const [profiles, setProfiles] = useState<ProfileWithUser[]>([]);
   const [allRoles, setAllRoles] = useState<RoleResource[]>([]);
   const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState<ProfileWithUser | null>(null);
   const [roleDialogOpen, setRoleDialogOpen] = useState(false);
   const [addingRole, setAddingRole] = useState(false);
   const [removingRoleId, setRemovingRoleId] = useState<number | null>(null);
   const [roleToRemove, setRoleToRemove] = useState<{ profileId: string; roleId: number; roleName: string } | null>(null);
 
-  // Filters and pagination
   const [search, setSearch] = useState("");
-  const [roleFilter, setRoleFilter] = useState<string>("all");
+  const [roleFilter, setRoleFilter] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
-  const [perPage] = useState(15);
+  const perPage = 15;
   const [pagination, setPagination] = useState<PaginationMeta | null>(null);
 
-  // Fetch all roles
   const fetchRoles = async () => {
     try {
-      const response = await api.get<RolesResponse>("/roles");
-      if (response.data.success) {
-        setAllRoles(response.data.data);
-      }
-    } catch (error: any) {
-      toast.error(error?.message || "Gagal memuat daftar role");
+      const res = await api.get<RolesResponse>("/roles");
+      if (res.data.success) setAllRoles(res.data.data);
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to load roles");
     }
   };
 
-  // Fetch profiles with pagination and filters (NEW: single API call!)
   const fetchProfiles = async () => {
     try {
       setLoading(true);
-      const params: any = {
-        page: currentPage,
-        per_page: perPage,
-      };
-
-      if (search) {
-        params.search = search;
+      const params: any = { page: currentPage, per_page: perPage };
+      if (search) params.search = search;
+      if (roleFilter !== "all") params.role = roleFilter;
+      const res = await api.get<ProfilesResponse>("/profiles", { params });
+      if (res.data.success) {
+        setProfiles(res.data.data.profiles);
+        setPagination(res.data.data.pagination);
       }
-
-      if (roleFilter && roleFilter !== "all") {
-        params.role = roleFilter;
-      }
-
-      // Single API call to get all profiles with user data and roles!
-      const response = await api.get<ProfilesResponse>("/profiles", { params });
-
-      if (response.data.success) {
-        setProfiles(response.data.data.profiles);
-        setPagination(response.data.data.pagination);
-      }
-    } catch (error: any) {
-      toast.error(error?.message || "Gagal memuat daftar profiles");
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to load profiles");
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch profile's current roles (for refresh after role changes)
   const fetchProfileRoles = async (profileId: string) => {
     try {
-      const response = await api.get<ProfileResponse>(`/profiles/${profileId}`);
-      if (response.data.success) {
-        // Update the profile in the list
-        setProfiles((prev) => prev.map((p) => (p.id === profileId ? { ...p, roles: response.data.data.roles } : p)));
-        // Update selected profile
-        if (selectedProfile && selectedProfile.id === profileId) {
-          setSelectedProfile({ ...selectedProfile, roles: response.data.data.roles });
-        }
+      const res = await api.get<ProfileResponse>(`/profiles/${profileId}`);
+      if (res.data.success) {
+        setProfiles((prev) => prev.map((p) => p.id === profileId ? { ...p, roles: res.data.data.roles } : p));
+        if (selectedProfile?.id === profileId)
+          setSelectedProfile((p) => p ? { ...p, roles: res.data.data.roles } : p);
       }
-    } catch (error: any) {
-      toast.error(error?.message || "Gagal memuat role profile");
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to reload roles");
     }
   };
 
-  // Assign role to profile
   const handleAssignRole = async (roleId: number) => {
     if (!selectedProfile?.id) return;
-
     try {
       setAddingRole(true);
-      await api.post(`/profiles/${selectedProfile.id}/roles`, {
-        role_id: roleId,
-      });
-
-      toast.success("Role berhasil ditambahkan");
+      await api.post(`/profiles/${selectedProfile.id}/roles`, { role_id: roleId });
+      toast.success("Role assigned");
       await fetchProfileRoles(selectedProfile.id);
-    } catch (error: any) {
-      toast.error(error?.message || "Gagal menambahkan role");
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to assign role");
     } finally {
       setAddingRole(false);
     }
   };
 
-  // Remove role from profile
   const handleRemoveRole = async (roleId: number) => {
     if (!selectedProfile?.id) return;
-
     try {
       setRemovingRoleId(roleId);
       await api.delete(`/profiles/${selectedProfile.id}/roles/${roleId}`);
-
-      toast.success("Role berhasil dihapus");
+      toast.success("Role removed");
       await fetchProfileRoles(selectedProfile.id);
       setRoleToRemove(null);
-    } catch (error: any) {
-      toast.error(error?.message || "Gagal menghapus role");
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to remove role");
     } finally {
       setRemovingRoleId(null);
     }
   };
 
-  // Open role management dialog
   const openRoleDialog = (profile: ProfileWithUser) => {
     setSelectedProfile(profile);
     setRoleDialogOpen(true);
   };
 
-  // Initial load
-  useEffect(() => {
-    fetchRoles();
-  }, []);
-
-  // Fetch profiles when filters change
-  useEffect(() => {
-    fetchProfiles();
-  }, [currentPage, search, roleFilter]);
-
-  // Get available roles for assignment (exclude already assigned)
   const getAvailableRoles = () => {
     if (!selectedProfile?.roles) return allRoles;
-    const assignedRoleIds = selectedProfile.roles.map((r) => r.id);
-    return allRoles.filter((role) => !assignedRoleIds.includes(role.id));
+    const assigned = selectedProfile.roles.map((r) => r.id);
+    return allRoles.filter((r) => !assigned.includes(r.id));
   };
 
+  useEffect(() => { fetchRoles(); }, []);
+  useEffect(() => { fetchProfiles(); }, [currentPage, search, roleFilter]);
+  useEffect(() => { if (!loading) { const t = setTimeout(() => setMounted(true), 60); return () => clearTimeout(t); } }, [loading]);
+
+  const avatarSrc = (avatar: any) =>
+    typeof avatar === "string" ? avatar : avatar?.url ?? undefined;
+
   return (
-    <div className="container mx-auto py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">User Management</h1>
-        <p className="text-muted-foreground">Kelola users dan roles dalam aplikasi</p>
+    <div
+      className={`space-y-8 transition-all duration-700 ease-out ${
+        mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      }`}
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#1c81ff] mb-2">
+            Admin
+          </p>
+          <h1
+            className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight"
+            style={{ letterSpacing: "-0.02em" }}
+          >
+            User Management
+          </h1>
+          <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400 mt-1">
+            Manage users, profiles and their roles.
+          </p>
+        </div>
+        {pagination && (
+          <div className="hidden lg:flex items-center gap-2 bg-[#1c81ff]/10 rounded-2xl px-4 py-2.5 mt-1">
+            <div className="w-7 h-7 rounded-full bg-[#1c81ff]/20 flex items-center justify-center">
+              <Users className="h-3.5 w-3.5 text-[#1c81ff]" />
+            </div>
+            <span className="font-extrabold text-[#1c81ff]">{pagination.total}</span>
+            <span className="text-[12px] font-bold text-[#1c81ff]/70">users</span>
+          </div>
+        )}
       </div>
 
       {/* Filters */}
-      <div className="mb-6 flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Cari user (nama atau email)..."
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-600 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search by name or email…"
             value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setCurrentPage(1); // Reset to first page on search
-            }}
-            className="pl-10"
+            onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+            className="w-full rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-gray-800 pl-10 pr-4 py-2.5 text-[14px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff] outline-none transition-all"
           />
         </div>
         <Select
           value={roleFilter}
-          onValueChange={(value) => {
-            setRoleFilter(value);
-            setCurrentPage(1); // Reset to first page on filter
-          }}
+          onValueChange={(v) => { setRoleFilter(v); setCurrentPage(1); }}
         >
-          <SelectTrigger className="w-full sm:w-[200px]">
+          <SelectTrigger className="w-full sm:w-48 rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Semua Role</SelectItem>
+          <SelectContent className="rounded-xl">
+            <SelectItem value="all">All Roles</SelectItem>
             {allRoles.map((role) => (
-              <SelectItem key={role.id} value={role.name}>
-                {role.name}
-              </SelectItem>
+              <SelectItem key={role.id} value={role.name}>{role.name}</SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
-      {/* Users Table */}
-      <div className="rounded-lg border bg-card">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>User</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Provider</TableHead>
-              <TableHead>Roles</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+      {/* Table */}
+      <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/[0.02]">
+              {["User", "Email", "Provider", "Roles", ""].map((h, i) => (
+                <th
+                  key={i}
+                  className={`px-5 py-3 text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 ${i >= 4 ? "text-right" : "text-left"} ${i === 1 ? "hidden md:table-cell" : ""} ${i === 2 ? "hidden sm:table-cell" : ""}`}
+                >
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-100 dark:divide-white/5">
             {loading ? (
-              // Loading skeleton
-              Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell>
+              Array.from({ length: 8 }).map((_, i) => (
+                <tr key={i}>
+                  <td className="px-5 py-3.5">
                     <div className="flex items-center gap-3">
-                      <Skeleton className="h-10 w-10 rounded-full" />
-                      <Skeleton className="h-4 w-[150px]" />
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-[200px]" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-[80px]" />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Skeleton className="h-6 w-[60px]" />
-                      <Skeleton className="h-6 w-[60px]" />
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-8 w-[100px] ml-auto" />
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : profiles.length === 0 ? (
-              // Empty state
-              <TableRow>
-                <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                  Tidak ada profile ditemukan
-                </TableCell>
-              </TableRow>
-            ) : (
-              // Actual profile data
-              profiles.map((profile) => (
-                <TableRow key={profile.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-3">
-                      <Avatar>
-                        <AvatarImage src={typeof profile.user.avatar === 'string' ? profile.user.avatar : (profile.user.avatar as any)?.url ?? undefined} alt={profile.display_name ?? undefined} />
-                        <AvatarFallback>{profile.display_name?.charAt(0).toUpperCase() ?? '?'}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div className="font-medium">{profile.display_name}</div>
-                        <div className="text-sm text-muted-foreground">Profile ID: {profile.id.slice(0, 8)}...</div>
+                      <Skeleton className="h-9 w-9 rounded-full" />
+                      <div className="space-y-1.5">
+                        <Skeleton className="h-3.5 w-32 rounded-md" />
+                        <Skeleton className="h-2.5 w-20 rounded-md" />
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell>{profile.user.email}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline">{profile.user.provider}</Badge>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-2 flex-wrap">
-                      {profile.roles && profile.roles.length > 0 ? (
-                        profile.roles.map((role) => (
-                          <Badge key={role.id} variant="secondary">
-                            {role.name}
-                          </Badge>
-                        ))
+                  </td>
+                  <td className="hidden md:table-cell px-5 py-3.5"><Skeleton className="h-3.5 w-44 rounded-md" /></td>
+                  <td className="hidden sm:table-cell px-5 py-3.5"><Skeleton className="h-6 w-16 rounded-full" /></td>
+                  <td className="px-5 py-3.5"><Skeleton className="h-6 w-24 rounded-full" /></td>
+                  <td className="px-5 py-3.5 text-right"><Skeleton className="ml-auto h-8 w-28 rounded-xl" /></td>
+                </tr>
+              ))
+            ) : profiles.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="py-16">
+                  <div className="flex flex-col items-center gap-3 text-center">
+                    <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center">
+                      <Inbox className="h-5 w-5 text-gray-400 dark:text-gray-600" />
+                    </div>
+                    <p className="text-[14px] text-gray-500 dark:text-gray-400">No profiles found.</p>
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              profiles.map((profile) => (
+                <tr
+                  key={profile.id}
+                  className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
+                >
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-9 w-9 ring-1 ring-gray-200 dark:ring-white/10">
+                        <AvatarImage src={avatarSrc(profile.user.avatar)} alt={profile.display_name ?? undefined} />
+                        <AvatarFallback className="text-xs font-bold bg-[#1c81ff]/10 text-[#1c81ff]">
+                          {profile.display_name?.charAt(0).toUpperCase() ?? "?"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <div className="font-bold text-[14px] text-gray-900 dark:text-white">
+                          {profile.display_name ?? "—"}
+                        </div>
+                        <div className="text-[12px] text-gray-400 dark:text-gray-600 font-mono">
+                          {profile.id.slice(0, 8)}…
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="hidden md:table-cell px-5 py-3.5 text-[14px] text-gray-600 dark:text-gray-300">
+                    {profile.user.email}
+                  </td>
+                  <td className="hidden sm:table-cell px-5 py-3.5">
+                    <span className="inline-flex items-center rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] text-gray-500 dark:text-gray-400">
+                      {profile.user.provider}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <div className="flex flex-wrap gap-1.5">
+                      {profile.roles?.length > 0 ? (
+                        profile.roles.map((r) => <RoleBadge key={r.id} name={r.name} />)
                       ) : (
-                        <span className="text-sm text-muted-foreground">No roles</span>
+                        <span className="text-[13px] text-gray-400 dark:text-gray-600 italic">No roles</span>
                       )}
                     </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" onClick={() => openRoleDialog(profile)}>
-                      <UserCog className="h-4 w-4 mr-2" />
+                  </td>
+                  <td className="px-5 py-3.5 text-right">
+                    <button
+                      onClick={() => openRoleDialog(profile)}
+                      className="inline-flex items-center gap-1.5 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-3 py-1.5 text-[13px] hover:bg-gray-50 dark:hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-all"
+                    >
+                      <UserCog className="h-3.5 w-3.5" />
                       Manage Roles
-                    </Button>
-                  </TableCell>
-                </TableRow>
+                    </button>
+                  </td>
+                </tr>
               ))
             )}
-          </TableBody>
-        </Table>
+          </tbody>
+        </table>
       </div>
 
       {/* Pagination */}
       {pagination && pagination.last_page > 1 && (
-        <div className="mt-6 flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Menampilkan {pagination.from} - {pagination.to} dari {pagination.total} profiles
-          </div>
+        <div className="flex items-center justify-between">
+          <span className="text-[13px] text-gray-500 dark:text-gray-400">
+            {pagination.from}–{pagination.to}{" "}
+            <span className="text-gray-400 dark:text-gray-600">of</span>{" "}
+            {pagination.total}
+          </span>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))} disabled={currentPage === 1 || loading}>
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1 || loading}
+              className="flex items-center gap-1 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-3 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            >
               <ChevronLeft className="h-4 w-4" />
-              Previous
-            </Button>
-            <div className="text-sm font-medium">
-              Page {pagination.current_page} of {pagination.last_page}
-            </div>
-            <Button variant="outline" size="sm" onClick={() => setCurrentPage((prev) => Math.min(pagination.last_page, prev + 1))} disabled={currentPage === pagination.last_page || loading}>
+              Prev
+            </button>
+            <span className="tabular-nums text-[13px] font-bold text-gray-500 dark:text-gray-400 px-1">
+              {pagination.current_page} / {pagination.last_page}
+            </span>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(pagination.last_page, p + 1))}
+              disabled={currentPage === pagination.last_page || loading}
+              className="flex items-center gap-1 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-3 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            >
               Next
               <ChevronRight className="h-4 w-4" />
-            </Button>
+            </button>
           </div>
         </div>
       )}
 
       {/* Role Management Dialog */}
       <Dialog open={roleDialogOpen} onOpenChange={setRoleDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-lg rounded-2xl">
           <DialogHeader>
-            <DialogTitle>Manage Profile Roles</DialogTitle>
-            <DialogDescription>
-              {selectedProfile && (
-                <div className="flex items-center gap-3 mt-2">
-                  <Avatar>
-                    <AvatarImage src={typeof selectedProfile.user.avatar === 'string' ? selectedProfile.user.avatar : (selectedProfile.user.avatar as any)?.url ?? undefined} alt={selectedProfile.display_name ?? undefined} />
-                    <AvatarFallback>{selectedProfile.display_name?.charAt(0).toUpperCase() ?? '?'}</AvatarFallback>
+            <DialogTitle className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>
+              Manage Roles
+            </DialogTitle>
+            <DialogDescription asChild>
+              {selectedProfile ? (
+                <div className="flex items-center gap-3 mt-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-3">
+                  <Avatar className="h-10 w-10 ring-1 ring-gray-200 dark:ring-white/10">
+                    <AvatarImage src={avatarSrc(selectedProfile.user.avatar)} alt={selectedProfile.display_name ?? undefined} />
+                    <AvatarFallback className="text-sm font-bold bg-[#1c81ff]/10 text-[#1c81ff]">
+                      {selectedProfile.display_name?.charAt(0).toUpperCase() ?? "?"}
+                    </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1">
-                    <div className="font-medium text-foreground">{selectedProfile.display_name}</div>
-                    <div className="text-sm">{selectedProfile.user.email}</div>
-                    <div className="text-xs text-muted-foreground mt-1">
-                      Dibuat: {new Date(selectedProfile.user.created_at).toLocaleDateString('id-ID', {
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
+                  <div>
+                    <div className="font-bold text-[14px] text-gray-900 dark:text-white">
+                      {selectedProfile.display_name}
+                    </div>
+                    <div className="text-[13px] text-gray-500 dark:text-gray-400">
+                      {selectedProfile.user.email}
                     </div>
                   </div>
                 </div>
-              )}
+              ) : <span />}
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-6 py-4">
-            {/* Current Roles */}
+          <div className="space-y-5 pt-2">
+            {/* Current roles */}
             <div>
-              <h4 className="text-sm font-medium mb-3">Current Roles</h4>
-              <div className="space-y-2">
-                {selectedProfile?.roles && selectedProfile.roles.length > 0 ? (
-                  selectedProfile.roles.map((role) => (
-                    <div key={role.id} className="flex items-center justify-between p-3 rounded-lg border bg-card">
+              <p className="text-[13px] font-bold text-gray-700 dark:text-gray-300 mb-2 block">
+                Current Roles
+              </p>
+              {selectedProfile?.roles?.length ? (
+                <div className="space-y-2">
+                  {selectedProfile.roles.map((role) => (
+                    <div
+                      key={role.id}
+                      className="flex items-center justify-between rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-4 py-2.5"
+                    >
                       <div className="flex items-center gap-2">
-                        <Badge variant="secondary">{role.name}</Badge>
-                        <span className="text-sm text-muted-foreground">ID: {role.id}</span>
+                        <ShieldCheck className="h-4 w-4 text-gray-400 dark:text-gray-600" />
+                        <RoleBadge name={role.name} />
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() =>
-                          setRoleToRemove({
-                            profileId: selectedProfile.id,
-                            roleId: role.id,
-                            roleName: role.name,
-                          })
-                        }
+                      <button
+                        onClick={() => setRoleToRemove({ profileId: selectedProfile.id, roleId: role.id, roleName: role.name })}
                         disabled={removingRoleId === role.id}
+                        className="flex items-center gap-1 text-[13px] font-bold text-red-500 hover:text-red-600 disabled:opacity-40 transition-colors"
                       >
-                        <X className="h-4 w-4 mr-1" />
+                        <X className="h-3.5 w-3.5" />
                         Remove
-                      </Button>
+                      </button>
                     </div>
-                  ))
-                ) : (
-                  <div className="text-sm text-muted-foreground text-center py-4">Profile belum memiliki role</div>
-                )}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-[13px] text-gray-400 dark:text-gray-600 italic py-2">
+                  No roles assigned yet.
+                </p>
+              )}
             </div>
 
-            {/* Add Role */}
+            {/* Add role */}
             <div>
-              <h4 className="text-sm font-medium mb-3">Add Role</h4>
+              <p className="text-[13px] font-bold text-gray-700 dark:text-gray-300 mb-2 block">
+                Add Role
+              </p>
               {getAvailableRoles().length > 0 ? (
-                <Select onValueChange={(value) => handleAssignRole(Number(value))} disabled={addingRole}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Pilih role untuk ditambahkan" />
+                <Select onValueChange={(v) => handleAssignRole(Number(v))} disabled={addingRole}>
+                  <SelectTrigger className="rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
+                    <SelectValue placeholder="Select a role to add…" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="rounded-xl">
                     {getAvailableRoles().map((role) => (
                       <SelectItem key={role.id} value={role.id.toString()}>
                         <div className="flex items-center gap-2">
-                          <Badge variant="outline">{role.name}</Badge>
-                          <span className="text-xs text-muted-foreground">ID: {role.id}</span>
+                          <Plus className="h-3.5 w-3.5 text-gray-400" />
+                          {role.name}
                         </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               ) : (
-                <div className="text-sm text-muted-foreground text-center py-4 border rounded-lg">Semua role sudah di-assign ke user ini</div>
+                <div className="rounded-xl border border-dashed border-gray-200 dark:border-white/10 py-4 text-center">
+                  <p className="text-[13px] text-gray-400 dark:text-gray-600">
+                    All roles already assigned.
+                  </p>
+                </div>
               )}
             </div>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Confirm Role Removal Dialog */}
+      {/* Confirm remove dialog */}
       <AlertDialog open={!!roleToRemove} onOpenChange={() => setRoleToRemove(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Remove Role?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Apakah Anda yakin ingin menghapus role <strong>{roleToRemove?.roleName}</strong> dari profile ini? Tindakan ini tidak dapat dibatalkan.
+            <AlertDialogTitle className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>
+              Remove role?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[15px] text-gray-500 dark:text-gray-400">
+              This will remove the{" "}
+              <span className="font-bold text-gray-900 dark:text-white">{roleToRemove?.roleName}</span>{" "}
+              role from this profile. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl border-[1.5px] border-gray-200 dark:border-white/20 font-bold">
+              Cancel
+            </AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                if (roleToRemove) {
-                  handleRemoveRole(roleToRemove.roleId);
-                }
-              }}
-              className="bg-destructive hover:bg-destructive/90"
+              onClick={() => roleToRemove && handleRemoveRole(roleToRemove.roleId)}
+              className="bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-colors"
             >
-              Remove Role
+              Remove
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

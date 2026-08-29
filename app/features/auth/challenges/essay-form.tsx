@@ -1,6 +1,5 @@
-﻿import InputForm from "@/components/custom/input-form";
+import InputForm from "@/components/custom/input-form";
 import TextareaForm from "@/components/custom/textarea-form";
-
 import type { EssayQuestion } from "@/types/challenge";
 
 type Props = {
@@ -9,18 +8,11 @@ type Props = {
   onChange: (data: EssayQuestion) => void;
   shouldAutoFocus?: boolean;
   questionErrors: Record<string, string>;
-  setQuestionErrors: React.Dispatch<
-    React.SetStateAction<Record<string, string>>
-  >;
+  setQuestionErrors: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 };
 
 export default function EssayForm({
-  data,
-  onChange,
-  shouldAutoFocus,
-  index,
-  questionErrors,
-  setQuestionErrors,
+  data, onChange, shouldAutoFocus, index, questionErrors, setQuestionErrors,
 }: Props) {
   return (
     <div className="space-y-4">
@@ -32,17 +24,9 @@ export default function EssayForm({
         autoFocus={shouldAutoFocus}
         error={questionErrors[`question-${index}`]}
         handleChange={(e) => {
-          onChange({
-            ...data,
-            question: e.target.value,
-          });
-
+          onChange({ ...data, question: e.target.value });
           if (questionErrors[`question-${index}`]) {
-            setQuestionErrors((prev) => {
-              const updated = { ...prev };
-              delete updated[`question-${index}`];
-              return updated;
-            });
+            setQuestionErrors((prev) => { const u = { ...prev }; delete u[`question-${index}`]; return u; });
           }
         }}
       />
@@ -53,25 +37,21 @@ export default function EssayForm({
         value={data.rubric}
         error={questionErrors[`rubric-${index}`]}
         handleChange={(e) => {
-          onChange({
-            ...data,
-            rubric: e.target.value,
-          });
-
+          onChange({ ...data, rubric: e.target.value });
           if (questionErrors[`rubric-${index}`]) {
-            setQuestionErrors((prev) => {
-              const updated = { ...prev };
-              delete updated[`rubric-${index}`];
-              return updated;
-            });
+            setQuestionErrors((prev) => { const u = { ...prev }; delete u[`rubric-${index}`]; return u; });
           }
         }}
       />
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Score (Auto-calculated)</label>
-        <div className="flex items-center h-10 w-full rounded-md border border-input bg-muted px-3 py-2">
-          <span className="text-sm font-semibold">{data.score} pts</span>
+      {/* Score (read-only) */}
+      <div className="space-y-1.5">
+        <label className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
+          Score <span className="font-normal text-gray-400 dark:text-gray-600">(Auto-calculated)</span>
+        </label>
+        <div className="flex items-center h-11 w-full rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-4">
+          <span className="text-[14px] font-extrabold text-[#1c81ff]">{data.score}</span>
+          <span className="text-[13px] text-gray-400 dark:text-gray-600 ml-1">pts</span>
         </div>
       </div>
     </div>

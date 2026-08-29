@@ -1,9 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router";
 import { useTeacherSubmissions } from "@/hooks/teacher";
 import { useGetChallenges } from "@/hooks/challenges";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -12,54 +18,43 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  AlertCircle,
+  Inbox,
+  X,
+} from "lucide-react";
 import type { TeacherSubmissionStatus } from "@/types/teacher";
 
-// ---------------------------------------------------------------------------
-// Status variant helper (mirrors submission-queue)
-// ---------------------------------------------------------------------------
-
-const STATUS_VARIANT: Record<
-  TeacherSubmissionStatus,
-  "default" | "secondary" | "outline" | "destructive"
-> = {
-  draft: "outline",
-  submitted: "default",
-  graded: "secondary",
-  returned: "destructive",
+const STATUS_STYLE: Record<TeacherSubmissionStatus, { bg: string; text: string; dot: string }> = {
+  draft:     { bg: "bg-gray-100 dark:bg-white/5",  text: "text-gray-500 dark:text-gray-400", dot: "bg-gray-400" },
+  submitted: { bg: "bg-[#1c81ff]/10",              text: "text-[#1c81ff]",                   dot: "bg-[#1c81ff]" },
+  graded:    { bg: "bg-[#00E676]/10",              text: "text-[#00E676]",                   dot: "bg-[#00E676]" },
+  returned:  { bg: "bg-[#ff007b]/10",              text: "text-[#ff007b]",                   dot: "bg-[#ff007b]" },
 };
 
-const ALL_STATUSES: TeacherSubmissionStatus[] = [
-  "draft",
-  "submitted",
-  "graded",
-  "returned",
-];
+function StatusBadge({ status }: { status: TeacherSubmissionStatus }) {
+  const s = STATUS_STYLE[status] ?? STATUS_STYLE.draft;
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] ${s.bg} ${s.text}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+      {status}
+    </span>
+  );
+}
 
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
+const ALL_STATUSES: TeacherSubmissionStatus[] = ["draft", "submitted", "graded", "returned"];
 
 export default function TeacherSubmissionsIndexPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const [mounted, setMounted] = useState(false);
 
   const statusParam = searchParams.get("status") as TeacherSubmissionStatus | null;
   const challengeParam = searchParams.get("challenge_id");
   const searchParam = searchParams.get("search") ?? "";
   const pageParam = Number(searchParams.get("page") ?? "1");
-
   const [searchInput, setSearchInput] = useState(searchParam);
 
   const { challenges } = useGetChallenges();
@@ -74,35 +69,23 @@ export default function TeacherSubmissionsIndexPage() {
 
   const { data, isPending, isError, error } = useTeacherSubmissions(filters);
 
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 60);
+    return () => clearTimeout(t);
+  }, []);
+
   function setParam(key: string, value: string | null) {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
-      if (value === null || value === "" || value === "all") {
-        next.delete(key);
-      } else {
-        next.set(key, value);
-      }
-      next.delete("page"); // reset page on filter change
+      if (!value || value === "all") next.delete(key);
+      else next.set(key, value);
+      next.delete("page");
       return next;
     });
   }
 
   function setPage(p: number) {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.set("page", String(p));
-      return next;
-    });
-  }
-
-  function applyFilters(challengeId: string) {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      if (challengeId && challengeId !== "all") next.set("challenge_id", challengeId);
-      else next.delete("challenge_id");
-      next.delete("page");
-      return next;
-    });
+    setSearchParams((prev) => { const next = new URLSearchParams(prev); next.set("page", String(p)); return next; });
   }
 
   function applySearch() {
@@ -115,225 +98,186 @@ export default function TeacherSubmissionsIndexPage() {
     });
   }
 
-  function clearAll() {
-    setSearchInput("");
-    setSearchParams({});
-  }
+  function clearAll() { setSearchInput(""); setSearchParams({}); }
 
   const currentPage = data?.meta.current_page ?? pageParam;
   const lastPage = data?.meta.last_page ?? 1;
+  const hasFilters = !!(statusParam || challengeParam || searchParam);
 
   return (
-    <div className="space-y-5">
-      {/* Header + inline filters */}
-      <div className="flex flex-wrap items-end justify-between gap-3">
+    <div className={`space-y-8 transition-all duration-700 ease-out ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+      {/* Header */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Submissions</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#1c81ff] mb-2">Teacher</p>
+          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight" style={{ letterSpacing: "-0.02em" }}>
+            Submissions
+          </h1>
+          <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400 mt-1">
             Review and grade student submissions.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Search by student name */}
+        {/* Filters */}
+        <div className="flex flex-wrap items-center gap-2 mt-1">
+          {/* Search */}
           <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-            <Input
-              className="pl-8 h-8 w-48 text-sm"
-              placeholder="Search student..."
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 dark:text-gray-600 pointer-events-none" />
+            <input
+              className="w-48 rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-gray-800 pl-9 pr-3 py-2 text-[13px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff] outline-none transition-all"
+              placeholder="Search student…"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && applySearch()}
             />
           </div>
 
-          {/* Status */}
-          <Select
-            value={statusParam ?? "all"}
-            onValueChange={(v) => setParam("status", v)}
-          >
-            <SelectTrigger className="w-36 h-8 text-sm">
+          {/* Status filter */}
+          <Select value={statusParam ?? "all"} onValueChange={(v) => setParam("status", v)}>
+            <SelectTrigger className="w-36 h-9 rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl">
               <SelectItem value="all">All statuses</SelectItem>
               {ALL_STATUSES.map((s) => (
-                <SelectItem key={s} value={s} className="capitalize">
-                  {s}
-                </SelectItem>
+                <SelectItem key={s} value={s} className="capitalize">{s}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          {/* Challenge */}
-          <Select
-            value={challengeParam ?? "all"}
-            onValueChange={(v) => applyFilters(v)}
-          >
-            <SelectTrigger className="w-44 h-8 text-sm">
+          {/* Challenge filter */}
+          <Select value={challengeParam ?? "all"} onValueChange={(v) => setParam("challenge_id", v)}>
+            <SelectTrigger className="w-44 h-9 rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
               <SelectValue placeholder="All challenges" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl">
               <SelectItem value="all">All challenges</SelectItem>
               {(challenges ?? []).map((c) => (
-                <SelectItem key={c.id} value={String(c.id)}>
-                  {c.title}
-                </SelectItem>
+                <SelectItem key={c.id} value={String(c.id)}>{c.title}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          {(statusParam || challengeParam || searchParam) && (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-8 px-2 text-muted-foreground hover:text-foreground"
+          {hasFilters && (
+            <button
               onClick={clearAll}
+              className="flex items-center gap-1.5 h-9 px-3 rounded-xl text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
             >
+              <X className="h-3.5 w-3.5" />
               Clear
-            </Button>
+            </button>
           )}
         </div>
       </div>
 
       {/* Table */}
-      <Card className="shadow-sm border-border/40">
-        <CardContent className="pt-4">
-          {isPending ? (
-            <SubmissionsTableSkeleton />
-          ) : isError ? (
-            <Alert variant="destructive">
-              <AlertDescription>
-                {(error as { message?: string })?.message ??
-                  "Failed to load submissions."}
-              </AlertDescription>
-            </Alert>
-          ) : data.data.length === 0 ? (
-            <p className="py-8 text-center text-xs text-muted-foreground">
-              No submissions match the selected filters.
-            </p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Student</TableHead>
-                  <TableHead>Challenge</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Score</TableHead>
-                  <TableHead className="text-right">Submitted</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {data.data.map((sub) => (
-                  <TableRow key={sub.id}>
-                    <TableCell className="font-medium">
-                      <Link
-                        to={`/teacher/submissions/${sub.id}`}
-                        className="hover:underline text-foreground"
-                      >
-                        {sub.profile.display_name ?? `#${sub.profile.id}`}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <Link
-                        to={`/teacher/submissions/${sub.id}`}
-                        className="hover:underline text-foreground"
-                      >
-                        {sub.challenge.title}
-                      </Link>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="capitalize">
-                        {sub.challenge.type}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={STATUS_VARIANT[sub.status]}
-                        className="capitalize"
-                      >
-                        {sub.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums">
-                      {sub.score !== null
-                        ? `${sub.score} / ${sub.challenge.max_score}`
-                        : `— / ${sub.challenge.max_score}`}
-                    </TableCell>
-                    <TableCell className="text-right tabular-nums text-muted-foreground">
-                      {sub.submitted_at
-                        ? new Date(sub.submitted_at).toLocaleDateString()
-                        : "—"}
-                    </TableCell>
-                  </TableRow>
+      <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10">
+        {isPending ? (
+          <table className="w-full text-sm bg-white dark:bg-[#0b1215]">
+            <thead>
+              <tr className="border-b border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/[0.02]">
+                {["Student", "Challenge", "Type", "Status", "Score", "Submitted"].map((h, i) => (
+                  <th key={h} className={`px-5 py-3 text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 ${i >= 4 ? "text-right" : "text-left"}`}>{h}</th>
                 ))}
-              </TableBody>
-            </Table>
-          )}
-
-          {/* Pagination */}
-          {!isPending && !isError && lastPage > 1 && (
-            <div className="flex items-center justify-between pt-4 border-t mt-4">
-              <p className="text-xs text-muted-foreground">
-                Page {currentPage} of {lastPage}
-                {data && ` · ${data.meta.total} total`}
-              </p>
-              <div className="flex gap-1">
-                <Button
-                  size="icon-sm"
-                  variant="outline"
-                  disabled={currentPage <= 1}
-                  onClick={() => setPage(currentPage - 1)}
-                  aria-label="Previous page"
-                >
-                  <ChevronLeft />
-                </Button>
-                <Button
-                  size="icon-sm"
-                  variant="outline"
-                  disabled={currentPage >= lastPage}
-                  onClick={() => setPage(currentPage + 1)}
-                  aria-label="Next page"
-                >
-                  <ChevronRight />
-                </Button>
-              </div>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <tr key={i}>
+                  {Array.from({ length: 6 }).map((_, j) => (
+                    <td key={j} className="px-5 py-3.5"><Skeleton className="h-4 w-full rounded-lg" /></td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : isError ? (
+          <div className="flex flex-col items-center gap-3 py-16 text-center bg-white dark:bg-[#0b1215]">
+            <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center">
+              <AlertCircle className="h-5 w-5 text-red-500" />
             </div>
-          )}
-        </CardContent>
-      </Card>
+            <p className="text-[14px] text-gray-500 dark:text-gray-400">
+              {(error as { message?: string })?.message ?? "Failed to load submissions."}
+            </p>
+          </div>
+        ) : data.data.length === 0 ? (
+          <div className="flex flex-col items-center gap-3 py-16 text-center bg-white dark:bg-[#0b1215]">
+            <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center">
+              <Inbox className="h-5 w-5 text-gray-400 dark:text-gray-600" />
+            </div>
+            <p className="text-[14px] font-bold text-gray-900 dark:text-white">No submissions found</p>
+            <p className="text-[13px] text-gray-500 dark:text-gray-400">Try adjusting your filters.</p>
+          </div>
+        ) : (
+          <table className="w-full text-sm bg-white dark:bg-[#0b1215]">
+            <thead>
+              <tr className="border-b border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/[0.02]">
+                {["Student", "Challenge", "Type", "Status", "Score", "Submitted"].map((h, i) => (
+                  <th key={h} className={`px-5 py-3 text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 ${i >= 4 ? "text-right" : "text-left"} ${i === 1 ? "hidden sm:table-cell" : ""} ${i === 2 ? "hidden md:table-cell" : ""}`}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+              {data.data.map((sub) => (
+                <tr key={sub.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                  <td className="px-5 py-3.5">
+                    <Link to={`/teacher/submissions/${sub.id}`} className="font-bold text-[14px] text-gray-900 dark:text-white hover:text-[#1c81ff] transition-colors">
+                      {sub.profile.display_name ?? `#${sub.profile.id}`}
+                    </Link>
+                  </td>
+                  <td className="hidden sm:table-cell px-5 py-3.5">
+                    <Link to={`/teacher/submissions/${sub.id}`} className="text-[14px] text-gray-600 dark:text-gray-300 hover:text-[#1c81ff] transition-colors">
+                      {sub.challenge.title}
+                    </Link>
+                  </td>
+                  <td className="hidden md:table-cell px-5 py-3.5">
+                    <span className="inline-flex items-center rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-2.5 py-0.5 text-[11px] font-bold text-gray-500 dark:text-gray-400 capitalize">
+                      {sub.challenge.type.replace(/_/g, " ")}
+                    </span>
+                  </td>
+                  <td className="px-5 py-3.5"><StatusBadge status={sub.status} /></td>
+                  <td className="px-5 py-3.5 text-right tabular-nums text-[14px] font-bold">
+                    {sub.score !== null ? (
+                      <><span className="text-[#1c81ff]">{sub.score}</span><span className="text-gray-400 dark:text-gray-600">/{sub.challenge.max_score}</span></>
+                    ) : (
+                      <span className="text-gray-400 dark:text-gray-600">—/{sub.challenge.max_score}</span>
+                    )}
+                  </td>
+                  <td className="px-5 py-3.5 text-right text-[13px] text-gray-500 dark:text-gray-400 tabular-nums">
+                    {sub.submitted_at ? new Date(sub.submitted_at).toLocaleDateString() : "—"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      {/* Pagination */}
+      {!isPending && !isError && lastPage > 1 && (
+        <div className="flex items-center justify-between">
+          <span className="text-[13px] text-gray-500 dark:text-gray-400">
+            Page <span className="font-bold text-gray-900 dark:text-white">{currentPage}</span> of {lastPage}
+            {data && <> · <span className="font-bold text-gray-900 dark:text-white">{data.meta.total}</span> total</>}
+          </span>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage(currentPage - 1)}
+              disabled={currentPage <= 1}
+              className="flex items-center gap-1 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-3 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            >
+              <ChevronLeft className="h-4 w-4" /> Prev
+            </button>
+            <button
+              onClick={() => setPage(currentPage + 1)}
+              disabled={currentPage >= lastPage}
+              className="flex items-center gap-1 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-3 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            >
+              Next <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Loading skeleton
-// ---------------------------------------------------------------------------
-
-function SubmissionsTableSkeleton() {
-  return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          {["Student", "Challenge", "Type", "Status", "Score", "Submitted"].map(
-            (h) => (
-              <TableHead key={h}>{h}</TableHead>
-            )
-          )}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {Array.from({ length: 5 }).map((_, i) => (
-          <TableRow key={i}>
-            {Array.from({ length: 6 }).map((_, j) => (
-              <TableCell key={j}>
-                <Skeleton className="h-4 w-full" />
-              </TableCell>
-            ))}
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
   );
 }

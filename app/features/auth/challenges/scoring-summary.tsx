@@ -1,4 +1,3 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { Question, ChallengeFormType } from "@/types/challenge";
 import {
   calculateMCQScore,
@@ -13,104 +12,61 @@ type Props = {
 };
 
 export default function ScoringSummary({ type, maxScore, questions }: Props) {
-  const mcqCount = questions.filter((q) => q.type === "multiple_choice").length;
+  const mcqCount   = questions.filter((q) => q.type === "multiple_choice").length;
   const essayCount = questions.filter((q) => q.type === "essay").length;
   const totalQuestions = questions.length;
 
-  if (totalQuestions === 0) {
+  if (totalQuestions === 0) return null;
+
+  const rows: { label: string; value: string | number }[] = [];
+
+  if (type === "multiple_choice") {
+    const scorePerQuestion = calculateMCQScore(maxScore, mcqCount);
+    rows.push(
+      { label: "Max Score",        value: maxScore },
+      { label: "Questions",        value: `${mcqCount} × ${scorePerQuestion} pts` },
+      { label: "Total Questions",  value: totalQuestions },
+    );
+  } else if (type === "essay") {
+    const scorePerQuestion = calculateEssayScore(maxScore, essayCount);
+    rows.push(
+      { label: "Max Score",        value: maxScore },
+      { label: "Questions",        value: `${essayCount} × ${scorePerQuestion} pts` },
+      { label: "Total Questions",  value: totalQuestions },
+    );
+  } else if (type === "mixed") {
+    const { mcqScore, essayScore } = calculateMixedScores(maxScore, mcqCount, essayCount);
+    rows.push({ label: "Max Score", value: maxScore });
+    if (mcqCount > 0)   rows.push({ label: "MCQ",   value: `${mcqCount} × ${mcqScore} pts` });
+    if (essayCount > 0) rows.push({ label: "Essay", value: `${essayCount} × ${essayScore} pts` });
+    rows.push({ label: "Total Questions", value: totalQuestions });
+  } else {
     return null;
   }
 
-  const renderContent = () => {
-    if (type === "multiple_choice") {
-      const scorePerQuestion = calculateMCQScore(maxScore, mcqCount);
-      return (
-        <>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Max Score</span>
-            <span className="font-semibold">{maxScore}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Questions</span>
-            <span className="font-semibold">
-              {mcqCount} × {scorePerQuestion} pts
-            </span>
-          </div>
-          <div className="flex justify-between border-t pt-2">
-            <span className="text-muted-foreground">Total Questions</span>
-            <span className="font-semibold">{totalQuestions}</span>
-          </div>
-        </>
-      );
-    }
-
-    if (type === "essay") {
-      const scorePerQuestion = calculateEssayScore(maxScore, essayCount);
-      return (
-        <>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Max Score</span>
-            <span className="font-semibold">{maxScore}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Questions</span>
-            <span className="font-semibold">
-              {essayCount} × {scorePerQuestion} pts
-            </span>
-          </div>
-          <div className="flex justify-between border-t pt-2">
-            <span className="text-muted-foreground">Total Questions</span>
-            <span className="font-semibold">{totalQuestions}</span>
-          </div>
-        </>
-      );
-    }
-
-    if (type === "mixed") {
-      const { mcqScore, essayScore } = calculateMixedScores(
-        maxScore,
-        mcqCount,
-        essayCount,
-      );
-      return (
-        <>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Max Score</span>
-            <span className="font-semibold">{maxScore}</span>
-          </div>
-          {mcqCount > 0 && (
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">MCQ</span>
-              <span className="font-semibold">
-                {mcqCount} × {mcqScore} pts
-              </span>
-            </div>
-          )}
-          {essayCount > 0 && (
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Essay</span>
-              <span className="font-semibold">
-                {essayCount} × {essayScore} pts
-              </span>
-            </div>
-          )}
-          <div className="flex justify-between border-t pt-2">
-            <span className="text-muted-foreground">Total Questions</span>
-            <span className="font-semibold">{totalQuestions}</span>
-          </div>
-        </>
-      );
-    }
-
-    return null;
-  };
-
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Scoring Summary</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-2">{renderContent()}</CardContent>
-    </Card>
+    <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="px-5 py-4 border-b border-gray-100 dark:border-white/5">
+        <span className="font-bold text-gray-900 dark:text-white">Scoring Summary</span>
+      </div>
+
+      {/* Rows */}
+      <div className="p-4 space-y-2">
+        {rows.map(({ label, value }, i) => (
+          <div
+            key={label}
+            className={`flex items-center justify-between py-2 text-[14px] ${
+              i === rows.length - 1
+                ? "border-t border-gray-100 dark:border-white/5 pt-3 mt-1"
+                : ""
+            }`}
+          >
+            <span className="text-gray-500 dark:text-gray-400">{label}</span>
+            <span className="font-bold text-gray-900 dark:text-white tabular-nums">{value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

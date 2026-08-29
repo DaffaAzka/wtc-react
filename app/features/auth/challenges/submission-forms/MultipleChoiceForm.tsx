@@ -1,10 +1,7 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { AlertCircle, Send, Loader2 } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2, AlertCircle, Send } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import type { Challenge } from "@/types/model";
 
 interface MultipleChoiceFormProps {
@@ -14,94 +11,63 @@ interface MultipleChoiceFormProps {
   onSubmit: (file: File | null, content: string) => void;
 }
 
-export function MultipleChoiceForm({
-  challenge,
-  canSubmit,
-  isSubmitting,
-  onSubmit,
-}: MultipleChoiceFormProps) {
+export function MultipleChoiceForm({ challenge, canSubmit, isSubmitting, onSubmit }: MultipleChoiceFormProps) {
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [error, setError] = useState("");
 
-  // Get options from challenge settings
   const options = challenge.settings?.options || [];
-  const shuffleOptions = challenge.settings?.shuffle_options || false;
-
-  // Shuffle options if needed (only on first render)
-  const [displayOptions] = useState(() => {
-    if (shuffleOptions) {
-      return [...options].sort(() => Math.random() - 0.5);
-    }
-    return options;
-  });
+  const [displayOptions] = useState(() =>
+    challenge.settings?.shuffle_options
+      ? [...options].sort(() => Math.random() - 0.5)
+      : options
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!selectedOption) {
-      setError("Silakan pilih salah satu jawaban");
-      return;
-    }
-
-    // Submit the selected option key as content
+    if (!selectedOption) { setError("Silakan pilih salah satu jawaban"); return; }
     onSubmit(null, selectedOption);
     setError("");
   };
 
   if (!options || options.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Kirim Jawaban</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Challenge ini tidak memiliki opsi pilihan. Silakan hubungi instruktur.
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
+      <div className="flex items-start gap-3 rounded-2xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 p-5">
+        <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+        <p className="text-[15px] text-red-600 dark:text-red-400">Challenge ini tidak memiliki opsi pilihan. Silakan hubungi instruktur.</p>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Pilih Jawaban</CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden">
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100 dark:border-white/5">
+        <div className="w-8 h-8 rounded-full bg-[#1c81ff]/10 flex items-center justify-center">
+          <Send className="h-4 w-4 text-[#1c81ff]" />
+        </div>
+        <span className="font-bold text-gray-900 dark:text-white">Pilih Jawaban</span>
+      </div>
+
+      <div className="p-5">
         {!canSubmit ? (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Anda telah mencapai batas maksimum percobaan untuk challenge ini.
-            </AlertDescription>
-          </Alert>
+          <div className="flex items-start gap-3 rounded-xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 p-4">
+            <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+            <p className="text-[14px] text-red-600 dark:text-red-400">Anda telah mencapai batas maksimum percobaan untuk challenge ini.</p>
+          </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Multiple Choice Options */}
-            <RadioGroup
-              value={selectedOption}
-              onValueChange={setSelectedOption}
-              className="space-y-3"
-            >
-              {displayOptions.map((option) => (
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <RadioGroup value={selectedOption} onValueChange={setSelectedOption} className="space-y-2.5">
+              {displayOptions.map((option: any) => (
                 <div
                   key={option.key}
-                  className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                  className={`flex items-start gap-3 rounded-xl border-[1.5px] p-4 cursor-pointer transition-all ${
+                    selectedOption === option.key
+                      ? "border-[#1c81ff] bg-[#1c81ff]/5 dark:bg-[#1c81ff]/10"
+                      : "border-gray-200 dark:border-white/10 hover:border-[#1c81ff]/40 hover:bg-gray-50 dark:hover:bg-white/5"
+                  }`}
                 >
-                  <RadioGroupItem
-                    value={option.key}
-                    id={option.key}
-                    className="mt-1"
-                  />
-                  <Label
-                    htmlFor={option.key}
-                    className="flex-1 cursor-pointer text-sm leading-relaxed"
-                  >
-                    <span className="font-semibold text-primary mr-2">
+                  <RadioGroupItem value={option.key} id={option.key} className="mt-0.5 shrink-0" />
+                  <Label htmlFor={option.key} className="flex-1 cursor-pointer text-[14px] leading-relaxed text-gray-700 dark:text-gray-300">
+                    <span className={`font-extrabold mr-2 ${selectedOption === option.key ? "text-[#1c81ff]" : "text-gray-400 dark:text-gray-600"}`}>
                       {option.key.toUpperCase()}.
                     </span>
                     {option.text}
@@ -110,36 +76,20 @@ export function MultipleChoiceForm({
               ))}
             </RadioGroup>
 
-            {/* Error Message */}
             {error && (
-              <Alert variant="destructive" className="py-2">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-sm">{error}</AlertDescription>
-              </Alert>
+              <div className="flex items-start gap-2.5 rounded-xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 px-4 py-3">
+                <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                <p className="text-[13px] text-red-600 dark:text-red-400">{error}</p>
+              </div>
             )}
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              disabled={isSubmitting || !selectedOption}
-              className="w-full"
-              size="lg"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Mengirim...
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  Kirim Jawaban
-                </>
-              )}
-            </Button>
+            <button type="submit" disabled={isSubmitting || !selectedOption}
+              className="w-full flex items-center justify-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-3 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-[14px]">
+              {isSubmitting ? <><Loader2 className="h-4 w-4 animate-spin" />Mengirim…</> : <><Send className="h-4 w-4" />Kirim Jawaban</>}
+            </button>
           </form>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

@@ -1,4 +1,4 @@
-﻿import InputForm from "@/components/custom/input-form";
+import InputForm from "@/components/custom/input-form";
 import {
   Select,
   SelectContent,
@@ -6,7 +6,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import type { MCQQuestion } from "@/types/challenge";
 
@@ -16,19 +15,22 @@ type Props = {
   onChange: (data: MCQQuestion) => void;
   shouldAutoFocus?: boolean;
   questionErrors: Record<string, string>;
-  setQuestionErrors: React.Dispatch<
-    React.SetStateAction<Record<string, string>>
-  >;
+  setQuestionErrors: React.Dispatch<React.SetStateAction<Record<string, string>>>;
 };
 
+const OPTIONS = ["A", "B", "C", "D"] as const;
+
 export default function MCQForm({
-  data,
-  onChange,
-  shouldAutoFocus,
-  index,
-  questionErrors,
-  setQuestionErrors,
+  data, onChange, shouldAutoFocus, index, questionErrors, setQuestionErrors,
 }: Props) {
+  const clearError = (key: string) => {
+    if (questionErrors[key]) {
+      setQuestionErrors((prev) => { const u = { ...prev }; delete u[key]; return u; });
+    }
+  };
+
+  const clearDuplicate = () => clearError(`duplicate-${index}`);
+
   return (
     <div className="space-y-4">
       <InputForm
@@ -39,198 +41,72 @@ export default function MCQForm({
         autoFocus={shouldAutoFocus}
         error={questionErrors[`question-${index}`]}
         handleChange={(e) => {
-          onChange({
-            ...data,
-            question: e.target.value,
-          });
-
-          if (questionErrors[`question-${index}`]) {
-            setQuestionErrors((prev) => {
-              const updated = { ...prev };
-              delete updated[`question-${index}`];
-              return updated;
-            });
-          }
+          onChange({ ...data, question: e.target.value });
+          clearError(`question-${index}`);
         }}
       />
 
-      <InputForm
-        text="Option A"
-        name="option_a"
-        type="text"
-        value={data.options[0]}
-        error={questionErrors[`option-${index}-0`]}
-        handleChange={(e) => {
-          const options = [...data.options];
-          options[0] = e.target.value;
-          onChange({
-            ...data,
-            options,
-          });
-
-          if (questionErrors[`option-${index}-0`]) {
-            setQuestionErrors((prev) => {
-              const updated = { ...prev };
-              delete updated[`option-${index}-0`];
-              return updated;
-            });
-          }
-
-          // Clear duplicate error when options change
-          if (questionErrors[`duplicate-${index}`]) {
-            setQuestionErrors((prev) => {
-              const updated = { ...prev };
-              delete updated[`duplicate-${index}`];
-              return updated;
-            });
-          }
-        }}
-      />
-
-      <InputForm
-        text="Option B"
-        name="option_b"
-        type="text"
-        value={data.options[1]}
-        error={questionErrors[`option-${index}-1`]}
-        handleChange={(e) => {
-          const options = [...data.options];
-          options[1] = e.target.value;
-          onChange({
-            ...data,
-            options,
-          });
-
-          if (questionErrors[`option-${index}-1`]) {
-            setQuestionErrors((prev) => {
-              const updated = { ...prev };
-              delete updated[`option-${index}-1`];
-              return updated;
-            });
-          }
-
-          if (questionErrors[`duplicate-${index}`]) {
-            setQuestionErrors((prev) => {
-              const updated = { ...prev };
-              delete updated[`duplicate-${index}`];
-              return updated;
-            });
-          }
-        }}
-      />
-
-      <InputForm
-        text="Option C"
-        name="option_c"
-        type="text"
-        value={data.options[2]}
-        error={questionErrors[`option-${index}-2`]}
-        handleChange={(e) => {
-          const options = [...data.options];
-          options[2] = e.target.value;
-          onChange({
-            ...data,
-            options,
-          });
-
-          if (questionErrors[`option-${index}-2`]) {
-            setQuestionErrors((prev) => {
-              const updated = { ...prev };
-              delete updated[`option-${index}-2`];
-              return updated;
-            });
-          }
-
-          if (questionErrors[`duplicate-${index}`]) {
-            setQuestionErrors((prev) => {
-              const updated = { ...prev };
-              delete updated[`duplicate-${index}`];
-              return updated;
-            });
-          }
-        }}
-      />
-
-      <InputForm
-        text="Option D"
-        name="option_d"
-        type="text"
-        value={data.options[3]}
-        error={questionErrors[`option-${index}-3`]}
-        handleChange={(e) => {
-          const options = [...data.options];
-          options[3] = e.target.value;
-          onChange({
-            ...data,
-            options,
-          });
-
-          if (questionErrors[`option-${index}-3`]) {
-            setQuestionErrors((prev) => {
-              const updated = { ...prev };
-              delete updated[`option-${index}-3`];
-              return updated;
-            });
-          }
-
-          if (questionErrors[`duplicate-${index}`]) {
-            setQuestionErrors((prev) => {
-              const updated = { ...prev };
-              delete updated[`duplicate-${index}`];
-              return updated;
-            });
-          }
-        }}
-      />
+      {OPTIONS.map((letter, i) => (
+        <InputForm
+          key={letter}
+          text={`Option ${letter}`}
+          name={`option_${letter.toLowerCase()}`}
+          type="text"
+          value={data.options[i]}
+          error={questionErrors[`option-${index}-${i}`]}
+          handleChange={(e) => {
+            const options = [...data.options];
+            options[i] = e.target.value;
+            onChange({ ...data, options });
+            clearError(`option-${index}-${i}`);
+            clearDuplicate();
+          }}
+        />
+      ))}
 
       {questionErrors[`duplicate-${index}`] && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
+        <div className="flex items-start gap-2.5 rounded-xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 px-4 py-3">
+          <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+          <p className="text-[13px] text-red-600 dark:text-red-400">
             {questionErrors[`duplicate-${index}`]}
-          </AlertDescription>
-        </Alert>
+          </p>
+        </div>
       )}
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Correct Answer</label>
+      {/* Correct answer */}
+      <div className="space-y-1.5">
+        <label className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
+          Correct Answer
+        </label>
         <Select
           value={data.answer}
           onValueChange={(value) => {
-            onChange({
-              ...data,
-              answer: value as "A" | "B" | "C" | "D",
-            });
-
-            if (questionErrors[`answer-${index}`]) {
-              setQuestionErrors((prev) => {
-                const updated = { ...prev };
-                delete updated[`answer-${index}`];
-                return updated;
-              });
-            }
-          }}>
-          <SelectTrigger>
+            onChange({ ...data, answer: value as "A" | "B" | "C" | "D" });
+            clearError(`answer-${index}`);
+          }}
+        >
+          <SelectTrigger className="rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="A">A</SelectItem>
-            <SelectItem value="B">B</SelectItem>
-            <SelectItem value="C">C</SelectItem>
-            <SelectItem value="D">D</SelectItem>
+          <SelectContent className="rounded-xl">
+            {OPTIONS.map((letter) => (
+              <SelectItem key={letter} value={letter}>{letter}</SelectItem>
+            ))}
           </SelectContent>
         </Select>
         {questionErrors[`answer-${index}`] && (
-          <p className="text-sm text-destructive">
-            {questionErrors[`answer-${index}`]}
-          </p>
+          <p className="text-[12px] text-red-500">{questionErrors[`answer-${index}`]}</p>
         )}
       </div>
 
-      <div className="space-y-2">
-        <label className="text-sm font-medium">Score (Auto-calculated)</label>
-        <div className="flex items-center h-10 w-full rounded-md border border-input bg-muted px-3 py-2">
-          <span className="text-sm font-semibold">{data.score} pts</span>
+      {/* Score (read-only) */}
+      <div className="space-y-1.5">
+        <label className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
+          Score <span className="font-normal text-gray-400 dark:text-gray-600">(Auto-calculated)</span>
+        </label>
+        <div className="flex items-center h-11 w-full rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-4">
+          <span className="text-[14px] font-extrabold text-[#1c81ff]">{data.score}</span>
+          <span className="text-[13px] text-gray-400 dark:text-gray-600 ml-1">pts</span>
         </div>
       </div>
     </div>
