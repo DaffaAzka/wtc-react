@@ -26,6 +26,7 @@ interface ModulesTableProps {
   error?: ApiErrorResponse | null;
   onRetry?: () => void;
   total?: number;
+  basePath?: string;
 }
 
 function formatUpdated(dateString?: string | null) {
@@ -70,6 +71,7 @@ export default function ModulesTable({
   error = null,
   onRetry,
   total,
+  basePath = "",
 }: ModulesTableProps) {
   const [search, setSearch] = useState("");
 
@@ -207,12 +209,12 @@ export default function ModulesTable({
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                         <Link
-                          to={`/${module.slug}/lessons`}
+                          to={`${basePath}/${module.slug}/lessons`}
                           className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
                           Lessons
                         </Link>
                         <Link
-                          to={`${module.slug}/challenges`}
+                          to={`${basePath}/${module.slug}/challenges`}
                           className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
                           Challenges
                         </Link>
@@ -226,7 +228,7 @@ export default function ModulesTable({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <Link to={`/${module.slug}/lessons`}>
+                            <Link to={`${basePath}/${module.slug}/lessons`}>
                               <DropdownMenuItem>View</DropdownMenuItem>
                             </Link>
                             <DropdownMenuItem

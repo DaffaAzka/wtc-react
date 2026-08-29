@@ -26,6 +26,7 @@ import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useStoreChallenge } from "@/hooks/challenges";
 import type { ChallengeContext } from "./challenge-manager";
+import type { GeneratedChallenge } from "@/services/ai";
 import { generateSlug, getFieldError } from "@/utils/global";
 import { useState, useEffect, useRef } from "react";
 import { calculateQuestionScore } from "@/helper/calculate-score";
@@ -42,6 +43,7 @@ type Props = {
   context: ChallengeContext;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  prefill?: GeneratedChallenge;
 };
 
 const STORAGE_KEY = (contextId: number, contextType: "lesson" | "module") =>
@@ -51,6 +53,7 @@ export default function ChallengeModalAdd({
   context,
   isOpen,
   onOpenChange,
+  prefill,
 }: Props) {
   const contextId = context.id;
   const contextType = context.type;
@@ -107,6 +110,32 @@ export default function ChallengeModalAdd({
   const allowedAttemptsRef = useRef<HTMLDivElement>(null);
   const descriptionRef = useRef<HTMLDivElement>(null);
 
+  // Apply prefill from AI generation
+  useEffect(() => {
+    if (!prefill || !isOpen) return;
+
+    const prefillType: ChallengeFormType =
+      prefill.questions.some((q) => q.type === "multiple_choice") &&
+      prefill.questions.some((q) => q.type === "essay")
+        ? "mixed"
+        : prefill.questions[0]?.type === "essay"
+          ? "essay"
+          : "multiple_choice";
+
+    setForm((prev) => ({
+      ...prev,
+      title: prefill.title,
+      content: prefill.content,
+      type: prefillType,
+      ...(prefill.difficulty ? { difficulty: prefill.difficulty } : {}),
+    }));
+
+    setQuestions(prefill.questions);
+
+    // Clear any existing draft so prefill takes over
+    localStorage.removeItem(STORAGE_KEY(contextId, contextType));
+  }, [prefill, isOpen]);
+
   // Auto-calculate points based on difficulty
   useEffect(() => {
     if (!form.difficulty) return;
@@ -127,6 +156,12 @@ export default function ChallengeModalAdd({
     if (!isOpen) return;
 
     setReadyToSave(false);
+
+    // If prefill is provided, skip draft restoration — prefill effect handles population
+    if (prefill) {
+      setReadyToSave(true);
+      return;
+    }
 
     const draft = localStorage.getItem(STORAGE_KEY(contextId, contextType));
 

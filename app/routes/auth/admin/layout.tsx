@@ -18,7 +18,7 @@ export async function clientLoader() {
     throw redirect("/");
   }
 
-  if (!hasRole(user, "admin")) {
+  if (!hasRole(user, "admin") && !hasRole(user, "teacher")) {
     throw redirect(resolveLandingPath(user));
   }
 }

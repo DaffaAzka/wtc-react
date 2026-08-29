@@ -63,6 +63,7 @@ export default function TeacherModulesPage() {
         error={error}
         onRetry={refresh}
         total={pagination?.total}
+        basePath="/teacher"
       />
 
       {pagination && (

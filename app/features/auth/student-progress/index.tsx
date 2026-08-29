@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -174,7 +174,7 @@ function ByProfileTab({
   page,
   onPageChange,
 }: ByProfileTabProps) {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const params = {
     search: search || undefined,
@@ -202,7 +202,7 @@ function ByProfileTab({
         });
 
   const toggleExpand = (id: string) => {
-    setExpandedId((prev) => (prev === id ? null : id));
+    setExpandedIds((prev) => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; });
   };
 
   const skeletonRows = Array.from({ length: 8 });
@@ -286,15 +286,8 @@ function ByProfileTab({
             </thead>
             <tbody className="divide-y divide-border">
               {filtered.map((profile: ProgressProfileSummary) => {
-                const isExpanded = expandedId === profile.id;
-                const progressRatio =
-                  profile.enrolled_tracks_count > 0
-                    ? Math.round(
-                        (profile.completed_tracks_count /
-                          profile.enrolled_tracks_count) *
-                          100,
-                      )
-                    : 0;
+                const isExpanded = expandedIds.has(profile.id);
+                const progressRatio = profile.overall_progress ?? 0;
 
                 return (
                   <React.Fragment key={profile.id}>
@@ -352,13 +345,13 @@ function ByProfileTab({
                         )}
                       </td>
                     </tr>
-                    {isExpanded && (
-                      <tr key={`${profile.id}-expand`}>
-                        <td colSpan={6} className="p-0 bg-muted/20">
+                    <tr key={`${profile.id}-expand`}>
+                      <td colSpan={6} className="p-0 overflow-hidden">
+                        <div className={`overflow-hidden transition-all duration-200 bg-muted/20 ${isExpanded ? "max-h-96" : "max-h-0"}`}>
                           <ProfileExpandPanel profileId={profile.id} />
-                        </td>
-                      </tr>
-                    )}
+                        </div>
+                      </td>
+                    </tr>
                   </React.Fragment>
                 );
               })}
@@ -679,7 +672,8 @@ export default function StudentProgressPage({
 }: {
   trackBasePath: string;
 }) {
-  const [tab, setTab] = useState<MainTab>("profiles");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = (searchParams.get("view") as MainTab) ?? "profiles";
 
   // Profile tab filter state
   const [profileSearchInput, setProfileSearchInput] = useState("");
@@ -697,7 +691,7 @@ export default function StudentProgressPage({
   const [trackPage, setTrackPage] = useState(1);
 
   const handleTabChange = (value: string) => {
-    setTab(value as MainTab);
+    setSearchParams((prev) => { prev.set("view", value); return prev; });
   };
 
   const handleProfileSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

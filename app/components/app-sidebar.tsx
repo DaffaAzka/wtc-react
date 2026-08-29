@@ -85,12 +85,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isAdmin =
     user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;
 
+  const { pathname } = useLocation();
   const isTeacher =
     !isAdmin &&
     (user?.roles?.some((role) => role.name.toLowerCase() === "teacher") ??
       false);
 
-  const [teacherContentOpen, setTeacherContentOpen] = React.useState(false);
+  const contentPaths = ["/tracks", "/modules", "/lessons", "/challenges", "/materials"];
+  const isOnContentPage = contentPaths.some((p) => pathname.startsWith(p));
+
+  const [teacherContentOpen, setTeacherContentOpen] = React.useState(isOnContentPage);
 
   // Teacher navigation
   const teacherNavFlat = [

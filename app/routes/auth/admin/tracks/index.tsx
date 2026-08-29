@@ -3,11 +3,13 @@ import { useGetTracks, useGetTracksPaginated } from "@/hooks/tracks";
 import { Pagination } from "@/components/ui/pagination";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { Plus } from "lucide-react";
 import ModalAdd from "@/features/auth/tracks/modal-add";
 
 export default function IndexPage() {
+  const { pathname } = useLocation();
+  const basePath = pathname.startsWith("/teacher") ? "/teacher" : "";
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(15);
 
@@ -34,6 +36,7 @@ export default function IndexPage() {
         error={error}
         onRetry={refresh}
         total={pagination?.total}
+        basePath={basePath}
       />
 
       {pagination && (

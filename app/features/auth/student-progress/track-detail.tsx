@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { useNavigate } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -57,11 +57,12 @@ function TrackImagePlaceholder({ seed }: { seed: number }) {
 interface TrackDetailProps {
   /** Track slug from URL params */
   slug: string;
-  /** Where the back button navigates — the student-progress list page */
-  backTo: string;
+  /** Kept for backwards compatibility — back button now uses navigate(-1) */
+  backTo?: string;
 }
 
-export default function TrackDetail({ slug, backTo }: TrackDetailProps) {
+export default function TrackDetail({ slug }: TrackDetailProps) {
+  const navigate = useNavigate();
   const [searchInput, setSearchInput] = useState("");
   const [status, setStatus] = useState<"all" | "in_progress" | "completed">(
     "all",
@@ -95,11 +96,9 @@ export default function TrackDetail({ slug, backTo }: TrackDetailProps) {
     <div className="space-y-6">
       {/* Back button */}
       <div>
-        <Button variant="ghost" size="sm" asChild className="-ml-2">
-          <Link to={backTo}>
-            <ArrowLeft className="mr-1.5 h-4 w-4" />
-            Back to Student Progress
-          </Link>
+        <Button variant="ghost" size="sm" className="-ml-2" onClick={() => navigate(-1)}>
+          <ArrowLeft className="mr-1.5 h-4 w-4" />
+          Back to Student Progress
         </Button>
       </div>
 

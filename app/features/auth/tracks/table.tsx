@@ -26,6 +26,7 @@ interface TracksTableProps {
   error?: ApiErrorResponse | null;
   onRetry?: () => void;
   total?: number;
+  basePath?: string;
 }
 
 function formatUpdated(dateString?: string) {
@@ -70,6 +71,7 @@ export default function TracksTable({
   error = null,
   onRetry,
   total,
+  basePath = "",
 }: TracksTableProps) {
   const [search, setSearch] = useState("");
 
@@ -203,7 +205,7 @@ export default function TracksTable({
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                         <Link
-                          to={`/${track.slug}/modules`}
+                          to={`${basePath}/${track.slug}/modules`}
                           className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
                           Modules
                         </Link>
@@ -217,7 +219,7 @@ export default function TracksTable({
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <Link to={`/${track.slug}/modules`}>
+                            <Link to={`${basePath}/${track.slug}/modules`}>
                               <DropdownMenuItem>View</DropdownMenuItem>
                             </Link>
                             <DropdownMenuItem
