@@ -29,6 +29,7 @@ export default function TeacherTracksPage() {
         error={error}
         onRetry={refresh}
         total={pagination?.total}
+        basePath="/teacher"
       />
 
       {pagination && (

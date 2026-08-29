@@ -9,8 +9,11 @@ import ModalAdd from "@/features/auth/modules/modal-add";
 import type { Track } from "@/types/model";
 import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
 import { Pagination } from "@/components/ui/pagination";
+import { useLocation } from "react-router";
 
 export default function IndexPage({ params }: Route.ComponentProps) {
+  const { pathname } = useLocation();
+  const basePath = pathname.startsWith("/teacher") ? "/teacher" : "";
   const { tracks, loading: trackLoading, error: trackError } = useGetTracks();
   const track: Track | undefined = tracks.find((track) => track.slug === params.slug);
 
@@ -73,6 +76,7 @@ export default function IndexPage({ params }: Route.ComponentProps) {
         error={error}
         onRetry={refresh}
         total={pagination?.total}
+        basePath={basePath}
       />
 
       {pagination && (
