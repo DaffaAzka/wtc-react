@@ -1,29 +1,25 @@
 import { Outlet, redirect } from "react-router";
 import type { Route } from "../+types/layout";
+import { getToken, getUser } from "@/utils/auth-storage";
+import { hasRole, resolveLandingPath } from "@/utils/roles";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "WTC LMS" }, { name: "description", content: "Welcome to WTC LMS!" }];
 }
 
 export async function clientLoader() {
-  const rawUser = localStorage.getItem("user");
-
-  if (!rawUser) {
-    throw redirect("/dashboard");
+  if (!getToken()) {
+    throw redirect("/");
   }
 
-  const user = JSON.parse(rawUser);
+  const user = getUser();
 
-  const isAdmin = user.roles?.some((role: any) => role.name.toLowerCase() === "admin");
+  if (!user) {
+    throw redirect("/");
+  }
 
-  if (!isAdmin) {
-    const isStudent = user.roles?.some((role: any) => role.name.toLowerCase() === "student");
-
-    if (isStudent) {
-      throw redirect("/student/dashboard");
-    } else {
-      throw redirect("/dashboard");
-    }
+  if (!hasRole(user, "admin")) {
+    throw redirect(resolveLandingPath(user));
   }
 }
 

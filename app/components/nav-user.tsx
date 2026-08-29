@@ -8,6 +8,7 @@ import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/c
 import { useAuth } from "@/contexts/auth";
 import { getTwoInitials } from "@/utils/global";
 import { ChevronsUpDownIcon, Settings2Icon, LogOutIcon } from "lucide-react";
+import { hasRole } from "@/utils/roles";
 
 export function NavUser({
   user,
@@ -21,13 +22,8 @@ export function NavUser({
   const { isMobile } = useSidebar();
   const { logout, user: authUser } = useAuth();
 
-  // Determine profile route based on user role
-  const profileRoute = useMemo(() => {
-    if (!authUser?.roles) return "/student/profile";
-
-    const hasAdminRole = authUser.roles.some((role) => role.name === "admin");
-    return hasAdminRole ? "/admin/profile" : "/student/profile";
-  }, [authUser?.roles]);
+  // Teacher profile route arrives with the teacher route tree.
+  const profileRoute = useMemo(() => (hasRole(authUser, "admin") ? "/admin/profile" : "/student/profile"), [authUser]);
 
   return (
     <SidebarMenu>
