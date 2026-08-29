@@ -174,7 +174,7 @@ function ByProfileTab({
   page,
   onPageChange,
 }: ByProfileTabProps) {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
 
   const params = {
     search: search || undefined,
@@ -202,7 +202,7 @@ function ByProfileTab({
         });
 
   const toggleExpand = (id: string) => {
-    setExpandedId((prev) => (prev === id ? null : id));
+    setExpandedIds((prev) => { const next = new Set(prev); if (next.has(id)) next.delete(id); else next.add(id); return next; });
   };
 
   const skeletonRows = Array.from({ length: 8 });
@@ -286,7 +286,7 @@ function ByProfileTab({
             </thead>
             <tbody className="divide-y divide-border">
               {filtered.map((profile: ProgressProfileSummary) => {
-                const isExpanded = expandedId === profile.id;
+                const isExpanded = expandedIds.has(profile.id);
                 const progressRatio =
                   profile.enrolled_tracks_count > 0
                     ? Math.round(
@@ -354,7 +354,7 @@ function ByProfileTab({
                     </tr>
                     {isExpanded && (
                       <tr key={`${profile.id}-expand`}>
-                        <td colSpan={6} className="p-0 bg-muted/20">
+                        <td colSpan={6} className="p-0 bg-muted/20 animate-in slide-in-from-top-1 duration-200">
                           <ProfileExpandPanel profileId={profile.id} />
                         </td>
                       </tr>
