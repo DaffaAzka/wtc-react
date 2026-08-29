@@ -105,10 +105,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   ];
 
   const teacherContentItems = [
-    { title: "Tracks", url: "/tracks", icon: RouteIcon },
-    { title: "Modules", url: "/modules", icon: LayersIcon },
-    { title: "Lessons", url: "/lessons", icon: NotebookTextIcon },
-    { title: "Challenges", url: "/challenges", icon: TerminalSquareIcon },
+    { title: "Tracks", url: "/teacher/tracks", icon: RouteIcon },
+    { title: "Modules", url: "/teacher/modules", icon: LayersIcon },
+    { title: "Lessons", url: "/teacher/lessons", icon: NotebookTextIcon },
+    { title: "Challenges", url: "/teacher/challenges", icon: TerminalSquareIcon },
   ];
 
   // Admin navigation

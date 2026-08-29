@@ -108,10 +108,24 @@ export default [
     ]),
   ]),
 
-  // Teacher workspace — content management shared with admin routes
+  // Teacher workspace
   layout("routes/auth/teacher/layout.tsx", [
     ...prefix("/teacher", [
       route("/dashboard", "routes/auth/teacher/dashboard.tsx"),
+      route("/tracks", "routes/auth/teacher/tracks.tsx"),
+      route("/modules", "routes/auth/teacher/modules.tsx"),
+      route("/lessons", "routes/auth/teacher/lessons.tsx"),
+      route("/challenges", "routes/auth/teacher/challenges.tsx"),
+      // Nested content: /:slug/lessons, /:slug/challenges, etc.
+      route("/:slug/modules", "routes/auth/teacher/content/modules.tsx"),
+      route("/:slug/lessons", "routes/auth/teacher/content/lessons.tsx"),
+      route("/:slug/challenges", "routes/auth/teacher/content/module-challenges.tsx"),
+      route("/:slug/lessons/create", "routes/auth/teacher/content/lessons.create.tsx"),
+      route("/:slug/lessons/:lessonSlug/update", "routes/auth/teacher/content/lessons.update.tsx"),
+      route("/:slug/lessons/:lessonSlug/view", "routes/auth/teacher/content/lessons.view.tsx"),
+      route("/:slug/lessons/:lessonSlug/challenges", "routes/auth/teacher/content/lesson-challenges.tsx"),
+      route("/challenges/:id", "routes/auth/teacher/content/challenge.$id.tsx"),
+      route("/challenges/:id/edit", "routes/auth/teacher/content/challenge.$id.edit.tsx"),
       ...prefix("/submissions", [
         index("routes/auth/teacher/submissions/index.tsx"),
         route("/:id", "routes/auth/teacher/submissions/$id.tsx"),

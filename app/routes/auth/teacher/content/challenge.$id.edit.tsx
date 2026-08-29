@@ -1,1 +1,5 @@
-export { default } from "@/routes/auth/admin/challenges/$id.edit";
+import AdminChallengeEditPage from "@/routes/auth/admin/challenges/$id.edit";
+
+export default function TeacherChallengeEditPage(props: any) {
+  return <AdminChallengeEditPage {...props} />;
+}
