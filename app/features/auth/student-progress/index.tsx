@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -352,13 +352,13 @@ function ByProfileTab({
                         )}
                       </td>
                     </tr>
-                    {isExpanded && (
-                      <tr key={`${profile.id}-expand`}>
-                        <td colSpan={6} className="p-0 bg-muted/20 animate-in slide-in-from-top-1 duration-200">
+                    <tr key={`${profile.id}-expand`}>
+                      <td colSpan={6} className="p-0 overflow-hidden">
+                        <div className={`overflow-hidden transition-all duration-200 bg-muted/20 ${isExpanded ? "max-h-96" : "max-h-0"}`}>
                           <ProfileExpandPanel profileId={profile.id} />
-                        </td>
-                      </tr>
-                    )}
+                        </div>
+                      </td>
+                    </tr>
                   </React.Fragment>
                 );
               })}
@@ -679,7 +679,8 @@ export default function StudentProgressPage({
 }: {
   trackBasePath: string;
 }) {
-  const [tab, setTab] = useState<MainTab>("profiles");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const tab = (searchParams.get("view") as MainTab) ?? "profiles";
 
   // Profile tab filter state
   const [profileSearchInput, setProfileSearchInput] = useState("");
@@ -697,7 +698,7 @@ export default function StudentProgressPage({
   const [trackPage, setTrackPage] = useState(1);
 
   const handleTabChange = (value: string) => {
-    setTab(value as MainTab);
+    setSearchParams((prev) => { prev.set("view", value); return prev; });
   };
 
   const handleProfileSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
