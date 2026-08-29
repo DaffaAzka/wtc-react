@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { useInView, fadeUpStyle, staggerDelay } from "./use-in-view";
+import { useInView } from "./use-in-view";
 import { Plus } from "lucide-react";
 
-// Hanya bahasa Inggris
 const copy = {
   tag: "FAQ",
   heading1: "Frequently asked",
@@ -41,9 +40,7 @@ export function FaqSection() {
       ref={ref}
       className="min-h-screen flex flex-col justify-center w-full pt-20 pb-16 px-6 lg:px-20"
       style={{ background: "#ffffff" }}>
-      {/* Lebar container disesuaikan biar teks FAQ ga terlalu panjang/melebar */}
       <div className="mx-auto max-w-4xl px-6 py-24">
-        {/* Header (Animasi Muncul) */}
         <div
           className={`mb-16 text-center transition-all duration-700 ease-out ${
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
@@ -68,7 +65,6 @@ export function FaqSection() {
 
         {/* Accordion List */}
         <div className="flex flex-col">
-          {/* Top border pertama */}
           <div style={{ borderTop: "1px solid #eaeaea" }} />
 
           {copy.faqs.map((item, i) => (
@@ -108,7 +104,6 @@ export function FaqSection() {
                 </div>
               </button>
 
-              {/* Jawaban (Expandable dengan trik CSS Grid biar mulus) */}
               <div
                 className={`grid transition-all duration-300 ease-in-out ${
                   open === i

@@ -1,4 +1,4 @@
-import { useInView, fadeUpStyle, staggerDelay } from "./use-in-view";
+import { useInView } from "./use-in-view";
 import {
   SiReact,
   SiVuedotjs,

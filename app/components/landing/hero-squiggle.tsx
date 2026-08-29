@@ -4,7 +4,6 @@ export function HeroSquiggle() {
   const [drawn, setDrawn] = useState(false);
 
   useEffect(() => {
-    // Delay kecil biar animasi terasa intentional
     const t = setTimeout(() => setDrawn(true), 120);
     return () => clearTimeout(t);
   }, []);
@@ -84,9 +83,7 @@ export function HeroSquiggle() {
         className="sq-svg absolute -left-10 lg:left-0 top-32 lg:top-[20%] h-[70%] lg:h-[80%] w-[350px] lg:w-[450px] pointer-events-none z-0"
         viewBox="0 0 400 800"
         fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        {/* Layer blur di bawah untuk efek kedalaman / glow halo */}
+        xmlns="http://www.w3.org/2000/svg">
         <path
           d="M 20 80 L 320 200 L 80 420 L 360 580 L 150 780"
           stroke="url(#sq-grad-blur)"
@@ -98,7 +95,6 @@ export function HeroSquiggle() {
           style={{ opacity: 0, filter: "blur(22px)" }}
         />
 
-        {/* Layer utama — stroke yang "menggambar diri sendiri" */}
         <path
           d="M 20 80 L 320 200 L 80 420 L 360 580 L 150 780"
           stroke="url(#sq-grad)"
@@ -111,16 +107,27 @@ export function HeroSquiggle() {
 
         <defs>
           {/* Gradient animating */}
-          <linearGradient id="sq-grad" x1="0" y1="0" x2="400" y2="800" gradientUnits="userSpaceOnUse">
-            <stop offset="0%"   stopColor="#1c81ff" className="gs0" />
-            <stop offset="50%"  stopColor="#31c7c8" className="gs1" />
+          <linearGradient
+            id="sq-grad"
+            x1="0"
+            y1="0"
+            x2="400"
+            y2="800"
+            gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#1c81ff" className="gs0" />
+            <stop offset="50%" stopColor="#31c7c8" className="gs1" />
             <stop offset="100%" stopColor="#010d95" className="gs2" />
           </linearGradient>
 
-          {/* Gradient untuk blur layer (statis oke) */}
-          <linearGradient id="sq-grad-blur" x1="0" y1="0" x2="400" y2="800" gradientUnits="userSpaceOnUse">
-            <stop offset="0%"   stopColor="#1c81ff" />
-            <stop offset="50%"  stopColor="#31c7c8" />
+          <linearGradient
+            id="sq-grad-blur"
+            x1="0"
+            y1="0"
+            x2="400"
+            y2="800"
+            gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stopColor="#1c81ff" />
+            <stop offset="50%" stopColor="#31c7c8" />
             <stop offset="100%" stopColor="#010d95" />
           </linearGradient>
         </defs>

@@ -1,8 +1,6 @@
 import { useRef, useState, useEffect } from "react";
-// Import icon dari Lucide
 import { PlayCircle, Code2, Briefcase } from "lucide-react";
 
-// Hapus multi-bahasa, murni English sesuai request
 const copy = {
   tag: "Learning Experience",
   heading1: "Not just watching.",
@@ -13,19 +11,19 @@ const copy = {
       step: "01",
       title: "Structured Video Content",
       desc: "Every track is broken into short, dense modules. Watch anywhere, anytime — no time limit.",
-      icon: PlayCircle, // Icon buat video
+      icon: PlayCircle,
     },
     {
       step: "02",
       title: "Challenges & Evaluation",
       desc: "Every module comes with quizzes and coding challenges. Answer, submit, and get instant system feedback.",
-      icon: Code2, // Icon buat coding/kuis
+      icon: Code2,
     },
     {
       step: "03",
       title: "Projects & Portfolio",
       desc: "Work on real-case assignments. Upload your results and get direct review from a mentor.",
-      icon: Briefcase, // Icon buat proyek/portofolio
+      icon: Briefcase,
     },
   ],
 };
@@ -34,7 +32,6 @@ export function ExperienceSection() {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
 
-  // Efek Scroll Reveal
   useEffect(() => {
     const obs = new IntersectionObserver(
       ([entry]) => {
@@ -67,7 +64,7 @@ export function ExperienceSection() {
             className="font-extrabold m-0"
             style={{
               color: "#ffffff",
-              fontSize: "clamp(40px, 5vw, 56px)", // Samain kayak Stats Section
+              fontSize: "clamp(40px, 5vw, 56px)",
               lineHeight: "1.05",
               letterSpacing: "-0.02em",
             }}>
@@ -76,7 +73,6 @@ export function ExperienceSection() {
             {copy.heading2}
             <br />
             <span style={{ color: "#1c81ff" }}>{copy.heading3}</span>{" "}
-            {/* Kasih aksen biru di teks terakhir */}
           </h2>
         </div>
 
@@ -98,29 +94,25 @@ export function ExperienceSection() {
                 <div
                   className="relative flex flex-col h-full rounded-2xl p-8 group transition-all duration-300 hover:-translate-y-2 overflow-hidden"
                   style={{
-                    background: "#1a1a1a", // Warna card dark-mode modern
+                    background: "#1a1a1a",
                     border: "1px solid #2a2a2a",
                   }}>
-                  {/* Angka Raksasa Watermark di Belakang */}
                   <span
                     className="absolute -bottom-4 -right-4 font-black transition-transform duration-500 group-hover:scale-110"
                     style={{
                       fontSize: "120px",
-                      color: "#222222", // Warna abu-abu pudar
+                      color: "#222222",
                       lineHeight: "1",
                       zIndex: 0,
                     }}>
                     {card.step}
                   </span>
 
-                  {/* Konten Card (Di atas watermark) */}
                   <div className="relative z-10 flex flex-col h-full">
-                    {/* Header Card: Icon + Step Number */}
                     <div className="flex items-center justify-between mb-8">
                       <div
                         className="flex items-center justify-center w-12 h-12 rounded-full transition-transform duration-300 group-hover:scale-110"
-                        style={{ background: "rgba(28, 129, 255, 0.1)" }} // Background biru transparan
-                      >
+                        style={{ background: "rgba(28, 129, 255, 0.1)" }}>
                         <Icon
                           className="w-6 h-6"
                           style={{ color: "#1c81ff" }}

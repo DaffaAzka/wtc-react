@@ -1,7 +1,6 @@
-import { useInView, fadeUpStyle, staggerDelay } from "./use-in-view";
+import { useInView } from "./use-in-view";
 import { teamPhotos } from "@/components/custom/team-photos";
 
-// Multi-bahasa dihapus, sisa EN aja
 const copy = {
   tag: "Mentors & Instructors",
   heading1: "Learn directly from",
@@ -11,27 +10,27 @@ const copy = {
 
 const mentors = [
   {
-    name: "Rizky Pratama",
-    role: "Senior Frontend",
-    company: "Gojek",
+    name: "Ahmad Rafi Fadhilah",
+    role: "Full-Stack Web & Mobile Dev",
+    company: "XII RPL 1",
     photo: teamPhotos[0],
   },
-  {
-    name: "Dinda Ayu",
-    role: "Backend Developer",
-    company: "Tokopedia",
+  { 
+    name: "Daffa Islami Azka",
+    role: "Full-Stack Web & Mobile Dev",
+    company: "XII RPL 3(Alumni)",
     photo: teamPhotos[1],
   },
   {
-    name: "Bagas Wicaksono",
-    role: "DevOps Engineer",
-    company: "Traveloka",
+    name: "FIkri Aziz Mudzakir",
+    role: "Full-Stack Web",
+    company: "XII RPL 1",
     photo: teamPhotos[2],
   },
   {
-    name: "Sari Kumalasari",
-    role: "Mobile Developer",
-    company: "Bukalapak",
+    name: "M Afif Alghozali",
+    role: "Full-Stack Web & DevOps",
+    company: "XII RPL 1",
     photo: teamPhotos[3],
   },
 ];
@@ -78,9 +77,6 @@ export function MentorsSection() {
           </div>
         </div>
 
-        {/* Mentor Grid 
-            Skillshare style: no gap/small gap, full bleed images 
-        */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-1 lg:gap-1.5 rounded-2xl overflow-hidden shadow-sm">
           {mentors.map((m, i) => (
             <div
@@ -112,7 +108,7 @@ export function MentorsSection() {
               <div className="absolute bottom-0 left-0 right-0 p-5 transform transition-transform duration-300 translate-y-1 group-hover:translate-y-0">
                 <p
                   className="text-[10px] font-bold uppercase tracking-widest mb-1.5"
-                  style={{ color: "#00d2ff" }} // Aksen warna Cyan ala Skillshare
+                  style={{ color: "#00d2ff" }} 
                 >
                   {m.company}
                 </p>

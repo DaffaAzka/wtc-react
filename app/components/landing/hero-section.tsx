@@ -225,7 +225,6 @@ export function HeroSection() {
             }}
           />
 
-          {/* GRADASI BIRU TIPIS UDAH DIHAPUS DARI SINI */}
 
           <div className="relative w-full h-full z-10 max-w-lg">
             {floatingTagsData.map((tag, i) => (

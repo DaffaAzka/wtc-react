@@ -1,6 +1,5 @@
 import { Link } from "react-router";
 import { useEffect, useState } from "react";
-import { useLang } from "./lang-context";
 
 const copy = {
   tracks: "Learning Tracks",
@@ -53,11 +52,10 @@ export function Navbar() {
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll(); // Trigger pertama kali load
+    handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Fungsi buat smooth scroll pas menu diklik
   const handleSmoothScroll = (
     e: React.MouseEvent<HTMLAnchorElement>,
     href: string,
@@ -72,7 +70,6 @@ export function Navbar() {
     }
   };
 
-  // Setel warna teks & background berdasarkan tema
   const isDark = theme === "dark";
   const textColor = isDark ? "#ffffff" : "#0b1215";
   const navBg = isDark
@@ -97,7 +94,6 @@ export function Navbar() {
           : "1px solid transparent",
       }}>
       <div className="mx-auto flex h-full max-w-6xl items-center px-6 lg:px-10">
-        {/* KIRI - Logo Diperbesar */}
         <div className="flex flex-1 justify-start">
           <Link to="/" className="flex items-center shrink-0">
             <img
@@ -112,7 +108,6 @@ export function Navbar() {
           </Link>
         </div>
 
-        {/* TENGAH - Navigasi dengan Smooth Scroll */}
         <nav className="hidden md:flex items-center justify-center gap-8 shrink-0">
           <div className="relative group cursor-pointer h-full flex items-center">
             <span

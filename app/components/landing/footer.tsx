@@ -1,13 +1,7 @@
 import { Link } from "react-router";
 import { useInView } from "./use-in-view";
 
-// Hanya bahasa Inggris
 const copy = {
-  ctaHeading1: "Ready to start",
-  ctaHeading2: "your journey?",
-  ctaSub:
-    "Join hundreds of developers who have already built their careers with WTC.",
-  ctaBtn: "Get Started — Free",
   learn: "Learn",
   learnLinks: [
     { label: "Learning Tracks", to: "/student/classes" },
@@ -21,7 +15,7 @@ const copy = {
     { label: "Privacy Policy", to: "/privacy" },
     { label: "Terms of Service", to: "/terms" },
   ],
-  copyright: "© 2026 Webtech Training Camp. All rights reserved.", // Gw update tahunnya ngikutin era web modern wkwk
+  copyright: "© 2026 Webtech Training Camp. All rights reserved.",
 };
 
 export function Footer() {
@@ -30,78 +24,20 @@ export function Footer() {
   return (
     <footer
       ref={ref}
-      className="relative flex flex-col justify-center min-h-screen pt-20 px-6 sm:px-10 lg:px-20 overflow-hidden"
+      className="relative w-full pt-16 pb-8 px-6 sm:px-10 lg:px-20 overflow-hidden"
       style={{ background: "#000000" }}>
-      {/* Background Glow tipis di area CTA */}
-      <div
-        className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[300px] pointer-events-none opacity-20"
-        style={{
-          background: "radial-gradient(circle, #1c81ff 0%, transparent 60%)",
-        }}
-      />
-
-      {/* --- CTA Banner --- */}
-      <div
-        style={{ borderBottom: "1px solid #1a1a1a" }}
-        className="relative z-10">
-        <div
-          className={`mx-auto max-w-6xl px-6 py-24 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-10 transition-all duration-700 ease-out ${
-            inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
-          }`}>
-          <h2
-            className="font-extrabold m-0"
-            style={{
-              color: "#ffffff",
-              fontSize: "clamp(40px, 5vw, 56px)",
-              lineHeight: "1.05",
-              letterSpacing: "-0.02em",
-            }}>
-            {copy.ctaHeading1}
-            <br />
-            <span style={{ color: "#1c81ff" }}>{copy.ctaHeading2}</span>
-          </h2>
-
-          <div className="flex flex-col items-start lg:items-end gap-5 max-w-[420px]">
-            <p
-              className="text-[16px] lg:text-[18px] leading-relaxed lg:text-right m-0"
-              style={{ color: "#888888" }}>
-              {copy.ctaSub}
-            </p>
-            <Link
-              to="/register"
-              className="inline-flex items-center gap-2 rounded-lg px-8 py-4 text-[16px] font-bold transition-transform hover:scale-105 active:scale-95 shadow-lg shadow-blue-900/20"
-              style={{ background: "#1c81ff", color: "#ffffff" }}>
-              {copy.ctaBtn}
-              <svg
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2.5}>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M14 5l7 7m0 0l-7 7m7-7H3"
-                />
-              </svg>
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* --- Footer Nav --- */}
-      <div className="mx-auto max-w-6xl px-6 py-16 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-12 lg:gap-10">
-          {/* Brand & Social (Animasi ke-1) */}
+      <div className="mx-auto max-w-6xl relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-10">
+          {/* Brand & Social */}
           <div
-            className={`col-span-2 transition-all duration-700 delay-100 ease-out ${
-              inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`col-span-1 md:col-span-2 transition-all duration-700 ease-out ${
+              inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}>
-            <Link to="/" className="flex items-center gap-2 mb-6 inline-block">
+            <Link to="/" className="flex items-center gap-2 mb-5 inline-block">
               <img
-                src="/brand-pack/logo-h-light.svg" // WAJIB LIGHT KARENA BG HITAM
+                src="/brand-pack/logo-h-light.svg"
                 alt="WTC LMS"
-                className="h-10 w-auto"
+                className="h-28 md:h-32 lg:h-38 w-auto transition-all duration-300 hover:scale-105"
                 onError={(e) => {
                   const el = e.currentTarget as HTMLImageElement;
                   el.style.display = "none";
@@ -115,14 +51,14 @@ export function Footer() {
             </Link>
 
             <p
-              className="text-[15px] leading-relaxed mb-8 max-w-[320px]"
+              className="text-[14px] leading-relaxed mb-6 max-w-[320px]"
               style={{ color: "#757575" }}>
               A project-based technology learning platform with real industry
               mentorship.
             </p>
 
             {/* Social icons */}
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               {[
                 {
                   label: "GitHub",
@@ -146,7 +82,7 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={s.label}
-                  className="flex h-10 w-10 items-center justify-center rounded-full transition-all duration-300 hover:-translate-y-1"
+                  className="flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300 hover:-translate-y-1"
                   style={{ background: "#1a1a1a" }}
                   onMouseEnter={(e) =>
                     ((e.currentTarget as HTMLElement).style.background =
@@ -167,22 +103,22 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Learn links (Animasi ke-2) */}
+          {/* Learn links */}
           <div
-            className={`transition-all duration-700 delay-200 ease-out ${
-              inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`transition-all duration-700 delay-100 ease-out ${
+              inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}>
             <h4
-              className="text-[13px] font-bold uppercase tracking-[0.1em] mb-6"
+              className="text-[12px] font-bold uppercase tracking-[0.1em] mb-5"
               style={{ color: "#ffffff" }}>
               {copy.learn}
             </h4>
-            <ul className="flex flex-col gap-3.5">
+            <ul className="flex flex-col gap-3">
               {copy.learnLinks.map((l) => (
                 <li key={l.to}>
                   <Link
                     to={l.to}
-                    className="text-[15px] font-medium transition-colors duration-200 hover:text-white"
+                    className="text-[14px] font-medium transition-colors duration-200 hover:text-white"
                     style={{ color: "#888888" }}>
                     {l.label}
                   </Link>
@@ -191,22 +127,22 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Company links (Animasi ke-3) */}
+          {/* Company links */}
           <div
-            className={`transition-all duration-700 delay-300 ease-out ${
-              inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+            className={`transition-all duration-700 delay-200 ease-out ${
+              inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
             }`}>
             <h4
-              className="text-[13px] font-bold uppercase tracking-[0.1em] mb-6"
+              className="text-[12px] font-bold uppercase tracking-[0.1em] mb-5"
               style={{ color: "#ffffff" }}>
               {copy.company}
             </h4>
-            <ul className="flex flex-col gap-3.5">
+            <ul className="flex flex-col gap-3">
               {copy.companyLinks.map((l) => (
                 <li key={l.to}>
                   <Link
                     to={l.to}
-                    className="text-[15px] font-medium transition-colors duration-200 hover:text-white"
+                    className="text-[14px] font-medium transition-colors duration-200 hover:text-white"
                     style={{ color: "#888888" }}>
                     {l.label}
                   </Link>
@@ -216,21 +152,21 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Copyright (Animasi Terakhir) */}
+        {/* Copyright */}
         <div
-          className={`mt-16 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-1000 delay-500 ease-out ${
+          className={`mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-1000 delay-300 ease-out ${
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
           style={{ borderTop: "1px solid #1a1a1a" }}>
-          <p className="text-[14px] font-medium" style={{ color: "#555555" }}>
+          <p className="text-[13px] font-medium" style={{ color: "#555555" }}>
             {copy.copyright}
           </p>
           <div className="flex items-center gap-1.5 font-medium">
-            <span className="text-[14px]" style={{ color: "#555555" }}>
+            <span className="text-[13px]" style={{ color: "#555555" }}>
               Built with
             </span>
             <span style={{ color: "#1c81ff" }}>♥</span>
-            <span className="text-[14px]" style={{ color: "#555555" }}>
+            <span className="text-[13px]" style={{ color: "#555555" }}>
               in Indonesia
             </span>
           </div>

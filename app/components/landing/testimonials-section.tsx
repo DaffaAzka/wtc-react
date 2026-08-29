@@ -14,9 +14,7 @@ export function AboutSection() {
   const { ref, inView } = useInView();
   const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Efek Auto-Slide untuk Foto
   useEffect(() => {
-    // Foto ganti setiap 4 detik
     const slideInterval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % teamPhotos.length);
     }, 4000);
@@ -30,7 +28,6 @@ export function AboutSection() {
       className="relative flex flex-col justify-center min-h-screen pt-20 px-6 sm:px-10 lg:px-20 overflow-hidden"
       style={{ background: "#000000" }}>
       <div className="mx-auto w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-        {/* KIRI: Teks & Deskripsi */}
         <div
           className={`transition-all duration-700 ease-out ${
             inView ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"
@@ -85,7 +82,6 @@ export function AboutSection() {
           </div>
         </div>
 
-        {/* KANAN: Slideshow Foto (Crossfade) */}
         <div
           className={`relative w-full transition-all duration-1000 ease-out delay-200 ${
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-12"
@@ -98,7 +94,6 @@ export function AboutSection() {
               border: "1px solid #2a2a2a",
               boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
             }}>
-            {/* Map semua foto, pake opacity buat efek transisi fade-in/fade-out */}
             {teamPhotos.map((src, i) => (
               <img
                 key={i}
@@ -113,7 +108,6 @@ export function AboutSection() {
               />
             ))}
 
-            {/* Gradient tipis di bawah buat background dots indikator */}
             <div
               className="absolute bottom-0 left-0 right-0 h-24"
               style={{
