@@ -85,12 +85,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const isAdmin =
     user?.roles?.some((role) => role.name.toLowerCase() === "admin") ?? false;
 
+  const { pathname } = useLocation();
   const isTeacher =
     !isAdmin &&
     (user?.roles?.some((role) => role.name.toLowerCase() === "teacher") ??
       false);
 
-  const [teacherContentOpen, setTeacherContentOpen] = React.useState(false);
+  const contentPaths = ["/tracks", "/modules", "/lessons", "/challenges", "/materials"];
+  const isOnContentPage = contentPaths.some((p) => pathname.startsWith(p));
+
+  const [teacherContentOpen, setTeacherContentOpen] = React.useState(isOnContentPage);
 
   // Teacher navigation
   const teacherNavFlat = [
@@ -101,10 +105,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   ];
 
   const teacherContentItems = [
-    { title: "Tracks", url: "/teacher/tracks", icon: RouteIcon },
-    { title: "Modules", url: "/teacher/modules", icon: LayersIcon },
-    { title: "Lessons", url: "/teacher/lessons", icon: NotebookTextIcon },
-    { title: "Challenges", url: "/teacher/challenges", icon: TerminalSquareIcon },
+    { title: "Tracks", url: "/tracks", icon: RouteIcon },
+    { title: "Modules", url: "/modules", icon: LayersIcon },
+    { title: "Lessons", url: "/lessons", icon: NotebookTextIcon },
+    { title: "Challenges", url: "/challenges", icon: TerminalSquareIcon },
   ];
 
   // Admin navigation
