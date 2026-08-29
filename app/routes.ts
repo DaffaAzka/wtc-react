@@ -116,6 +116,9 @@ export default [
       ]),
       route("/leaderboard", "routes/auth/teacher/leaderboard.tsx"),
       route("/audit-logs", "routes/auth/teacher/audit-logs.tsx"),
+      route("/admin/challenges/:id", "routes/auth/admin/challenges/$id.tsx"),
+      route("/admin/challenges/:id/edit", "routes/auth/admin/challenges/$id.edit.tsx"),
+      route("/admin/submissions/:challengeId", "routes/auth/admin/submissions/$challengeId.tsx"),
     ]),
   ]),
 ] satisfies RouteConfig;

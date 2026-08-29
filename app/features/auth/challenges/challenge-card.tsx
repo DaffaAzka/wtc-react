@@ -9,8 +9,10 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import type { Challenge } from "@/types/model";
+import { Link } from "react-router";
 import {
   Edit,
+  Eye,
   MoreVertical,
   Trash2,
   Settings,
@@ -26,13 +28,13 @@ import {
   GitBranch,
   Box,
   Timer,
+  User,
 } from "lucide-react";
 
 type Props = {
   challenge: Challenge;
   onEdit?: (challenge: Challenge) => void;
   onDelete?: (challenge: Challenge) => void;
-  onManage?: (challenge: Challenge) => void;
   onViewSubmissions?: (challenge: Challenge) => void;
 };
 
@@ -76,7 +78,6 @@ export default function ChallengeCard({
   challenge,
   onEdit,
   onDelete,
-  onManage,
   onViewSubmissions,
 }: Props) {
   const questionCount = getQuestionCount(challenge);
@@ -117,6 +118,13 @@ export default function ChallengeCard({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
+                  <Link to={`/admin/challenges/${challenge.id}`}>
+                    <DropdownMenuItem>
+                      <Eye className="h-4 w-4 mr-2" />
+                      View
+                    </DropdownMenuItem>
+                  </Link>
+                  <DropdownMenuSeparator />
                   {onViewSubmissions && (
                     <>
                       <DropdownMenuItem onClick={() => onViewSubmissions(challenge)}>
@@ -126,14 +134,10 @@ export default function ChallengeCard({
                       <DropdownMenuSeparator />
                     </>
                   )}
-                  {onManage && (
-                    <DropdownMenuItem onClick={() => onManage(challenge)}>
-                      <Settings className="h-4 w-4 mr-2" />
-                      Manage
-                    </DropdownMenuItem>
-                  )}
                   {onEdit && (
-                    <DropdownMenuItem onClick={() => onEdit(challenge)}>
+                    <DropdownMenuItem onClick={() => {
+                      onEdit(challenge);
+                    }}>
                       <Edit className="h-4 w-4 mr-2" />
                       Edit
                     </DropdownMenuItem>
@@ -232,20 +236,23 @@ export default function ChallengeCard({
                 : challenge.allowed_attempts}
             </span>
           </div>
+
+          {/* Created By */}
+          <div className="flex items-center gap-2 text-sm">
+            <div className="p-1.5 rounded-md bg-purple-500/10">
+              <User className="h-3.5 w-3.5 text-purple-600" />
+            </div>
+            <div className="flex-1">
+              <span className="text-muted-foreground text-xs">Created By</span>
+            </div>
+            <span className="font-semibold text-sm">
+              {(challenge as any).created_by?.name || "Admin"}
+            </span>
+          </div>
         </div>
 
         {/* Action Buttons */}
         <div className="flex gap-2 pt-2">
-          {onManage && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex-1 gap-1.5"
-              onClick={() => onManage(challenge)}>
-              <Settings className="h-3.5 w-3.5" />
-              Manage
-            </Button>
-          )}
           {onViewSubmissions && (
             <Button
               size="sm"

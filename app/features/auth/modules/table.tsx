@@ -177,6 +177,9 @@ export default function ModulesTable({
                 <th className="hidden px-4 py-2 font-medium md:table-cell">
                   Updated
                 </th>
+                <th className="hidden px-4 py-2 font-medium lg:table-cell">
+                  Created By
+                </th>
                 <th className="w-10 px-4 py-2" />
               </tr>
             </thead>
@@ -197,6 +200,9 @@ export default function ModulesTable({
                     </td>
                     <td className="hidden px-4 py-3 text-xs text-muted-foreground md:table-cell">
                       {updated}
+                    </td>
+                    <td className="hidden px-4 py-3 text-xs text-muted-foreground lg:table-cell">
+                      {(module as any).created_by?.name || "Admin"}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">

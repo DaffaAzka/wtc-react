@@ -27,7 +27,8 @@ import type { ChallengeContext } from "./challenge-manager";
 import { generateSlug, getFieldError } from "@/utils/global";
 import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
-import { Upload, X, FileIcon, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Upload, X, FileIcon, AlertCircle, CheckCircle2, Info, Target, RotateCw, Code2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 type Props = {
   context: ChallengeContext;
@@ -59,12 +60,20 @@ export default function CodingAssignmentModalAdd({
     context.type === 'module' ? context.slug : undefined
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
+  const difficultyRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const maxScoreRef = useRef<HTMLDivElement>(null);
+  const minimumScoreRef = useRef<HTMLDivElement>(null);
+  const pointsRef = useRef<HTMLDivElement>(null);
+  const allowedAttemptsRef = useRef<HTMLDivElement>(null);
 
   const [form, setForm] = useState({
     title: "",
     difficulty: "" as "" | "easy" | "medium" | "hard",
     content: "",
     max_score: "100",
+    minimum_score: "0",
     points: "",
     allowed_attempts: "3",
   });
@@ -76,6 +85,7 @@ export default function CodingAssignmentModalAdd({
     difficulty?: string;
     content?: string;
     max_score?: string;
+    minimum_score?: string;
     points?: string;
     allowed_attempts?: string;
   }>({});
@@ -87,6 +97,22 @@ export default function CodingAssignmentModalAdd({
   const [readyToSave, setReadyToSave] = useState(false);
   
   const debouncedForm = useDebounce(form);
+
+  // Auto-calculate points based on difficulty
+  useEffect(() => {
+    if (!form.difficulty) return;
+
+    const pointsMap: Record<"easy" | "medium" | "hard", string> = {
+      easy: "10",
+      medium: "20",
+      hard: "30",
+    };
+
+    setForm((prev) => ({
+      ...prev,
+      points: pointsMap[form.difficulty as "easy" | "medium" | "hard"],
+    }));
+  }, [form.difficulty]);
 
   // Load draft on modal open
   useEffect(() => {
@@ -102,6 +128,7 @@ export default function CodingAssignmentModalAdd({
         difficulty: "",
         content: "",
         max_score: "100",
+        minimum_score: "0",
         points: "",
         allowed_attempts: "3",
       });
@@ -121,6 +148,7 @@ export default function CodingAssignmentModalAdd({
         difficulty: parsed.form.difficulty || "",
         content: parsed.form.content || "",
         max_score: parsed.form.max_score || "100",
+        minimum_score: parsed.form.minimum_score ?? "0",
         points: parsed.form.points || "",
         allowed_attempts: parsed.form.allowed_attempts || "3",
       });
@@ -137,6 +165,7 @@ export default function CodingAssignmentModalAdd({
         difficulty: "",
         content: "",
         max_score: "100",
+        minimum_score: "0",
         points: "",
         allowed_attempts: "3",
       });
@@ -231,6 +260,14 @@ export default function CodingAssignmentModalAdd({
       errors.max_score = "Max Score must be at least 1.";
     }
 
+    if (!form.minimum_score.trim()) {
+      errors.minimum_score = "Minimum Score is required.";
+    } else if (Number(form.minimum_score) < 0) {
+      errors.minimum_score = "Minimum Score cannot be negative.";
+    } else if (Number(form.minimum_score) > Number(form.max_score)) {
+      errors.minimum_score = "Minimum Score cannot exceed Max Score.";
+    }
+
     if (!form.points.trim()) {
       errors.points = "Points is required.";
     } else if (Number(form.points) < 0) {
@@ -249,7 +286,32 @@ export default function CodingAssignmentModalAdd({
 
     setFormErrors(errors);
 
-    if (Object.keys(errors).length > 0) {
+    if (errors.title) {
+      titleRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.difficulty) {
+      difficultyRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.content) {
+      contentRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.max_score) {
+      maxScoreRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.minimum_score) {
+      minimumScoreRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.points) {
+      pointsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.allowed_attempts) {
+      allowedAttemptsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       return;
     }
 
@@ -261,7 +323,9 @@ export default function CodingAssignmentModalAdd({
       type: "file_upload" as const,
       difficulty: form.difficulty as "easy" | "medium" | "hard",
       content: form.content,
-      settings: [] as any,
+      settings: {
+        minimum_score: Number(form.minimum_score),
+      } as any,
       metadata: [] as any,
       max_score: Number(form.max_score),
       points: Number(form.points),
@@ -302,7 +366,12 @@ export default function CodingAssignmentModalAdd({
       <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col p-0">
         <DialogHeader className="shrink-0 border-b px-6 pt-6 pb-4 bg-background">
           <div className="flex items-center justify-between">
-            <DialogTitle>Add Coding Assignment</DialogTitle>
+            <div className="space-y-2">
+              <DialogTitle>Add Coding Assignment</DialogTitle>
+              <Badge variant="outline" className="text-xs">
+                {context.type === "lesson" ? "Lesson" : "Module"}: {context.title}
+              </Badge>
+            </div>
 
             <div className="flex items-center gap-3">
               {saving ? (
@@ -329,8 +398,11 @@ export default function CodingAssignmentModalAdd({
           </DialogDescription>
         </DialogHeader>
 
-        <div className="overflow-y-auto flex-1 px-6 pb-6">
-          <form onSubmit={handleSubmit} className="flex flex-col gap-6 mt-4">            {storeChallenge.error &&
+        {/* Form wraps both scrollable content and button footer */}
+        <form onSubmit={handleSubmit} className="flex-1 flex flex-col min-h-0">
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto px-6">
+            <div className="flex flex-col gap-6 py-6">            {storeChallenge.error &&
               storeChallenge.error.message !== "Validation errors" && (
                 <Alert variant="destructive">
                   <AlertDescription>
@@ -341,14 +413,19 @@ export default function CodingAssignmentModalAdd({
 
             {/* Challenge Information Section */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold">Challenge Information</h3>
-                <p className="text-sm text-muted-foreground">
-                  Basic details about the coding assignment
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-md bg-blue-500/10">
+                  <Info className="h-4 w-4 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Challenge Information</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Basic details about the coding assignment
+                  </p>
+                </div>
               </div>
 
-              <div>
+              <div ref={titleRef}>
                 <InputForm
                   name="title"
                   text="Title"
@@ -363,7 +440,7 @@ export default function CodingAssignmentModalAdd({
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-4">
+                <div ref={difficultyRef} className="space-y-4">
                   <Label>
                     Difficulty <span className="text-red-500">*</span>
                   </Label>
@@ -400,7 +477,7 @@ export default function CodingAssignmentModalAdd({
                 </div>
               </div>
 
-              <div>
+              <div ref={contentRef}>
                 <TextareaForm
                   name="content"
                   text="Description"
@@ -418,15 +495,20 @@ export default function CodingAssignmentModalAdd({
 
             {/* Scoring Configuration Section */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold">Scoring Configuration</h3>
-                <p className="text-sm text-muted-foreground">
-                  Set the total weight and reward points for this assignment
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-md bg-amber-500/10">
+                  <Target className="h-4 w-4 text-amber-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Scoring Configuration</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Set the total weight and reward points for this assignment
+                  </p>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div ref={maxScoreRef}>
                   <InputForm
                     name="max_score"
                     text="Max Score"
@@ -443,20 +525,38 @@ export default function CodingAssignmentModalAdd({
                   </p>
                 </div>
 
-                <div>
+                <div ref={minimumScoreRef}>
+                  <InputForm
+                    name="minimum_score"
+                    text="Minimum Score"
+                    type="number"
+                    value={form.minimum_score}
+                    handleChange={handleChange}
+                    error={
+                      formErrors.minimum_score ??
+                      getFieldError(storeChallenge.error?.errors, "minimum_score")
+                    }
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Minimum score required to pass this assignment
+                  </p>
+                </div>
+
+                <div ref={pointsRef}>
                   <InputForm
                     name="points"
                     text="Points"
                     type="number"
                     value={form.points}
                     handleChange={handleChange}
+                    isDisabled={true}
                     error={
                       formErrors.points ??
                       getFieldError(storeChallenge.error?.errors, "points")
                     }
                   />
                   <p className="text-xs text-muted-foreground mt-1">
-                    Reward points (EXP) earned upon completion
+                    Reward points (EXP) earned upon completion (auto-calculated based on difficulty)
                   </p>
                 </div>
               </div>
@@ -466,11 +566,16 @@ export default function CodingAssignmentModalAdd({
 
             {/* Attempt Settings Section */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold">Attempt Settings</h3>
-                <p className="text-sm text-muted-foreground">
-                  Configure how many times students can submit this assignment
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-md bg-cyan-500/10">
+                  <RotateCw className="h-4 w-4 text-cyan-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">Attempt Settings</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Configure how many times students can submit this assignment
+                  </p>
+                </div>
               </div>
 
               <div className="max-w-md space-y-3">
@@ -487,7 +592,7 @@ export default function CodingAssignmentModalAdd({
                     Unlimited attempts
                   </label>
                 </div>
-                <div>
+                <div ref={allowedAttemptsRef}>
                   <InputForm
                     name="allowed_attempts"
                     text="Allowed Attempts"
@@ -515,16 +620,21 @@ export default function CodingAssignmentModalAdd({
 
             {/* Example / Starter File Section */}
             <div className="space-y-4">
-              <div>
-                <h3 className="text-lg font-semibold">
-                  Example / Starter File{" "}
-                  <span className="text-sm font-normal text-muted-foreground">
-                    (Optional)
-                  </span>
-                </h3>
-                <p className="text-sm text-muted-foreground">
-                  Upload a starter file or example for students (Max: 50 MB)
-                </p>
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-md bg-indigo-500/10">
+                  <Code2 className="h-4 w-4 text-indigo-600" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold">
+                    Example / Starter File{" "}
+                    <span className="text-sm font-normal text-muted-foreground">
+                      (Optional)
+                    </span>
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Upload a starter file or example for students (Max: 50 MB)
+                  </p>
+                </div>
               </div>
 
               <input
@@ -591,7 +701,11 @@ export default function CodingAssignmentModalAdd({
                 </Alert>
               )}
             </div>
+            </div>
+          </div>
 
+          {/* Fixed Button Footer - outside scrollable area but inside form */}
+          <div className="shrink-0 border-t px-6 py-4 bg-background">
             <LoadingButton
               text={
                 isUploading
@@ -603,8 +717,8 @@ export default function CodingAssignmentModalAdd({
               loading={isProcessing}
               disabled={isProcessing}
             />
-          </form>
-        </div>
+          </div>
+        </form>
       </DialogContent>
     </Dialog>
   );

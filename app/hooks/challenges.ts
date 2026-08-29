@@ -42,6 +42,49 @@ export function useGetChallengesPaginated(params?: {
   };
 }
 
+export function useGetAllChallengesPaginated() {
+  const query = useQuery<Challenge[], ApiErrorResponse>({
+    queryKey: [...challengeKeys.all, "all-paginated"],
+    queryFn: async () => {
+      // Fetch first page to get total pages
+      const firstPage = await ChallengeService.getAllPaginated({
+        page: 1,
+        per_page: 100,
+      });
+
+      const totalPages = firstPage.meta.last_page || 1;
+
+      // If only one page, return it
+      if (totalPages === 1) {
+        return firstPage.data;
+      }
+
+      // Fetch remaining pages in parallel
+      const remainingPagePromises = [];
+      for (let page = 2; page <= totalPages; page++) {
+        remainingPagePromises.push(
+          ChallengeService.getAllPaginated({ page, per_page: 100 })
+        );
+      }
+
+      const remainingPages = await Promise.all(remainingPagePromises);
+
+      // Combine all results
+      return [
+        ...firstPage.data,
+        ...remainingPages.flatMap((response) => response.data),
+      ];
+    },
+  });
+
+  return {
+    challenges: query.data ?? [],
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refresh: query.refetch,
+  };
+}
+
 export function useGetChallengesByLesson(lessonId: number) {
   const query = useQuery<Challenge[], ApiErrorResponse>({
     queryKey: challengeKeys.byLesson(lessonId),
