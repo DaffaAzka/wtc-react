@@ -30,7 +30,6 @@ export default function ModalEdit({
     slug: "",
     content: "",
     video_url: "",
-    order: "",
     module_id: 0,
   });
 
@@ -42,7 +41,6 @@ export default function ModalEdit({
         content: data.content,
         slug: data.slug,
         video_url: data.video_url ?? "",
-        order: data.order == null ? "" : data.order.toString(),
         module_id: data.module_id,
       });
     }
@@ -64,7 +62,6 @@ export default function ModalEdit({
         content: form.content,
         video_url: form.video_url || null,
         slug: form.slug,
-        order: Number.parseInt(form.order),
         module_id: form.module_id,
       },
       {
@@ -76,7 +73,6 @@ export default function ModalEdit({
             slug: "",
             content: "",
             video_url: "",
-            order: "",
             module_id: 0,
           });
         },
@@ -125,14 +121,6 @@ export default function ModalEdit({
                 value={form.video_url}
                 handleChange={handleChange}
                 error={getFieldError(updateLesson.error?.errors, "video_url")}
-              />
-              <InputForm
-                name="order"
-                text="Lesson Order"
-                type="number"
-                value={form.order}
-                handleChange={handleChange}
-                error={getFieldError(updateLesson.error?.errors, "order")}
               />
 
               <LoadingButton text="Update" loading={updateLesson.isPending} />

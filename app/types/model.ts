@@ -2,6 +2,8 @@
 
 export type ProfileAvatar = string | { url: string; expires_at: string } | null;
 
+export type RoleName = "admin" | "teacher" | "student";
+
 export type Profile = {
   display_name: string | null;
   email: string | null;
@@ -73,8 +75,9 @@ export type ChallengeSettings = {
   // multiple_choice
   shuffle_options?: boolean;
   show_correct_answers?: boolean;
-  options?: ChallengeOption[];  // ✅ RESTORED - FE flexible untuk taruh di settings atau metadata
-  explanation?: string;          // ✅ RESTORED - FE flexible untuk taruh di settings atau metadata
+  options?: ChallengeOption[];
+  explanation?: string;
+  minimum_score?: number;
 
   // fill_blank
   case_sensitive?: boolean;

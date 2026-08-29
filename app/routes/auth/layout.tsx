@@ -6,27 +6,22 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import type { Route } from "./+types/layout";
 import { ModeToggle } from "@/components/custom/mode-toggle";
+import { getToken, getUser } from "@/utils/auth-storage";
+import { resolveLandingPath } from "@/utils/roles";
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: "WTC LMS" }, { name: "description", content: "Welcome to WTC LMS!" }];
 }
 
 export async function clientLoader() {
-  const token = localStorage.getItem("token");
-  if (!token) {
+  if (!getToken()) {
     throw redirect("/");
   }
 
-  // Role-based redirect - Check if user is NOT admin (since all users have student role)
-  const rawUser = localStorage.getItem("user");
-  if (rawUser) {
-    const user = JSON.parse(rawUser);
-    const isAdmin = user.roles?.some((role: any) => role.name.toLowerCase() === "admin");
-
-    // Regular students (no admin role) should use /student/* routes, not general auth routes
-    if (!isAdmin) {
-      throw redirect("/student/dashboard");
-    }
+  const user = getUser();
+  const landingPath = resolveLandingPath(user);
+  if (user && landingPath !== "/dashboard") {
+    throw redirect(landingPath);
   }
 
   return null;

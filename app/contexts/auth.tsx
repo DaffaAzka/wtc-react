@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { authApi } from "@/lib/auth-api";
 import { api } from "@/lib/axios";
 import type { Profile } from "@/types/model";
+import { clearAuth, getToken, getUser, saveUser } from "@/utils/auth-storage";
 
 type MeResponse = {
   user: {
@@ -72,19 +73,14 @@ export function AuthProvider({
   const [loading, setLoading] = useState(true);
 
   const clearSession = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("session_id");
-    localStorage.removeItem("user");
-
+    clearAuth();
     setUser(null);
     setToken(null);
   };
 
   const setUserData = (userData: Profile) => {
     setUser(userData);
-
-    localStorage.setItem("user", JSON.stringify(userData));
+    saveUser(userData);
   };
 
   const fetchMe = async (accessToken: string) => {
@@ -97,8 +93,7 @@ export function AuthProvider({
     const mergedUser = toMergedUser(response.data);
 
     setUser(mergedUser);
-
-    localStorage.setItem("user", JSON.stringify(mergedUser));
+    saveUser(mergedUser);
 
     return mergedUser;
   };
@@ -107,7 +102,7 @@ export function AuthProvider({
     let mounted = true;
 
     const bootstrap = async () => {
-      const storedToken = localStorage.getItem("token");
+      const storedToken = getToken();
 
       if (!storedToken) {
         if (mounted) {
@@ -123,18 +118,10 @@ export function AuthProvider({
         /*
          * Load cached user immediately.
          */
-        const storedUser = localStorage.getItem("user");
+        const storedUser = getUser();
 
-        if (storedUser) {
-          try {
-            const userData = JSON.parse(storedUser);
-
-            if (mounted) {
-              setUser(userData);
-            }
-          } catch (error) {
-            // Failed to parse stored user data
-          }
+        if (storedUser && mounted) {
+          setUser(storedUser);
         }
 
         /*

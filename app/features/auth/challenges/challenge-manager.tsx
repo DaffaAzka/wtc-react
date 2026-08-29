@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, Code } from "lucide-react";
+import { Plus, Code } from "lucide-react";
 import { useGetChallengesByLesson, useGetChallengesByModule } from "@/hooks/challenges";
 import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
 import { ChallengeGridSkeleton } from "@/components/skeletons/challenge-card";
-import ErrorState from "@/components/custom/error-state";
 import ChallengeModal from "./modal-add";
 import CodingAssignmentModal from "./modal-add-coding-assignment";
 import ChallengeList from "./challenge-list";
@@ -36,7 +35,6 @@ export default function ChallengeManager({
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddCodingAssignmentOpen, setIsAddCodingAssignmentOpen] = useState(false);
 
-  // Conditional fetching based on context type
   const lessonChallenges = useGetChallengesByLesson(
     context.type === "lesson" ? context.id : 0
   );
@@ -67,45 +65,75 @@ export default function ChallengeManager({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Link to={backUrl}>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label={backLabel}
+      <div className="space-y-3">
+        {/* Breadcrumb - Proper Navigation */}
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          {/* Root: Modules */}
+          {/* <Link to="/modules" className="hover:text-foreground transition-colors">
+            Modules
+          </Link> */}
+
+          {/* Parent Module (if exists) */}
+          {context.parentInfo && (
+            <>
+              <span>•</span>
+              <Link
+                to={`/modules/${context.parentInfo.title.toLowerCase().replace(/\s+/g, '-')}`}
+                className="hover:text-foreground transition-colors"
               >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Challenges</h1>
-              {context.parentInfo && (
-                <p className="text-muted-foreground text-sm">
-                  {context.parentInfo.type}:{" "}
-                  <span className="font-medium">{context.parentInfo.title}</span>
-                </p>
-              )}
-              <p className="text-muted-foreground text-sm">
-                {context.type === "lesson" ? "Lesson" : "Module"}:{" "}
-                <span className="font-medium">{context.title}</span>
-              </p>
-            </div>
-          </div>
+                {context.parentInfo.title}
+              </Link>
+            </>
+          )}
+
+          {/* Current Context (Lesson/Module) */}
+          {/* {context.type === "module" ? (
+            <>
+              <span>•</span>
+              <Link to={backUrl} className="hover:text-foreground transition-colors">
+                {context.title}
+              </Link>
+            </>
+          ) : (
+            <>
+              <span>•</span>
+              <Link to={backUrl} className="hover:text-foreground transition-colors">
+                {context.title}
+              </Link>
+            </>
+          )} */}
+
+          {/* Current Page */}
+          {/* <span>•</span> */}
+          {/* <span className="text-foreground">Challenges</span> */}
         </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={() => setIsAddModalOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Challenge
-          </Button>
-          <Button
-            onClick={() => setIsAddCodingAssignmentOpen(true)}
-            variant="outline"
-          >
-            <Code className="h-4 w-4 mr-2" />
-            Add Coding Assignment
-          </Button>
+
+        {/* Title & Actions - Bold Title + Normal Context */}
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-baseline gap-2">
+            <h1 className="text-2xl font-bold">Challenges</h1>
+            <span className="text-lg text-muted-foreground font-normal">
+              in {context.title}
+            </span>
+            <span className="text-sm text-muted-foreground">
+              • {safeChallenges.length} {safeChallenges.length === 1 ? "challenge" : "challenges"}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button onClick={() => setIsAddModalOpen(true)} size="sm" className="gap-2">
+              <Plus className="h-4 w-4" />
+              Add Challenge
+            </Button>
+            <Button
+              onClick={() => setIsAddCodingAssignmentOpen(true)}
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <Code className="h-4 w-4" />
+              Coding Assignment
+            </Button>
+          </div>
         </div>
       </div>
 

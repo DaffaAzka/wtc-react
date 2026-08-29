@@ -1,5 +1,7 @@
 import React from "react";
-import { Outlet, useLocation } from "react-router";
+import { Link, Outlet, redirect, useLocation } from "react-router";
+import { getToken, getUser } from "@/utils/auth-storage";
+import { hasRole, resolveLandingPath } from "@/utils/roles";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
@@ -13,6 +15,30 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ModeToggle } from "@/components/custom/mode-toggle";
 import { cn } from "@/lib/utils";
+
+export async function clientLoader() {
+  if (!getToken()) {
+    throw redirect("/");
+  }
+
+  const user = getUser();
+  if (!user) {
+    throw redirect("/");
+  }
+
+  // Recognized non-student roles take precedence — send to their own landing path.
+  if (hasRole(user, "teacher") || hasRole(user, "admin")) {
+    throw redirect(resolveLandingPath(user));
+  }
+
+  // Authenticated but holds no recognized role (empty or unknown roles) — go to root,
+  // not resolveLandingPath which would return /student/dashboard and loop.
+  if (!hasRole(user, "student")) {
+    throw redirect("/");
+  }
+
+  return null;
+}
 
 // Enhanced SidebarTrigger with visual indicator for lesson pages
 function EnhancedSidebarTrigger() {
@@ -70,17 +96,7 @@ function StudentLayoutContent() {
           <div className="flex items-center gap-2 px-4">
             <EnhancedSidebarTrigger />
             <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">Build Your Application</BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+            <DynamicBreadcrumb />
           </div>
         </header>
         <div className="flex flex-1 flex-col gap-4 p-4 px-8 pt-0">
@@ -114,7 +130,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   // Main nav (matches sidebar labels)
   dashboard: "Beranda",
   classes: "Kelas",
-  progress: "Progress Belajar",
+  progress: "Progres Belajar",
   profile: "Profil",
 
   // Submissions & Challenges
@@ -123,7 +139,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   take: "Kerjakan",
 
   // Tracks alias
-  tracks: "Tracks",
+  tracks: "Kelas",
 
   // Shared
   create: "Buat",
@@ -143,6 +159,11 @@ function segmentLabel(seg: string): string {
     .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+// Route overrides: certain segments should link to different URLs
+const SEGMENT_ROUTES: Record<string, string> = {
+  tracks: "/student/classes", // tracks detail pages link back to classes listing
+};
+
 function DynamicBreadcrumb() {
   const location = useLocation();
 
@@ -160,11 +181,22 @@ function DynamicBreadcrumb() {
     );
   }
 
-  const crumbs = segments.map((seg, i) => ({
+  // Build crumbs from all segments first
+  const allCrumbs = segments.map((seg, i) => ({
+    segment: seg,
     label: segmentLabel(seg),
-    href: "/" + segments.slice(0, i + 1).join("/"),
+    href: SEGMENT_ROUTES[seg] || "/" + segments.slice(0, i + 1).join("/"),
     isLast: i === segments.length - 1,
   }));
+
+  // Filter out "student" prefix
+  const crumbs = allCrumbs.filter((crumb) => crumb.segment !== "student");
+
+  // Update isLast after filtering
+  if (crumbs.length > 0) {
+    crumbs.forEach((c) => (c.isLast = false));
+    crumbs[crumbs.length - 1].isLast = true;
+  }
 
   return (
     <Breadcrumb>
@@ -178,7 +210,9 @@ function DynamicBreadcrumb() {
               {crumb.isLast ? (
                 <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
               ) : (
-                <BreadcrumbLink href={crumb.href}>{crumb.label}</BreadcrumbLink>
+                <BreadcrumbLink asChild>
+                  <Link to={crumb.href}>{crumb.label}</Link>
+                </BreadcrumbLink>
               )}
             </BreadcrumbItem>
           </span>

@@ -1,3 +1,5 @@
+import type { Profile } from "@/types/model";
+
 export function getToken(): string | null {
   return localStorage.getItem("token");
 }
@@ -21,7 +23,7 @@ export function saveRefreshToken(
   );
 }
 
-export function getUser() {
+export function getUser(): Profile | null {
   const data =
     localStorage.getItem("user");
 

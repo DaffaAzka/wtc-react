@@ -96,6 +96,40 @@ export default [
 
       // Global Challenges Routes
       route("/challenges", "routes/auth/admin/all-challenges/index.tsx"),
+
+      // Recycle Bin
+      route("/recycle-bin", "routes/auth/admin/recycle-bin.tsx"),
+
+      // Student Progress
+      ...prefix("/student-progress", [
+        index("routes/auth/admin/student-progress/index.tsx"),
+        route("/tracks/:slug", "routes/auth/admin/student-progress/tracks.$slug.tsx"),
+      ]),
+    ]),
+  ]),
+
+  // Teacher workspace
+  layout("routes/auth/teacher/layout.tsx", [
+    ...prefix("/teacher", [
+      route("/dashboard", "routes/auth/teacher/dashboard.tsx"),
+      route("/tracks", "routes/auth/teacher/tracks.tsx"),
+      route("/modules", "routes/auth/teacher/modules.tsx"),
+      route("/lessons", "routes/auth/teacher/lessons.tsx"),
+      route("/challenges", "routes/auth/teacher/challenges.tsx"),
+      ...prefix("/submissions", [
+        index("routes/auth/teacher/submissions/index.tsx"),
+        route("/:id", "routes/auth/teacher/submissions/$id.tsx"),
+      ]),
+      route("/leaderboard", "routes/auth/teacher/leaderboard.tsx"),
+      // Student Progress
+      ...prefix("/student-progress", [
+        index("routes/auth/teacher/student-progress/index.tsx"),
+        route("/tracks/:slug", "routes/auth/teacher/student-progress/tracks.$slug.tsx"),
+      ]),
+      route("/audit-logs", "routes/auth/teacher/audit-logs.tsx"),
+      route("/admin/challenges/:id", "routes/auth/admin/challenges/$id.tsx"),
+      route("/admin/challenges/:id/edit", "routes/auth/admin/challenges/$id.edit.tsx"),
+      route("/admin/submissions/:challengeId", "routes/auth/admin/submissions/$challengeId.tsx"),
     ]),
   ]),
 ] satisfies RouteConfig;
