@@ -287,14 +287,7 @@ function ByProfileTab({
             <tbody className="divide-y divide-border">
               {filtered.map((profile: ProgressProfileSummary) => {
                 const isExpanded = expandedIds.has(profile.id);
-                const progressRatio =
-                  profile.enrolled_tracks_count > 0
-                    ? Math.round(
-                        (profile.completed_tracks_count /
-                          profile.enrolled_tracks_count) *
-                          100,
-                      )
-                    : 0;
+                const progressRatio = profile.overall_progress ?? 0;
 
                 return (
                   <React.Fragment key={profile.id}>
