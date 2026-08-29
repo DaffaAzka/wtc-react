@@ -116,6 +116,17 @@ export default [
       route("/modules", "routes/auth/teacher/modules.tsx"),
       route("/lessons", "routes/auth/teacher/lessons.tsx"),
       route("/challenges", "routes/auth/teacher/challenges.tsx"),
+      // Nested content navigation (same pattern as admin — reuse admin pages)
+      route("/:slug/modules", "routes/auth/admin/modules/index.tsx"),
+      route("/:slug?/modules/:moduleSlug/lessons", "routes/auth/admin/lessons/index.tsx"),
+      route("/:slug?/lessons/create", "routes/auth/admin/lessons/create.tsx"),
+      route("/:slug?/lessons/:lessonSlug/update", "routes/auth/admin/lessons/update.tsx"),
+      route("/:slug?/lessons/:lessonSlug/view", "routes/auth/admin/lessons/view.tsx"),
+      route("/:slug?/modules/:moduleSlug/challenges", "routes/auth/admin/modules/challenges/index.tsx"),
+      route("/:slug?/lessons/:lessonSlug/challenges", "routes/auth/admin/challenges/index.tsx"),
+      route("/challenges/:id", "routes/auth/admin/challenges/$id.tsx"),
+      route("/challenges/:id/edit", "routes/auth/admin/challenges/$id.edit.tsx"),
+      route("/submissions/:challengeId", "routes/auth/admin/submissions/$challengeId.tsx"),
       ...prefix("/submissions", [
         index("routes/auth/teacher/submissions/index.tsx"),
         route("/:id", "routes/auth/teacher/submissions/$id.tsx"),
