@@ -55,3 +55,6 @@ export const CertificateService = {
     return res.data.data;
   },
 };
+
+// Named exports for direct import
+export const downloadCertificate = CertificateService.downloadCertificate;
