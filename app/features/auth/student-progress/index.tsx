@@ -627,7 +627,7 @@ export default function StudentProgressPage({
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Left: tab selector */}
         <Select value={tab} onValueChange={(v) => handleTabChange(v)}>
-          <SelectTrigger className="h-9 w-40 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]" aria-label="View">
+          <SelectTrigger className="!h-9 w-40 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]" aria-label="View">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
@@ -649,7 +649,7 @@ export default function StudentProgressPage({
               />
             </div>
             <Select value={profileSort} onValueChange={(v) => { setProfileSort(v as ProfileProgressSort); setProfilePage(1); }}>
-              <SelectTrigger className="h-9 w-48 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
+              <SelectTrigger className="!h-9 w-48 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
@@ -660,7 +660,7 @@ export default function StudentProgressPage({
               </SelectContent>
             </Select>
             <Select value={profileStatus} onValueChange={(v) => { setProfileStatus(v as any); setProfilePage(1); }}>
-              <SelectTrigger className="h-9 w-36 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
+              <SelectTrigger className="!h-9 w-36 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
@@ -682,7 +682,7 @@ export default function StudentProgressPage({
               />
             </div>
             <Select value={trackSort} onValueChange={(v) => { setTrackSort(v as TrackProgressSort); setTrackPage(1); }}>
-              <SelectTrigger className="h-9 w-52 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
+              <SelectTrigger className="!h-9 w-52 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="rounded-xl">

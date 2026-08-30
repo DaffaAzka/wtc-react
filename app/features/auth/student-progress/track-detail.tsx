@@ -208,7 +208,7 @@ export default function TrackDetail({ slug }: TrackDetailProps) {
             </div>
             <Select value={status} onValueChange={(v) => setStatus(v as "all" | "in_progress" | "completed")}>
               <SelectTrigger
-                className="h-9 w-36 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]"
+                className="!h-9 w-36 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]"
                 aria-label="Filter by status"
               >
                 <SelectValue />
@@ -221,7 +221,7 @@ export default function TrackDetail({ slug }: TrackDetailProps) {
             </Select>
             <Select value={sort} onValueChange={(v) => setSort(v as "progress_desc" | "progress_asc" | "name_asc")}>
               <SelectTrigger
-                className="h-9 w-52 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]"
+                className="!h-9 w-52 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]"
                 aria-label="Sort students"
               >
                 <SelectValue />
