@@ -1,4 +1,4 @@
-export type ChallengeFormType = "multiple_choice" | "essay" | "mixed";
+export type ChallengeFormType = "multiple_choice" | "quiz_group" | "essay" | "mixed";
 
 export type MCQQuestion = {
   type: "multiple_choice";

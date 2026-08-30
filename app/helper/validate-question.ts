@@ -97,11 +97,11 @@ export function validateEssayQuestion(
 export function validateQuestion(
   question: Question,
   index: number,
-  challengeType: "multiple_choice" | "essay" | "mixed",
+  challengeType: "multiple_choice" | "quiz_group" | "essay" | "mixed",
 ): Record<string, string> {
   // Check type consistency
   if (
-    challengeType === "multiple_choice" &&
+    (challengeType === "multiple_choice" || challengeType === "quiz_group") &&
     question.type !== "multiple_choice"
   ) {
     return {
@@ -143,7 +143,7 @@ export function validateQuestion(
  */
 export function validateAllQuestions(
   questions: Question[],
-  challengeType: "multiple_choice" | "essay" | "mixed",
+  challengeType: "multiple_choice" | "quiz_group" | "essay" | "mixed",
 ): Record<string, string> {
   let allErrors: Record<string, string> = {};
 

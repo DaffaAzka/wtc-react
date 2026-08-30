@@ -154,7 +154,7 @@ export const SubmissionService = {
     submissionId: number,
     request: UpdateSubmissionRequest,
   ): Promise<Submission> => {
-    const response = await api.put<ApiResponse<Submission>>(
+    const response = await api.patch<ApiResponse<Submission>>(
       `/submissions/${submissionId}`,
       request,
     );

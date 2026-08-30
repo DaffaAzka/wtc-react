@@ -17,7 +17,6 @@ export type Profile = {
 export type Role = {
   id?: number;
   name: string;
-  display_name?: string;
 };
 
 export type Track = {
@@ -39,6 +38,8 @@ export type Module = {
   track_id: number;
   slug: string;
   title: string;
+  description?: string | null;
+  metadata?: Record<string, any> | null;
   order?: number | null;
   created_at: string;
   updated_at: string;
@@ -49,8 +50,10 @@ export type Lesson = {
   module_id: number;
   title: string;
   slug: string;
+  description?: string | null;
   content: string;
   video_url: string | null;
+  duration?: number | null;
   order?: number | null;
   attachments?: ChallengeAttachment[];
   deleted_at: string | null;
@@ -64,28 +67,130 @@ export type ChallengeOption = {
   is_correct: boolean;
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Challenge Settings
+// Stored in challenges.settings (JSON column).
+// Contains runtime behaviour config — NOT question data.
+// ─────────────────────────────────────────────────────────────────────────────
 export type ChallengeSettings = {
+  // ── Scoring ──────────────────────────────────────────────────────────────
+  minimum_score?: number;   // minimum score to pass (0–100)
+  passing_score?: number;   // passing percentage threshold (default 70)
+  time_limit?: number;      // seconds (timed_exam)
+
+  // ── multiple_choice (single-question) ────────────────────────────────────
+  // For single-question MCQ the one question lives here (legacy path).
+  // New challenges use metadata.questions instead — see below.
   shuffle_options?: boolean;
-  options?: ChallengeOption[];
-  explanation?: string;
-  minimum_score?: number;
+  show_correct_answers?: boolean;
+  options?: ChallengeOption[];           // legacy single-MCQ options
+  explanation?: string;                  // legacy single-MCQ explanation
+
+  // ── fill_blank ───────────────────────────────────────────────────────────
+  case_sensitive?: boolean;
+
+  // ── code_editor ──────────────────────────────────────────────────────────
+  allow_run_tests?: boolean;
+
+  // ── file_upload ──────────────────────────────────────────────────────────
+  max_file_size_mb?: number;
+  allowed_extensions?: string[];
+
+  // ── github_submission ────────────────────────────────────────────────────
+  required_branch?: string;
+  repository_visibility?: string;
+
+  // ── docker_project ───────────────────────────────────────────────────────
+  required_files?: string[];
+
+  // ── timed_exam ───────────────────────────────────────────────────────────
+  can_pause?: boolean;
+  show_timer?: boolean;
+
+  // ── quiz_group / mixed ───────────────────────────────────────────────────
+  shuffle_questions?: boolean;
+  show_results_immediately?: boolean;
+
   [key: string]: unknown;
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Challenge Metadata
+// Stored in challenges.metadata (JSON column).
+// Contains question/content data — NOT runtime config.
+//
+// CANONICAL CONTRACT (quiz_group | multiple_choice | mixed | essay):
+//
+//   metadata: {
+//     questions: [
+//       {                              ← MCQ question
+//         type:    "multiple_choice",
+//         question: "...",
+//         options:  ["A text", "B text", "C text", "D text"],  // string[]
+//         answer:   "B",             // uppercase letter A–D
+//         score:    10,
+//       },
+//       {                              ← Essay question
+//         type:    "essay",
+//         question: "...",
+//         rubric:  "Kriteria penilaian...",
+//         score:   20,
+//       },
+//     ]
+//   }
+//
+// AutoGradingService reads metadata.questions[].answer for MCQ grading.
+// QuizGroupForm reads metadata.questions[].options (string[]) for rendering.
+// ─────────────────────────────────────────────────────────────────────────────
 export type ChallengeMetadata = {
-  estimated_minutes?: number;
+  // ── Canonical question list (quiz_group | multiple_choice | essay | mixed) ─
   questions?: Question[];
+
+  // ── code_editor ──────────────────────────────────────────────────────────
+  language?: string;
+  starter_code?: string;
+  expected_output?: string;
+  test_cases?: Array<{ input: string; expected_output: string; is_hidden: boolean }>;
+
+  // ── Common (file_upload / github_submission / docker_project) ────────────
+  instructions?: string;
+  requirements?: string[];
+  checklist?: string[];
+  deliverables?: string[];
+  evaluation_criteria?: Record<string, string>;
+  url_pattern?: string;
+
+  // ── fill_blank ───────────────────────────────────────────────────────────
+  blanks?: Array<{ position: number; expected_answer: string }>;
+  case_sensitive?: boolean;
+  partial_credit?: boolean;
+
+  // ── timed_exam ───────────────────────────────────────────────────────────
+  time_limit_minutes?: number;
+  total_questions?: number;
+  question_types?: string[];
+  shuffle_questions?: boolean;
+  shuffle_answers?: boolean;
+  show_results_immediately?: boolean;
+  retry_allowed?: boolean;
+  can_pause?: boolean;
+  show_timer?: boolean;
+
+  // ── github_submission ────────────────────────────────────────────────────
+  required_branch?: string;
+  repository_visibility?: string;
+
   [key: string]: unknown;
 };
 
 export type ChallengeAttachment = {
-  id: string;
+  id: number;
   title: string;
   description: string;
   type: string;
   file_name: string;
   mime_type: string;
-  size: string;
+  size: number;
   created_at: string;
   updated_at: string;
 };
@@ -148,9 +253,10 @@ export type ModuleWithProgress = Module & {
 };
 
 export type EnrollmentInfo = {
-  status: "active" | "completed" | "inactive";
+  status: "active" | "completed" | "dropped" | "paused";
   enrolled_at: string;
   completed_at: string | null;
+  dropped_at: string | null;
 };
 
 export type TrackProgress = {

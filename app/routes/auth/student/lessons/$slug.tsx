@@ -1,19 +1,17 @@
-import { useNavigate, useParams, Link, useLocation } from "react-router";
+import { useNavigate, useParams, useLocation } from "react-router";
 import { ArrowLeft, ChevronLeft, ChevronRight, CheckCircle2, Circle, Lock, Loader2, Download, PlayCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Badge } from "@/components/ui/badge";
 import ContentView from "@/components/custom/content-view";
 import { cn } from "@/lib/utils";
 import { TrackProvider, useTrackContext } from "@/contexts/track-context";
 import { useLessonCompletion } from "@/hooks/lessons";
 import { useGetLesson } from "@/hooks/lessons";
-import { useGetChallengesByLesson } from "@/hooks/challenges";
+import { useGetChallengesByLesson, useGetChallengesByModule } from "@/hooks/challenges";
 import { ChallengeSection } from "./ChallengeSection";
 import { toast } from "sonner";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSidebar } from "@/components/ui/sidebar";
+import { Progress } from "@/components/ui/progress";
 
 function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: string; bypassLockCheck?: boolean }) {
   const navigate = useNavigate();
@@ -22,117 +20,118 @@ function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: stri
   const { trackOverview, loading: trackLoading, findLessonBySlug, getNextLesson, refreshTrackOverview } = useTrackContext();
   const { mutate: completeLesson, isPending: completing } = useLessonCompletion();
 
-  // Get track slug from context
   const trackSlug = trackOverview?.track.slug;
 
-  // Helper: Find module slug for a given lesson slug
-  const findModuleSlugForLesson = (lessonSlug: string): string | null => {
+  const findModuleSlugForLesson = (slug: string): string | null => {
     if (!trackOverview) return null;
-
     for (const module of trackOverview.modules) {
-      const lesson = module.lessons.find((l) => l.slug === lessonSlug);
-      if (lesson) return module.slug;
+      if (module.lessons.find((l) => l.slug === slug)) return module.slug;
     }
-
     return null;
   };
 
-  // Get lesson state from track overview
   const lessonWithState = lessonSlug ? findLessonBySlug(lessonSlug) : null;
-
-  // Also fetch full lesson content for display
   const { lesson: fullLesson, loading: lessonLoading } = useGetLesson(lessonSlug || "");
 
-  // 🎯 LESSON CHALLENGES: Fetch challenges assigned to this specific lesson
   const lessonId = lessonWithState?.id;
   const { challenges, loading: challengesLoading } = useGetChallengesByLesson(lessonId || 0);
   const hasLessonChallenges = challenges && challenges.length > 0;
 
-  // 🚨 ROUTE GUARD: Block if locked (unless bypassed after completion)
-  useEffect(() => {
-    if (bypassLockCheck) {
-      return;
-    }
+  const { moduleSlug } = useParams<{ moduleSlug?: string }>();
+  const { challenges: moduleChallenges } = useGetChallengesByModule(moduleSlug || "");
+  const hasModuleChallenges = moduleChallenges && moduleChallenges.length > 0;
 
+  // Must be declared before any early returns — Rules of Hooks
+  const [showModuleChallenges, setShowModuleChallenges] = useState(false);
+
+  useEffect(() => {
+    if (bypassLockCheck) return;
     if (!trackLoading && lessonWithState && lessonWithState.state === "locked") {
       toast.error("Lesson terkunci. Selesaikan lesson sebelumnya dulu.");
       navigate(`/student/classes/${trackSlug}`);
     }
   }, [lessonWithState, trackLoading, navigate, trackSlug, bypassLockCheck, lessonSlug]);
 
+  // Reset module challenges view when navigating to a different lesson
+  useEffect(() => {
+    setShowModuleChallenges(false);
+  }, [lessonSlug]);
+
+  // ── Loading ─────────────────────────────────────────────────────────────────
   if (trackLoading || lessonLoading) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-5rem)]">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-blue-500" />
-          <p className="text-sm text-muted-foreground">Memuat lesson...</p>
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-[#1c81ff]" />
+          <p className="text-[14px] text-gray-500 dark:text-gray-400">Memuat lesson…</p>
         </div>
       </div>
     );
   }
 
+  // ── Not found ────────────────────────────────────────────────────────────────
   if (!lessonWithState || !fullLesson) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-5rem)]">
         <div className="text-center space-y-4">
-          <p className="text-lg font-medium">Lesson tidak ditemukan</p>
-          <Button variant="outline" onClick={() => {
-            setOpen(true);
-            // Use setTimeout to ensure state update happens before navigation
-            setTimeout(() => {
-              navigate(`/student/classes/${trackSlug}`);
-            }, 0);
-          }}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
+          <p className="text-[15px] font-bold text-gray-900 dark:text-white">Lesson tidak ditemukan</p>
+          <button
+            onClick={() => {
+              setOpen(true);
+              setTimeout(() => navigate(`/student/classes/${trackSlug}`), 0);
+            }}
+            className="flex items-center gap-1.5 mx-auto bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-4 py-2 text-[14px] hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+          >
+            <ArrowLeft className="h-4 w-4" />
             Kembali ke Kelas
-          </Button>
+          </button>
         </div>
       </div>
     );
   }
 
-  // Guard check - should not reach here if locked (useEffect handles redirect)
-  if (lessonWithState.state === "locked") {
-    return null;
-  }
+  if (lessonWithState.state === "locked") return null;
 
-  // Find current module and lesson position
-  const currentModule = trackOverview?.modules.find(m =>
-    m.lessons.some(l => l.slug === lessonSlug)
-  );
+  const currentModule = trackOverview?.modules.find((m) => m.lessons.some((l) => l.slug === lessonSlug));
 
-  // Get all lessons in order for navigation
-  const allLessons = trackOverview?.modules.flatMap(m => m.lessons) || [];
-  const currentIndex = allLessons.findIndex(l => l.slug === lessonSlug);
+  // allLessons stays cross-module so prev/next nav works across module boundaries
+  const allLessons = trackOverview?.modules.flatMap((m) => m.lessons) || [];
+  const currentIndex = allLessons.findIndex((l) => l.slug === lessonSlug);
   const previousLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
   const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
 
+  // moduleLessons scoped to current module for the topbar counter
+  const moduleLessons = currentModule?.lessons ?? [];
+  const moduleCurrentIndex = moduleLessons.findIndex((l) => l.slug === lessonSlug);
+
+  const navigateToNextLesson = () => {
+    const next = getNextLesson(lessonSlug);
+    if (next) {
+      const nextModuleSlug = findModuleSlugForLesson(next.slug);
+      if (nextModuleSlug && trackSlug) {
+        navigate(`/student/classes/${trackSlug}/${nextModuleSlug}/${next.slug}`, {
+          state: { bypassLockCheck: true },
+        });
+      } else {
+        toast.error("Tidak dapat membuka lesson selanjutnya");
+        navigate(`/student/classes/${trackSlug}`);
+      }
+    } else {
+      navigate(`/student/classes/${trackSlug}`);
+    }
+  };
+
   const handleComplete = async () => {
     if (!lessonSlug) return;
-
     completeLesson(lessonSlug, {
       onSuccess: async () => {
-        // Refresh track overview to update lesson states
         await refreshTrackOverview();
-
-        // Navigate to next lesson if available
-        const next = getNextLesson(lessonSlug);
-
-        if (next) {
-          const nextModuleSlug = findModuleSlugForLesson(next.slug);
-
-          if (nextModuleSlug && trackSlug) {
-            // Pass flag to bypass route guard since we just completed previous lesson
-            navigate(`/student/classes/${trackSlug}/${nextModuleSlug}/${next.slug}`, {
-              state: { bypassLockCheck: true }
-            });
-          } else {
-            toast.error("Tidak dapat membuka lesson selanjutnya");
-            // Fallback to track overview
-            navigate(`/student/classes/${trackSlug}`);
-          }
+        // If this is the last lesson in the module and there are module challenges,
+        // show them first instead of jumping to the next module
+        if (isLastLessonInModule && hasModuleChallenges) {
+          setShowModuleChallenges(true);
         } else {
-          navigate(`/student/classes/${trackSlug}`);
+          navigateToNextLesson();
         }
       },
     });
@@ -141,297 +140,331 @@ function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: stri
   const handlePrevious = () => {
     if (previousLesson && trackSlug) {
       const prevModuleSlug = findModuleSlugForLesson(previousLesson.slug);
-      if (prevModuleSlug) {
-        navigate(`/student/classes/${trackSlug}/${prevModuleSlug}/${previousLesson.slug}`);
-      }
+      if (prevModuleSlug) navigate(`/student/classes/${trackSlug}/${prevModuleSlug}/${previousLesson.slug}`);
     }
   };
 
   const handleNext = () => {
+    // If last lesson in module with challenges, show challenges instead of navigating
+    if (isLastLessonInModule && hasModuleChallenges && isCompleted && !showModuleChallenges) {
+      setShowModuleChallenges(true);
+      return;
+    }
     if (nextLesson && nextLesson.state !== "locked" && trackSlug) {
       const nextModuleSlug = findModuleSlugForLesson(nextLesson.slug);
-      if (nextModuleSlug) {
-        navigate(`/student/classes/${trackSlug}/${nextModuleSlug}/${nextLesson.slug}`);
-      }
+      if (nextModuleSlug) navigate(`/student/classes/${trackSlug}/${nextModuleSlug}/${nextLesson.slug}`);
     }
   };
-
 
   const isCompleted = lessonWithState.state === "completed";
   const canMarkComplete = lessonWithState.state === "current" || lessonWithState.state === "completed";
 
+  const isLastLessonInModule = moduleCurrentIndex === moduleLessons.length - 1;
+
+  // ── Main render ──────────────────────────────────────────────────────────────
   return (
-    <div className="flex flex-col h-[calc(100vh-5rem)] overflow-hidden bg-gradient-to-br from-slate-50 to-blue-50/30 dark:from-slate-950 dark:to-blue-950/20">
-      {/* Top Bar */}
-      <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b px-6 py-4">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" onClick={() => {
-              setOpen(true);
-              // Use setTimeout to ensure state update happens before navigation
-              setTimeout(() => {
-                navigate(`/student/classes/${trackSlug}`);
-              }, 0);
-            }}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Kembali ke Kelas
-            </Button>
-            <div className="h-6 w-px bg-border" />
-            <div className="flex items-center gap-3">
-              {isCompleted && (
-                <CheckCircle2 className="h-5 w-5 text-green-600 flex-shrink-0" />
-              )}
-              <h1 className="text-lg font-semibold line-clamp-1">
-                {fullLesson.title}
+    <div className="flex flex-col h-[calc(100vh-3.5rem)] overflow-hidden -m-6 md:-m-8">
+      {/* ── Top bar ── */}
+      <div className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between border-b border-gray-200 dark:border-white/10 bg-white/90 dark:bg-[#0a0f12]/90 backdrop-blur-md px-5">
+        <div className="flex items-center gap-3 min-w-0">
+          <button
+            onClick={() => {
+              if (showModuleChallenges) {
+                setShowModuleChallenges(false);
+              } else {
+                setOpen(true);
+                setTimeout(() => navigate(`/student/classes/${trackSlug}`), 0);
+              }
+            }}
+            className="shrink-0 flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">{showModuleChallenges ? "Kembali ke Lesson" : "Kembali"}</span>
+          </button>
+          <div className="w-px h-4 bg-gray-200 dark:bg-white/10" />
+          <div className="flex items-center gap-2 min-w-0">
+            {showModuleChallenges ? (
+              <h1 className="text-[14px] font-extrabold text-gray-900 dark:text-white truncate" style={{ letterSpacing: "-0.01em" }}>
+                Challenge Module: {currentModule?.title}
               </h1>
-            </div>
+            ) : (
+              <>
+                {isCompleted && <CheckCircle2 className="shrink-0 h-4 w-4 text-[#00E676]" />}
+                <h1 className="text-[14px] font-extrabold text-gray-900 dark:text-white truncate" style={{ letterSpacing: "-0.01em" }}>
+                  {fullLesson.title}
+                </h1>
+              </>
+            )}
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant={isCompleted ? "default" : "secondary"} className="hidden sm:flex">
-              {isCompleted ? "Selesai" : "Sedang Belajar"}
-            </Badge>
-            <span className="text-sm text-muted-foreground">
-              {currentIndex + 1} / {allLessons.length}
+        </div>
+        <div className="flex items-center gap-3 shrink-0">
+          {showModuleChallenges ? (
+            <span className="hidden sm:inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] bg-[#31c7c8]/10 text-[#31c7c8]">
+              {moduleChallenges.length} Challenge{moduleChallenges.length > 1 ? "s" : ""}
             </span>
-          </div>
+          ) : (
+            <>
+              <span
+                className={`hidden sm:inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] ${
+                  isCompleted ? "bg-[#00E676]/10 text-[#00E676]" : "bg-[#1c81ff]/10 text-[#1c81ff]"
+                }`}
+              >
+                {isCompleted ? "Selesai" : "Sedang Belajar"}
+              </span>
+              <span className="text-[12px] font-bold text-gray-400 dark:text-gray-600 tabular-nums">
+                {moduleCurrentIndex + 1}/{moduleLessons.length}
+              </span>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Main Content Area */}
+      {/* ── Body ── */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Main Content - Scrollable */}
+        {/* Main content */}
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-4xl mx-auto p-6 pb-24 space-y-6">
-            {/* Video Section */}
+          {showModuleChallenges ? (
+            /* ── Module challenges dedicated view ── */
+            <div className="max-w-3xl mx-auto p-6 md:p-8 pb-24 space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-1 h-10 rounded-full bg-gradient-to-b from-[#31c7c8] to-[#1c81ff]" />
+                <div>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 mb-0.5">
+                    {currentModule?.title}
+                  </p>
+                  <h2 className="text-xl font-extrabold text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>
+                    {moduleChallenges.length === 1 ? "Challenge Module" : `${moduleChallenges.length} Challenges Module`}
+                  </h2>
+                  <p className="text-[14px] text-gray-500 dark:text-gray-400 mt-0.5">
+                    Selesaikan {moduleChallenges.length === 1 ? "challenge ini" : "semua challenges"} untuk lanjut ke module berikutnya
+                  </p>
+                </div>
+              </div>
+              {moduleChallenges.map((challenge, index) => (
+                <ChallengeSection key={challenge.id} challenge={challenge} index={index} total={moduleChallenges.length} />
+              ))}
+            </div>
+          ) : (
+            /* ── Lesson content ── */
+            <div className="max-w-7xl mx-auto p-6 md:p-8 pb-24 space-y-6">
+            {/* Video */}
             {fullLesson.video_url && (
-              <Card className="border-none shadow-sm overflow-hidden bg-gradient-to-br from-blue-500/5 to-indigo-500/5">
-                <CardContent className="p-0">
-                  <div className="aspect-video rounded-lg overflow-hidden bg-slate-900">
-                    <iframe
-                      src={fullLesson.video_url}
-                      title={fullLesson.title}
-                      className="w-full h-full"
-                      allowFullScreen
-                    />
-                  </div>
-                </CardContent>
-              </Card>
+              <div className="overflow-hidden rounded-2xl bg-black shadow-lg">
+                <div className="aspect-video">
+                  <iframe src={fullLesson.video_url} title={fullLesson.title} className="w-full h-full" allowFullScreen />
+                </div>
+              </div>
             )}
 
-            {/* Lesson Content */}
-            <Card className="border-none shadow-sm">
-              <CardContent className="p-8">
-                <div className="prose prose-slate dark:prose-invert max-w-none">
-                  <ContentView rawJsonData={fullLesson.content} />
-                </div>
-              </CardContent>
-            </Card>
+            {/* Content */}
+            <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm p-6 md:p-8">
+              <div className="prose prose-slate dark:prose-invert max-w-none">
+                <ContentView rawJsonData={fullLesson.content} />
+              </div>
+            </div>
 
-            {/* Attachments Section */}
+            {/* Attachments */}
             {fullLesson.attachments && fullLesson.attachments.length > 0 && (
-              <Card className="border-none shadow-sm">
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                    <Download className="h-5 w-5 text-blue-500" />
-                    Materi Tambahan
-                  </h3>
-                  <div className="space-y-3">
-                    {fullLesson.attachments.map((attachment) => (
-                      <a
-                        key={attachment.id}
-                        href={`/api/attachments/${attachment.id}/download`}
-                        className="flex items-center justify-between p-4 rounded-lg border hover:bg-accent transition-colors group"
-                      >
-                        <div className="flex-1">
-                          <p className="font-medium group-hover:text-blue-600 transition-colors">
-                            {attachment.title}
-                          </p>
-                          {attachment.description && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {attachment.description}
-                            </p>
-                          )}
-                          <p className="text-xs text-muted-foreground mt-2">
-                            {attachment.file_name} • {attachment.size}
-                          </p>
-                        </div>
-                        <Download className="h-5 w-5 text-muted-foreground group-hover:text-blue-600 transition-colors flex-shrink-0 ml-4" />
-                      </a>
-                    ))}
+              <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden">
+                <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100 dark:border-white/5">
+                  <div className="w-8 h-8 rounded-full bg-[#1c81ff]/10 flex items-center justify-center">
+                    <Download className="h-4 w-4 text-[#1c81ff]" />
                   </div>
-                </CardContent>
-              </Card>
+                  <span className="font-bold text-gray-900 dark:text-white">Materi Tambahan</span>
+                </div>
+                <div className="p-4 space-y-2">
+                  {fullLesson.attachments.map((attachment) => (
+                    <a
+                      key={attachment.id}
+                      href={`/api/attachments/${attachment.id}/download`}
+                      className="flex items-center justify-between rounded-xl border border-gray-200 dark:border-white/10 px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[14px] font-bold text-gray-900 dark:text-white group-hover:text-[#1c81ff] transition-colors truncate">{attachment.title}</p>
+                        {attachment.description && <p className="text-[12px] text-gray-500 dark:text-gray-400 mt-0.5">{attachment.description}</p>}
+                        <p className="text-[11px] text-gray-400 dark:text-gray-600 mt-0.5 font-mono">
+                          {attachment.file_name}
+                          {attachment.size && ` · ${attachment.size}`}
+                        </p>
+                      </div>
+                      <Download className="shrink-0 h-4 w-4 text-gray-400 dark:text-gray-600 group-hover:text-[#1c81ff] transition-colors ml-4" />
+                    </a>
+                  ))}
+                </div>
+              </div>
             )}
 
-            {/* 🎯 LESSON CHALLENGE SECTION - Replaces "Tandai Selesai" button */}
+            {/* Per-lesson challenge section */}
             {hasLessonChallenges && !isCompleted && canMarkComplete && (
-              <div className="mt-8 space-y-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="h-10 w-1 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full" />
+              <div className="space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-1 h-10 rounded-full bg-gradient-to-b from-[#1c81ff] to-[#31c7c8]" />
                   <div>
-                    <h2 className="text-xl font-bold text-foreground">
-                      {challenges.length === 1 ? 'Challenge untuk Lesson Ini' : `${challenges.length} Challenges untuk Lesson Ini`}
+                    <h2 className="text-xl font-extrabold text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>
+                      {challenges.length === 1 ? "Challenge untuk Lesson Ini" : `${challenges.length} Challenges`}
                     </h2>
-                    <p className="text-sm text-muted-foreground">
-                      Selesaikan {challenges.length === 1 ? 'challenge ini' : 'semua challenges'} untuk menyelesaikan lesson
-                    </p>
+                    <p className="text-[14px] text-gray-500 dark:text-gray-400">Selesaikan {challenges.length === 1 ? "challenge ini" : "semua challenges"} untuk menyelesaikan lesson</p>
                   </div>
                 </div>
-
                 {challenges.map((challenge, index) => (
-                  <ChallengeSection
-                    key={challenge.id}
-                    challenge={challenge}
-                    index={index}
-                    total={challenges.length}
-                  />
+                  <ChallengeSection key={challenge.id} challenge={challenge} index={index} total={challenges.length} />
                 ))}
               </div>
             )}
+
           </div>
+          )}
         </div>
 
-        {/* Right Sidebar - Lesson Navigation */}
-        <div className="hidden lg:flex lg:w-80 xl:w-96 border-l bg-background/50 backdrop-blur">
-          <div className="flex flex-col w-full h-full">
-            {/* Module Info */}
-            <div className="p-6 border-b bg-background">
-              <div className="space-y-3">
-                <Badge variant="outline" className="mb-2">
-                  {currentModule?.title || "Module"}
-                </Badge>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-blue-500 to-cyan-500 transition-all duration-300"
-                      style={{ width: `${trackOverview?.progress.percent || 0}%` }}
-                    />
-                  </div>
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {Math.round(trackOverview?.progress.percent || 0)}%
-                  </span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {trackOverview?.progress.completed_lessons} / {trackOverview?.progress.total_lessons} Lessons
-                </p>
+        {/* Right sidebar */}
+        <div className="hidden lg:flex w-72 xl:w-80 border-l border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0f12] h-full flex-col">
+          {/* Module header */}
+          <div className="px-5 py-4 border-b border-gray-200 dark:border-white/10 space-y-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 dark:text-gray-600 mb-0.5">{trackOverview?.track.title ?? "Track"}</p>
+              <p className="text-[13px] font-extrabold text-gray-900 dark:text-white mb-2 leading-tight">{currentModule?.title ?? "Module"}</p>
+              <div className="flex items-center justify-between gap-2">
+                <Progress value={trackOverview?.progress.percent || 0} className="h-1.5 flex-1 bg-gray-100 dark:bg-white/10 [&>div]:bg-[#1c81ff]" />
+                <span className="shrink-0 text-[11px] font-extrabold text-[#1c81ff] tabular-nums">{Math.round(trackOverview?.progress.percent || 0)}%</span>
               </div>
+              <p className="text-[11px] text-gray-400 dark:text-gray-600 mt-1">
+                {trackOverview?.progress.completed_lessons}/{trackOverview?.progress.total_lessons} lessons selesai
+              </p>
             </div>
+          </div>
 
-            {/* Lessons List */}
-            <ScrollArea className="flex-1">
-              <div className="p-4 space-y-2">
-                {allLessons.map((lesson, index) => {
-                  const isActive = lesson.slug === lessonSlug;
-                  const isLocked = lesson.state === "locked";
-                  const isLessonCompleted = lesson.state === "completed";
+          {/* Lessons list — scoped to current module only */}
+          <ScrollArea className="flex-1">
+            <div className="p-2">
+              {(currentModule?.lessons ?? []).map((lesson, index) => {
+                const isActive = lesson.slug === lessonSlug;
+                const isLocked = lesson.state === "locked";
+                const isDone = lesson.state === "completed";
 
-                  return (
+                return (
+                  <button
+                    key={lesson.id}
+                    onClick={() => {
+                      if (!isLocked && trackSlug && currentModule) {
+                        navigate(`/student/classes/${trackSlug}/${currentModule.slug}/${lesson.slug}`);
+                      } else if (isLocked) {
+                        toast.error("Lesson ini masih terkunci");
+                      }
+                    }}
+                    disabled={isLocked}
+                    className={cn(
+                      "w-full flex items-start gap-3 rounded-xl p-3 text-left transition-all",
+                      isActive && "bg-[#1c81ff]/10 border border-[#1c81ff]/20",
+                      !isActive && !isLocked && "hover:bg-gray-50 dark:hover:bg-white/5",
+                      isLocked && "opacity-50 cursor-not-allowed",
+                    )}
+                  >
+                    <div className="shrink-0 mt-0.5">
+                      {isLocked ? (
+                        <Lock className="h-4 w-4 text-gray-400 dark:text-gray-600" />
+                      ) : isDone ? (
+                        <CheckCircle2 className="h-4 w-4 text-[#00E676]" />
+                      ) : (
+                        <Circle className={cn("h-4 w-4", isActive ? "text-[#1c81ff] fill-[#1c81ff]" : "text-gray-300 dark:text-white/20")} />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <span className="block font-mono text-[10px] text-gray-400 dark:text-gray-600 mb-0.5">{String(lesson.order ?? index + 1).padStart(2, "0")}</span>
+                      <span
+                        className={cn("block text-[13px] font-bold line-clamp-2", isActive ? "text-[#1c81ff]" : "text-gray-700 dark:text-gray-300", isLocked && "text-gray-400 dark:text-gray-600")}
+                      >
+                        {lesson.title}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+
+              {/* Challenges — shown at the bottom after all module lessons */}
+              {hasModuleChallenges && (
+                <div className="mt-2 pt-2 border-t border-gray-100 dark:border-white/5">
+                  <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 dark:text-gray-600">
+                    Challenges
+                  </p>
+                  {moduleChallenges.map((challenge, index) => (
                     <button
-                      key={lesson.id}
-                      onClick={() => {
-                        if (!isLocked && trackSlug) {
-                          const lessonModuleSlug = findModuleSlugForLesson(lesson.slug);
-                          if (lessonModuleSlug) {
-                            navigate(`/student/classes/${trackSlug}/${lessonModuleSlug}/${lesson.slug}`);
-                          }
-                        } else if (isLocked) {
-                          toast.error("Lesson ini masih terkunci");
-                        }
-                      }}
-                      disabled={isLocked}
+                      key={challenge.id}
+                      onClick={() => setShowModuleChallenges(true)}
                       className={cn(
-                        "w-full text-left p-3 rounded-lg transition-all",
-                        "hover:bg-accent/70",
-                        isActive && "bg-gradient-to-r from-blue-500/10 to-cyan-500/10 border border-blue-200 dark:border-blue-800",
-                        isLocked && "opacity-50 cursor-not-allowed"
+                        "w-full flex items-start gap-3 rounded-xl p-3 text-left transition-all",
+                        showModuleChallenges
+                          ? "bg-[#31c7c8]/10 border border-[#31c7c8]/20"
+                          : "hover:bg-gray-50 dark:hover:bg-white/5",
                       )}
                     >
-                      <div className="flex items-start gap-3">
-                        <div className="flex-shrink-0 mt-1">
-                          {isLocked ? (
-                            <Lock className="h-5 w-5 text-muted-foreground" />
-                          ) : isLessonCompleted ? (
-                            <CheckCircle2 className="h-5 w-5 text-green-600" />
-                          ) : (
-                            <Circle className={cn(
-                              "h-5 w-5",
-                              isActive ? "fill-blue-500 text-blue-500" : "text-muted-foreground"
-                            )} />
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-xs font-mono text-muted-foreground">
-                              {String(lesson.order ?? index + 1).padStart(2, "0")}
-                            </span>
-                          </div>
-                          <h3 className={cn(
-                            "text-sm font-medium line-clamp-2",
-                            isActive && "text-blue-600 dark:text-blue-400 font-semibold"
-                          )}>
-                            {lesson.title}
-                          </h3>
-                        </div>
+                      <div className="shrink-0 mt-0.5">
+                        <PlayCircle className={cn("h-4 w-4", showModuleChallenges ? "text-[#31c7c8]" : "text-gray-400 dark:text-gray-600")} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <span className="block font-mono text-[10px] text-gray-400 dark:text-gray-600 mb-0.5">
+                          CHALLENGE {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <span className={cn("block text-[13px] font-bold line-clamp-2", showModuleChallenges ? "text-[#31c7c8]" : "text-gray-700 dark:text-gray-300")}>
+                          {challenge.title}
+                        </span>
                       </div>
                     </button>
-                  );
-                })}
-              </div>
-            </ScrollArea>
-          </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </ScrollArea>
         </div>
       </div>
 
-      {/* Bottom Navigation Bar */}
-      <div className="sticky bottom-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t px-6 py-4">
-        <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
-          <Button
-            variant="outline"
-            onClick={handlePrevious}
-            disabled={!previousLesson}
-            className="min-w-32"
+      {/* ── Bottom navigation ── */}
+      <div className="border-t border-gray-200 dark:border-white/10 bg-white/90 dark:bg-[#0a0f12]/90 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
+          <button
+            onClick={showModuleChallenges ? () => setShowModuleChallenges(false) : handlePrevious}
+            disabled={!showModuleChallenges && !previousLesson}
+            className="flex items-center gap-1.5 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-4 py-2 text-[13px] hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all min-w-28"
           >
-            <ChevronLeft className="h-4 w-4 mr-2" />
-            Sebelumnya
-          </Button>
+            <ChevronLeft className="h-4 w-4" />
+            {showModuleChallenges ? "Ke Lesson" : "Sebelumnya"}
+          </button>
 
           <div className="flex items-center gap-3">
-            {/* Only show "Tandai Selesai" button when there are NO lesson challenges */}
-            {!hasLessonChallenges && !isCompleted && canMarkComplete && (
-              <Button
+            {!showModuleChallenges && !hasLessonChallenges && !isCompleted && canMarkComplete && (
+              <button
                 onClick={handleComplete}
                 disabled={completing}
-                className="bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+                className="flex items-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-2 px-5 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-[13px]"
               >
                 {completing ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Memproses...
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Memproses…
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="h-4 w-4 mr-2" />
+                    <CheckCircle2 className="h-4 w-4" />
                     Tandai Selesai
                   </>
                 )}
-              </Button>
+              </button>
             )}
-            {isCompleted && (
-              <Badge variant="default" className="px-4 py-2 bg-green-600">
-                <CheckCircle2 className="h-4 w-4 mr-2" />
+            {!showModuleChallenges && isCompleted && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-[#00E676]/10 px-4 py-2 text-[13px] font-bold text-[#00E676]">
+                <CheckCircle2 className="h-4 w-4" />
                 Selesai
-              </Badge>
+              </span>
             )}
           </div>
 
-          <Button
-            onClick={handleNext}
-            disabled={!nextLesson || nextLesson.state === "locked"}
-            className="min-w-32 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600"
+          <button
+            onClick={showModuleChallenges ? navigateToNextLesson : handleNext}
+            disabled={!showModuleChallenges && (!nextLesson || nextLesson.state === "locked")}
+            className="flex items-center gap-1.5 bg-[#1c81ff] text-white font-bold rounded-xl px-4 py-2 text-[13px] shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none min-w-28 justify-end"
           >
-            Selanjutnya
-            <ChevronRight className="h-4 w-4 ml-2" />
-          </Button>
+            {showModuleChallenges ? "Lewati" : "Selanjutnya"}
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </div>
@@ -439,9 +472,11 @@ function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: stri
 }
 
 export default function LessonsPage() {
-  // Route pattern: /student/classes/:slug/:moduleSlug/:lessonSlug?
-  // :slug = track slug, :moduleSlug = module slug, :lessonSlug = lesson slug
-  const { slug: trackSlug, moduleSlug, lessonSlug } = useParams<{
+  const {
+    slug: trackSlug,
+    moduleSlug,
+    lessonSlug,
+  } = useParams<{
     slug: string;
     moduleSlug: string;
     lessonSlug?: string;
@@ -452,7 +487,7 @@ export default function LessonsPage() {
   if (!trackSlug || !lessonSlug) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <p className="text-muted-foreground">Tidak dapat membuka lesson. Silakan akses melalui halaman track.</p>
+        <p className="text-[15px] text-gray-500 dark:text-gray-400">Tidak dapat membuka lesson. Silakan akses melalui halaman track.</p>
       </div>
     );
   }

@@ -1,35 +1,35 @@
+import { useState, useEffect } from "react";
 import ChallengesTable from "@/features/auth/teacher/challenges-table";
 import { useGetChallengesPaginated } from "@/hooks/challenges";
 import { Pagination } from "@/components/ui/pagination";
-import { useState } from "react";
 
 export default function TeacherChallengesPage() {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(15);
+  const [mounted, setMounted] = useState(false);
 
-  const { challenges, pagination, loading, error, refresh } = useGetChallengesPaginated({
-    page,
-    per_page: perPage,
-  });
+  const { challenges, pagination, loading, error, refresh } = useGetChallengesPaginated({ page, per_page: perPage });
+
+  useEffect(() => {
+    const t = setTimeout(() => setMounted(true), 60);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
-    <>
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Challenges</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            Browse all challenges across lessons.
-          </p>
-        </div>
+    <div className={`space-y-8 transition-all duration-700 ease-out ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
+      <div>
+        <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#1c81ff] mb-2">Content</p>
+        <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight" style={{ letterSpacing: "-0.02em" }}>
+          Challenges
+        </h1>
+        <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400 mt-1">
+          Browse all challenges across lessons.
+        </p>
       </div>
 
-      <ChallengesTable
-        data={challenges}
-        loading={loading}
-        error={error}
-        onRetry={refresh}
-        total={pagination?.total}
-      />
+      <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden">
+        <ChallengesTable data={challenges} loading={loading} error={error} onRetry={refresh} total={pagination?.total} />
+      </div>
 
       {pagination && (
         <Pagination
@@ -40,13 +40,10 @@ export default function TeacherChallengesPage() {
           to={pagination.to}
           perPage={perPage}
           onPageChange={setPage}
-          onPerPageChange={(newPerPage) => {
-            setPerPage(newPerPage);
-            setPage(1);
-          }}
+          onPerPageChange={(v) => { setPerPage(v); setPage(1); }}
           loading={loading}
         />
       )}
-    </>
+    </div>
   );
 }

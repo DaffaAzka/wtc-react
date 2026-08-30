@@ -1,11 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, AlertCircle, Send, PenLine } from "lucide-react";
+import { AlertCircle, Send, Loader2, PenLine } from "lucide-react";
 import type { Challenge } from "@/types/model";
 
 interface FillBlankFormProps {
@@ -15,43 +9,23 @@ interface FillBlankFormProps {
   onSubmit: (file: File | null, content: string) => void;
 }
 
-export function FillBlankForm({
-  challenge,
-  canSubmit,
-  isSubmitting,
-  onSubmit,
-}: FillBlankFormProps) {
-  // Parse blanks from challenge content or settings
-  // For now, we'll use a simple approach: show numbered blanks
-  // The challenge content should indicate how many blanks there are
+export function FillBlankForm({ challenge, canSubmit, isSubmitting, onSubmit }: FillBlankFormProps) {
   const numberOfBlanks = (challenge.settings?.blank_count as number | undefined) ?? 5;
-
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [error, setError] = useState("");
 
-  const handleAnswerChange = (blankIndex: number, value: string) => {
-    setAnswers((prev) => ({
-      ...prev,
-      [blankIndex]: value,
-    }));
-  };
+  const filledCount = Object.keys(answers).filter((k) => answers[Number(k)]?.trim()).length;
+  const progress = (filledCount / numberOfBlanks) * 100;
+
+  const handleAnswerChange = (blankIndex: number, value: string) =>
+    setAnswers((prev) => ({ ...prev, [blankIndex]: value }));
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Check if all blanks are filled
-    const filledCount = Object.keys(answers).filter(
-      (key) => answers[Number(key)]?.trim()
-    ).length;
-
     if (filledCount < numberOfBlanks) {
-      setError(
-        `Silakan isi semua blank (${filledCount}/${numberOfBlanks} terisi)`
-      );
+      setError(`Silakan isi semua blank (${filledCount}/${numberOfBlanks} terisi)`);
       return;
     }
-
-    // Format submission as JSON array
     const submissionData = {
       type: "fill_blank",
       blanks: Array.from({ length: numberOfBlanks }, (_, i) => ({
@@ -60,107 +34,92 @@ export function FillBlankForm({
       })),
       submitted_at: new Date().toISOString(),
     };
-
     onSubmit(null, JSON.stringify(submissionData));
     setError("");
   };
 
-  const filledCount = Object.keys(answers).filter(
-    (key) => answers[Number(key)]?.trim()
-  ).length;
-  const progress = (filledCount / numberOfBlanks) * 100;
-
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <PenLine className="h-5 w-5" />
-            <CardTitle className="text-lg">Fill in the Blanks</CardTitle>
+    <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-white/5">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-[#1c81ff]/10 flex items-center justify-center">
+            <PenLine className="h-4 w-4 text-[#1c81ff]" />
           </div>
-          <Badge variant="outline">
-            {filledCount}/{numberOfBlanks} terisi
-          </Badge>
+          <span className="font-bold text-gray-900 dark:text-white">Fill in the Blanks</span>
         </div>
+        <span className="inline-flex items-center rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-2.5 py-0.5 text-[12px] font-bold text-gray-500 dark:text-gray-400 tabular-nums">
+          {filledCount}/{numberOfBlanks} terisi
+        </span>
+      </div>
 
-        {/* Progress Bar */}
-        <div className="mt-3">
-          <div className="flex justify-between text-xs text-muted-foreground mb-1">
-            <span>Progress</span>
-            <span>{Math.round(progress)}%</span>
-          </div>
-          <div className="h-2 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-primary transition-all duration-300"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
+      <div className="p-5">
         {!canSubmit ? (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Anda telah mencapai batas maksimum percobaan untuk challenge ini.
-            </AlertDescription>
-          </Alert>
+          <div className="flex items-start gap-3 rounded-xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 p-4">
+            <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+            <p className="text-[14px] text-red-600 dark:text-red-400">Anda telah mencapai batas maksimum percobaan untuk challenge ini.</p>
+          </div>
         ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Instructions */}
-            <Alert>
-              <PenLine className="h-4 w-4" />
-              <AlertDescription className="text-sm">
-                <p className="font-semibold mb-1">Instruksi:</p>
-                <ul className="list-disc list-inside space-y-1 text-xs">
-                  <li>Baca soal dengan teliti</li>
-                  <li>Isi setiap blank dengan jawaban yang tepat</li>
-                  <li>Perhatikan kapitalisasi dan ejaan</li>
-                  <li>Pastikan semua blank terisi sebelum submit</li>
-                </ul>
-              </AlertDescription>
-            </Alert>
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Progress */}
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between text-[12px] text-gray-400 dark:text-gray-600 tabular-nums">
+                <span>Progress</span>
+                <span>{Math.round(progress)}%</span>
+              </div>
+              <div className="h-1.5 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
+                <div className="h-full bg-[#1c81ff] transition-all duration-300 rounded-full" style={{ width: `${progress}%` }} />
+              </div>
+            </div>
 
-            {/* Challenge Content */}
-            <div className="prose prose-sm max-w-none dark:prose-invert">
+            {/* Instructions */}
+            <div className="rounded-xl bg-[#1c81ff]/5 border border-[#1c81ff]/15 p-4">
+              <div className="flex items-start gap-2.5">
+                <PenLine className="h-4 w-4 text-[#1c81ff] shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-[13px] font-bold text-gray-700 dark:text-gray-300 mb-1.5">Instruksi</p>
+                  <ul className="space-y-1 text-[12px] text-gray-500 dark:text-gray-400 list-disc list-inside">
+                    <li>Baca soal dengan teliti</li>
+                    <li>Isi setiap blank dengan jawaban yang tepat</li>
+                    <li>Perhatikan kapitalisasi dan ejaan</li>
+                    <li>Pastikan semua blank terisi sebelum submit</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="prose prose-sm max-w-none dark:prose-invert rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-4">
               <div dangerouslySetInnerHTML={{ __html: challenge.content }} />
             </div>
 
-            {/* Blank Input Fields */}
-            <div className="space-y-4 p-4 bg-muted/30 rounded-lg">
-              <h4 className="text-sm font-semibold flex items-center gap-2">
-                <PenLine className="h-4 w-4" />
-                Jawaban Anda:
-              </h4>
-
-              <div className="grid gap-4">
+            {/* Blank inputs */}
+            <div className="space-y-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-4">
+              <p className="text-[13px] font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <PenLine className="h-3.5 w-3.5" />
+                Jawaban Anda
+              </p>
+              <div className="grid gap-3">
                 {Array.from({ length: numberOfBlanks }, (_, i) => {
                   const blankNumber = i + 1;
-                  const isFilled = answers[blankNumber]?.trim();
-
+                  const isFilled = !!answers[blankNumber]?.trim();
                   return (
-                    <div key={blankNumber} className="space-y-2">
-                      <Label
-                        htmlFor={`blank-${blankNumber}`}
-                        className="text-sm font-medium flex items-center gap-2"
-                      >
+                    <div key={blankNumber} className="space-y-1.5">
+                      <label htmlFor={`blank-${blankNumber}`}
+                        className="text-[13px] font-bold text-gray-700 dark:text-gray-300 flex items-center gap-2">
                         Blank #{blankNumber}
                         {isFilled && (
-                          <Badge variant="secondary" className="text-xs">
-                            ✓
-                          </Badge>
+                          <span className="inline-flex items-center rounded-full bg-[#00E676]/10 px-1.5 py-0.5 text-[10px] font-bold text-[#00E676]">✓</span>
                         )}
-                      </Label>
-                      <Input
+                      </label>
+                      <input
                         id={`blank-${blankNumber}`}
                         type="text"
                         value={answers[blankNumber] || ""}
-                        onChange={(e) =>
-                          handleAnswerChange(blankNumber, e.target.value)
-                        }
-                        placeholder={`Isi blank #${blankNumber}...`}
+                        onChange={(e) => handleAnswerChange(blankNumber, e.target.value)}
+                        placeholder={`Isi blank #${blankNumber}…`}
                         disabled={isSubmitting}
-                        className="font-mono"
+                        className="w-full rounded-xl bg-white dark:bg-[#0b1215] border border-slate-200 dark:border-gray-800 px-4 py-2.5 text-[14px] font-mono text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff] outline-none transition-all"
                       />
                     </div>
                   );
@@ -168,60 +127,38 @@ export function FillBlankForm({
               </div>
             </div>
 
-            {/* Summary */}
+            {/* Preview */}
             {filledCount > 0 && (
-              <div className="p-3 bg-muted rounded-md">
-                <p className="text-xs font-semibold text-muted-foreground mb-2">
-                  Preview Jawaban:
-                </p>
-                <div className="space-y-1 text-xs">
+              <div className="rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-4 space-y-2">
+                <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500">Preview Jawaban</p>
+                <div className="space-y-1 font-mono text-[13px]">
                   {Object.entries(answers)
-                    .filter(([_, value]) => value?.trim())
+                    .filter(([_, v]) => v?.trim())
                     .sort(([a], [b]) => Number(a) - Number(b))
                     .map(([key, value]) => (
                       <div key={key} className="flex items-center gap-2">
-                        <span className="text-muted-foreground">
-                          Blank #{key}:
-                        </span>
-                        <span className="font-mono font-semibold text-primary">
-                          {value}
-                        </span>
+                        <span className="text-gray-400 dark:text-gray-600">Blank #{key}:</span>
+                        <span className="font-bold text-[#1c81ff]">{value}</span>
                       </div>
                     ))}
                 </div>
               </div>
             )}
 
-            {/* Error Message */}
             {error && (
-              <Alert variant="destructive" className="py-2">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-sm">{error}</AlertDescription>
-              </Alert>
+              <div className="flex items-start gap-2.5 rounded-xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 px-4 py-3">
+                <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                <p className="text-[13px] text-red-600 dark:text-red-400">{error}</p>
+              </div>
             )}
 
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              disabled={isSubmitting || filledCount < numberOfBlanks}
-              className="w-full"
-              size="lg"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Mengirim...
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4 mr-2" />
-                  Kirim Jawaban ({filledCount}/{numberOfBlanks})
-                </>
-              )}
-            </Button>
+            <button type="submit" disabled={isSubmitting || filledCount < numberOfBlanks}
+              className="w-full flex items-center justify-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-3 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-[14px]">
+              {isSubmitting ? <><Loader2 className="h-4 w-4 animate-spin" />Mengirim…</> : <><Send className="h-4 w-4" />Kirim Jawaban ({filledCount}/{numberOfBlanks})</>}
+            </button>
           </form>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

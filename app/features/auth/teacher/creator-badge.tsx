@@ -12,47 +12,27 @@ function resolveAvatarUrl(avatar: ProfileAvatar): string | null {
   return avatar.url;
 }
 
-export default function CreatorBadge({
-  creator,
-}: {
-  creator?: Creator | null;
-}) {
-  if (!creator) {
-    return (
-      <div className="flex items-center gap-2 min-w-0">
-        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground">
-          A
-        </div>
-        <p className="truncate text-xs font-medium leading-none text-foreground">Admin</p>
-      </div>
-    );
-  }
-
-  const avatarUrl = resolveAvatarUrl(creator.avatar);
-  const primaryRole =
-    creator.roles?.[0]?.display_name ?? creator.roles?.[0]?.name ?? null;
-  const initials =
-    creator.display_name?.[0]?.toUpperCase() ?? "?";
+export default function CreatorBadge({ creator }: { creator?: Creator | null }) {
+  const avatarUrl = creator ? resolveAvatarUrl(creator.avatar) : null;
+  const displayName = creator?.display_name ?? "Admin";
+  const initial = displayName.charAt(0).toUpperCase();
+  const primaryRole = creator?.roles?.[0]?.display_name ?? creator?.roles?.[0]?.name ?? null;
 
   return (
     <div className="flex items-center gap-2 min-w-0">
       {avatarUrl ? (
-        <img
-          src={avatarUrl}
-          alt=""
-          className="h-6 w-6 shrink-0 rounded-full object-cover"
-        />
+        <img src={avatarUrl} alt="" className="h-7 w-7 shrink-0 rounded-full object-cover ring-1 ring-gray-200 dark:ring-white/10" />
       ) : (
-        <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-medium text-muted-foreground">
-          {initials}
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#1c81ff]/10 text-[11px] font-extrabold text-[#1c81ff]">
+          {initial}
         </div>
       )}
       <div className="min-w-0">
-        <p className="truncate text-xs font-medium leading-none text-foreground">
-          {creator.display_name ?? "—"}
+        <p className="truncate text-[13px] font-bold text-gray-900 dark:text-white leading-tight">
+          {displayName}
         </p>
         {primaryRole && (
-          <p className="truncate text-[10px] text-muted-foreground">
+          <p className="truncate text-[11px] text-gray-400 dark:text-gray-600 capitalize">
             {primaryRole}
           </p>
         )}

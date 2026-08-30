@@ -86,6 +86,8 @@ export type TrackProfileProgress = {
   progress_percentage: number;
   status: "in_progress" | "completed";
   enrolled_at: string | null;
+  /** Grade string (e.g. "A+", "B") if a certificate was issued, otherwise null */
+  certificate_status?: string | null;
 };
 
 export type ProgressTrackDetail = {

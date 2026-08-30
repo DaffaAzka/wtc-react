@@ -33,7 +33,20 @@ export function SubmissionForm({
 }: SubmissionFormProps) {
   // Route to the appropriate form based on challenge type
   switch (challenge.type) {
-    case "multiple_choice":
+    case "multiple_choice": {
+      // Defensive fallback: legacy challenges stored as multiple_choice
+      // but actually contain multiple questions (old quiz_group format)
+      const hasMultipleQuestions = (challenge.metadata?.questions?.length ?? 0) > 1;
+      if (hasMultipleQuestions) {
+        return (
+          <QuizGroupForm
+            challenge={challenge}
+            canSubmit={canSubmit}
+            isSubmitting={isSubmitting}
+            onSubmit={onSubmit}
+          />
+        );
+      }
       return (
         <MultipleChoiceForm
           challenge={challenge}
@@ -42,6 +55,7 @@ export function SubmissionForm({
           onSubmit={onSubmit}
         />
       );
+    }
 
     case "fill_blank":
       return (

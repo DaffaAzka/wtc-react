@@ -1,10 +1,10 @@
-import { useState } from "react";
 import { toast } from "sonner";
 import type { Challenge } from "@/types/model";
 import { useMySubmissions, useSubmitChallenge } from "@/hooks/submission";
 import { ChallengeDetails } from "@/features/auth/challenges/challenge-details";
 import { SubmissionForm } from "@/features/auth/challenges/submission-form";
 import { SubmissionHistory } from "@/features/auth/challenges/submission-history";
+import { Target } from "lucide-react";
 
 interface ChallengeSectionProps {
   challenge: Challenge;
@@ -13,72 +13,67 @@ interface ChallengeSectionProps {
 }
 
 export function ChallengeSection({ challenge, index, total }: ChallengeSectionProps) {
-  // Fetch submissions for this specific challenge
   const { data: submissions = [] } = useMySubmissions(challenge.id);
   const { mutate: submitChallenge, isPending: isSubmitting } = useSubmitChallenge();
 
-  // Calculate remaining attempts for this challenge
   const submissionCount = submissions.length;
   const allowedAttempts = challenge.allowed_attempts || 0;
   const remainingAttempts = allowedAttempts > 0 ? allowedAttempts - submissionCount : Infinity;
   const canSubmitChallenge = remainingAttempts > 0 || allowedAttempts === 0;
 
-  // Challenge submission handler
   const handleChallengeSubmit = (file: File | null, content: string) => {
-    submitChallenge({
-      challengeId: challenge.id,
-      request: {
-        file: file || undefined,
-        content: content || undefined
-      }
-    }, {
-      onSuccess: () => {
-        toast.success(`Challenge ${index + 1} berhasil dikumpulkan! 🎉`);
-        // Note: Lesson completion might be automatic after all challenges are graded
+    submitChallenge(
+      {
+        challengeId: challenge.id,
+        request: { file: file || undefined, content: content || undefined },
       },
-      onError: (error) => {
-        toast.error(`Gagal submit challenge ${index + 1}`, {
-          description: error.message || "Terjadi kesalahan saat submit"
-        });
+      {
+        onSuccess: () => {
+          toast.success(`Challenge ${index + 1} berhasil dikumpulkan! 🎉`);
+        },
+        onError: (error) => {
+          toast.error(`Gagal submit challenge ${index + 1}`, {
+            description: error.message || "Terjadi kesalahan saat submit",
+          });
+        },
       }
-    });
+    );
   };
 
   return (
-    <div className="space-y-6">
-      {/* Challenge Header */}
-      <div className="flex items-center gap-3">
-        <div className="h-10 w-1 bg-gradient-to-b from-blue-500 to-cyan-500 rounded-full" />
+    <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0b1215] shadow-sm">
+      {/* Header */}
+      <div className="flex items-center gap-3 border-b border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/[0.02] px-6 py-4">
+        <div className="w-8 h-8 rounded-full bg-[#1c81ff]/10 flex items-center justify-center">
+          <Target className="h-4 w-4 text-[#1c81ff]" />
+        </div>
         <div>
-          <h2 className="text-xl font-bold text-foreground">
+          <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500">
             Challenge {index + 1} dari {total}
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {challenge.title}
           </p>
+          <h3 className="text-[14px] font-extrabold text-gray-900 dark:text-white" style={{ letterSpacing: "-0.01em" }}>
+            {challenge.title}
+          </h3>
         </div>
       </div>
 
-      {/* Challenge Details */}
-      <ChallengeDetails
-        challenge={challenge}
-        submissionCount={submissionCount}
-        remainingAttempts={remainingAttempts}
-      />
+      {/* Body */}
+      <div className="p-5 space-y-5">
+        <ChallengeDetails
+          challenge={challenge}
+          submissionCount={submissionCount}
+          remainingAttempts={remainingAttempts}
+        />
 
-      {/* Submission History */}
-      <SubmissionHistory
-        submissions={submissions}
-        maxScore={challenge.max_score}
-      />
+        <SubmissionHistory submissions={submissions} maxScore={challenge.max_score} />
 
-      {/* Submission Form */}
-      <SubmissionForm
-        challenge={challenge}
-        canSubmit={canSubmitChallenge}
-        isSubmitting={isSubmitting}
-        onSubmit={handleChallengeSubmit}
-      />
+        <SubmissionForm
+          challenge={challenge}
+          canSubmit={canSubmitChallenge}
+          isSubmitting={isSubmitting}
+          onSubmit={handleChallengeSubmit}
+        />
+      </div>
     </div>
   );
 }

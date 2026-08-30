@@ -2,34 +2,12 @@ import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router";
 import { useGetTrack, useGetTrackOverview } from "@/hooks/tracks";
 import { TrackPreview } from "./components/track-preview";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/students/components/empty-state";
-import { EnrollmentConfirmationModal } from "@/students/components/enrollment-confirmation-modal";
-import {
-  useEnrollTrack,
-  useMyTracks,
-  useTrackEnrollment,
-  useUnenrollTrack,
-} from "@/students/hooks/enrollments";
+import { useEnrollTrack, useMyTracks, useTrackEnrollment, useUnenrollTrack } from "@/students/hooks/enrollments";
 import { cn, getPatternBackground } from "@/lib/utils";
-import {
-  ArrowLeft,
-  Award,
-  BookOpen,
-  CheckCircle,
-  CheckCircle2,
-  Clock,
-  Loader2,
-  PlayCircle,
-  Lock,
-  Play,
-  Target,
-} from "lucide-react";
+import { ArrowLeft, BookOpen, CheckCircle, CheckCircle2, Clock, Loader2, Play, Lock, Target, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
 import type { LessonWithState } from "@/types/model";
 
@@ -37,113 +15,103 @@ export default function TrackDetail() {
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
 
-  // Fetch basic track data (always accessible)
-  const {
-    track,
-    loading: trackLoading,
-    error: trackError,
-  } = useGetTrack(slug ?? "");
+  const { track, loading: trackLoading, error: trackError } = useGetTrack(slug ?? "");
+  const { enrollment, loading: enrollmentLoading, refresh: refreshEnrollment } = useTrackEnrollment(slug ?? "");
+  const isEnrolled = enrollment?.status === "active" || enrollment?.status === "completed";
 
-  // Check enrollment status
-  const {
-    enrollment,
-    loading: enrollmentLoading,
-    refresh: refreshEnrollment,
-  } = useTrackEnrollment(slug ?? "");
-  const isEnrolled =
-    enrollment?.status === "active" || enrollment?.status === "completed";
-
-  // Fetch full overview only if enrolled
-  const {
-    trackOverview,
-    loading: overviewLoading,
-    error: overviewError,
-    refresh: refreshOverview,
-  } = useGetTrackOverview(slug ?? "");
+  const { trackOverview, loading: overviewLoading, error: overviewError, refresh: refreshOverview } = useGetTrackOverview(slug ?? "");
 
   const enrollMutation = useEnrollTrack();
   const unenrollMutation = useUnenrollTrack();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
-  const loading =
-    trackLoading || enrollmentLoading || (isEnrolled && overviewLoading);
+  const loading = trackLoading || enrollmentLoading || (isEnrolled && overviewLoading);
   const error = trackError || (isEnrolled ? overviewError : null);
 
   const handleEnrollClick = () => {
     if (!slug) return;
     setShowConfirmModal(true);
   };
-
   const handleConfirmEnroll = async () => {
     if (!slug) return;
     await enrollMutation.mutateAsync(slug);
     setShowConfirmModal(false);
-
-    // Refresh enrollment status and overview to update UI to enrolled view
     await Promise.all([refreshEnrollment(), refreshOverview()]);
   };
-
   const handleUnenroll = async () => {
     if (!slug) return;
     await unenrollMutation.mutateAsync(slug);
   };
 
-  if (error) {
-    return (
-      <div className="space-y-6">
-        <Button variant="ghost" asChild>
-          <Link to="/student/tracks">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Kembali ke Katalog
-          </Link>
-        </Button>
-        <EmptyState
-          icon={BookOpen}
-          title="Gagal memuat data"
-          description={
-            error.message || "Terjadi kesalahan saat memuat detail kelas."
-          }
-        />
-      </div>
-    );
-  }
+  const handleLessonClick = (lesson: LessonWithState, module: any) => {
+    if (lesson.state === "locked") {
+      toast.error("Lesson Terkunci. Selesaikan lesson sebelumnya terlebih dahulu.");
+      return;
+    }
+    navigate(`/student/classes/${track!.slug}/${module.slug}/${lesson.slug}`);
+  };
 
+  // ── Loading ─────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="space-y-6">
-        <Skeleton className="h-10 w-48" />
-        <div className="space-y-4">
-          <Skeleton className="h-64 w-full" />
-          <Skeleton className="h-8 w-3/4" />
-          <Skeleton className="h-20 w-full" />
-          <div className="space-y-3">
-            {Array.from({ length: 3 }).map((_, index) => (
-              <Skeleton key={index} className="h-24 w-full" />
-            ))}
+      <div className="space-y-8 max-w-4xl">
+        <Skeleton className="h-4 w-36 rounded-lg" />
+        <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 p-6 md:p-8">
+          <div className="flex gap-8">
+            <div className="flex-1 space-y-4">
+              <Skeleton className="h-8 w-3/4 rounded-xl" />
+              <Skeleton className="h-4 w-full rounded-lg" />
+              <Skeleton className="h-2 w-full rounded-full" />
+              <Skeleton className="h-10 w-44 rounded-xl" />
+            </div>
+            <Skeleton className="hidden lg:block h-48 w-48 shrink-0 rounded-2xl" />
           </div>
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 p-5 space-y-3">
+              <Skeleton className="h-5 w-2/3 rounded-lg" />
+              <Skeleton className="h-2 w-full rounded-full" />
+              <div className="space-y-2 pt-2">
+                {[1, 2].map((j) => (
+                  <Skeleton key={j} className="h-12 w-full rounded-xl" />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
   }
 
-  if (!track) {
+  // ── Error ───────────────────────────────────────────────────────────────────
+  if (error) {
     return (
-      <div className="space-y-6">
-        <Button variant="ghost" asChild>
-          <Link to="/student/tracks">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Kembali ke Katalog
-          </Link>
-        </Button>
-        <EmptyState
-          icon={BookOpen}
-          title="Kelas tidak ditemukan"
-          description="Kelas yang kamu cari tidak ditemukan atau sudah tidak tersedia."
-        />
+      <div className="space-y-6 max-w-4xl">
+        <Link to="/student/classes" className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+          <ArrowLeft className="h-3.5 w-3.5" /> Kembali ke Katalog
+        </Link>
+        <div className="rounded-2xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 p-8 flex items-start gap-3">
+          <TriangleAlert className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+          <p className="text-[15px] text-red-600 dark:text-red-400">{error.message || "Terjadi kesalahan saat memuat detail kelas."}</p>
+        </div>
       </div>
     );
   }
 
+  // ── Not found ────────────────────────────────────────────────────────────────
+  if (!track) {
+    return (
+      <div className="space-y-6 max-w-4xl">
+        <Link to="/student/classes" className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+          <ArrowLeft className="h-3.5 w-3.5" /> Kembali ke Katalog
+        </Link>
+        <EmptyState icon={BookOpen} title="Kelas tidak ditemukan" description="Kelas yang kamu cari tidak ditemukan atau sudah tidak tersedia." />
+      </div>
+    );
+  }
+
+  // ── Not enrolled ─────────────────────────────────────────────────────────────
   if (!isEnrolled) {
     return (
       <TrackPreview
@@ -157,319 +125,224 @@ export default function TrackDetail() {
     );
   }
 
-  // Enrolled view - ensure trackOverview is available
+  // ── Loading overview ─────────────────────────────────────────────────────────
   if (!trackOverview) {
     return (
-      <div className="space-y-6">
-        <Button variant="ghost" asChild>
-          <Link to="/student/tracks">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Kembali ke Katalog
-          </Link>
-        </Button>
-        <Card className="p-12">
-          <div className="text-center space-y-4">
-            <Loader2 className="h-16 w-16 text-muted-foreground mx-auto animate-spin" />
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold">Memuat Data Track</h2>
-              <p className="text-muted-foreground">
-                Sedang mengambil data track Anda...
-              </p>
-            </div>
-          </div>
-        </Card>
+      <div className="flex flex-col items-center justify-center py-24 gap-4">
+        <Loader2 className="h-8 w-8 animate-spin text-[#1c81ff]" />
+        <p className="text-[14px] text-gray-500 dark:text-gray-400">Memuat kurikulum…</p>
       </div>
     );
   }
 
   const { modules } = trackOverview;
 
-  // Helper function to find current lesson
   const findCurrentLesson = () => {
     for (const module of modules) {
       const currentLesson = module.lessons.find((l) => l.state === "current");
-      if (currentLesson) {
-        return { module, lesson: currentLesson };
-      }
+      if (currentLesson) return { module, lesson: currentLesson };
     }
     return null;
   };
 
   const currentLessonInfo = findCurrentLesson();
 
-  const handleLessonClick = (
-    lesson: LessonWithState,
-    module: (typeof modules)[0],
-  ) => {
-    if (lesson.state === "locked") {
-      toast.error(
-        "Lesson Terkunci. Selesaikan lesson sebelumnya terlebih dahulu.",
-      );
-      return;
-    }
-
-    // Navigate to lesson with correct 3-segment URL structure
-    navigate(`/student/classes/${track.slug}/${module.slug}/${lesson.slug}`);
-  };
-
+  // ── Enrolled view ─────────────────────────────────────────────────────────────
   return (
     <div className="space-y-8">
-      {/* Back button */}
-      <Button variant="ghost" asChild>
-        <Link to="/student/classes">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Kembali ke Katalog
-        </Link>
-      </Button>
+      {/* Back */}
+      <Link to="/student/classes" className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+        <ArrowLeft className="h-3.5 w-3.5" /> Kembali ke Katalog
+      </Link>
 
-      {/* Track header with image and progress */}
-      <Card className="border-none shadow-sm">
-        <CardContent className="p-6">
-          <div className="flex flex-col lg:flex-row gap-8">
-            {/* Left: Details & Progress (75%) */}
-            <div className="flex-1 flex flex-col justify-between">
-              <div className="space-y-5">
-                {/* Title and badges */}
-                <div className="space-y-3">
-                  <h1 className="text-3xl font-bold">{track.title}</h1>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border-none shadow-sm">
-                      {modules.length} Modul
-                    </Badge>
-                    <Badge className="bg-green-500/10 text-green-500 hover:bg-green-500/20 border-none shadow-sm gap-1">
-                      <CheckCircle className="h-3 w-3" />
-                      Terdaftar
-                    </Badge>
-                  </div>
-                </div>
-
-                {/* Overall progress */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">Progress Keseluruhan</span>
-                    <span className="text-muted-foreground">
-                      {trackOverview.progress.percent}%
-                    </span>
-                  </div>
-                  <Progress
-                    value={trackOverview.progress.percent}
-                    className="h-2"
-                  />
-                  <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                    <span>
-                      {trackOverview.progress.completed_lessons}/
-                      {trackOverview.progress.total_lessons} Lessons
-                    </span>
-                    <span>
-                      {trackOverview.progress.completed_challenges}/
-                      {trackOverview.progress.total_challenges} Challenges
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col items-start justify-between gap-4">
-                {/* Description */}
-                {track.description && (
-                  <p className="text-muted-foreground ml-1 leading-relaxed flex-1">
-                    {track.description}
-                  </p>
-                )}
-
-                {/* Continue learning button */}
-                {currentLessonInfo && (
-                  <Button
-                    size="lg"
-                    className="w-full sm:w-auto shrink-0"
-                    onClick={() =>
-                      handleLessonClick(
-                        currentLessonInfo.lesson,
-                        currentLessonInfo.module,
-                      )
-                    }>
-                    <Play className="h-5 w-5 mr-2" />
-                    Lanjutkan Belajar: {currentLessonInfo.lesson.title}
-                  </Button>
-                )}
-              </div>
-            </div>
-
-            {/* Right: Image with Effects (25%) */}
-            <div className="lg:w-1/4 flex-shrink-0 flex items-start justify-center">
-              <div className="relative w-full max-w-[200px] lg:max-w-none">
-                {/* Background gradient effect */}
-                <div className="absolute -inset-4 bg-gradient-to-br from-green-500/20 via-blue-500/20 to-cyan-500/20 rounded-3xl blur-2xl opacity-60" />
-
-                {/* Image container */}
-                <div
-                  className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-black/5 dark:ring-white/10"
-                  style={{ background: getPatternBackground(track.title) }}>
-                  {track.image_url && (
-                    <img
-                      src={track.image_url}
-                      alt={track.title}
-                      className="w-full aspect-square object-cover"
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
-                    />
-                  )}
-                  {/* Subtle overlay gradient */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
-                </div>
-              </div>
-            </div>
+      {/* Track header */}
+      <div className="overflow-hidden rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm">
+        <div className="flex flex-col lg:flex-row gap-0">
+          {/* Image */}
+          <div className="relative lg:w-56 xl:w-64 shrink-0 overflow-hidden min-h-[180px]" style={{ background: getPatternBackground(track.title) }}>
+            {track.image_url && (
+              <img
+                src={track.image_url}
+                alt={track.title}
+                className="w-full h-full object-cover absolute inset-0"
+                onError={(e) => {
+                  e.currentTarget.style.display = "none";
+                }}
+              />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/30 dark:to-[#0b1215]/30" />
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Modules and lessons */}
-      <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Kurikulum Kelas</h2>
+          {/* Info */}
+          <div className="flex-1 p-6 md:p-8 space-y-5">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#00E676]/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[#00E676]">
+                  <CheckCircle className="h-3 w-3" /> Terdaftar
+                </span>
+                <span className="inline-flex items-center rounded-full bg-[#1c81ff]/10 px-2.5 py-0.5 text-[11px] font-bold text-[#1c81ff]">{modules.length} Modul</span>
+              </div>
+              <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>
+                {track.title}
+              </h1>
+              {track.description && <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400 mt-2">{track.description}</p>}
+            </div>
+
+            {/* Progress */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-[13px]">
+                <span className="font-bold text-gray-700 dark:text-gray-300">Progress Keseluruhan</span>
+                <span className="font-extrabold text-[#1c81ff] tabular-nums">{trackOverview.progress.percent}%</span>
+              </div>
+              <Progress value={trackOverview.progress.percent} className="h-2 bg-gray-100 dark:bg-white/10 [&>div]:bg-[#1c81ff]" />
+              <div className="flex items-center gap-4 text-[12px] text-gray-500 dark:text-gray-400">
+                <span className="flex items-center gap-1">
+                  <BookOpen className="h-3 w-3" />
+                  {trackOverview.progress.completed_lessons}/{trackOverview.progress.total_lessons} Lessons
+                </span>
+                <span className="flex items-center gap-1">
+                  <Target className="h-3 w-3" />
+                  {trackOverview.progress.completed_challenges}/{trackOverview.progress.total_challenges} Challenges
+                </span>
+              </div>
+            </div>
+
+            {/* Continue button */}
+            {currentLessonInfo && (
+              <button
+                onClick={() => handleLessonClick(currentLessonInfo.lesson, currentLessonInfo.module)}
+                className="flex items-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-2.5 px-5 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 text-sm"
+              >
+                <Play className="h-4 w-4" />
+                Lanjutkan: {currentLessonInfo.lesson.title}
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Curriculum */}
+      <div className="space-y-5">
+        <div>
+          <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#1c81ff] mb-1">Kurikulum</p>
+          <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>
+            Materi Kelas
+          </h2>
+        </div>
 
         {modules.length === 0 ? (
-          <EmptyState
-            icon={BookOpen}
-            title="Belum ada modul"
-            description="Modul untuk kelas ini sedang dalam pengembangan."
-          />
+          <EmptyState icon={BookOpen} title="Belum ada modul" description="Modul untuk kelas ini sedang dalam pengembangan." />
         ) : (
           <div className="space-y-4">
             {modules.map((module, moduleIndex) => (
-              <Card key={module.id} className="border-none shadow-sm">
-                <CardHeader>
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-start gap-3 flex-1 min-w-0">
-                        <Badge variant="outline" className="shrink-0 font-mono">
-                          {String(module.order ?? moduleIndex + 1).padStart(
-                            2,
-                            "0",
-                          )}
-                        </Badge>
-                        <div className="flex-1 min-w-0">
-                          <CardTitle className="text-lg">
-                            {module.title}
-                          </CardTitle>
-                          {module.description && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              {module.description}
-                            </p>
-                          )}
-                        </div>
+              <div key={module.id} className="overflow-hidden rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm">
+                {/* Module header */}
+                <div className="px-6 py-5 border-b border-gray-100 dark:border-white/5">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <span className="shrink-0 flex h-7 w-7 items-center justify-center rounded-lg bg-[#1c81ff]/10 font-mono text-[11px] font-extrabold text-[#1c81ff]">
+                        {String(module.order ?? moduleIndex + 1).padStart(2, "0")}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-extrabold text-[15px] text-gray-900 dark:text-white" style={{ letterSpacing: "-0.01em" }}>
+                          {module.title}
+                        </h3>
+                        {module.description && <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-0.5">{module.description}</p>}
                       </div>
                     </div>
-
-                    {/* Module progress */}
-                    <div className="space-y-2">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          Progress Modul
-                        </span>
-                        <span className="font-medium">
-                          {module.progress.percent}%
-                        </span>
-                      </div>
-                      <Progress
-                        value={module.progress.percent}
-                        className="h-1.5"
-                      />
-                      <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
-                        <span>
-                          {module.progress.completed_lessons}/
-                          {module.progress.total_lessons} Lessons
-                        </span>
-                        <span>
-                          {module.progress.completed_challenges}/
-                          {module.progress.total_challenges} Challenges
-                        </span>
-                      </div>
+                    <span className="shrink-0 text-[12px] font-bold tabular-nums text-[#1c81ff]">{module.progress.percent}%</span>
+                  </div>
+                  <div className="mt-3 space-y-1.5">
+                    <Progress value={module.progress.percent} className="h-1.5 bg-gray-100 dark:bg-white/10 [&>div]:bg-[#1c81ff]" />
+                    <div className="flex items-center gap-3 text-[11px] text-gray-400 dark:text-gray-600">
+                      <span>
+                        {module.progress.completed_lessons}/{module.progress.total_lessons} lessons
+                      </span>
+                      <span>
+                        {module.progress.completed_challenges}/{module.progress.total_challenges} challenges
+                      </span>
                     </div>
                   </div>
-                </CardHeader>
+                </div>
 
-                <CardContent>
-                  {/* Lessons list */}
+                {/* Lessons */}
+                <div className="p-3 space-y-1.5">
                   {module.lessons.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      Belum ada lesson di modul ini
-                    </p>
+                    <p className="text-[13px] text-gray-500 dark:text-gray-400 text-center py-6">Belum ada lesson di modul ini</p>
                   ) : (
-                    <div className="space-y-2">
-                      {module.lessons.map((lesson) => {
-                        const isLocked = lesson.state === "locked";
-                        const isCurrent = lesson.state === "current";
-                        const isCompleted = lesson.state === "completed";
+                    module.lessons.map((lesson) => {
+                      const isLocked = lesson.state === "locked";
+                      const isCurrent = lesson.state === "current";
+                      const isCompleted = lesson.state === "completed";
 
-                        return (
-                          <button
-                            key={lesson.id}
-                            onClick={() => handleLessonClick(lesson, module)}
-                            disabled={isLocked}
+                      return (
+                        <button
+                          key={lesson.id}
+                          onClick={() => handleLessonClick(lesson, module)}
+                          disabled={isLocked}
+                          className={cn(
+                            "w-full flex items-center gap-3 rounded-xl p-3 text-left transition-all",
+                            isLocked && "opacity-50 cursor-not-allowed bg-gray-50 dark:bg-white/[0.02]",
+                            isCurrent && "bg-[#1c81ff]/10 border border-[#1c81ff]/20",
+                            isCompleted && "hover:bg-gray-50 dark:hover:bg-white/5",
+                            !isLocked && !isCurrent && !isCompleted && "hover:bg-gray-50 dark:hover:bg-white/5",
+                          )}
+                        >
+                          {/* Icon */}
+                          <div
                             className={cn(
-                              "w-full flex items-center gap-3 rounded-lg border p-3 text-left transition-all",
-                              isLocked &&
-                                "opacity-50 cursor-not-allowed bg-muted/30",
-                              isCurrent &&
-                                "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800 shadow-sm",
-                              isCompleted && "bg-muted/20 hover:bg-muted/40",
-                              !isLocked &&
-                                !isCurrent &&
-                                "hover:shadow-md hover:border-primary/50",
-                            )}>
-                            {/* Lesson icon */}
-                            <div
-                              className={cn(
-                                "shrink-0 h-10 w-10 rounded-full flex items-center justify-center",
-                                isLocked && "bg-slate-500/10",
-                                isCurrent && "bg-blue-500/10",
-                                isCompleted && "bg-green-500/10",
-                              )}>
-                              {isLocked && (
-                                <Lock className="h-5 w-5 text-slate-500" />
-                              )}
-                              {isCurrent && (
-                                <Play className="h-5 w-5 text-blue-500" />
-                              )}
-                              {isCompleted && (
-                                <CheckCircle className="h-5 w-5 text-green-500" />
-                              )}
-                            </div>
+                              "shrink-0 h-9 w-9 rounded-full flex items-center justify-center",
+                              isLocked && "bg-gray-100 dark:bg-white/5",
+                              isCurrent && "bg-[#1c81ff]/20",
+                              isCompleted && "bg-[#00E676]/10",
+                              !isLocked && !isCurrent && !isCompleted && "bg-gray-100 dark:bg-white/5",
+                            )}
+                          >
+                            {isLocked && <Lock className="h-4 w-4 text-gray-400 dark:text-gray-600" />}
+                            {isCurrent && <Play className="h-4 w-4 text-[#1c81ff]" />}
+                            {isCompleted && <CheckCircle className="h-4 w-4 text-[#00E676]" />}
+                            {!isLocked && !isCurrent && !isCompleted && <Play className="h-4 w-4 text-gray-400 dark:text-gray-600" />}
+                          </div>
 
-                            {/* Lesson info */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium text-sm">
-                                  {lesson.title}
-                                </span>
-                                {isCurrent && (
-                                  <Badge className="bg-blue-500 text-white text-xs">
-                                    Sedang Belajar
-                                  </Badge>
+                          {/* Text */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span
+                                className={cn(
+                                  "text-[14px] font-bold truncate",
+                                  isCurrent && "text-[#1c81ff]",
+                                  isCompleted && "text-gray-900 dark:text-white",
+                                  isLocked && "text-gray-400 dark:text-gray-600",
+                                  !isLocked && !isCurrent && !isCompleted && "text-gray-900 dark:text-white",
                                 )}
-                              </div>
-                              <div className="flex flex-wrap gap-2 mt-1 text-xs text-muted-foreground">
-                                {lesson.duration && (
-                                  <span className="flex items-center gap-1">
-                                    <Clock className="h-3 w-3" />
-                                    {lesson.duration} menit
-                                  </span>
-                                )}
-                                {lesson.challenges_count !== undefined &&
-                                  lesson.challenges_count > 0 && (
-                                    <span>
-                                      {lesson.challenges_count} challenges
-                                    </span>
-                                  )}
-                              </div>
+                              >
+                                {lesson.title}
+                              </span>
+                              {isCurrent && <span className="shrink-0 inline-flex items-center rounded-full bg-[#1c81ff] px-2 py-0.5 text-[10px] font-bold text-white">Sedang Belajar</span>}
                             </div>
-                          </button>
-                        );
-                      })}
-                    </div>
+                            <div className="flex items-center gap-3 mt-0.5 text-[12px] text-gray-400 dark:text-gray-600">
+                              {lesson.duration && (
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {lesson.duration} menit
+                                </span>
+                              )}
+                              {lesson.challenges_count !== undefined && lesson.challenges_count > 0 && (
+                                <span className="flex items-center gap-1">
+                                  <Target className="h-3 w-3" />
+                                  {lesson.challenges_count} challenges
+                                </span>
+                              )}
+                            </div>
+                          </div>
+
+                          {isCompleted && <CheckCircle2 className="shrink-0 h-4 w-4 text-[#00E676]" />}
+                        </button>
+                      );
+                    })
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         )}

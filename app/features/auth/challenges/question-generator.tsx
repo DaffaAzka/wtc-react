@@ -104,6 +104,9 @@ export default function QuestionGenerator({
     return true;
   };
 
+  // Single MCQ doesn't need a generator — teacher just adds 1 question manually
+  if (type === "multiple_choice") return null;
+
   const handleGenerate = () => {
     let isValid = false;
 
@@ -128,7 +131,7 @@ export default function QuestionGenerator({
   const executeGenerate = () => {
     let generatedQuestions: Question[] = [];
 
-    if (type === "multiple_choice") {
+    if (type === "quiz_group") {
       generatedQuestions = generateMCQQuestions(
         Number(questionCount),
         maxScore,

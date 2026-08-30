@@ -1,53 +1,46 @@
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { TeacherDashboardStats } from "@/types/teacher";
 import { Users, BookOpen, FileText, Target, Clock } from "lucide-react";
-
-// ---------------------------------------------------------------------------
-// Stat item config — order matches visual layout left-to-right
-// ---------------------------------------------------------------------------
 
 export const STAT_ITEMS = [
   {
     key: "total_students" as const,
     label: "Students",
     Icon: Users,
-    colorClass: "text-blue-500",
-    bgClass: "bg-blue-500/10",
+    colorClass: "text-[#1c81ff]",
+    bgClass: "bg-[#1c81ff]/10",
   },
   {
     key: "total_tracks" as const,
     label: "Tracks",
     Icon: BookOpen,
-    colorClass: "text-sky-500",
-    bgClass: "bg-sky-500/10",
+    colorClass: "text-[#31c7c8]",
+    bgClass: "bg-[#31c7c8]/10",
   },
   {
     key: "total_lessons" as const,
     label: "Lessons",
     Icon: FileText,
-    colorClass: "text-indigo-500",
-    bgClass: "bg-indigo-500/10",
+    colorClass: "text-[#2548d8]",
+    bgClass: "bg-[#2548d8]/10",
   },
   {
     key: "total_challenges" as const,
     label: "Challenges",
     Icon: Target,
-    colorClass: "text-purple-500",
-    bgClass: "bg-purple-500/10",
+    colorClass: "text-[#ff007b]",
+    bgClass: "bg-[#ff007b]/10",
   },
   {
     key: "pending_submissions" as const,
     label: "Pending",
     Icon: Clock,
-    colorClass: "text-amber-500",
-    bgClass: "bg-amber-500/10",
+    colorClass: "text-[#f6b60b]",
+    bgClass: "bg-[#f6b60b]/10",
   },
 ] as const;
 
-// ---------------------------------------------------------------------------
-// Stat card grid
-// ---------------------------------------------------------------------------
+// ── Stat card grid ──────────────────────────────────────────────────────────
 
 interface DashboardStatsProps {
   stats: TeacherDashboardStats;
@@ -55,41 +48,44 @@ interface DashboardStatsProps {
 
 export function DashboardStats({ stats }: DashboardStatsProps) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
       {STAT_ITEMS.map(({ key, label, Icon, colorClass, bgClass }) => (
-        <Card key={key} className="shadow-sm border-border/40">
-          <CardContent className="p-4">
-            <div className="mb-3">
-              <div className={`inline-flex p-2 rounded-full ${bgClass}`}>
-                <Icon className={`h-4 w-4 ${colorClass}`} />
-              </div>
-            </div>
-            <div className="text-2xl font-bold mb-0.5">{stats[key]}</div>
-            <div className="text-xs text-muted-foreground uppercase tracking-wide">
-              {label}
-            </div>
-          </CardContent>
-        </Card>
+        <div
+          key={key}
+          className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm p-5 hover:shadow-md hover:-translate-y-1 transition-all duration-300"
+        >
+          <div className={`w-11 h-11 rounded-full ${bgClass} flex items-center justify-center mb-4`}>
+            <Icon className={`h-5 w-5 ${colorClass}`} />
+          </div>
+          <div
+            className="text-3xl font-extrabold text-gray-900 dark:text-white mb-1"
+            style={{ letterSpacing: "-0.02em" }}
+          >
+            {stats[key]}
+          </div>
+          <div className="text-[12px] font-bold uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500">
+            {label}
+          </div>
+        </div>
       ))}
     </div>
   );
 }
 
-// ---------------------------------------------------------------------------
-// Loading skeleton
-// ---------------------------------------------------------------------------
+// ── Loading skeleton ────────────────────────────────────────────────────────
 
 export function DashboardStatsSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
       {Array.from({ length: 5 }).map((_, i) => (
-        <Card key={i} className="shadow-sm border-border/40">
-          <CardContent className="p-4 space-y-2">
-            <Skeleton className="h-8 w-8 rounded-full" />
-            <Skeleton className="h-6 w-10" />
-            <Skeleton className="h-3 w-16" />
-          </CardContent>
-        </Card>
+        <div
+          key={i}
+          className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm p-5 space-y-3"
+        >
+          <Skeleton className="h-11 w-11 rounded-full" />
+          <Skeleton className="h-8 w-14 rounded-lg" />
+          <Skeleton className="h-2.5 w-16 rounded-full" />
+        </div>
       ))}
     </div>
   );
