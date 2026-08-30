@@ -15,6 +15,11 @@ export const CertificateService = {
     return res.data.data;
   },
 
+  downloadCertificate: async (id: string): Promise<{ url: string }> => {
+    const res = await api.get<{ success: boolean; data: { url: string } }>(`/student/certificates/${id}/download`);
+    return res.data.data;
+  },
+
   updateCertificate: async (id: string): Promise<void> => {
     await api.post(`/student/certificates/${id}/update`);
   },
