@@ -1,11 +1,12 @@
 import { useState, useRef } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Upload, Loader2, AlertCircle, FileText, X, Package } from "lucide-react";
+import {
+  AlertCircle,
+  Upload,
+  Loader2,
+  FileText,
+  X,
+  Package,
+} from "lucide-react";
 import type { Challenge } from "@/types/model";
 
 interface DockerProjectFormProps {
@@ -13,6 +14,16 @@ interface DockerProjectFormProps {
   canSubmit: boolean;
   isSubmitting: boolean;
   onSubmit: (file: File | null, content: string) => void;
+}
+
+const ALLOWED_DOCKER_EXTENSIONS = [".zip", ".tar", ".tar.gz", ".tgz", ".rar"];
+
+function validateDockerFile(file: File): string | null {
+  if (file.size > 50 * 1024 * 1024) return "Ukuran file harus kurang dari 50MB";
+  const name = file.name.toLowerCase();
+  if (!ALLOWED_DOCKER_EXTENSIONS.some((ext) => name.endsWith(ext)))
+    return "File harus berupa arsip (ZIP, TAR, RAR) yang berisi Docker project";
+  return null;
 }
 
 export function DockerProjectForm({
@@ -27,231 +38,220 @@ export function DockerProjectForm({
   const [fileError, setFileError] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // File validation for Docker projects
-  const validateFile = (selectedFile: File): string | null => {
-    const maxSize = 50 * 1024 * 1024; // 50MB for Docker projects
-    if (selectedFile.size > maxSize) {
-      return "Ukuran file harus kurang dari 50MB";
-    }
-
-    // Allow ZIP, TAR, and Docker-related files
-    const allowedExtensions = ['.zip', '.tar', '.tar.gz', '.tgz', '.rar'];
-    const fileName = selectedFile.name.toLowerCase();
-    const isAllowed = allowedExtensions.some(ext => fileName.endsWith(ext));
-
-    if (!isAllowed) {
-      return "File harus berupa arsip (ZIP, TAR, RAR) yang berisi Docker project";
-    }
-
-    return null;
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-
-    if (!selectedFile) {
+    const selected = e.target.files?.[0];
+    if (!selected) {
       setFile(null);
       setFileError("");
       return;
     }
-
-    const error = validateFile(selectedFile);
-    if (error) {
-      setFileError(error);
+    const err = validateDockerFile(selected);
+    if (err) {
+      setFileError(err);
       setFile(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
+      if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
-
     setFileError("");
-    setFile(selectedFile);
+    setFile(selected);
   };
 
   const handleRemoveFile = () => {
     setFile(null);
     setFileError("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!file) {
       setFileError("Silakan upload file Docker project (ZIP/TAR)");
       return;
     }
-
     if (!dockerCommands.trim()) {
-      setFileError("Silakan masukkan Docker commands untuk menjalankan project");
+      setFileError(
+        "Silakan masukkan Docker commands untuk menjalankan project",
+      );
       return;
     }
-
-    // Format submission data
-    const submissionData = {
-      docker_commands: dockerCommands.trim(),
-      notes: notes.trim(),
-      filename: file.name,
-      submitted_at: new Date().toISOString(),
-    };
-
-    onSubmit(file, JSON.stringify(submissionData));
-
-    // Reset form
+    onSubmit(
+      file,
+      JSON.stringify({
+        docker_commands: dockerCommands.trim(),
+        notes: notes.trim(),
+        filename: file.name,
+        submitted_at: new Date().toISOString(),
+      }),
+    );
     setFile(null);
     setDockerCommands("");
     setNotes("");
     setFileError("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center gap-2">
-          <Package className="h-5 w-5" />
-          <CardTitle className="text-lg">Submit Docker Project</CardTitle>
+    <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100 dark:border-white/5">
+        <div className="w-8 h-8 rounded-full bg-[#2548d8]/10 flex items-center justify-center">
+          <Package className="h-4 w-4 text-[#2548d8]" />
         </div>
-      </CardHeader>
-      <CardContent>
-        {!canSubmit ? (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              Anda telah mencapai batas maksimum percobaan untuk challenge ini.
-            </AlertDescription>
-          </Alert>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Instructions */}
-            <Alert>
-              <Package className="h-4 w-4" />
-              <AlertDescription className="text-sm">
-                <p className="font-semibold mb-1">Requirement Docker Project:</p>
-                <ul className="list-disc list-inside space-y-1 text-xs">
-                  <li>File harus berisi Dockerfile, docker-compose.yml (jika ada), dan source code</li>
-                  <li>Compress project menjadi ZIP atau TAR (maksimal 50MB)</li>
-                  <li>Pastikan Docker image bisa di-build tanpa error</li>
-                  <li>Sertakan README.md dengan instruksi setup</li>
-                  <li>Tulis Docker commands untuk build dan run</li>
-                </ul>
-              </AlertDescription>
-            </Alert>
+        <span className="font-bold text-gray-900 dark:text-white">
+          Submit Docker Project
+        </span>
+      </div>
 
-            {/* File Upload */}
+      <div className="p-5">
+        {!canSubmit ? (
+          <div className="flex items-start gap-3 rounded-xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 p-4">
+            <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+            <p className="text-[14px] text-red-600 dark:text-red-400">
+              Anda telah mencapai batas maksimum percobaan untuk challenge ini.
+            </p>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-5">
+            {/* Instructions */}
+            <div className="rounded-xl bg-[#2548d8]/5 border border-[#2548d8]/15 p-4">
+              <div className="flex items-start gap-2.5">
+                <Package className="h-4 w-4 text-[#2548d8] shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-[13px] font-bold text-gray-700 dark:text-gray-300 mb-1.5">
+                    Requirement Docker Project
+                  </p>
+                  <ul className="space-y-1 text-[12px] text-gray-500 dark:text-gray-400 list-disc list-inside">
+                    <li>
+                      File harus berisi Dockerfile, docker-compose.yml, dan
+                      source code
+                    </li>
+                    <li>
+                      Compress project menjadi ZIP atau TAR (maksimal 50MB)
+                    </li>
+                    <li>Pastikan Docker image bisa di-build tanpa error</li>
+                    <li>Sertakan README.md dengan instruksi setup</li>
+                    <li>Tulis Docker commands untuk build dan run</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* File upload */}
             <div className="space-y-2">
-              <Label htmlFor="docker-file" className="text-sm font-medium">
-                Upload Docker Project (ZIP/TAR) *
-              </Label>
-              <Input
+              <label
+                htmlFor="docker-file"
+                className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
+                Upload Docker Project (ZIP/TAR){" "}
+                <span className="text-red-500">*</span>
+              </label>
+              <input
                 ref={fileInputRef}
                 id="docker-file"
                 type="file"
                 accept=".zip,.tar,.tar.gz,.tgz,.rar"
                 onChange={handleFileChange}
                 disabled={isSubmitting}
-                className="cursor-pointer"
+                className="block w-full text-[13px] text-gray-700 dark:text-gray-300 bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-gray-800 rounded-xl px-3 py-2.5 cursor-pointer focus:outline-none file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[12px] file:font-bold file:bg-[#2548d8]/10 file:text-[#2548d8]"
               />
-
               {file && (
-                <div className="flex items-center justify-between gap-2 p-3 bg-muted rounded-md">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <FileText className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{file.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {(file.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
-                    </div>
+                <div className="flex items-center gap-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-4 py-3">
+                  <div className="w-8 h-8 rounded-full bg-[#2548d8]/10 flex items-center justify-center shrink-0">
+                    <FileText className="h-4 w-4 text-[#2548d8]" />
                   </div>
-                  <Button
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-[14px] text-gray-900 dark:text-white truncate">
+                      {file.name}
+                    </p>
+                    <p className="text-[12px] text-gray-500 dark:text-gray-400 tabular-nums">
+                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                    </p>
+                  </div>
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="sm"
                     onClick={handleRemoveFile}
                     disabled={isSubmitting}
-                    className="flex-shrink-0"
-                  >
+                    className="w-7 h-7 rounded-lg flex items-center justify-center text-gray-400 dark:text-gray-600 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-red-500 disabled:opacity-40 transition-colors">
                     <X className="h-4 w-4" />
-                  </Button>
+                  </button>
                 </div>
               )}
-
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[12px] text-gray-400 dark:text-gray-600">
                 Format: .zip, .tar, .tar.gz (maksimal 50MB)
               </p>
             </div>
 
-            {/* Docker Commands */}
-            <div className="space-y-2">
-              <Label htmlFor="docker-commands" className="text-sm font-medium">
-                Docker Commands *
-              </Label>
-              <Textarea
+            {/* Docker commands */}
+            <div className="space-y-1.5">
+              <label
+                htmlFor="docker-commands"
+                className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
+                Docker Commands <span className="text-red-500">*</span>
+              </label>
+              <textarea
                 id="docker-commands"
                 value={dockerCommands}
                 onChange={(e) => setDockerCommands(e.target.value)}
-                placeholder="# Build image&#10;docker build -t myapp:latest .&#10;&#10;# Run container&#10;docker run -p 8080:8080 myapp:latest&#10;&#10;# Atau dengan docker-compose&#10;docker-compose up -d"
+                placeholder={
+                  "# Build image\ndocker build -t myapp:latest .\n\n# Run container\ndocker run -p 8080:8080 myapp:latest\n\n# Atau dengan docker-compose\ndocker-compose up -d"
+                }
                 rows={8}
                 disabled={isSubmitting}
-                className="font-mono text-sm"
+                className="w-full rounded-xl bg-slate-950 dark:bg-[#0a0f12] border border-slate-700 dark:border-white/10 px-4 py-3 text-[13px] font-mono leading-relaxed text-green-400 placeholder-slate-600 focus:border-[#2548d8] focus:ring-1 focus:ring-[#2548d8] outline-none transition-all resize-none"
               />
-              <p className="text-xs text-muted-foreground">
-                Tulis command untuk build dan run Docker project (contoh: docker build, docker run, docker-compose up)
+              <p className="text-[12px] text-gray-400 dark:text-gray-600">
+                Tulis command untuk build dan run Docker project
               </p>
             </div>
 
             {/* Notes */}
-            <div className="space-y-2">
-              <Label htmlFor="notes" className="text-sm font-medium">
-                Catatan Tambahan (Opsional)
-              </Label>
-              <Textarea
-                id="notes"
+            <div className="space-y-1.5">
+              <label
+                htmlFor="docker-notes"
+                className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
+                Catatan Tambahan{" "}
+                <span className="font-normal text-gray-400 dark:text-gray-600">
+                  (opsional)
+                </span>
+              </label>
+              <textarea
+                id="docker-notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Environment variables yang dibutuhkan, port yang digunakan, atau informasi penting lainnya..."
+                placeholder="Environment variables yang dibutuhkan, port yang digunakan, atau informasi penting lainnya…"
                 rows={4}
                 disabled={isSubmitting}
-                className="text-sm"
+                className="w-full rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-gray-800 px-4 py-3 text-[14px] leading-relaxed text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff] outline-none transition-all resize-none"
               />
             </div>
 
-            {/* Error Message */}
             {fileError && (
-              <Alert variant="destructive" className="py-2">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription className="text-sm">{fileError}</AlertDescription>
-              </Alert>
+              <div className="flex items-start gap-2.5 rounded-xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 px-4 py-3">
+                <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                <p className="text-[13px] text-red-600 dark:text-red-400">
+                  {fileError}
+                </p>
+              </div>
             )}
 
-            {/* Submit Button */}
-            <Button
+            <button
               type="submit"
               disabled={isSubmitting || !file || !dockerCommands.trim()}
-              className="w-full"
-              size="lg"
-            >
+              className="w-full flex items-center justify-center gap-2 bg-[#2548d8] text-white font-bold rounded-xl py-3 shadow-md shadow-blue-800/20 transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-[14px]">
               {isSubmitting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Mengupload...
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Mengupload…
                 </>
               ) : (
                 <>
-                  <Upload className="h-4 w-4 mr-2" />
+                  <Upload className="h-4 w-4" />
                   Submit Docker Project
                 </>
               )}
-            </Button>
+            </button>
           </form>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

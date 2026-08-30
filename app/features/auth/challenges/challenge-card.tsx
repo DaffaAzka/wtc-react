@@ -1,6 +1,3 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,11 +6,12 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import type { Challenge } from "@/types/model";
+import { Link } from "react-router";
 import {
   Edit,
+  Eye,
   MoreVertical,
   Trash2,
-  Settings,
   ClipboardList,
   Code,
   ListTodo,
@@ -26,126 +24,115 @@ import {
   GitBranch,
   Box,
   Timer,
+  User,
 } from "lucide-react";
 
 type Props = {
   challenge: Challenge;
   onEdit?: (challenge: Challenge) => void;
   onDelete?: (challenge: Challenge) => void;
-  onManage?: (challenge: Challenge) => void;
   onViewSubmissions?: (challenge: Challenge) => void;
 };
 
-// Challenge type icon mapping
-const challengeTypeIcons: Record<string, React.ElementType> = {
-  multiple_choice: ListTodo,
-  essay: FileText,
-  code_editor: Code,
-  file_upload: Code,
+const CHALLENGE_TYPE_ICONS: Record<string, React.ElementType> = {
+  multiple_choice:   ListTodo,
+  essay:             FileText,
+  code_editor:       Code,
+  file_upload:       Code,
   github_submission: GitBranch,
-  docker_project: Box,
-  timed_exam: Timer,
-  quiz_group: Lightbulb,
-  mixed: Lightbulb,
+  docker_project:    Box,
+  timed_exam:        Timer,
+  quiz_group:        Lightbulb,
+  mixed:             Lightbulb,
 };
 
-const getChallengeTypeLabel = (type: string): string => {
-  const labels: Record<string, string> = {
-    multiple_choice: "Multiple Choice",
-    essay: "Essay",
-    code_editor: "Code Editor",
-    file_upload: "Coding Assignment",
-    github_submission: "GitHub Submission",
-    docker_project: "Docker Project",
-    timed_exam: "Timed Exam",
-    quiz_group: "Mixed Quiz",
-    mixed: "Mixed Quiz",
-  };
-  return labels[type] || type;
+const CHALLENGE_TYPE_LABELS: Record<string, string> = {
+  multiple_choice:   "Multiple Choice",
+  essay:             "Essay",
+  code_editor:       "Code Editor",
+  file_upload:       "Coding Assignment",
+  github_submission: "GitHub Submission",
+  docker_project:    "Docker Project",
+  timed_exam:        "Timed Exam",
+  quiz_group:        "Quiz Group",
 };
 
-const getQuestionCount = (challenge: Challenge): number => {
+const DIFFICULTY_STYLE: Record<string, { bg: string; text: string }> = {
+  easy:   { bg: "bg-[#00E676]/10", text: "text-[#00E676]" },
+  medium: { bg: "bg-[#f6b60b]/10", text: "text-[#f6b60b]" },
+  hard:   { bg: "bg-[#ff007b]/10", text: "text-[#ff007b]" },
+};
+
+function getQuestionCount(challenge: Challenge): number {
   const questions = challenge.metadata?.questions;
-  if (Array.isArray(questions)) {
-    return questions.length;
-  }
-  return 0;
-};
+  return Array.isArray(questions) ? questions.length : 0;
+}
 
 export default function ChallengeCard({
   challenge,
   onEdit,
   onDelete,
-  onManage,
   onViewSubmissions,
 }: Props) {
   const questionCount = getQuestionCount(challenge);
-  const Icon = challengeTypeIcons[challenge.type] || Lightbulb;
-
-  // Difficulty color configuration
-  const difficultyConfig = {
-    easy: "bg-green-500/10 text-green-600 hover:bg-green-500/20 border-none",
-    medium: "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20 border-none",
-    hard: "bg-red-500/10 text-red-600 hover:bg-red-500/20 border-none",
-  };
+  const Icon = CHALLENGE_TYPE_ICONS[challenge.type] ?? Lightbulb;
+  const typeLabel = CHALLENGE_TYPE_LABELS[challenge.type] ?? challenge.type;
+  const diffStyle = challenge.difficulty
+    ? DIFFICULTY_STYLE[challenge.difficulty.toLowerCase()]
+    : null;
 
   return (
-    <Card className="border-none shadow-sm hover:shadow-md transition-all group">
-      <CardHeader className="pb-3">
+    <div className="group rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden flex flex-col">
+      {/* Header */}
+      <div className="p-5 pb-3 border-b border-gray-100 dark:border-white/5">
         <div className="flex items-start gap-3">
-          {/* Challenge Icon with Gradient Background */}
-          <div className="p-2.5 rounded-lg bg-gradient-to-br from-blue-500/10 to-indigo-500/10 shrink-0">
-            <Icon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          {/* Icon */}
+          <div className="shrink-0 w-10 h-10 rounded-xl bg-[#1c81ff]/10 flex items-center justify-center">
+            <Icon className="h-5 w-5 text-[#1c81ff]" />
           </div>
 
-          {/* Title & Meta */}
-          <div className="flex-1 min-w-0 space-y-2">
+          {/* Title */}
+          <div className="flex-1 min-w-0 space-y-1.5">
             <div className="flex items-start justify-between gap-2">
-              <h3 className="font-semibold leading-tight line-clamp-2">
+              <h3 className="font-extrabold text-[14px] text-gray-900 dark:text-white leading-snug line-clamp-2" style={{ letterSpacing: "-0.01em" }}>
                 {challenge.title}
               </h3>
 
-              {/* Actions Dropdown */}
+              {/* Actions dropdown */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                    aria-label={`Actions for ${challenge.title}`}>
+                  <button
+                    className="flex items-center justify-center h-7 w-7 shrink-0 rounded-lg text-gray-400 dark:text-gray-600 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-gray-300 opacity-0 group-hover:opacity-100 transition-all"
+                    aria-label={`Actions for ${challenge.title}`}
+                  >
                     <MoreVertical className="h-4 w-4" />
-                  </Button>
+                  </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="rounded-xl">
+                  <Link to={`/admin/challenges/${challenge.id}`}>
+                    <DropdownMenuItem className="rounded-lg">
+                      <Eye className="h-4 w-4 mr-2" /> View
+                    </DropdownMenuItem>
+                  </Link>
+                  <DropdownMenuSeparator />
                   {onViewSubmissions && (
                     <>
-                      <DropdownMenuItem onClick={() => onViewSubmissions(challenge)}>
-                        <ClipboardList className="h-4 w-4 mr-2" />
-                        View Submissions
+                      <DropdownMenuItem className="rounded-lg" onClick={() => onViewSubmissions(challenge)}>
+                        <ClipboardList className="h-4 w-4 mr-2" /> View Submissions
                       </DropdownMenuItem>
                       <DropdownMenuSeparator />
                     </>
                   )}
-                  {onManage && (
-                    <DropdownMenuItem onClick={() => onManage(challenge)}>
-                      <Settings className="h-4 w-4 mr-2" />
-                      Manage
-                    </DropdownMenuItem>
-                  )}
                   {onEdit && (
-                    <DropdownMenuItem onClick={() => onEdit(challenge)}>
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit
+                    <DropdownMenuItem className="rounded-lg" onClick={() => onEdit(challenge)}>
+                      <Edit className="h-4 w-4 mr-2" /> Edit
                     </DropdownMenuItem>
                   )}
                   {onDelete && (
                     <>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => onDelete(challenge)}
-                        className="text-red-600 focus:text-red-600">
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Delete
+                      <DropdownMenuItem variant="destructive" className="rounded-lg" onClick={() => onDelete(challenge)}>
+                        <Trash2 className="h-4 w-4 mr-2" /> Delete
                       </DropdownMenuItem>
                     </>
                   )}
@@ -153,111 +140,74 @@ export default function ChallengeCard({
               </DropdownMenu>
             </div>
 
-            {/* Order Badge */}
+            {/* Order */}
             {challenge.order !== undefined && challenge.order !== null && (
-              <div className="flex items-center gap-1.5">
-                <Hash className="h-3 w-3 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground font-medium">
+              <div className="flex items-center gap-1">
+                <Hash className="h-3 w-3 text-gray-400 dark:text-gray-600" />
+                <span className="text-[11px] font-bold text-gray-400 dark:text-gray-600">
                   Order {challenge.order}
                 </span>
               </div>
             )}
           </div>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="space-y-3">
-        {/* Type & Difficulty Badges */}
-        <div className="flex flex-wrap gap-2">
-          <Badge variant="outline" className="text-xs gap-1">
+      {/* Body */}
+      <div className="p-5 space-y-4 flex-1">
+        {/* Badges */}
+        <div className="flex flex-wrap gap-1.5">
+          <span className="inline-flex items-center gap-1 rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-2.5 py-0.5 text-[11px] font-bold text-gray-500 dark:text-gray-400">
             <Icon className="h-3 w-3" />
-            {getChallengeTypeLabel(challenge.type)}
-          </Badge>
-          {challenge.difficulty && (
-            <Badge
-              className={`text-xs ${
-                difficultyConfig[challenge.difficulty as keyof typeof difficultyConfig]
-              }`}>
-              {challenge.difficulty.charAt(0).toUpperCase() +
-                challenge.difficulty.slice(1)}
-            </Badge>
+            {typeLabel}
+          </span>
+          {diffStyle && challenge.difficulty && (
+            <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] capitalize ${diffStyle.bg} ${diffStyle.text}`}>
+              {challenge.difficulty}
+            </span>
           )}
           {questionCount > 0 && (
-            <Badge variant="secondary" className="text-xs gap-1">
+            <span className="inline-flex items-center gap-1 rounded-lg bg-[#2548d8]/10 border border-[#2548d8]/10 px-2.5 py-0.5 text-[11px] font-bold text-[#2548d8]">
               <ListTodo className="h-3 w-3" />
               {questionCount} {questionCount === 1 ? "Question" : "Questions"}
-            </Badge>
-          )}
-        </div>
-
-        {/* Stats Grid */}
-        <div className="space-y-2.5">
-          {/* Max Score */}
-          <div className="flex items-center gap-2 text-sm">
-            <div className="p-1.5 rounded-md bg-blue-500/10">
-              <Target className="h-3.5 w-3.5 text-blue-600" />
-            </div>
-            <div className="flex-1">
-              <span className="text-muted-foreground text-xs">Max Score</span>
-            </div>
-            <span className="font-semibold text-sm">{challenge.max_score}</span>
-          </div>
-
-          {/* Points */}
-          {challenge.points !== undefined && challenge.points !== null && (
-            <div className="flex items-center gap-2 text-sm">
-              <div className="p-1.5 rounded-md bg-amber-500/10">
-                <Trophy className="h-3.5 w-3.5 text-amber-600" />
-              </div>
-              <div className="flex-1">
-                <span className="text-muted-foreground text-xs">Points (EXP)</span>
-              </div>
-              <span className="font-semibold text-sm">{challenge.points}</span>
-            </div>
-          )}
-
-          {/* Allowed Attempts */}
-          <div className="flex items-center gap-2 text-sm">
-            <div className="p-1.5 rounded-md bg-cyan-500/10">
-              <RotateCw className="h-3.5 w-3.5 text-cyan-600" />
-            </div>
-            <div className="flex-1">
-              <span className="text-muted-foreground text-xs">Attempts</span>
-            </div>
-            <span className="font-semibold text-sm">
-              {challenge.allowed_attempts === null ||
-              challenge.allowed_attempts === -1 ||
-              challenge.allowed_attempts === 0
-                ? "Unlimited"
-                : challenge.allowed_attempts}
             </span>
-          </div>
+          )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-2 pt-2">
-          {onManage && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex-1 gap-1.5"
-              onClick={() => onManage(challenge)}>
-              <Settings className="h-3.5 w-3.5" />
-              Manage
-            </Button>
-          )}
-          {onViewSubmissions && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex-1 gap-1.5"
-              onClick={() => onViewSubmissions(challenge)}>
-              <ClipboardList className="h-3.5 w-3.5" />
-              Submissions
-            </Button>
-          )}
+        {/* Stats */}
+        <div className="space-y-2">
+          {[
+            { icon: Target,  bg: "bg-[#1c81ff]/10",  color: "text-[#1c81ff]",  label: "Max Score",    value: challenge.max_score },
+            ...(challenge.points !== undefined && challenge.points !== null
+              ? [{ icon: Trophy, bg: "bg-[#f6b60b]/10", color: "text-[#f6b60b]", label: "Points (EXP)", value: challenge.points }]
+              : []),
+            { icon: RotateCw, bg: "bg-[#31c7c8]/10", color: "text-[#31c7c8]",  label: "Attempts",
+              value: (challenge.allowed_attempts === null || challenge.allowed_attempts === -1 || challenge.allowed_attempts === 0)
+                ? "Unlimited" : challenge.allowed_attempts },
+            { icon: User, bg: "bg-gray-100 dark:bg-white/5", color: "text-gray-500 dark:text-gray-400", label: "Created By",
+              value: (challenge as any).created_by?.name || "Admin" },
+          ].map(({ icon: StatIcon, bg, color, label, value }) => (
+            <div key={label} className="flex items-center gap-2">
+              <div className={`w-6 h-6 rounded-md ${bg} flex items-center justify-center shrink-0`}>
+                <StatIcon className={`h-3.5 w-3.5 ${color}`} />
+              </div>
+              <span className="text-[12px] text-gray-500 dark:text-gray-400 flex-1">{label}</span>
+              <span className="text-[13px] font-bold text-gray-900 dark:text-white tabular-nums">{value}</span>
+            </div>
+          ))}
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Action */}
+        {onViewSubmissions && (
+          <button
+            onClick={() => onViewSubmissions(challenge)}
+            className="w-full flex items-center justify-center gap-2 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl py-2 text-[13px] hover:bg-gray-50 dark:hover:bg-white/5 hover:text-[#1c81ff] hover:border-[#1c81ff]/30 transition-all"
+          >
+            <ClipboardList className="h-3.5 w-3.5" />
+            Submissions
+          </button>
+        )}
+      </div>
+    </div>
   );
 }

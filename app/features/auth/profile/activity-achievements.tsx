@@ -1,7 +1,4 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Trophy, AlertCircle, Award, Star } from "lucide-react";
 import { useGetAchievements } from "@/hooks/profile";
 import { format } from "date-fns";
@@ -12,93 +9,113 @@ export function AchievementsDisplay() {
 
   if (isLoading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Trophy className="h-5 w-5" />
-            Pencapaian
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <Skeleton key={i} className="h-32" />
-            ))}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3 mb-5">
+          <div className="w-8 h-8 rounded-full bg-[#f6b60b]/10 flex items-center justify-center">
+            <Trophy className="h-4 w-4 text-[#f6b60b]" />
           </div>
-        </CardContent>
-      </Card>
+          <span className="font-bold text-gray-900 dark:text-white">
+            Pencapaian
+          </span>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-36 rounded-2xl" />
+          ))}
+        </div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>Gagal memuat pencapaian</AlertDescription>
-      </Alert>
+      <div className="flex items-start gap-3 rounded-2xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 p-4">
+        <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+        <p className="text-[14px] text-red-600 dark:text-red-400">
+          Gagal memuat pencapaian
+        </p>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Trophy className="h-5 w-5" />
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <div className="w-8 h-8 rounded-full bg-[#f6b60b]/10 flex items-center justify-center">
+          <Trophy className="h-4 w-4 text-[#f6b60b]" />
+        </div>
+        <span className="font-bold text-gray-900 dark:text-white">
           Pencapaian
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {!achievements || achievements.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            <Trophy className="h-16 w-16 mx-auto mb-4 opacity-50" />
-            <p className="text-lg font-medium mb-1">Belum Ada Pencapaian</p>
-            <p className="text-sm">
+        </span>
+        {achievements && achievements.length > 0 && (
+          <span className="inline-flex items-center rounded-full bg-gray-100 dark:bg-white/5 px-2 py-0.5 text-[11px] font-bold text-gray-500 dark:text-gray-400">
+            {achievements.length}
+          </span>
+        )}
+      </div>
+
+      {/* Empty state */}
+      {!achievements || achievements.length === 0 ? (
+        <div className="flex flex-col items-center gap-4 py-14 text-center rounded-2xl border border-dashed border-gray-200 dark:border-white/10">
+          <div className="w-16 h-16 rounded-full bg-[#f6b60b]/10 flex items-center justify-center">
+            <Trophy className="h-8 w-8 text-[#f6b60b]/50" />
+          </div>
+          <div>
+            <p className="text-[15px] font-bold text-gray-900 dark:text-white">
+              Belum Ada Pencapaian
+            </p>
+            <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-1">
               Selesaikan challenge dan lesson untuk mendapatkan badge!
             </p>
           </div>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {achievements.map((achievement) => (
-              <div
-                key={achievement.id}
-                className="p-4 border rounded-lg hover:border-primary transition-colors"
-              >
-                <div className="flex flex-col items-center text-center gap-3">
-                  {achievement.badge_url ? (
-                    <img
-                      src={achievement.badge_url}
-                      alt={achievement.title}
-                      className="h-16 w-16 object-contain"
-                    />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+          {achievements.map((achievement) => (
+            <div
+              key={achievement.id}
+              className="rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0b1215] p-5 flex flex-col items-center text-center gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+              {/* Badge */}
+              {achievement.badge_url ? (
+                <img
+                  src={achievement.badge_url}
+                  alt={achievement.title}
+                  className="h-14 w-14 object-contain"
+                />
+              ) : (
+                <div className="h-14 w-14 rounded-full bg-gradient-to-br from-[#f6b60b] to-[#ff007b] flex items-center justify-center shadow-md">
+                  {achievement.icon ? (
+                    <span className="text-2xl">{achievement.icon}</span>
                   ) : (
-                    <div className="h-16 w-16 rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center">
-                      {achievement.icon ? (
-                        <span className="text-3xl">{achievement.icon}</span>
-                      ) : (
-                        <Award className="h-8 w-8 text-white" />
-                      )}
-                    </div>
+                    <Award className="h-7 w-7 text-white" />
                   )}
-                  <div>
-                    <h4 className="font-semibold text-sm mb-1">
-                      {achievement.title}
-                    </h4>
-                    <p className="text-xs text-muted-foreground line-clamp-2">
-                      {achievement.description}
-                    </p>
-                  </div>
-                  <Badge variant="secondary" className="text-xs">
-                    <Star className="h-3 w-3 mr-1" />
-                    {format(new Date(achievement.earned_at), "dd MMM yyyy", {
-                      locale: localeId,
-                    })}
-                  </Badge>
                 </div>
+              )}
+
+              {/* Info */}
+              <div>
+                <h4
+                  className="font-extrabold text-[13px] text-gray-900 dark:text-white leading-tight mb-1"
+                  style={{ letterSpacing: "-0.01em" }}>
+                  {achievement.title}
+                </h4>
+                <p className="text-[12px] text-gray-500 dark:text-gray-400 line-clamp-2">
+                  {achievement.description}
+                </p>
               </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+
+              {/* Date */}
+              <span className="inline-flex items-center gap-1 rounded-full bg-[#f6b60b]/10 px-2.5 py-0.5 text-[11px] font-bold text-[#f6b60b]">
+                <Star className="h-3 w-3" />
+                {format(new Date(achievement.earned_at), "dd MMM yyyy", {
+                  locale: localeId,
+                })}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

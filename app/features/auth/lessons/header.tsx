@@ -1,9 +1,7 @@
 import type { Module } from "@/types/model";
-import ModalAdd from "./modal-add";
 import TableInformation from "@/components/custom/table-information";
 import type { TableInformationData } from "@/types/global";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import { Link } from "react-router";
 
 export default function Header({ module }: { module: Module }) {
@@ -29,11 +27,6 @@ export default function Header({ module }: { module: Module }) {
           <Button>Add Lesson</Button>
         </Link>
         {/* <ModalAdd moduleId={module.id} /> */}
-
-        <Button variant="outline">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Challenge
-        </Button>
       </div>
     </div>
   );

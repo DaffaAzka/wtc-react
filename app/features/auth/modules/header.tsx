@@ -1,5 +1,4 @@
 import type { Track } from "@/types/model";
-import ModalAdd from "./modal-add";
 import TableInformation from "@/components/custom/table-information";
 import type { TableInformationData } from "@/types/global";
 
@@ -20,9 +19,6 @@ export default function Header({ track }: { track: Track }) {
       <h1 className="text-2xl font-bold">Modules</h1>
 
       <TableInformation data={data} />
-      {/* <div className="flex justify-end">
-        <ModalAdd trackId={track.id} />
-      </div> */}
     </div>
   );
 }

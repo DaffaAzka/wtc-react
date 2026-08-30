@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import ChallengeModalEdit from "./modal-edit";
 import CodingAssignmentModalEdit from "./modal-edit-coding-assignment";
-import ChallengeModalManage from "./modal-manage";
 
 type Props = {
   challenges: Challenge[];
@@ -47,14 +46,6 @@ export default function ChallengeList({ challenges, context }: Props) {
     isOpen: false,
   });
 
-  const [manageModal, setManageModal] = useState<{
-    challenge: Challenge | null;
-    isOpen: boolean;
-  }>({
-    challenge: null,
-    isOpen: false,
-  });
-
   const handleDelete = async () => {
     if (!deleteDialog.challenge) return;
 
@@ -68,7 +59,7 @@ export default function ChallengeList({ challenges, context }: Props) {
   };
 
   const handleViewSubmissions = (challenge: Challenge) => {
-    navigate(`/admin/submissions/${challenge.id}`);
+    navigate(`/submissions/${challenge.id}`);
   };
 
   return (
@@ -78,12 +69,11 @@ export default function ChallengeList({ challenges, context }: Props) {
           <ChallengeCard
             key={challenge.id}
             challenge={challenge}
-            onEdit={(challenge) => setEditModal({ challenge, isOpen: true })}
+            onEdit={(challenge) => {
+              setEditModal({ challenge, isOpen: true });
+            }}
             onDelete={(challenge) =>
               setDeleteDialog({ challenge, isOpen: true })
-            }
-            onManage={(challenge) =>
-              setManageModal({ challenge, isOpen: true })
             }
             onViewSubmissions={handleViewSubmissions}
           />
@@ -120,7 +110,7 @@ export default function ChallengeList({ challenges, context }: Props) {
 
       {/* Edit Modal (Metadata Only) */}
       {editModal.challenge &&
-        (editModal.challenge.type === "file_upload" ?
+        (editModal.challenge.type === "file_upload" ? (
           <CodingAssignmentModalEdit
             key={`edit-${editModal.challenge.id}`}
             challenge={editModal.challenge}
@@ -130,7 +120,8 @@ export default function ChallengeList({ challenges, context }: Props) {
               setEditModal((prev) => ({ ...prev, isOpen: open }))
             }
           />
-        : <ChallengeModalEdit
+        ) : (
+          <ChallengeModalEdit
             key={`edit-${editModal.challenge.id}`}
             challenge={editModal.challenge}
             context={context}
@@ -138,19 +129,8 @@ export default function ChallengeList({ challenges, context }: Props) {
             onOpenChange={(open) =>
               setEditModal((prev) => ({ ...prev, isOpen: open }))
             }
-          />)}
-
-      {/* Manage Modal (Full Edit with Builder) */}
-      {manageModal.challenge && (
-        <ChallengeModalManage
-          key={`manage-${manageModal.challenge.id}`}
-          challenge={manageModal.challenge}
-          isOpen={manageModal.isOpen}
-          onOpenChange={(open) =>
-            setManageModal((prev) => ({ ...prev, isOpen: open }))
-          }
-        />
-      )}
+          />
+        ))}
     </>
   );
 }

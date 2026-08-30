@@ -1,11 +1,17 @@
 import { Link } from "react-router";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { EnrollmentConfirmationModal } from "@/students/components/enrollment-confirmation-modal";
 import { getPatternBackground } from "@/lib/utils";
-import { ArrowLeft, Award, BookOpen, CheckCircle, CheckCircle2, Clock, Loader2, PlayCircle, Target } from "lucide-react";
+import {
+  ArrowLeft,
+  Award,
+  BookOpen,
+  Clock,
+  Loader2,
+  PlayCircle,
+  Target,
+  CheckCircle,
+  Sparkles,
+} from "lucide-react";
 import type { Track } from "@/types/model";
 
 interface TrackPreviewProps {
@@ -17,265 +23,319 @@ interface TrackPreviewProps {
   onModalChange: (open: boolean) => void;
 }
 
-export function TrackPreview({ track, showConfirmModal, enrollmentPending, onEnrollClick, onConfirmEnroll, onModalChange }: TrackPreviewProps) {
+export function TrackPreview({
+  track,
+  showConfirmModal,
+  enrollmentPending,
+  onEnrollClick,
+  onConfirmEnroll,
+  onModalChange,
+}: TrackPreviewProps) {
   return (
-    <div className="space-y-6">
-      {/* <Button variant="ghost" asChild>
-        <Link to="/student/tracks">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Kembali ke Katalog
-        </Link>
-      </Button> */}
+    <div className="space-y-8 max-w-5xl">
+      {/* Back */}
+      <Link
+        to="/student/classes"
+        className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+        <ArrowLeft className="h-3.5 w-3.5" />
+        Kembali ke Katalog
+      </Link>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* ── Left: content ── */}
         <div className="space-y-6 lg:col-span-2">
-          <Card className="border-none shadow-lg hover:shadow-xl transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex flex-col lg:flex-row gap-8">
-                {/* Left: Details (75%) */}
-                <div className="flex-1 space-y-6">
-                  <div className="space-y-4">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {track.modules_count && track.modules_count > 0 ? (
-                        <Badge className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border-none shadow-sm">
-                          <BookOpen className="h-3.5 w-3.5 mr-1.5" />
-                          {track.modules_count} Modul
-                        </Badge>
-                      ) : (
-                        <Badge className="bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 border-none shadow-sm">
-                          <BookOpen className="h-3.5 w-3.5 mr-1.5" />
-                          Modul Pembelajaran
-                        </Badge>
-                      )}
-                      <Badge className="bg-cyan-500/10 text-cyan-500 hover:bg-cyan-500/20 border-none shadow-sm gap-1">
-                        <Clock className="h-3.5 w-3.5" />
-                        Self-Paced
-                      </Badge>
-                      <Badge className="bg-green-500/10 text-green-500 hover:bg-green-500/20 border-none shadow-sm gap-1">
-                        <Award className="h-3.5 w-3.5" />
-                        Gratis
-                      </Badge>
-                    </div>
-                    <h1 className="text-3xl lg:text-4xl font-bold">{track.title}</h1>
-                  </div>
+          {/* Hero card */}
+          <div className="overflow-hidden rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm">
+            {/* Image / pattern */}
+            <div
+              className="relative h-52 w-full overflow-hidden"
+              style={{ background: getPatternBackground(track.title) }}>
+              {track.image_url && (
+                <img
+                  src={track.image_url}
+                  alt={track.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+              )}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+              {/* Badges */}
+              <div className="absolute bottom-4 left-5 flex flex-wrap gap-2">
+                {track.modules_count != null && track.modules_count > 0 && (
+                  <span className="inline-flex items-center gap-1.5 rounded-full bg-black/50 backdrop-blur-sm px-3 py-1 text-[12px] font-bold text-white">
+                    <BookOpen className="h-3 w-3" />
+                    {track.modules_count} Modul
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-black/50 backdrop-blur-sm px-3 py-1 text-[12px] font-bold text-white">
+                  <Clock className="h-3 w-3" />
+                  Self-Paced
+                </span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#00E676]/80 backdrop-blur-sm px-3 py-1 text-[12px] font-bold text-white">
+                  <Award className="h-3 w-3" />
+                  Gratis
+                </span>
+              </div>
+            </div>
 
-                  <Separator />
+            {/* Info */}
+            <div className="p-6 space-y-5">
+              <div>
+                <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#1c81ff] mb-2">
+                  Learning Path
+                </p>
+                <h1
+                  className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight"
+                  style={{ letterSpacing: "-0.02em" }}>
+                  {track.title}
+                </h1>
+              </div>
 
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <div className="p-2 rounded-full bg-indigo-500/10">
-                        <BookOpen className="h-4 w-4 text-indigo-500" />
-                      </div>
-                      <h2 className="text-lg font-semibold">Tentang Kelas Ini</h2>
-                    </div>
-                    {track.description ? (
-                      <p className="leading-relaxed text-muted-foreground pl-10">{track.description}</p>
-                    ) : (
-                      <p className="italic text-muted-foreground pl-10">Deskripsi kelas akan segera ditambahkan.</p>
-                    )}
-                  </div>
+              <div className="h-px bg-gray-100 dark:bg-white/5" />
 
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-2">
-                      <div className="p-2 rounded-full bg-blue-500/10">
-                        <Target className="h-4 w-4 text-blue-500" />
-                      </div>
-                      <h2 className="text-lg font-semibold">Apa yang Akan Kamu Pelajari</h2>
-                    </div>
-
-                    <div className="space-y-3">
-                      <Card className="border-none shadow-sm bg-blue-500/5">
-                        <CardContent className="p-4">
-                          <div className="flex items-start gap-3">
-                            <div className="p-2 rounded-full bg-blue-500/10 shrink-0 mt-0.5">
-                              <BookOpen className="h-4 w-4 text-blue-500" />
-                            </div>
-                            <div className="space-y-2">
-                              <h3 className="font-semibold text-sm">Modul Pembelajaran Terstruktur</h3>
-                              <p className="text-sm text-muted-foreground">
-                                Materi pembelajaran disusun secara sistematis dari tingkat dasar hingga lanjutan, dirancang untuk membangun pemahaman secara bertahap.
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="border-none shadow-sm bg-indigo-500/5">
-                        <CardContent className="p-4">
-                          <div className="flex items-start gap-3">
-                            <div className="p-2 rounded-full bg-indigo-500/10 shrink-0 mt-0.5">
-                              <PlayCircle className="h-4 w-4 text-indigo-500" />
-                            </div>
-                            <div className="space-y-2">
-                              <h3 className="font-semibold text-sm">Lessons Interaktif</h3>
-                              <p className="text-sm text-muted-foreground">
-                                Setiap modul dilengkapi dengan lessons interaktif, latihan praktis, dan challenges untuk menguji pemahamanmu secara langsung.
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      <Card className="border-none shadow-sm bg-cyan-500/5">
-                        <CardContent className="p-4">
-                          <div className="flex items-start gap-3">
-                            <div className="p-2 rounded-full bg-cyan-500/10 shrink-0 mt-0.5">
-                              <Award className="h-4 w-4 text-cyan-500" />
-                            </div>
-                            <div className="space-y-2">
-                              <h3 className="font-semibold text-sm">Progress Tracking</h3>
-                              <p className="text-sm text-muted-foreground">
-                                Pantau perkembangan belajarmu dengan sistem tracking yang membantu kamu tetap termotivasi hingga menyelesaikan seluruh kelas.
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
+              {/* Description */}
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-[#1c81ff]/10 flex items-center justify-center shrink-0 mt-0.5">
+                  <BookOpen className="h-4 w-4 text-[#1c81ff]" />
+                </div>
+                <div>
+                  <h2 className="font-bold text-[15px] text-gray-900 dark:text-white mb-1">
+                    Tentang Kelas Ini
+                  </h2>
+                  <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400">
+                    {track.description ||
+                      "Deskripsi kelas akan segera ditambahkan."}
+                  </p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
-          <Card className="border-none shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <div className="p-2 rounded-full bg-indigo-500/10">
-                  <BookOpen className="h-5 w-5 text-indigo-500" />
+          {/* What you'll learn */}
+          <div className="overflow-hidden rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm">
+            <div className="flex items-center gap-3 border-b border-gray-100 dark:border-white/5 px-6 py-4">
+              <div className="w-8 h-8 rounded-full bg-[#31c7c8]/10 flex items-center justify-center">
+                <Target className="h-4 w-4 text-[#31c7c8]" />
+              </div>
+              <span className="font-bold text-gray-900 dark:text-white">
+                Apa yang Akan Kamu Pelajari
+              </span>
+            </div>
+            <div className="p-5 space-y-3">
+              {[
+                {
+                  icon: BookOpen,
+                  color: "bg-[#1c81ff]/10",
+                  iconColor: "text-[#1c81ff]",
+                  title: "Modul Pembelajaran Terstruktur",
+                  desc: "Materi disusun sistematis dari dasar hingga lanjutan, dirancang membangun pemahaman bertahap.",
+                },
+                {
+                  icon: PlayCircle,
+                  color: "bg-[#2548d8]/10",
+                  iconColor: "text-[#2548d8]",
+                  title: "Lessons Interaktif",
+                  desc: "Setiap modul dilengkapi lessons interaktif, latihan praktis, dan challenges untuk menguji pemahaman.",
+                },
+                {
+                  icon: Award,
+                  color: "bg-[#31c7c8]/10",
+                  iconColor: "text-[#31c7c8]",
+                  title: "Progress Tracking",
+                  desc: "Pantau perkembangan belajar dengan sistem tracking yang membantumu tetap termotivasi.",
+                },
+              ].map(({ icon: Icon, color, iconColor, title, desc }) => (
+                <div
+                  key={title}
+                  className="flex items-start gap-3 rounded-xl border border-gray-200 dark:border-white/10 p-4 hover:shadow-sm transition-shadow">
+                  <div
+                    className={`w-9 h-9 rounded-full ${color} flex items-center justify-center shrink-0`}>
+                    <Icon className={`h-4 w-4 ${iconColor}`} />
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-[14px] text-gray-900 dark:text-white mb-0.5">
+                      {title}
+                    </h3>
+                    <p className="text-[13px] leading-relaxed text-gray-500 dark:text-gray-400">
+                      {desc}
+                    </p>
+                  </div>
                 </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Curriculum structure */}
+          <div className="overflow-hidden rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm">
+            <div className="flex items-center gap-3 border-b border-gray-100 dark:border-white/5 px-6 py-4">
+              <div className="w-8 h-8 rounded-full bg-[#2548d8]/10 flex items-center justify-center">
+                <Sparkles className="h-4 w-4 text-[#2548d8]" />
+              </div>
+              <span className="font-bold text-gray-900 dark:text-white">
                 Struktur Pembelajaran
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <p className="text-sm text-muted-foreground mb-4">Kurikulum kelas ini dirancang dengan pendekatan bertahap untuk memastikan pemahaman yang solid.</p>
-
-              <div className="space-y-3">
-                <div className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:shadow-sm transition-shadow">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-500/10 text-blue-500 font-semibold text-sm shrink-0">1</div>
-                  <div className="space-y-1">
-                    <h4 className="font-semibold text-sm">Fundamental Concepts</h4>
-                    <p className="text-xs text-muted-foreground">Membangun fondasi dengan konsep-konsep dasar yang penting</p>
+              </span>
+            </div>
+            <div className="p-5 space-y-3">
+              <p className="text-[14px] text-gray-500 dark:text-gray-400">
+                Kurikulum dirancang dengan pendekatan bertahap untuk pemahaman
+                yang solid.
+              </p>
+              {[
+                {
+                  n: "01",
+                  color: "bg-[#1c81ff]/10 text-[#1c81ff]",
+                  title: "Fundamental Concepts",
+                  desc: "Membangun fondasi dengan konsep-konsep dasar yang penting",
+                },
+                {
+                  n: "02",
+                  color: "bg-[#2548d8]/10 text-[#2548d8]",
+                  title: "Practical Implementation",
+                  desc: "Menerapkan teori ke dalam praktik dengan hands-on exercises",
+                },
+                {
+                  n: "03",
+                  color: "bg-[#31c7c8]/10 text-[#31c7c8]",
+                  title: "Advanced Techniques",
+                  desc: "Menguasai teknik lanjutan dan best practices",
+                },
+                {
+                  n: "04",
+                  color: "bg-[#00E676]/10 text-[#00E676]",
+                  title: "Real-World Projects",
+                  desc: "Mengerjakan project nyata untuk portfolio dan pengalaman praktis",
+                },
+              ].map(({ n, color, title, desc }) => (
+                <div
+                  key={n}
+                  className="flex items-start gap-3 rounded-xl border border-gray-100 dark:border-white/5 hover:border-gray-200 dark:hover:border-white/10 p-4 transition-colors">
+                  <span
+                    className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center font-mono text-[12px] font-extrabold ${color}`}>
+                    {n}
+                  </span>
+                  <div>
+                    <h4 className="font-bold text-[14px] text-gray-900 dark:text-white">
+                      {title}
+                    </h4>
+                    <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-0.5">
+                      {desc}
+                    </p>
                   </div>
                 </div>
+              ))}
 
-                <div className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:shadow-sm transition-shadow">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-indigo-500/10 text-indigo-500 font-semibold text-sm shrink-0">2</div>
-                  <div className="space-y-1">
-                    <h4 className="font-semibold text-sm">Practical Implementation</h4>
-                    <p className="text-xs text-muted-foreground">Menerapkan teori ke dalam praktik dengan hands-on exercises</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:shadow-sm transition-shadow">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-cyan-500/10 text-cyan-500 font-semibold text-sm shrink-0">3</div>
-                  <div className="space-y-1">
-                    <h4 className="font-semibold text-sm">Advanced Techniques</h4>
-                    <p className="text-xs text-muted-foreground">Menguasai teknik-teknik lanjutan dan best practices</p>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-3 p-3 rounded-lg border bg-card hover:shadow-sm transition-shadow">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-green-500/10 text-green-500 font-semibold text-sm shrink-0">4</div>
-                  <div className="space-y-1">
-                    <h4 className="font-semibold text-sm">Real-World Projects</h4>
-                    <p className="text-xs text-muted-foreground">Mengerjakan project nyata untuk portfolio dan pengalaman praktis</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 p-4 rounded-lg bg-muted/50 border-l-4 border-blue-500">
-                <p className="text-sm text-muted-foreground">
-                  💡 <span className="font-medium text-foreground">Daftar sekarang</span> untuk mengakses kurikulum lengkap dengan detail modul, lessons, dan challenges interaktif.
+              <div className="rounded-xl bg-[#1c81ff]/5 border border-[#1c81ff]/15 p-4 flex items-start gap-3">
+                <Sparkles className="h-4 w-4 text-[#1c81ff] shrink-0 mt-0.5" />
+                <p className="text-[13px] text-gray-600 dark:text-gray-300">
+                  <span className="font-bold text-gray-900 dark:text-white">
+                    Daftar sekarang
+                  </span>{" "}
+                  untuk mengakses kurikulum lengkap dengan detail modul,
+                  lessons, dan challenges.
                 </p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
+        {/* ── Right: enrollment sidebar ── */}
         <div className="lg:col-span-1">
-          <Card className="lg:sticky lg:top-6 border-none shadow-lg h-[calc(100vh-3rem)]">
-            <CardContent className="flex flex-col p-6 pt-2 h-full">
-              <div className="space-y-4">
-                <div className="py-6 text-center bg-gradient-to-br from-blue-500/5 via-transparent to-indigo-500/5 rounded-lg">
-                  <div className="mb-4 inline-flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20">
-                    <Award className="h-10 w-10 text-blue-600 dark:text-blue-400" />
-                  </div>
-                  <p className="mb-1 text-3xl font-bold">Gratis</p>
-                  <p className="text-sm font-medium text-muted-foreground">Akses Selamanya</p>
-                </div>
+          <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm sticky top-20">
+            {/* Price hero */}
+            <div className="p-6 text-center border-b border-gray-100 dark:border-white/5 bg-gradient-to-br from-[#1c81ff]/5 to-[#31c7c8]/5">
+              <div className="w-16 h-16 rounded-2xl bg-[#1c81ff]/10 flex items-center justify-center mx-auto mb-4">
+                <Award className="h-8 w-8 text-[#1c81ff]" />
               </div>
-              <div className="mt-auto space-y-3">
-                <h3 className="text-sm font-semibold flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-blue-500" />
-                  Kelas ini mencakup:
-                </h3>
-
-                <div className="space-y-2.5 text-sm">
-                  {/* {track.modules_count && track.modules_count > 0 ? ( */}
-                  <div className="flex items-center gap-2.5 p-2 rounded-md hover:bg-muted/50 transition-colors">
-                    <div className="p-1.5 rounded-full bg-blue-500/10">
-                      <BookOpen className="h-3.5 w-3.5 text-blue-500" />
-                    </div>
-
-                    <span>{track.modules_count} Modul pembelajaran</span>
-                  </div>
-                  {/* ) : (
-                    <div className="flex items-center gap-2.5 p-2 rounded-md hover:bg-muted/50 transition-colors">
-                      <div className="p-1.5 rounded-full bg-blue-500/10">
-                        <BookOpen className="h-3.5 w-3.5 text-blue-500" />
-                      </div>
-
-                      <span>Modul pembelajaran terstruktur</span>
-                    </div>
-                  )} */}
-
-                  <div className="flex items-center gap-2.5 p-2 rounded-md hover:bg-muted/50 transition-colors">
-                    <div className="p-1.5 rounded-full bg-indigo-500/10">
-                      <PlayCircle className="h-3.5 w-3.5 text-indigo-500" />
-                    </div>
-
-                    <span>Lessons interaktif</span>
-                  </div>
-
-                  <div className="flex items-center gap-2.5 p-2 rounded-md hover:bg-muted/50 transition-colors">
-                    <div className="p-1.5 rounded-full bg-amber-500/10">
-                      <Award className="h-3.5 w-3.5 text-amber-500" />
-                    </div>
-
-                    <span>Sertifikat penyelesaian</span>
-                  </div>
-                </div>
+              <div
+                className="text-3xl font-extrabold text-gray-900 dark:text-white mb-1"
+                style={{ letterSpacing: "-0.02em" }}>
+                Gratis
               </div>
+              <p className="text-[13px] font-bold text-gray-500 dark:text-gray-400">
+                Akses Selamanya
+              </p>
+            </div>
 
-              <div className="mt-auto space-y-4 ">
-                <Button
-                  size="lg"
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg hover:shadow-xl transition-all"
+            {/* Includes */}
+            <div className="p-5 space-y-3">
+              <p className="text-[12px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500">
+                Kelas ini mencakup:
+              </p>
+              <ul className="space-y-2.5">
+                {[
+                  {
+                    icon: BookOpen,
+                    color: "text-[#1c81ff]",
+                    bg: "bg-[#1c81ff]/10",
+                    text: `${track.modules_count || "Beberapa"} modul pembelajaran`,
+                  },
+                  {
+                    icon: PlayCircle,
+                    color: "text-[#2548d8]",
+                    bg: "bg-[#2548d8]/10",
+                    text: "Lessons interaktif",
+                  },
+                  {
+                    icon: Award,
+                    color: "text-[#31c7c8]",
+                    bg: "bg-[#31c7c8]/10",
+                    text: "Sertifikat penyelesaian",
+                  },
+                  {
+                    icon: CheckCircle,
+                    color: "text-[#00E676]",
+                    bg: "bg-[#00E676]/10",
+                    text: "Akses seumur hidup",
+                  },
+                ].map(({ icon: Icon, color, bg, text }) => (
+                  <li
+                    key={text}
+                    className="flex items-center gap-3 text-[14px] text-gray-700 dark:text-gray-300">
+                    <div
+                      className={`w-7 h-7 rounded-full ${bg} flex items-center justify-center shrink-0`}>
+                      <Icon className={`h-3.5 w-3.5 ${color}`} />
+                    </div>
+                    {text}
+                  </li>
+                ))}
+              </ul>
+
+              <div className="pt-3">
+                <button
                   onClick={onEnrollClick}
                   disabled={enrollmentPending}
-                >
+                  className="w-full flex items-center justify-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-3.5 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-[15px]">
                   {enrollmentPending ? (
                     <>
-                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                      Memproses...
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Memproses…
                     </>
                   ) : (
                     <>
-                      <Award className="h-5 w-5 mr-2" />
+                      <Award className="h-5 w-5" />
                       Ambil Kelas Sekarang
                     </>
                   )}
-                </Button>
-
-                <p className="text-center text-xs text-muted-foreground">Dengan mengambil kelas ini, Anda menyetujui untuk belajar dan menyelesaikan materi.</p>
+                </button>
+                <p className="text-center text-[12px] text-gray-400 dark:text-gray-600 mt-3">
+                  Dengan mendaftar, kamu setuju untuk belajar dan menyelesaikan
+                  materi.
+                </p>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
 
-      <EnrollmentConfirmationModal open={showConfirmModal} onOpenChange={onModalChange} onConfirm={onConfirmEnroll} loading={enrollmentPending} trackTitle={track.title} />
+      <EnrollmentConfirmationModal
+        open={showConfirmModal}
+        onOpenChange={onModalChange}
+        onConfirm={onConfirmEnroll}
+        loading={enrollmentPending}
+        trackTitle={track.title}
+      />
     </div>
   );
 }

@@ -55,7 +55,7 @@ export default function ModalEdit({
   const updateStudyClass = useUpdateStudyClass();
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSelectChange = (name: string, value: string) =>
@@ -78,7 +78,7 @@ export default function ModalEdit({
         onSuccess: () => {
           onOpenChange(false);
         },
-      }
+      },
     );
   };
 
@@ -151,15 +151,9 @@ export default function ModalEdit({
                 <SelectItem value="2027/2028">2027/2028</SelectItem>
               </SelectContent>
             </Select>
-            {getFieldError(
-              updateStudyClass.error?.errors,
-              "academic_year"
-            ) && (
+            {getFieldError(updateStudyClass.error?.errors, "academic_year") && (
               <p className="text-sm text-red-600">
-                {getFieldError(
-                  updateStudyClass.error?.errors,
-                  "academic_year"
-                )}
+                {getFieldError(updateStudyClass.error?.errors, "academic_year")}
               </p>
             )}
           </div>

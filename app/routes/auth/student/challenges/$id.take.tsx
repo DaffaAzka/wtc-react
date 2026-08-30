@@ -2,10 +2,6 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router";
 import { useGetChallenge } from "@/hooks/challenges";
 import { useSubmitChallenge } from "@/hooks/submission";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Skeleton } from "@/components/ui/skeleton";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import {
@@ -25,6 +21,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Circle,
+  TriangleAlert,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { MCQQuestion } from "@/types/challenge";
@@ -35,8 +32,7 @@ export default function ChallengeQuizRunnerPage() {
   const challengeId = Number(id);
 
   const { challenge, loading, error } = useGetChallenge(challengeId);
-  const { mutate: submitChallenge, isPending: isSubmitting } =
-    useSubmitChallenge();
+  const { mutate: submitChallenge, isPending: isSubmitting } = useSubmitChallenge();
 
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>({});
@@ -49,21 +45,14 @@ export default function ChallengeQuizRunnerPage() {
 
   useEffect(() => {
     if (!challenge?.metadata?.estimated_minutes) return;
-
     const totalSeconds = challenge.metadata.estimated_minutes * 60;
     setTimeRemaining(totalSeconds);
-
     const interval = setInterval(() => {
       setTimeRemaining((prev) => {
-        if (prev === null || prev <= 1) {
-          clearInterval(interval);
-          confirmSubmit();
-          return 0;
-        }
+        if (prev === null || prev <= 1) { clearInterval(interval); confirmSubmit(); return 0; }
         return prev - 1;
       });
     }, 1000);
-
     return () => clearInterval(interval);
   }, [challenge]);
 
@@ -73,291 +62,271 @@ export default function ChallengeQuizRunnerPage() {
     return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
-  const handleAnswerSelect = (answer: string) => {
+  const handleAnswerSelect = (answer: string) =>
     setAnswers((prev) => ({ ...prev, [currentQuestionIndex]: answer }));
-  };
-
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev - 1);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentQuestionIndex < questions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
-    }
-  };
-
-  const handleSubmitClick = () => {
-    setShowConfirmDialog(true);
-  };
+  const handlePrevious = () => currentQuestionIndex > 0 && setCurrentQuestionIndex((p) => p - 1);
+  const handleNext = () => currentQuestionIndex < questions.length - 1 && setCurrentQuestionIndex((p) => p + 1);
+  const handleSubmitClick = () => setShowConfirmDialog(true);
 
   const confirmSubmit = async () => {
     setShowConfirmDialog(false);
-
-    const answersArray = questions.map((_, index) => answers[index] || "");
-
+    const answersArray = questions.map((_, i) => answers[i] || "");
     submitChallenge(
-      {
-        challengeId,
-        request: {
-          submitted_content: {
-            answers: answersArray,
-          },
-        },
-      },
-      {
-        onSuccess: () => {
-          navigate(`/student/challenges/${id}`);
-        },
-      },
+      { challengeId, request: { submitted_content: { answers: answersArray } } },
+      { onSuccess: () => navigate(`/student/challenges/${id}`) },
     );
   };
 
+  // ── Loading ─────────────────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="space-y-4 text-center">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Memuat challenge...</p>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-[#1c81ff]" />
+          <p className="text-[14px] text-gray-500 dark:text-gray-400">Memuat challenge…</p>
         </div>
       </div>
     );
   }
 
+  // ── Error ───────────────────────────────────────────────────────────────────
   if (error || !challenge) {
     return (
-      <div className="container max-w-4xl mx-auto p-6">
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
+      <div className="max-w-xl mx-auto p-6 space-y-4">
+        <div className="flex items-start gap-3 rounded-2xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 p-5">
+          <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
+          <p className="text-[15px] text-red-600 dark:text-red-400">
             {error?.message || "Challenge tidak ditemukan"}
-          </AlertDescription>
-        </Alert>
-        <Button variant="ghost" className="mt-4" asChild>
-          <Link to="/student/dashboard">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Kembali ke Dashboard
-          </Link>
-        </Button>
+          </p>
+        </div>
+        <Link to="/student/dashboard"
+          className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Kembali ke Dashboard
+        </Link>
       </div>
     );
   }
 
+  // ── No questions ─────────────────────────────────────────────────────────────
   if (questions.length === 0) {
     return (
-      <div className="container max-w-4xl mx-auto p-6">
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
+      <div className="max-w-xl mx-auto p-6 space-y-4">
+        <div className="flex items-start gap-3 rounded-2xl bg-[#f6b60b]/5 border border-[#f6b60b]/20 p-5">
+          <TriangleAlert className="h-5 w-5 text-[#f6b60b] shrink-0 mt-0.5" />
+          <p className="text-[15px] text-gray-700 dark:text-gray-300">
             Challenge ini belum memiliki soal.
-          </AlertDescription>
-        </Alert>
-        <Button variant="ghost" className="mt-4" asChild>
-          <Link to={`/student/challenges/${id}`}>
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Kembali ke Overview
-          </Link>
-        </Button>
+          </p>
+        </div>
+        <Link to={`/student/challenges/${id}`}
+          className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+          <ArrowLeft className="h-3.5 w-3.5" />
+          Kembali ke Overview
+        </Link>
       </div>
     );
   }
 
+  const answeredCount = Object.keys(answers).length;
+
+  // ── Main quiz layout ─────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Left Sidebar - Question Navigation */}
-      <div className="w-full lg:w-64 border-b lg:border-b-0 lg:border-r bg-muted/30">
-        <div className="p-4 border-b">
-          <Button
-            variant="ghost"
-            size="sm"
-            asChild
-            className="w-full justify-start">
-            <Link to={`/student/challenges/${id}`}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Kembali
-            </Link>
-          </Button>
+    <div className="flex min-h-screen flex-col lg:flex-row bg-gray-50 dark:bg-[#0d1117]">
+      {/* ── Left sidebar: question nav ── */}
+      <div className="w-full lg:w-64 bg-white dark:bg-[#0a0f12] border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-white/10">
+        {/* Back button */}
+        <div className="px-4 py-3.5 border-b border-gray-100 dark:border-white/5">
+          <Link to={`/student/challenges/${id}`}
+            className="flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Kembali ke Overview
+          </Link>
         </div>
 
-        <div className="p-4">
-          <h3 className="text-sm font-semibold mb-3">Soal</h3>
-          <div className="grid grid-cols-5 lg:grid-cols-1 gap-2">
-            {questions.map((_, index) => {
-              const isActive = currentQuestionIndex === index;
-              const isAnswered = answers[index] !== undefined;
-
-              return (
-                <button
-                  key={index}
-                  onClick={() => setCurrentQuestionIndex(index)}
-                  className={cn(
-                    "flex items-center gap-2 p-3 rounded-lg border transition-colors text-left",
-                    isActive &&
-                      "bg-primary text-primary-foreground border-primary",
-                    !isActive &&
-                      isAnswered &&
-                      "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-900",
-                    !isActive && !isAnswered && "hover:bg-accent",
-                  )}>
-                  {isAnswered ? (
-                    <CheckCircle2 className="h-4 w-4 flex-shrink-0 text-green-600" />
-                  ) : (
-                    <Circle className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
-                  )}
-                  <span className="font-medium">{index + 1}</span>
-                </button>
-              );
-            })}
+        {/* Progress indicator */}
+        <div className="px-4 py-3 border-b border-gray-100 dark:border-white/5">
+          <div className="flex items-center justify-between mb-1.5">
+            <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500">
+              Progress
+            </span>
+            <span className="text-[11px] font-extrabold tabular-nums text-[#1c81ff]">
+              {answeredCount}/{questions.length}
+            </span>
           </div>
+          <div className="h-1.5 rounded-full bg-gray-100 dark:bg-white/10 overflow-hidden">
+            <div
+              className="h-full bg-[#1c81ff] transition-all duration-300 rounded-full"
+              style={{ width: `${(answeredCount / questions.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Question list */}
+        <div className="p-3 grid grid-cols-5 lg:grid-cols-1 gap-1.5">
+          {questions.map((_, index) => {
+            const isActive = currentQuestionIndex === index;
+            const isAnswered = answers[index] !== undefined;
+            return (
+              <button
+                key={index}
+                onClick={() => setCurrentQuestionIndex(index)}
+                className={cn(
+                  "flex items-center gap-2 rounded-xl p-3 text-left transition-all text-[13px] font-bold",
+                  isActive && "bg-[#1c81ff]/10 text-[#1c81ff] border border-[#1c81ff]/20",
+                  !isActive && isAnswered && "bg-[#00E676]/10 text-[#00E676]",
+                  !isActive && !isAnswered && "hover:bg-gray-50 dark:hover:bg-white/5 text-gray-600 dark:text-gray-400",
+                )}
+              >
+                {isAnswered ? (
+                  <CheckCircle2 className="shrink-0 h-4 w-4" />
+                ) : (
+                  <Circle className="shrink-0 h-4 w-4" />
+                )}
+                <span className="hidden lg:inline">Soal {index + 1}</span>
+                <span className="lg:hidden">{index + 1}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen lg:min-h-0">
-        {/* Top Bar with Timer */}
-        <div className="border-b p-4 bg-background">
-          <div className="max-w-4xl mx-auto flex items-center justify-between">
-            <div>
-              <h1 className="text-lg font-semibold">{challenge.title}</h1>
-              <p className="text-sm text-muted-foreground">
-                Soal {currentQuestionIndex + 1} dari {questions.length}
+      {/* ── Main content ── */}
+      <div className="flex-1 flex flex-col">
+        {/* Top bar */}
+        <div className="sticky top-0 z-10 flex h-14 items-center justify-between border-b border-gray-200 dark:border-white/10 bg-white/90 dark:bg-[#0a0f12]/90 backdrop-blur-md px-5">
+          <div>
+            <h1 className="text-[14px] font-extrabold text-gray-900 dark:text-white truncate max-w-xs" style={{ letterSpacing: "-0.01em" }}>
+              {challenge.title}
+            </h1>
+            <p className="text-[12px] text-gray-500 dark:text-gray-400">
+              Soal {currentQuestionIndex + 1} dari {questions.length}
+            </p>
+          </div>
+          {timeRemaining !== null && (
+            <div className={cn(
+              "flex items-center gap-2 rounded-xl px-4 py-2 border font-mono text-lg font-extrabold tabular-nums",
+              timeRemaining < 60
+                ? "border-[#ff007b]/30 bg-[#ff007b]/10 text-[#ff007b]"
+                : "border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-gray-900 dark:text-white",
+            )}>
+              <Clock className="h-4 w-4" />
+              {formatTime(timeRemaining)}
+            </div>
+          )}
+        </div>
+
+        {/* Question */}
+        <div className="flex-1 overflow-y-auto p-6 md:p-8">
+          <div className="max-w-2xl mx-auto space-y-6">
+            {/* Question card */}
+            <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm p-6 md:p-8">
+              <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#1c81ff] mb-3">
+                Pertanyaan {currentQuestionIndex + 1}
               </p>
+              <h2 className="text-xl font-extrabold text-gray-900 dark:text-white leading-relaxed" style={{ letterSpacing: "-0.02em" }}>
+                {currentQuestion.question}
+              </h2>
             </div>
 
-            {timeRemaining !== null && (
-              <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <span
-                  className={cn(
-                    "font-mono text-lg font-semibold",
-                    timeRemaining < 60 && "text-red-600",
-                  )}>
-                  {formatTime(timeRemaining)}
-                </span>
-              </div>
-            )}
+            {/* Answer options */}
+            <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm p-5 space-y-3">
+              <RadioGroup value={answers[currentQuestionIndex]} onValueChange={handleAnswerSelect} className="space-y-2.5">
+                {currentQuestion.options.map((option, index) => {
+                  const optionKey = String.fromCharCode(65 + index);
+                  const isSelected = answers[currentQuestionIndex] === optionKey;
+                  return (
+                    <div
+                      key={optionKey}
+                      className={cn(
+                        "flex items-start gap-3 rounded-xl border-[1.5px] p-4 cursor-pointer transition-all",
+                        isSelected
+                          ? "border-[#1c81ff] bg-[#1c81ff]/5 dark:bg-[#1c81ff]/10"
+                          : "border-gray-200 dark:border-white/10 hover:border-[#1c81ff]/40 hover:bg-gray-50 dark:hover:bg-white/5",
+                      )}
+                    >
+                      <RadioGroupItem value={optionKey} id={`option-${optionKey}`} className="mt-0.5 shrink-0" />
+                      <Label htmlFor={`option-${optionKey}`} className="flex-1 cursor-pointer text-[14px] text-gray-700 dark:text-gray-300">
+                        <span className={cn("font-extrabold mr-2", isSelected ? "text-[#1c81ff]" : "text-gray-400 dark:text-gray-600")}>
+                          {optionKey}.
+                        </span>
+                        {option}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </RadioGroup>
+            </div>
           </div>
         </div>
 
-        {/* Question Display */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-4xl mx-auto">
-            <Card>
-              <CardContent className="p-8 space-y-6">
-                {/* Question Text */}
-                <div>
-                  <div className="text-xs font-semibold text-muted-foreground uppercase mb-2">
-                    Pertanyaan {currentQuestionIndex + 1}
-                  </div>
-                  <h2 className="text-xl font-medium leading-relaxed">
-                    {currentQuestion.question}
-                  </h2>
-                </div>
-
-                {/* Answer Options */}
-                <RadioGroup
-                  value={answers[currentQuestionIndex]}
-                  onValueChange={handleAnswerSelect}
-                  className="space-y-3">
-                  {currentQuestion.options.map((option, index) => {
-                    const optionKey = String.fromCharCode(65 + index); // A, B, C, D
-                    const isSelected =
-                      answers[currentQuestionIndex] === optionKey;
-
-                    return (
-                      <div
-                        key={optionKey}
-                        className={cn(
-                          "flex items-start gap-3 p-4 rounded-lg border-2 cursor-pointer transition-colors",
-                          isSelected
-                            ? "border-primary bg-primary/5"
-                            : "border-border hover:border-primary/50 hover:bg-accent/50",
-                        )}>
-                        <RadioGroupItem
-                          value={optionKey}
-                          id={`option-${optionKey}`}
-                          className="mt-0.5"
-                        />
-                        <Label
-                          htmlFor={`option-${optionKey}`}
-                          className="flex-1 cursor-pointer">
-                          <span className="font-semibold mr-2">
-                            {optionKey}.
-                          </span>
-                          {option}
-                        </Label>
-                      </div>
-                    );
-                  })}
-                </RadioGroup>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Bottom Navigation */}
-        <div className="border-t p-4 bg-background">
-          <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
-            <Button
-              variant="outline"
+        {/* Bottom nav */}
+        <div className="border-t border-gray-200 dark:border-white/10 bg-white/90 dark:bg-[#0a0f12]/90 backdrop-blur-md">
+          <div className="max-w-2xl mx-auto px-5 py-3 flex items-center justify-between gap-4">
+            <button
               onClick={handlePrevious}
-              disabled={currentQuestionIndex === 0}>
+              disabled={currentQuestionIndex === 0}
+              className="flex items-center gap-1.5 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-4 py-2 text-[13px] hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            >
               Sebelumnya
-            </Button>
+            </button>
 
-            <div className="text-sm text-muted-foreground">
-              {Object.keys(answers).length} / {questions.length} terjawab
-            </div>
+            <span className="text-[13px] text-gray-500 dark:text-gray-400 tabular-nums font-bold">
+              {answeredCount}/{questions.length} terjawab
+            </span>
 
             {isLastQuestion ? (
-              <Button
+              <button
                 onClick={handleSubmitClick}
                 disabled={isSubmitting}
-                size="lg">
+                className="flex items-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-2 px-5 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-[13px]"
+              >
                 {isSubmitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Mengirim...
-                  </>
-                ) : (
-                  "Kumpulkan"
-                )}
-              </Button>
+                  <><Loader2 className="h-4 w-4 animate-spin" />Mengirim…</>
+                ) : "Kumpulkan"}
+              </button>
             ) : (
-              <Button
+              <button
                 onClick={handleNext}
-                disabled={currentQuestionIndex >= questions.length - 1}>
+                disabled={currentQuestionIndex >= questions.length - 1}
+                className="flex items-center gap-1.5 bg-[#1c81ff] text-white font-bold rounded-xl px-4 py-2 text-[13px] shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
                 Selanjutnya
-              </Button>
+              </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Confirmation Dialog */}
+      {/* Confirm dialog */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle>Konfirmasi Pengumpulan</AlertDialogTitle>
-            <AlertDialogDescription>
-              Anda yakin ingin mengumpulkan jawaban? Pastikan semua jawaban
-              sudah benar. Setelah dikumpulkan, Anda tidak dapat mengubah
-              jawaban lagi.
+            <AlertDialogTitle className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>
+              Kumpulkan Jawaban?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-[15px] text-gray-500 dark:text-gray-400">
+              {answeredCount < questions.length ? (
+                <>
+                  Kamu baru menjawab{" "}
+                  <span className="font-bold text-[#f6b60b]">{answeredCount}</span> dari{" "}
+                  <span className="font-bold">{questions.length}</span> soal.{" "}
+                </>
+              ) : null}
+              Setelah dikumpulkan, jawaban tidak bisa diubah lagi.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Batal</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmSubmit} disabled={isSubmitting}>
+            <AlertDialogCancel className="rounded-xl border-[1.5px] border-gray-200 dark:border-white/20 font-bold">
+              Batal
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmSubmit}
+              disabled={isSubmitting}
+              className="bg-[#1c81ff] text-white font-bold rounded-xl shadow-md shadow-blue-500/20 hover:scale-[1.02] transition-transform"
+            >
               {isSubmitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Mengirim...
-                </>
-              ) : (
-                "Ya, Kumpulkan"
-              )}
+                <><Loader2 className="h-4 w-4 animate-spin mr-2" />Mengirim…</>
+              ) : "Ya, Kumpulkan"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -1,12 +1,6 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { FaBook, FaArrowRight, FaUserGraduate } from "react-icons/fa";
 import { Link } from "react-router";
 import { getPatternBackground } from "@/lib/utils";
+import { BookOpen, ArrowRight, GraduationCap } from "lucide-react";
 
 interface StudyClass {
   id: string | number;
@@ -21,60 +15,57 @@ export default function StudyClassCard({ data }: { data: StudyClass }) {
   const slug = data.slug || `${data.id}`;
 
   return (
-    <Link to={`/student/study-classes/${slug}`}>
-      <Card className="overflow-hidden group cursor-pointer border-2 hover:border-primary/50 transition-all duration-300 hover:shadow-xl h-full flex flex-col">
-        {/* Class Image with Overlay */}
+    <Link to={`/student/study-classes/${slug}`} className="group block">
+      <div className="overflow-hidden rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 h-full flex flex-col">
+        {/* Image */}
         <div
           className="relative h-48 overflow-hidden"
-          style={{ background: getPatternBackground(data.name) }}
-        >
+          style={{ background: getPatternBackground(data.name) }}>
           {data.image_url && (
             <img
               src={data.image_url}
               alt={data.name}
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
               }}
             />
           )}
-          {/* Gradient Overlay for Text */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-
-          {/* Title Overlay on Image */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-4">
-            <Badge className="mb-2 bg-primary/90 backdrop-blur-sm border-white/20">
-              <FaUserGraduate className="h-3 w-3 mr-1" />
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-[#31c7c8]/80 backdrop-blur-sm px-2.5 py-1 text-[11px] font-bold text-white mb-2">
+              <GraduationCap className="h-3 w-3" />
               Study Class
-            </Badge>
-            <h3 className="text-white font-bold text-lg line-clamp-2 drop-shadow-lg">
+            </span>
+            <h3
+              className="text-white font-extrabold text-lg line-clamp-2 drop-shadow-lg"
+              style={{ letterSpacing: "-0.01em" }}>
               {data.name}
             </h3>
           </div>
         </div>
 
-        {/* Card Content */}
-        <CardContent className="flex-1 flex flex-col p-4 space-y-3">
-          {/* Description */}
-          <CardDescription className="text-sm line-clamp-2 flex-1">
-            {data.description}
-          </CardDescription>
+        {/* Content */}
+        <div className="flex flex-col flex-1 p-5 space-y-3">
+          <p className="text-[14px] leading-relaxed text-gray-500 dark:text-gray-400 line-clamp-2 flex-1">
+            {data.description || "Klik untuk melihat detail kelas ini."}
+          </p>
 
-          {/* Footer Info */}
-          <div className="flex items-center justify-between pt-2 border-t">
-            <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-              <FaBook className="h-3.5 w-3.5 text-primary" />
-              <span className="font-medium">{data.modules_count || 0}</span>
-              <span>Modules</span>
+          <div className="flex items-center justify-between border-t border-gray-100 dark:border-white/5 pt-3">
+            <div className="flex items-center gap-1.5 text-[13px] text-gray-500 dark:text-gray-400">
+              <BookOpen className="h-3.5 w-3.5 text-[#31c7c8]" />
+              <span className="font-bold text-gray-900 dark:text-white">
+                {data.modules_count || 0}
+              </span>
+              <span>Modul</span>
             </div>
-
-            <div className="flex items-center gap-1 text-sm text-primary font-medium group-hover:gap-2 transition-all">
+            <div className="flex items-center gap-1 text-[13px] font-bold text-[#31c7c8] group-hover:gap-2 transition-all">
               <span>Open</span>
-              <FaArrowRight className="h-3.5 w-3.5" />
+              <ArrowRight className="h-3.5 w-3.5" />
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </Link>
   );
 }

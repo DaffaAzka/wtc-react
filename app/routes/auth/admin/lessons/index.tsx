@@ -8,33 +8,30 @@ import { useGetModule, useGetModules } from "@/hooks/modules";
 import { useGetTracks } from "@/hooks/tracks";
 import type { LessonFilter } from "@/types/filter";
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
 import { Plus } from "lucide-react";
 import type { Route } from "./+types/index";
+import { useEffect } from "react";
 
 export default function LessonsPage({ params }: Route.ComponentProps) {
   const slug = (params as { slug?: string }).slug;
-
-  return slug ? (
-    <ModuleScopedLessons slug={slug} />
-  ) : (
-    <StandaloneLessons />
-  );
+  return slug ? <ModuleScopedLessons slug={slug} /> : <StandaloneLessons />;
 }
 
-// ----- Module-scoped view (/:slug/lessons) -----
+// ── Module-scoped view (/modules/:slug/lessons) ─────────────────────────────
+
 function ModuleScopedLessons({ slug }: { slug: string }) {
+  const { pathname } = useLocation();
+  const basePath = pathname.startsWith("/teacher") ? "/teacher" : "";
   const { module, loading, error } = useGetModule(slug);
   const {
     lessons,
     loading: lessonsLoading,
     error: lessonsError,
     refresh,
-  } = useGetLessons(
-    module ? { module_id: module.id.toString() } : undefined,
-  );
+  } = useGetLessons(module ? { module_id: module.id.toString() } : undefined);
 
   if (loading)
     return (
@@ -43,32 +40,50 @@ function ModuleScopedLessons({ slug }: { slug: string }) {
         <TableSkeleton />
       </>
     );
-  if (error) return <p>Error: {error.message}</p>;
-  if (!module) return <p>Module not found.</p>;
+
+  if (error)
+    return (
+      <div className="rounded-2xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 p-6">
+        <p className="text-[15px] text-red-600 dark:text-red-400">
+          Error: {error.message}
+        </p>
+      </div>
+    );
+
+  if (!module)
+    return (
+      <div className="rounded-2xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-10 text-center">
+        <p className="text-[15px] text-gray-500 dark:text-gray-400">
+          Module not found.
+        </p>
+      </div>
+    );
 
   return (
-    <>
+    <div className="space-y-8">
       <Header module={module} />
-      <LessonsTable
-        data={lessons}
-        loading={lessonsLoading}
-        error={lessonsError}
-        onRetry={refresh}
-      />
-    </>
+      <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden">
+        <LessonsTable
+          data={lessons}
+          loading={lessonsLoading}
+          error={lessonsError}
+          onRetry={refresh}
+        />
+      </div>
+    </div>
   );
 }
 
-// ----- Standalone view (/lessons) with Track → Module filters -----
+// ── Standalone view (/lessons) ──────────────────────────────────────────────
+
 function StandaloneLessons() {
   const { tracks, loading: trackLoading } = useGetTracks();
 
-  const [selectedTrackId, setSelectedTrackId] = useState<string | undefined>(
-    undefined,
-  );
+  const [selectedTrackId, setSelectedTrackId] = useState<string | undefined>();
   const [filters, setFilters] = useState<LessonFilter>({});
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(15);
+  const [mounted, setMounted] = useState(false);
 
   const { modules, loading: modulesLoading } = useGetModules(
     selectedTrackId ? { track_id: selectedTrackId } : undefined,
@@ -84,24 +99,39 @@ function StandaloneLessons() {
     (m) => m.id.toString() === filters.module_id,
   );
 
-  if (trackLoading)
-    return (
-      <>
-        <PageHeaderSkeleton />
-      </>
-    );
+  useEffect(() => {
+    if (!trackLoading) {
+      const t = setTimeout(() => setMounted(true), 60);
+      return () => clearTimeout(t);
+    }
+  }, [trackLoading]);
+
+  if (trackLoading) return <PageHeaderSkeleton />;
 
   return (
-    <>
-      <div className="flex items-center justify-between">
+    <div
+      className={`space-y-8 transition-all duration-700 ease-out ${
+        mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      }`}
+    >
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold">Lessons</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
+          <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#1c81ff] mb-2">
+            Content
+          </p>
+          <h1
+            className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight"
+            style={{ letterSpacing: "-0.02em" }}
+          >
+            Lessons
+          </h1>
+          <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400 mt-1">
             Browse and manage all lessons across modules.
           </p>
         </div>
         {selectedModule && (
-          <Link to={`/${selectedModule.slug}/lessons/create`}>
+          <Link to={`${basePath}/${selectedModule.slug}/lessons/create`}>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
               Add Lesson
@@ -110,44 +140,48 @@ function StandaloneLessons() {
         )}
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        <SelectForm
-          name="track"
-          text="Filter by Track"
-          items={tracks.map((t) => ({ id: t.id, name: t.title }))}
-          handleChange={(value) => {
-            setSelectedTrackId(value === "all" ? undefined : value);
-            setFilters({});
-          }}
-          value={selectedTrackId ?? "all"}
-          withAll
-        />
-
-        {selectedTrackId && (
+      {/* Filters */}
+      <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm p-5">
+        <div className="flex flex-wrap gap-3">
           <SelectForm
-            name="module"
-            text="Filter by Module"
-            items={modules.map((m) => ({ id: m.id, name: m.title }))}
-            handleChange={(value) =>
-              setFilters({
-                module_id: value === "all" ? undefined : value,
-              })
-            }
-            value={filters.module_id ?? "all"}
-            isDisabled={modulesLoading}
+            name="track"
+            text="Filter by Track"
+            items={tracks.map((t) => ({ id: t.id, name: t.title }))}
+            handleChange={(value) => {
+              setSelectedTrackId(value === "all" ? undefined : value);
+              setFilters({});
+            }}
+            value={selectedTrackId ?? "all"}
             withAll
           />
-        )}
+          {selectedTrackId && (
+            <SelectForm
+              name="module"
+              text="Filter by Module"
+              items={modules.map((m) => ({ id: m.id, name: m.title }))}
+              handleChange={(value) =>
+                setFilters({ module_id: value === "all" ? undefined : value })
+              }
+              value={filters.module_id ?? "all"}
+              isDisabled={modulesLoading}
+              withAll
+            />
+          )}
+        </div>
       </div>
 
-      <LessonsTable
-        data={lessons}
-        loading={loading}
-        error={error}
-        onRetry={refresh}
-        total={pagination?.total}
-      />
+      {/* Table */}
+      <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden">
+        <LessonsTable
+          data={lessons}
+          loading={loading}
+          error={error}
+          onRetry={refresh}
+          total={pagination?.total}
+        />
+      </div>
 
+      {/* Pagination */}
       {pagination && (
         <Pagination
           currentPage={pagination.current_page}
@@ -159,11 +193,11 @@ function StandaloneLessons() {
           onPageChange={setPage}
           onPerPageChange={(newPerPage) => {
             setPerPage(newPerPage);
-            setPage(1); // Reset to page 1 when changing per_page
+            setPage(1);
           }}
           loading={loading}
         />
       )}
-    </>
+    </div>
   );
 }
