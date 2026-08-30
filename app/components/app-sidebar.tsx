@@ -213,6 +213,7 @@ const teacherMain: NavItem[] = [
   { title: "Submissions", url: "/teacher/submissions", icon: ClipboardList },
   { title: "Leaderboard", url: "/teacher/leaderboard", icon: Trophy },
   { title: "Student Progress", url: "/teacher/student-progress", icon: Users },
+  { title: "Certificates", url: "/teacher/certificates", icon: Award },
 ];
 
 const teacherContentGroup: NavGroup = {
@@ -273,7 +274,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ? "/teacher/profile"
       : "/student/profile";
 
-  const avatarSrc = user?.profile?.avatar ?? user?.avatar ?? undefined;
+  const avatarRaw = user?.profile?.avatar ?? user?.avatar ?? undefined;
+  const avatarSrc = typeof avatarRaw === "string" ? avatarRaw : avatarRaw?.url ?? undefined;
 
   return (
     <Sidebar

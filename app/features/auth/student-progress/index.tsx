@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useSearchParams } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -565,11 +565,16 @@ type MainTab = "profiles" | "tracks";
 
 export default function StudentProgressPage({
   trackBasePath,
+  sectionLabel,
 }: {
   trackBasePath: string;
+  sectionLabel?: string;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const tab = (searchParams.get("view") as MainTab) ?? "profiles";
+
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setMounted(true), 60); return () => clearTimeout(t); }, []);
 
   const [profileSearchInput, setProfileSearchInput] = useState("");
   const profileSearch = useDebounce(profileSearchInput, 400);
@@ -596,12 +601,33 @@ export default function StudentProgressPage({
   };
 
   return (
-    <div className="space-y-6">
+    <div
+      className={`space-y-8 transition-all duration-700 ease-out ${
+        mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+      }`}
+    >
+      {/* Header */}
+      <div>
+        {sectionLabel && (
+          <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#1c81ff] mb-2">
+            {sectionLabel}
+          </p>
+        )}
+        <h1
+          className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight"
+          style={{ letterSpacing: "-0.02em" }}
+        >
+          Student Progress
+        </h1>
+        <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400 mt-1">
+          Track enrollment, completion, and progress across all students and tracks.
+        </p>
+      </div>
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         {/* Left: tab selector */}
-        <Select value={tab} onValueChange={(v) => setTab(v as MainTab)}>
-          <SelectTrigger className="h-9 w-40 rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]" aria-label="View">
+        <Select value={tab} onValueChange={(v) => handleTabChange(v)}>
+          <SelectTrigger className="h-9 w-40 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]" aria-label="View">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
@@ -619,11 +645,11 @@ export default function StudentProgressPage({
                 value={profileSearchInput}
                 onChange={handleProfileSearchChange}
                 placeholder="Search by student name…"
-                className="h-9 w-48 rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-gray-800 py-1.5 pl-9 pr-3 text-[13px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff] outline-none transition-all"
+                className="h-9 w-48 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-gray-800 py-1.5 pl-9 pr-3 text-[13px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff] outline-none transition-all"
               />
             </div>
             <Select value={profileSort} onValueChange={(v) => { setProfileSort(v as ProfileProgressSort); setProfilePage(1); }}>
-              <SelectTrigger className="h-9 w-48 rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
+              <SelectTrigger className="h-9 w-48 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
@@ -634,7 +660,7 @@ export default function StudentProgressPage({
               </SelectContent>
             </Select>
             <Select value={profileStatus} onValueChange={(v) => { setProfileStatus(v as any); setProfilePage(1); }}>
-              <SelectTrigger className="h-9 w-36 rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
+              <SelectTrigger className="h-9 w-36 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
@@ -652,11 +678,11 @@ export default function StudentProgressPage({
                 value={trackSearchInput}
                 onChange={handleTrackSearchChange}
                 placeholder="Search by track title…"
-                className="h-9 w-48 rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-gray-800 py-1.5 pl-9 pr-3 text-[13px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff] outline-none transition-all"
+                className="h-9 w-48 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-gray-800 py-1.5 pl-9 pr-3 text-[13px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff] outline-none transition-all"
               />
             </div>
             <Select value={trackSort} onValueChange={(v) => { setTrackSort(v as TrackProgressSort); setTrackPage(1); }}>
-              <SelectTrigger className="h-9 w-52 rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
+              <SelectTrigger className="h-9 w-52 rounded-lg bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 text-[13px] font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="rounded-xl">

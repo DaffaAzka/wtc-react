@@ -149,6 +149,7 @@ export default [
         route("/tracks/:slug", "routes/auth/teacher/student-progress/tracks.$slug.tsx"),
       ]),
       route("/audit-logs", "routes/auth/teacher/audit-logs.tsx"),
+      route("/certificates", "routes/auth/teacher/certificates/index.tsx"),
     ]),
   ]),
   // Public certificate verification — no auth, no layout
