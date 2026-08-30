@@ -217,17 +217,13 @@ const teacherMain: NavItem[] = [
 ];
 
 const teacherContentGroup: NavGroup = {
-  title: "Content",
-  icon: BookOpen,
+  title: "Course Management",
+  icon: Layers,
   items: [
     { title: "Tracks", url: "/teacher/tracks", icon: RouteIcon },
     { title: "Modules", url: "/teacher/modules", icon: LayersIcon },
     { title: "Lessons", url: "/teacher/lessons", icon: NotebookTextIcon },
-    {
-      title: "Challenges",
-      url: "/teacher/challenges",
-      icon: TerminalSquareIcon,
-    },
+    { title: "Challenges", url: "/teacher/challenges", icon: TerminalSquareIcon },
   ],
 };
 
@@ -244,7 +240,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, logout } = useAuth();
   const { theme } = useTheme();
 
-  const [logoSrc, setLogoSrc] = React.useState("/brand-pack/logo-h-light.svg");
+  const [logoSrc, setLogoSrc] = React.useState(() => {
+    if (typeof window === "undefined") return "/brand-pack/logo-h-light.svg";
+    const stored = localStorage.getItem("vite-ui-theme") as "dark" | "light" | "system" | null;
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const isDark = stored === "dark" || (stored !== "light" && prefersDark);
+    return isDark ? "/brand-pack/logo-h-dark.svg" : "/brand-pack/logo-h-light.svg";
+  });
   const [videoSrc] = React.useState(() => {
     const hour = new Date().getHours();
     return hour >= 6 && hour < 18
@@ -334,7 +336,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               ))}
 
               <div className="my-2 h-px bg-gray-100 dark:bg-white/5 mx-1" />
-              <SectionLabel>Content</SectionLabel>
               <NavGroup group={teacherContentGroup} />
             </>
           )}
