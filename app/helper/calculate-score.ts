@@ -74,9 +74,9 @@ export function calculateQuestionScore(
   maxScore: number,
   mcqCount: number,
   essayCount: number,
-  challengeType: "multiple_choice" | "essay" | "mixed",
+  challengeType: "multiple_choice" | "quiz_group" | "essay" | "mixed",
 ): number {
-  if (challengeType === "multiple_choice") {
+  if (challengeType === "multiple_choice" || challengeType === "quiz_group") {
     return calculateMCQScore(maxScore, mcqCount);
   }
 

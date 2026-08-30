@@ -18,7 +18,20 @@ import {
   Eye,
   FileText,
   Pencil,
+  Trash2,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { useDeleteChallenge } from "@/hooks/challenges";
+import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Challenge } from "@/types/model";
 import type { ChallengeContext } from "@/features/auth/challenges/challenge-manager";
@@ -73,8 +86,21 @@ function getContextForChallenge(challenge: Challenge): ChallengeContext {
 export default function AllChallengesPage() {
   const navigate = useNavigate();
   const { challenges, loading, error, refresh } = useGetAllChallengesPaginated();
+  const deleteChallenge = useDeleteChallenge();
   const [search, setSearch] = useState("");
   const [editModal, setEditModal] = useState<{ challenge: Challenge | null; isOpen: boolean }>({ challenge: null, isOpen: false });
+  const [deleteDialog, setDeleteDialog] = useState<{ challenge: Challenge | null; isOpen: boolean }>({ challenge: null, isOpen: false });
+
+  const handleDelete = async () => {
+    if (!deleteDialog.challenge) return;
+    try {
+      await deleteChallenge.mutateAsync(deleteDialog.challenge.id);
+      toast.success("Challenge deleted successfully");
+      setDeleteDialog({ challenge: null, isOpen: false });
+    } catch {
+      toast.error("Failed to delete challenge");
+    }
+  };
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -216,6 +242,15 @@ export default function AllChallengesPage() {
                             <FileText className="h-4 w-4 mr-2" />
                             Submissions
                           </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            variant="destructive"
+                            className="rounded-lg"
+                            onClick={() => setDeleteDialog({ challenge, isOpen: true })}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -226,6 +261,32 @@ export default function AllChallengesPage() {
           </table>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog
+        open={deleteDialog.isOpen}
+        onOpenChange={(open) => setDeleteDialog((prev) => ({ ...prev, isOpen: open }))}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Challenge</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deleteDialog.challenge?.title}"?
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteChallenge.isPending}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleteChallenge.isPending}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {deleteChallenge.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Edit modals */}
       {editModal.challenge && (

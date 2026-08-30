@@ -58,6 +58,9 @@ type Props = {
 const EDIT_STORAGE_KEY = (challengeId: number) =>
   `challenge-edit-draft-${challengeId}`;
 
+const castDifficulty = (d: string | null | undefined): "" | "easy" | "medium" | "hard" =>
+  d === "easy" || d === "medium" || d === "hard" ? d : "";
+
 export default function ChallengeModalEdit({
   challenge,
   context,
@@ -125,8 +128,10 @@ export default function ChallengeModalEdit({
     const existingQuestions = challenge.metadata?.questions ?? [];
     const initialForm = {
       title: challenge.title,
-      type: challenge.type === "quiz_group" ? "mixed" : (challenge.type as ChallengeFormType),
-      difficulty: (challenge.difficulty as "" | "easy" | "medium" | "hard") || "",
+      type: challenge.type === "quiz_group"
+        ? (existingQuestions.some((q) => q.type === "essay") ? "mixed" : "quiz_group")
+        : (challenge.type as ChallengeFormType),
+      difficulty: castDifficulty(challenge.difficulty),
       content: challenge.content,
       max_score: String(challenge.max_score),
       minimum_score: challenge.settings?.minimum_score !== undefined ? String(challenge.settings.minimum_score) : "0",
@@ -137,7 +142,11 @@ export default function ChallengeModalEdit({
     if (draft) {
       try {
         const parsed = JSON.parse(draft);
-        setForm({ ...parsed.form, minimum_score: parsed.form.minimum_score ?? "0" });
+        setForm({
+          ...parsed.form,
+          minimum_score: parsed.form.minimum_score ?? "0",
+          difficulty: castDifficulty(parsed.form.difficulty),
+        });
         setQuestions(parsed.questions ?? []);
         setIsUnlimitedAttempts(parsed.isUnlimitedAttempts ?? (challenge.allowed_attempts === null));
         setOriginalState({ form: initialForm, questions: existingQuestions });
@@ -221,6 +230,7 @@ export default function ChallengeModalEdit({
     if (questions.length === 0)  { toast.error("Please add at least one question."); return; }
     if (!validateQuestions())    { toast.error("Please fix all validation errors before submitting."); return; }
 
+    // mixed → quiz_group, quiz_group → quiz_group, multiple_choice → multiple_choice, essay → essay
     const submissionType = form.type === "mixed" ? "quiz_group" : form.type;
 
     updateChallenge.mutate(
@@ -366,6 +376,7 @@ export default function ChallengeModalEdit({
                         </SelectTrigger>
                         <SelectContent className="rounded-xl">
                           <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
+                          <SelectItem value="quiz_group">Quiz Group</SelectItem>
                           <SelectItem value="essay">Essay</SelectItem>
                           <SelectItem value="mixed">Mixed Quiz</SelectItem>
                         </SelectContent>

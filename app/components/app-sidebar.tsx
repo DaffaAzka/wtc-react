@@ -97,8 +97,8 @@ function NavGroup({ group }: { group: NavGroup }) {
           {group.url ? (
             <NavLink
               to={group.url}
-              className={`flex flex-1 min-w-0 items-center gap-2 text-[14px] font-medium ${
-                isGroupActive ? "font-bold text-gray-900 dark:text-white" : "text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              className={`flex flex-1 min-w-0 items-center gap-2 text-[12px] font-medium ${
+                isGroupActive ? " text-gray-900 dark:text-white" : "text-gray-900 dark:text-white hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               <group.icon className="h-4 w-4 shrink-0" />
@@ -107,8 +107,8 @@ function NavGroup({ group }: { group: NavGroup }) {
           ) : (
             <button
               onClick={() => setOpen((o) => !o)}
-              className={`flex flex-1 min-w-0 items-center gap-2 text-[14px] font-medium ${
-                isGroupActive ? "font-bold text-gray-900 dark:text-white" : "text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              className={`flex flex-1 min-w-0 items-center gap-2 text-[12px] font-medium ${
+                isGroupActive ? " text-gray-900 dark:text-white" : "text-gray-900 dark:text-white hover:text-gray-900 dark:hover:text-white"
               }`}
             >
               <group.icon className="h-4 w-4 shrink-0" />
@@ -129,7 +129,7 @@ function NavGroup({ group }: { group: NavGroup }) {
                   <NavLink
                     to={sub.url}
                     className={({ isActive }) =>
-                      `flex items-center gap-2 ${isActive ? "font-bold text-gray-900 dark:text-white" : "text-gray-900 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"}`
+                      `flex items-center gap-2 ${isActive ? "font-bold text-gray-900 dark:text-white" : "text-gray-900 dark:text-white hover:text-gray-900 dark:hover:text-white"}`
                     }
                   >
                     <sub.icon className="h-3.5 w-3.5 shrink-0" />

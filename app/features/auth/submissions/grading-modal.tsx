@@ -26,9 +26,12 @@ import {
   AlertCircle,
   Loader2,
   CheckCircle2,
+  XCircle,
+  Circle,
 } from "lucide-react";
 import { format } from "date-fns";
 import type { UpdateSubmissionRequest } from "@/services/submission";
+import { parseQuizFeedback } from "@/types/submission";
 
 interface GradingModalProps {
   submissionId: number | null;
@@ -50,6 +53,104 @@ function StatusBadge({ status }: { status: string }) {
       <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
       {status}
     </span>
+  );
+}
+
+// ── Quiz answer review renderer ──────────────────────────────────────────────
+function QuizAnswerReview({
+  submissionContent,
+  challenge,
+}: {
+  submissionContent: string;
+  challenge: any;
+}) {
+  let parsed: { answers?: Array<{ questionIndex: number; type: string; answer: string }> } | null = null;
+  try { parsed = JSON.parse(submissionContent); } catch { return null; }
+
+  const questions: any[] = challenge?.metadata?.questions || [];
+  if (!parsed?.answers || questions.length === 0) return null;
+
+  const answerMap = new Map(parsed.answers.map((a) => [a.questionIndex, a.answer]));
+
+  return (
+    <div className="space-y-2">
+      <label className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
+        Jawaban Student
+      </label>
+      <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+        {questions.map((q: any, idx: number) => {
+          const studentAnswer = answerMap.get(idx);
+          const correctAnswer = typeof q.answer === "string" ? q.answer.toUpperCase() : null;
+
+          return (
+            <div key={idx} className="rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/[0.02] overflow-hidden">
+              {/* Question header */}
+              <div className="flex items-center gap-2 px-4 py-2.5 border-b border-gray-200 dark:border-white/10">
+                <span className="flex h-5 w-5 items-center justify-center rounded-md bg-[#1c81ff]/10 font-mono text-[11px] font-extrabold text-[#1c81ff]">
+                  {idx + 1}
+                </span>
+                <span className="text-[12px] font-bold text-[#1c81ff]">{q.score} pts</span>
+                {studentAnswer && correctAnswer && (
+                  studentAnswer === correctAnswer
+                    ? <CheckCircle2 className="ml-auto h-4 w-4 text-[#00E676]" />
+                    : <XCircle className="ml-auto h-4 w-4 text-[#ff007b]" />
+                )}
+              </div>
+              <div className="p-4 space-y-3">
+                <p className="text-[13px] font-bold text-gray-900 dark:text-white leading-snug">{q.question}</p>
+
+                {/* MCQ options */}
+                {q.type === "multiple_choice" && Array.isArray(q.options) && (
+                  <div className="space-y-1.5">
+                    {q.options.map((opt: string, optIdx: number) => {
+                      const key = String.fromCharCode(65 + optIdx);
+                      const isCorrect = key === correctAnswer;
+                      const isStudentAnswer = key === studentAnswer;
+                      const isWrong = isStudentAnswer && !isCorrect;
+
+                      return (
+                        <div
+                          key={optIdx}
+                          className={`flex items-center gap-2 rounded-lg px-3 py-2 text-[12px] border ${
+                            isCorrect
+                              ? "bg-[#00E676]/10 border-[#00E676]/20 text-[#00E676]"
+                              : isWrong
+                              ? "bg-[#ff007b]/10 border-[#ff007b]/20 text-[#ff007b]"
+                              : "bg-white dark:bg-[#0b1215] border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400"
+                          }`}
+                        >
+                          {isCorrect
+                            ? <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                            : isWrong
+                            ? <XCircle className="h-3.5 w-3.5 shrink-0" />
+                            : <Circle className="h-3.5 w-3.5 shrink-0" />}
+                          <span className="font-bold mr-1">{key}.</span>
+                          <span>{opt}</span>
+                          <div className="ml-auto flex gap-1.5">
+                            {isCorrect && <span className="text-[10px] font-bold uppercase tracking-wide">Benar</span>}
+                            {isStudentAnswer && <span className="text-[10px] font-bold uppercase tracking-wide">↑ Jawaban Student</span>}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Essay answer */}
+                {q.type === "essay" && studentAnswer && (
+                  <div className="rounded-lg bg-white dark:bg-[#0b1215] border border-gray-200 dark:border-white/10 px-3 py-2 text-[12px] text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                    {studentAnswer}
+                  </div>
+                )}
+                {q.type === "essay" && !studentAnswer && (
+                  <p className="text-[12px] text-gray-400 italic">Tidak dijawab</p>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 }
 
@@ -192,17 +293,83 @@ export default function GradingModal({
                   </button>
                 </div>
               )}
-              {submissionContent && (
-                <div className="space-y-1.5">
-                  <label className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
-                    Submitted Content
-                  </label>
-                  <div className="rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-4 text-[13px] text-gray-700 dark:text-gray-300 whitespace-pre-wrap max-h-40 overflow-y-auto font-mono">
-                    {submissionContent}
+              {submissionContent && (() => {
+                // Check if this is a quiz submission (has answers array)
+                let isQuiz = false;
+                try {
+                  const parsed = JSON.parse(submissionContent);
+                  isQuiz = Array.isArray(parsed?.answers);
+                } catch {}
+
+                if (isQuiz) {
+                  return (
+                    <QuizAnswerReview
+                      submissionContent={submissionContent}
+                      challenge={challenge}
+                    />
+                  );
+                }
+
+                return (
+                  <div className="space-y-1.5">
+                    <label className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
+                      Submitted Content
+                    </label>
+                    <div className="rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-4 text-[13px] text-gray-700 dark:text-gray-300 whitespace-pre-wrap max-h-40 overflow-y-auto font-mono">
+                      {submissionContent}
+                    </div>
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
+
+            {/* Auto-grading result */}
+            {data?.submission?.feedback && (() => {
+              const quiz = parseQuizFeedback(data.submission.feedback);
+              if (quiz) {
+                return (
+                  <div className="rounded-xl border border-gray-200 dark:border-white/10 overflow-hidden">
+                    <div className="px-4 py-2.5 border-b border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/[0.02]">
+                      <span className="text-[12px] font-bold uppercase tracking-[0.1em] text-gray-400 dark:text-gray-500">Hasil Auto-Grading</span>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y divide-gray-100 dark:divide-white/5">
+                      <div className="px-3 py-2.5 text-center">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 dark:text-gray-600 mb-0.5">Benar</p>
+                        <p className="text-[16px] font-extrabold text-[#00E676] tabular-nums">{quiz.correct_answers}</p>
+                      </div>
+                      <div className="px-3 py-2.5 text-center">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 dark:text-gray-600 mb-0.5">Salah</p>
+                        <p className="text-[16px] font-extrabold text-[#ff007b] tabular-nums">{quiz.wrong_answers}</p>
+                      </div>
+                      <div className="px-3 py-2.5 text-center">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 dark:text-gray-600 mb-0.5">Dijawab</p>
+                        <p className="text-[16px] font-extrabold text-gray-900 dark:text-white tabular-nums">{quiz.total_answered}/{quiz.total_questions}</p>
+                      </div>
+                      <div className="px-3 py-2.5 text-center">
+                        <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 dark:text-gray-600 mb-0.5">Persentase</p>
+                        <p className={`text-[16px] font-extrabold tabular-nums ${quiz.passed ? "text-[#00E676]" : "text-[#ff007b]"}`}>
+                          {quiz.percentage}%
+                        </p>
+                      </div>
+                    </div>
+                    <div className={`flex items-center justify-between px-4 py-2 ${quiz.passed ? "bg-[#00E676]/10" : "bg-[#ff007b]/10"}`}>
+                      <span className={`text-[11px] font-bold uppercase tracking-[0.1em] ${quiz.passed ? "text-[#00E676]" : "text-[#ff007b]"}`}>
+                        {quiz.passed ? "✓ Lulus" : "✗ Belum Lulus"}
+                      </span>
+                      <span className="text-[11px] text-gray-400 dark:text-gray-600">Passing score: {quiz.passing_score}%</span>
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <div className="rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-4 py-3">
+                  <p className="text-[13px] text-gray-600 dark:text-gray-300">
+                    <span className="font-bold text-gray-700 dark:text-gray-200">Feedback: </span>
+                    {data.submission.feedback}
+                  </p>
+                </div>
+              );
+            })()}
 
             {/* Grading form */}
             <div className="space-y-4 border-t border-gray-100 dark:border-white/5 pt-5">

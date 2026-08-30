@@ -59,7 +59,7 @@ export default function ChallengeList({ challenges, context }: Props) {
   };
 
   const handleViewSubmissions = (challenge: Challenge) => {
-    navigate(`/admin/submissions/${challenge.id}`);
+    navigate(`/submissions/${challenge.id}`);
   };
 
   return (

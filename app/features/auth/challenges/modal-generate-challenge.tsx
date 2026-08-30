@@ -41,7 +41,7 @@ export default function GenerateChallengeModal({
   onOpenChange,
   onGenerated,
 }: Props) {
-  const [type, setType] = useState<ChallengeFormType>("multiple_choice");
+  const [type, setType] = useState<ChallengeFormType>("quiz_group");
   const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
   const [maxScore, setMaxScore] = useState("100");
   const [mcqCount, setMcqCount] = useState("10");
@@ -54,16 +54,21 @@ export default function GenerateChallengeModal({
   const mutation = context.type === "lesson" ? generateForLesson : generateForModule;
 
   const handleGenerate = () => {
+    // quiz_group and multiple_choice both generate MCQ via AI (type: "multiple_choice")
+    // mixed generates MCQ + essay
+    const aiType = type === "quiz_group" || type === "multiple_choice" ? "multiple_choice" : type;
+    const aiMcqCount = type === "multiple_choice" ? 1 : Number(mcqCount);
+
     mutation.mutate(
       {
-        type,
+        type: aiType,
         difficulty,
         max_score: Number(maxScore),
         language,
-        ...(type === "multiple_choice" || type === "mixed"
-          ? { mcq_count: Number(mcqCount) }
+        ...(aiType === "multiple_choice" || aiType === "mixed"
+          ? { mcq_count: aiMcqCount }
           : {}),
-        ...(type === "essay" || type === "mixed"
+        ...(aiType === "essay" || aiType === "mixed"
           ? { essay_count: Number(essayCount) }
           : {}),
       },
@@ -112,7 +117,8 @@ export default function GenerateChallengeModal({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
+                <SelectItem value="multiple_choice">Multiple Choice (1 soal)</SelectItem>
+                <SelectItem value="quiz_group">Quiz Group (Multi-MCQ)</SelectItem>
                 <SelectItem value="essay">Essay</SelectItem>
                 <SelectItem value="mixed">Mixed (MCQ + Essay)</SelectItem>
               </SelectContent>
@@ -121,7 +127,7 @@ export default function GenerateChallengeModal({
 
           {/* Jumlah Soal */}
           <div className="grid grid-cols-2 gap-3">
-            {(type === "multiple_choice" || type === "mixed") && (
+            {(type === "quiz_group" || type === "mixed") && (
               <div className="space-y-2">
                 <Label>
                   Jumlah MCQ <span className="text-red-500">*</span>

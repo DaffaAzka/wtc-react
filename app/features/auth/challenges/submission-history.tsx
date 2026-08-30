@@ -1,5 +1,6 @@
 import { CheckCircle2, Clock, XCircle, AlertCircle } from "lucide-react";
 import type { Submission } from "@/types/submission";
+import { parseQuizFeedback } from "@/types/submission";
 
 interface SubmissionHistoryProps {
   submissions: Submission[];
@@ -8,6 +9,7 @@ interface SubmissionHistoryProps {
 
 const STATUS_STYLE: Record<string, { bg: string; text: string; dot: string; icon: typeof Clock }> = {
   submitted: { bg: "bg-[#f6b60b]/10",  text: "text-[#f6b60b]",  dot: "bg-[#f6b60b]",  icon: Clock },
+  pending:   { bg: "bg-[#f6b60b]/10",  text: "text-[#f6b60b]",  dot: "bg-[#f6b60b]",  icon: Clock },
   graded:    { bg: "bg-[#00E676]/10",  text: "text-[#00E676]",  dot: "bg-[#00E676]",  icon: CheckCircle2 },
   returned:  { bg: "bg-[#1c81ff]/10",  text: "text-[#1c81ff]",  dot: "bg-[#1c81ff]",  icon: AlertCircle },
   failed:    { bg: "bg-[#ff007b]/10",  text: "text-[#ff007b]",  dot: "bg-[#ff007b]",  icon: XCircle },
@@ -80,14 +82,56 @@ export function SubmissionHistory({ submissions, maxScore }: SubmissionHistoryPr
                   )}
                 </div>
 
-                {submission.feedback && (
-                  <div className="mt-2 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2">
-                    <p className="text-[13px] text-gray-600 dark:text-gray-300 leading-relaxed">
-                      <span className="font-bold text-gray-700 dark:text-gray-200">Feedback: </span>
-                      {submission.feedback}
-                    </p>
-                  </div>
-                )}
+                {submission.feedback && (() => {
+                  const quiz = parseQuizFeedback(submission.feedback);
+
+                  if (quiz) {
+                    return (
+                      <div className="mt-2 rounded-lg border border-gray-200 dark:border-white/10 overflow-hidden">
+                        {/* Quiz result grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-y divide-gray-100 dark:divide-white/5">
+                          <div className="px-3 py-2 text-center">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 dark:text-gray-600 mb-0.5">Benar</p>
+                            <p className="text-[15px] font-extrabold text-[#00E676] tabular-nums">{quiz.correct_answers}</p>
+                          </div>
+                          <div className="px-3 py-2 text-center">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 dark:text-gray-600 mb-0.5">Salah</p>
+                            <p className="text-[15px] font-extrabold text-[#ff007b] tabular-nums">{quiz.wrong_answers}</p>
+                          </div>
+                          <div className="px-3 py-2 text-center">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 dark:text-gray-600 mb-0.5">Total</p>
+                            <p className="text-[15px] font-extrabold text-gray-900 dark:text-white tabular-nums">{quiz.total_answered}/{quiz.total_questions}</p>
+                          </div>
+                          <div className="px-3 py-2 text-center">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-gray-400 dark:text-gray-600 mb-0.5">Skor</p>
+                            <p className={`text-[15px] font-extrabold tabular-nums ${quiz.passed ? "text-[#00E676]" : "text-[#ff007b]"}`}>
+                              {quiz.percentage}%
+                            </p>
+                          </div>
+                        </div>
+                        {/* Pass/fail banner */}
+                        <div className={`flex items-center justify-between px-3 py-1.5 ${quiz.passed ? "bg-[#00E676]/10" : "bg-[#ff007b]/10"}`}>
+                          <span className={`text-[11px] font-bold uppercase tracking-[0.1em] ${quiz.passed ? "text-[#00E676]" : "text-[#ff007b]"}`}>
+                            {quiz.passed ? "✓ Lulus" : "✗ Belum Lulus"}
+                          </span>
+                          <span className="text-[11px] text-gray-400 dark:text-gray-600">
+                            Passing score: {quiz.passing_score}%
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Plain text feedback fallback
+                  return (
+                    <div className="mt-2 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-3 py-2">
+                      <p className="text-[13px] text-gray-600 dark:text-gray-300 leading-relaxed">
+                        <span className="font-bold text-gray-700 dark:text-gray-200">Feedback: </span>
+                        {submission.feedback}
+                      </p>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           );

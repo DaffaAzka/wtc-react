@@ -15,12 +15,29 @@ export function MultipleChoiceForm({ challenge, canSubmit, isSubmitting, onSubmi
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [error, setError] = useState("");
 
-  const options = challenge.settings?.options || [];
+  // Single MCQ: options live in metadata.questions[0].options (string[])
+  // Legacy: options could also be in settings.options ({key,text,is_correct}[])
+  const metaQuestion = challenge.metadata?.questions?.[0] as any;
+  const rawOptions: { key: string; text: string }[] =
+    Array.isArray(metaQuestion?.options)
+      ? (metaQuestion.options as string[]).map((text: string, i: number) => ({
+          key: String.fromCharCode(65 + i).toLowerCase(), // a, b, c, d
+          text,
+        }))
+      : (challenge.settings?.options ?? []).map((o: any) => ({
+          key: o.key,
+          text: o.text,
+        }));
+
+  const options = rawOptions;
   const [displayOptions] = useState(() =>
     challenge.settings?.shuffle_options
       ? [...options].sort(() => Math.random() - 0.5)
       : options
   );
+
+  // question text from metadata (single-MCQ case)
+  const questionText = metaQuestion?.question ?? null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,6 +72,11 @@ export function MultipleChoiceForm({ challenge, canSubmit, isSubmitting, onSubmi
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
+            {questionText && (
+              <p className="text-[15px] font-bold text-gray-900 dark:text-white leading-relaxed">
+                {questionText}
+              </p>
+            )}
             <RadioGroup value={selectedOption} onValueChange={setSelectedOption} className="space-y-2.5">
               {displayOptions.map((option: any) => (
                 <div

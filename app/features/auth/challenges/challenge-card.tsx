@@ -54,8 +54,7 @@ const CHALLENGE_TYPE_LABELS: Record<string, string> = {
   github_submission: "GitHub Submission",
   docker_project:    "Docker Project",
   timed_exam:        "Timed Exam",
-  quiz_group:        "Mixed Quiz",
-  mixed:             "Mixed Quiz",
+  quiz_group:        "Quiz Group",
 };
 
 const DIFFICULTY_STYLE: Record<string, { bg: string; text: string }> = {

@@ -157,7 +157,11 @@ export default function Builder({
   useKeyboardShortcuts({
     isEnabled: isModalOpen,
     onDuplicate: () => { if (openIndex >= 0 && openIndex < questions.length) duplicateQuestion(openIndex); },
-    onAddQuestion: () => { if (type === "multiple_choice") addMCQ(); else if (type === "essay") addEssay(); },
+    onAddQuestion: () => {
+      if (type === "multiple_choice" && questions.length === 0) addMCQ();
+      else if (type === "quiz_group") addMCQ();
+      else if (type === "essay") addEssay();
+    },
     onEscape: () => { if (deleteDialog.isOpen) setDeleteDialog({ isOpen: false, index: null }); },
   });
 
@@ -234,6 +238,16 @@ export default function Builder({
 
   const renderAddButton = () => {
     if (type === "multiple_choice") {
+      // Single MCQ: max 1 question
+      if (questions.length >= 1) return null;
+      return (
+        <button type="button" onClick={addMCQ}
+          className="flex items-center gap-1.5 bg-[#1c81ff] text-white font-bold rounded-xl py-1.5 px-3 text-[13px] shadow-sm shadow-blue-500/20 hover:scale-[1.02] transition-transform">
+          <Plus className="h-3.5 w-3.5" /> Add MCQ
+        </button>
+      );
+    }
+    if (type === "quiz_group") {
       return (
         <button type="button" onClick={addMCQ}
           className="flex items-center gap-1.5 bg-[#1c81ff] text-white font-bold rounded-xl py-1.5 px-3 text-[13px] shadow-sm shadow-blue-500/20 hover:scale-[1.02] transition-transform">

@@ -3,28 +3,15 @@ import { Link, Outlet, redirect, useLocation } from "react-router";
 import { getToken, getUser } from "@/utils/auth-storage";
 import { hasRole, resolveLandingPath } from "@/utils/roles";
 import { AppSidebar } from "@/components/app-sidebar";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-  useSidebar,
-} from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 
 export async function clientLoader() {
   if (!getToken()) throw redirect("/");
   const user = getUser();
   if (!user) throw redirect("/");
-  if (hasRole(user, "teacher") || hasRole(user, "admin"))
-    throw redirect(resolveLandingPath(user));
+  if (hasRole(user, "teacher") || hasRole(user, "admin")) throw redirect(resolveLandingPath(user));
   if (!hasRole(user, "student")) throw redirect("/");
   return null;
 }
@@ -34,8 +21,7 @@ export async function clientLoader() {
 function EnhancedSidebarTrigger() {
   const location = useLocation();
   const pathSegments = location.pathname.split("/").filter(Boolean);
-  const isLessonPage =
-    pathSegments.length >= 5 && location.pathname.includes("/classes/");
+  const isLessonPage = pathSegments.length >= 5 && location.pathname.includes("/classes/");
   const { open } = useSidebar();
   const showIndicator = isLessonPage && !open;
 
@@ -57,8 +43,7 @@ function EnhancedSidebarTrigger() {
 function StudentLayoutContent() {
   const location = useLocation();
   const pathSegments = location.pathname.split("/").filter(Boolean);
-  const isLessonPage =
-    pathSegments.length >= 5 && location.pathname.includes("/classes/");
+  const isLessonPage = pathSegments.length >= 5 && location.pathname.includes("/classes/");
   const { setOpen } = useSidebar();
   const lastAutoCollapsedPathRef = React.useRef<string | null>(null);
 
@@ -95,8 +80,7 @@ function StudentLayoutContent() {
 export default function StudentLayout() {
   const location = useLocation();
   const pathSegments = location.pathname.split("/").filter(Boolean);
-  const isLessonPage =
-    pathSegments.length >= 5 && location.pathname.includes("/classes/");
+  const isLessonPage = pathSegments.length >= 5 && location.pathname.includes("/classes/");
 
   return (
     <SidebarProvider defaultOpen={!isLessonPage}>
@@ -127,9 +111,7 @@ const SEGMENT_LABELS: Record<string, string> = {
 
 function segmentLabel(seg: string): string {
   if (SEGMENT_LABELS[seg]) return SEGMENT_LABELS[seg];
-  return seg
-    .replace(/[-_]/g, " ")
-    .replace(/\b\w/g, (c) => c.toUpperCase());
+  return seg.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 const SEGMENT_ROUTES: Record<string, string> = {
@@ -145,9 +127,7 @@ function DynamicBreadcrumb() {
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbPage className="text-[13px] font-bold text-gray-900 dark:text-white">
-              Beranda
-            </BreadcrumbPage>
+            <BreadcrumbPage className="text-[13px] font-bold text-gray-900 dark:text-white">Beranda</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
@@ -172,20 +152,13 @@ function DynamicBreadcrumb() {
       <BreadcrumbList>
         {crumbs.map((crumb, i) => (
           <span key={crumb.href} className="flex items-center gap-1.5">
-            {i > 0 && (
-              <BreadcrumbSeparator className="hidden md:flex text-gray-300 dark:text-white/20" />
-            )}
+            {i > 0 && <BreadcrumbSeparator className="hidden md:flex text-gray-300 dark:text-white/20" />}
             <BreadcrumbItem className={i < crumbs.length - 1 ? "hidden md:flex" : ""}>
               {crumb.isLast ? (
-                <BreadcrumbPage className="text-[13px] font-bold text-gray-900 dark:text-white">
-                  {crumb.label}
-                </BreadcrumbPage>
+                <BreadcrumbPage className="text-[13px] font-bold text-gray-900 dark:text-white">{crumb.label}</BreadcrumbPage>
               ) : (
                 <BreadcrumbLink asChild>
-                  <Link
-                    to={crumb.href}
-                    className="text-[13px] font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                  >
+                  <Link to={crumb.href} className="text-[13px] font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
                     {crumb.label}
                   </Link>
                 </BreadcrumbLink>

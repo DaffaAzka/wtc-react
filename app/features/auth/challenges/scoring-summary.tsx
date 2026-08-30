@@ -20,7 +20,7 @@ export default function ScoringSummary({ type, maxScore, questions }: Props) {
 
   const rows: { label: string; value: string | number }[] = [];
 
-  if (type === "multiple_choice") {
+  if (type === "multiple_choice" || type === "quiz_group") {
     const scorePerQuestion = calculateMCQScore(maxScore, mcqCount);
     rows.push(
       { label: "Max Score",        value: maxScore },

@@ -118,7 +118,9 @@ export default function ChallengeModalAdd({
         ? "mixed"
         : prefill.questions[0]?.type === "essay"
           ? "essay"
-          : "multiple_choice";
+          : prefill.questions.length === 1
+        ? "multiple_choice"
+        : "quiz_group";
 
     setForm((prev) => ({
       ...prev,
@@ -247,9 +249,9 @@ export default function ChallengeModalAdd({
     if (!validateQuestions())    { toast.error("Please fix all validation errors before submitting."); return; }
 
     const submissionType =
-      form.type === "mixed"  ? "quiz_group"
-      : form.type === "essay" ? "fill_blank"
-      : form.type;
+      form.type === "mixed"    ? "quiz_group"
+      : form.type === "essay"  ? "essay"
+      : form.type; // multiple_choice → multiple_choice, quiz_group → quiz_group
 
     storeChallenge.mutate(
       {
@@ -370,6 +372,7 @@ export default function ChallengeModalAdd({
                       </SelectTrigger>
                       <SelectContent className="rounded-xl">
                         <SelectItem value="multiple_choice">Multiple Choice</SelectItem>
+                        <SelectItem value="quiz_group">Quiz Group</SelectItem>
                         <SelectItem value="essay">Essay</SelectItem>
                         <SelectItem value="mixed">Mixed Quiz</SelectItem>
                       </SelectContent>
