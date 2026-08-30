@@ -6,7 +6,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { ArrowRight, BookOpen, Award, TrendingUp, Target } from "lucide-react";
 
-// Helper function to generate consistent pattern background based on text
 function getPatternBackground(text: string): string {
   let hash = 0;
   for (let i = 0; i < text.length; i++) {
@@ -15,10 +14,22 @@ function getPatternBackground(text: string): string {
   }
 
   const colors = [
-    { primary: "rgba(28, 129, 255, 0.12)", secondary: "rgba(28, 129, 255, 0.06)" },
-    { primary: "rgba(49, 199, 200, 0.12)", secondary: "rgba(49, 199, 200, 0.06)" },
-    { primary: "rgba(37, 72, 216, 0.12)", secondary: "rgba(37, 72, 216, 0.06)" },
-    { primary: "rgba(100, 116, 139, 0.1)",  secondary: "rgba(100, 116, 139, 0.05)" },
+    {
+      primary: "rgba(28, 129, 255, 0.12)",
+      secondary: "rgba(28, 129, 255, 0.06)",
+    },
+    {
+      primary: "rgba(49, 199, 200, 0.12)",
+      secondary: "rgba(49, 199, 200, 0.06)",
+    },
+    {
+      primary: "rgba(37, 72, 216, 0.12)",
+      secondary: "rgba(37, 72, 216, 0.06)",
+    },
+    {
+      primary: "rgba(100, 116, 139, 0.1)",
+      secondary: "rgba(100, 116, 139, 0.05)",
+    },
   ];
 
   const colorIndex = Math.abs(hash) % colors.length;
@@ -128,7 +139,9 @@ export default function Dashboard() {
         {/* Stats skeleton */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="rounded-2xl bg-white dark:bg-[#0b1215] border border-gray-200 dark:border-white/10 p-6 space-y-3">
+            <div
+              key={i}
+              className="rounded-2xl bg-white dark:bg-[#0b1215] border border-gray-200 dark:border-white/10 p-6 space-y-3">
               <div className="h-10 w-10 bg-gray-100 dark:bg-white/5 animate-pulse rounded-full" />
               <div className="h-8 w-16 bg-gray-200 dark:bg-white/10 animate-pulse rounded-lg" />
               <div className="h-3 w-20 bg-gray-100 dark:bg-white/5 animate-pulse rounded-md" />
@@ -139,7 +152,9 @@ export default function Dashboard() {
         {/* Tracks skeleton */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className="rounded-2xl bg-white dark:bg-[#0b1215] border border-gray-200 dark:border-white/10 overflow-hidden">
+            <div
+              key={i}
+              className="rounded-2xl bg-white dark:bg-[#0b1215] border border-gray-200 dark:border-white/10 overflow-hidden">
               <div className="h-40 bg-gray-100 dark:bg-white/5 animate-pulse" />
               <div className="p-5 space-y-3">
                 <div className="h-5 w-3/4 bg-gray-200 dark:bg-white/10 animate-pulse rounded-lg" />
@@ -163,8 +178,7 @@ export default function Dashboard() {
           </p>
           <button
             onClick={() => window.location.reload()}
-            className="bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-900 dark:text-white font-bold rounded-xl px-5 py-2.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-all text-sm"
-          >
+            className="bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-900 dark:text-white font-bold rounded-xl px-5 py-2.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-all text-sm">
             Coba Lagi
           </button>
         </div>
@@ -184,8 +198,7 @@ export default function Dashboard() {
     <div
       className={`space-y-8 transition-all duration-700 ease-out ${
         mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-      }`}
-    >
+      }`}>
       {/* ── Welcome ── */}
       <div className="flex items-start justify-between gap-6">
         <div>
@@ -194,8 +207,7 @@ export default function Dashboard() {
           </p>
           <h1
             className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight"
-            style={{ letterSpacing: "-0.02em" }}
-          >
+            style={{ letterSpacing: "-0.02em" }}>
             {data.profile.display_name} 👋
           </h1>
           <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400 mt-1">
@@ -229,7 +241,7 @@ export default function Dashboard() {
           {/* Background layer */}
           {(() => {
             const trackImage = data.tracks.find(
-              (t) => t.slug === data.continue_learning?.track.slug
+              (t) => t.slug === data.continue_learning?.track.slug,
             )?.image_url;
             if (trackImage) {
               return (
@@ -238,7 +250,9 @@ export default function Dashboard() {
                     src={trackImage}
                     alt=""
                     className="absolute inset-0 w-full h-full object-cover"
-                    onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    onError={(e) => {
+                      e.currentTarget.style.display = "none";
+                    }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-tr from-white via-white/85 to-[#1c81ff]/10 dark:from-[#0b1215] dark:via-[#0b1215]/85 dark:to-[#1c81ff]/20" />
                 </>
@@ -247,7 +261,11 @@ export default function Dashboard() {
             return (
               <div
                 className="absolute inset-0"
-                style={{ background: getPatternBackground(data.continue_learning?.track.title || "") }}
+                style={{
+                  background: getPatternBackground(
+                    data.continue_learning?.track.title || "",
+                  ),
+                }}
               />
             );
           })()}
@@ -267,8 +285,7 @@ export default function Dashboard() {
                 <div>
                   <div
                     className="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white"
-                    style={{ letterSpacing: "-0.02em" }}
-                  >
+                    style={{ letterSpacing: "-0.02em" }}>
                     {data.continue_learning.lesson.title}
                   </div>
                   <div className="text-[13px] text-gray-500 dark:text-gray-400 mt-0.5">
@@ -280,8 +297,7 @@ export default function Dashboard() {
 
               <Link
                 to={`/student/classes/${data.continue_learning.track.slug}`}
-                className="flex items-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-3 px-6 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 whitespace-nowrap text-sm"
-              >
+                className="flex items-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-3 px-6 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 whitespace-nowrap text-sm">
                 Lanjutkan
                 <ArrowRight className="h-4 w-4" />
               </Link>
@@ -324,9 +340,9 @@ export default function Dashboard() {
         ].map(({ value, label, icon: Icon, bg, color }) => (
           <div
             key={label}
-            className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm p-6 hover:shadow-md hover:-translate-y-1 transition-all duration-300"
-          >
-            <div className={`w-11 h-11 rounded-full ${bg} flex items-center justify-center mb-4`}>
+            className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm p-6 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+            <div
+              className={`w-11 h-11 rounded-full ${bg} flex items-center justify-center mb-4`}>
               <Icon className={`h-5 w-5 ${color}`} />
             </div>
             <div className="text-3xl font-extrabold text-gray-900 dark:text-white mb-1">
@@ -348,16 +364,14 @@ export default function Dashboard() {
             </p>
             <h2
               className="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white"
-              style={{ letterSpacing: "-0.02em" }}
-            >
+              style={{ letterSpacing: "-0.02em" }}>
               Learning Paths Aktif
             </h2>
           </div>
           {data.tracks.length > 4 && (
             <Link
               to="/student/progress"
-              className="flex items-center gap-1.5 text-[13px] font-bold text-[#1c81ff] hover:opacity-80 transition-opacity"
-            >
+              className="flex items-center gap-1.5 text-[13px] font-bold text-[#1c81ff] hover:opacity-80 transition-opacity">
               Lihat Semua
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
@@ -374,8 +388,7 @@ export default function Dashboard() {
             </p>
             <Link
               to="/student/classes"
-              className="inline-flex items-center gap-2 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-900 dark:text-white font-bold rounded-xl px-5 py-2.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-all text-sm"
-            >
+              className="inline-flex items-center gap-2 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-900 dark:text-white font-bold rounded-xl px-5 py-2.5 hover:bg-gray-50 dark:hover:bg-white/5 transition-all text-sm">
               Jelajahi Learning Paths
             </Link>
           </div>
@@ -385,19 +398,19 @@ export default function Dashboard() {
               <Link
                 key={track.id}
                 to={`/student/classes/${track.slug}`}
-                className="group block rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-300"
-              >
+                className="group block rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-300">
                 {/* Track image / pattern */}
                 <div
                   className="h-44 w-full overflow-hidden"
-                  style={{ background: getPatternBackground(track.title) }}
-                >
+                  style={{ background: getPatternBackground(track.title) }}>
                   {track.image_url && (
                     <img
                       src={track.image_url}
                       alt={track.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      onError={(e) => { e.currentTarget.style.display = "none"; }}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
                     />
                   )}
                 </div>
@@ -407,8 +420,7 @@ export default function Dashboard() {
                   <div>
                     <h3
                       className="font-extrabold text-gray-900 dark:text-white group-hover:text-[#1c81ff] transition-colors line-clamp-1"
-                      style={{ letterSpacing: "-0.01em" }}
-                    >
+                      style={{ letterSpacing: "-0.01em" }}>
                       {track.title}
                     </h3>
                     <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-0.5">
@@ -437,7 +449,8 @@ export default function Dashboard() {
               Tip of The Day
             </p>
             <p className="text-[15px] leading-relaxed text-gray-600 dark:text-gray-300 italic">
-              Konsistensi adalah kunci. Luangkan 30 menit setiap hari untuk belajar hal baru!
+              Konsistensi adalah kunci. Luangkan 30 menit setiap hari untuk
+              belajar hal baru!
             </p>
           </div>
         </div>

@@ -1,7 +1,14 @@
 import InputForm from "@/components/custom/input-form";
 import LoadingButton from "@/components/custom/loading-button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 import { useRegister } from "@/hooks/auth";
 import { getFieldError } from "@/utils/global";
@@ -18,7 +25,8 @@ export default function Form() {
     password_confirmation: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -30,16 +38,29 @@ export default function Form() {
       <Card>
         <CardHeader>
           <CardTitle>Register for an account</CardTitle>
-          <CardDescription>Enter your details below to create an account</CardDescription>
+          <CardDescription>
+            Enter your details below to create an account
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-6">
-            {register.error && register.error?.message !== "Validation errors" && (
-              <Alert variant="destructive" className="bg-red-100">
-                <AlertDescription>{register.error?.message ?? "An unknown error occurred."}</AlertDescription>
-              </Alert>
-            )}
-            <InputForm name="name" placeholder="John Doe" text="Full Name" type="text" value={form.name} handleChange={handleChange} error={getFieldError(register.error?.errors, "name")} />
+            {register.error &&
+              register.error?.message !== "Validation errors" && (
+                <Alert variant="destructive" className="bg-red-100">
+                  <AlertDescription>
+                    {register.error?.message ?? "An unknown error occurred."}
+                  </AlertDescription>
+                </Alert>
+              )}
+            <InputForm
+              name="name"
+              placeholder="John Doe"
+              text="Full Name"
+              type="text"
+              value={form.name}
+              handleChange={handleChange}
+              error={getFieldError(register.error?.errors, "name")}
+            />
             <InputForm
               name="email"
               placeholder="m@example.com"
@@ -66,7 +87,10 @@ export default function Form() {
                 placeholder="••••••••"
                 value={form.password_confirmation}
                 handleChange={handleChange}
-                error={getFieldError(register.error?.errors, "password_confirmation")}
+                error={getFieldError(
+                  register.error?.errors,
+                  "password_confirmation",
+                )}
               />
             </div>
           </div>

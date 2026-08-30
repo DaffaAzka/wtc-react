@@ -1,11 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  teacherDashboard,
-  teacherSubmissions,
-  teacherSubmission,
-  gradeSubmission,
-  leaderboard,
-  auditLogs,
   trackList,
   trackCreate,
   trackUpdate,
@@ -24,10 +18,6 @@ import {
   challengeDelete,
 } from "@/services/teacher";
 import type {
-  TeacherSubmissionFilters,
-  GradeSubmissionRequest,
-  LeaderboardParams,
-  AuditLogParams,
   ContentListParams,
   TrackRequest,
   ModuleRequest,
@@ -35,114 +25,7 @@ import type {
   ChallengeRequest,
 } from "@/types/teacher";
 import type { ApiErrorResponse } from "@/types/response";
-
-// ---------------------------------------------------------------------------
-// Query key factories
-// ---------------------------------------------------------------------------
-
-export const teacherKeys = {
-  all: ["teacher"] as const,
-
-  dashboard: () => [...teacherKeys.all, "dashboard"] as const,
-
-  submissions: (filters?: TeacherSubmissionFilters) =>
-    [...teacherKeys.all, "submissions", filters ?? {}] as const,
-
-  submission: (id: number) =>
-    [...teacherKeys.all, "submission", id] as const,
-
-  leaderboard: (params?: LeaderboardParams) =>
-    [...teacherKeys.all, "leaderboard", params ?? {}] as const,
-
-  auditLogs: (params?: AuditLogParams) =>
-    [...teacherKeys.all, "audit-logs", params ?? {}] as const,
-
-  tracks: (params?: ContentListParams) =>
-    [...teacherKeys.all, "tracks", params ?? {}] as const,
-
-  modules: (params?: ContentListParams) =>
-    [...teacherKeys.all, "modules", params ?? {}] as const,
-
-  lessons: (params?: ContentListParams) =>
-    [...teacherKeys.all, "lessons", params ?? {}] as const,
-
-  challenges: (params?: ContentListParams) =>
-    [...teacherKeys.all, "challenges", params ?? {}] as const,
-};
-
-// ---------------------------------------------------------------------------
-// Dashboard
-// ---------------------------------------------------------------------------
-
-export function useTeacherDashboard() {
-  return useQuery({
-    queryKey: teacherKeys.dashboard(),
-    queryFn: teacherDashboard,
-  });
-}
-
-// ---------------------------------------------------------------------------
-// Submissions
-// ---------------------------------------------------------------------------
-
-export function useTeacherSubmissions(filters?: TeacherSubmissionFilters) {
-  return useQuery({
-    queryKey: teacherKeys.submissions(filters),
-    queryFn: () => teacherSubmissions(filters),
-  });
-}
-
-export function useTeacherSubmission(id: number) {
-  return useQuery({
-    queryKey: teacherKeys.submission(id),
-    queryFn: () => teacherSubmission(id),
-    enabled: !!id,
-  });
-}
-
-export function useGradeSubmission() {
-  const queryClient = useQueryClient();
-  return useMutation<
-    Awaited<ReturnType<typeof gradeSubmission>>,
-    ApiErrorResponse,
-    { id: number; data: GradeSubmissionRequest }
-  >({
-    mutationFn: ({ id, data }) => gradeSubmission(id, data),
-    onSuccess: (result) => {
-      queryClient.invalidateQueries({
-        queryKey: teacherKeys.submission(result.id),
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["teacher", "submissions"],
-      });
-      queryClient.invalidateQueries({
-        queryKey: teacherKeys.dashboard(),
-      });
-    },
-  });
-}
-
-// ---------------------------------------------------------------------------
-// Leaderboard
-// ---------------------------------------------------------------------------
-
-export function useTeacherLeaderboard(params?: LeaderboardParams) {
-  return useQuery({
-    queryKey: teacherKeys.leaderboard(params),
-    queryFn: () => leaderboard(params),
-  });
-}
-
-// ---------------------------------------------------------------------------
-// Audit logs
-// ---------------------------------------------------------------------------
-
-export function useTeacherAuditLogs(params?: AuditLogParams) {
-  return useQuery({
-    queryKey: teacherKeys.auditLogs(params),
-    queryFn: () => auditLogs(params),
-  });
-}
+import { teacherKeys } from "./keys";
 
 // ---------------------------------------------------------------------------
 // Tracks

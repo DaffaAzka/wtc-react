@@ -20,14 +20,15 @@ export default function StudyClassCard({ data }: { data: StudyClass }) {
         {/* Image */}
         <div
           className="relative h-48 overflow-hidden"
-          style={{ background: getPatternBackground(data.name) }}
-        >
+          style={{ background: getPatternBackground(data.name) }}>
           {data.image_url && (
             <img
               src={data.image_url}
               alt={data.name}
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-              onError={(e) => { e.currentTarget.style.display = "none"; }}
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
@@ -36,7 +37,9 @@ export default function StudyClassCard({ data }: { data: StudyClass }) {
               <GraduationCap className="h-3 w-3" />
               Study Class
             </span>
-            <h3 className="text-white font-extrabold text-lg line-clamp-2 drop-shadow-lg" style={{ letterSpacing: "-0.01em" }}>
+            <h3
+              className="text-white font-extrabold text-lg line-clamp-2 drop-shadow-lg"
+              style={{ letterSpacing: "-0.01em" }}>
               {data.name}
             </h3>
           </div>
@@ -51,7 +54,9 @@ export default function StudyClassCard({ data }: { data: StudyClass }) {
           <div className="flex items-center justify-between border-t border-gray-100 dark:border-white/5 pt-3">
             <div className="flex items-center gap-1.5 text-[13px] text-gray-500 dark:text-gray-400">
               <BookOpen className="h-3.5 w-3.5 text-[#31c7c8]" />
-              <span className="font-bold text-gray-900 dark:text-white">{data.modules_count || 0}</span>
+              <span className="font-bold text-gray-900 dark:text-white">
+                {data.modules_count || 0}
+              </span>
               <span>Modul</span>
             </div>
             <div className="flex items-center gap-1 text-[13px] font-bold text-[#31c7c8] group-hover:gap-2 transition-all">

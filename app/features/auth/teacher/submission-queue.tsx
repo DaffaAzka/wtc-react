@@ -9,26 +9,42 @@ import {
 } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Inbox } from "lucide-react";
-import type { TeacherSubmission, TeacherSubmissionStatus } from "@/types/teacher";
-
-// ── Status badge styling ────────────────────────────────────────────────────
+import type {
+  TeacherSubmission,
+  TeacherSubmissionStatus,
+} from "@/types/teacher";
 
 const STATUS_STYLE: Record<
   TeacherSubmissionStatus,
   { bg: string; text: string; dot: string }
 > = {
-  draft:     { bg: "bg-gray-100 dark:bg-white/5",       text: "text-gray-500 dark:text-gray-400",  dot: "bg-gray-400" },
-  submitted: { bg: "bg-[#1c81ff]/10",                   text: "text-[#1c81ff]",                    dot: "bg-[#1c81ff]" },
-  graded:    { bg: "bg-[#00E676]/10",                   text: "text-[#00E676]",                    dot: "bg-[#00E676]" },
-  returned:  { bg: "bg-[#ff007b]/10",                   text: "text-[#ff007b]",                    dot: "bg-[#ff007b]" },
+  draft: {
+    bg: "bg-gray-100 dark:bg-white/5",
+    text: "text-gray-500 dark:text-gray-400",
+    dot: "bg-gray-400",
+  },
+  submitted: {
+    bg: "bg-[#1c81ff]/10",
+    text: "text-[#1c81ff]",
+    dot: "bg-[#1c81ff]",
+  },
+  graded: {
+    bg: "bg-[#00E676]/10",
+    text: "text-[#00E676]",
+    dot: "bg-[#00E676]",
+  },
+  returned: {
+    bg: "bg-[#ff007b]/10",
+    text: "text-[#ff007b]",
+    dot: "bg-[#ff007b]",
+  },
 };
 
 function StatusBadge({ status }: { status: TeacherSubmissionStatus }) {
   const s = STATUS_STYLE[status] ?? STATUS_STYLE.draft;
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] ${s.bg} ${s.text}`}
-    >
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.08em] ${s.bg} ${s.text}`}>
       <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
       {status}
     </span>
@@ -42,8 +58,6 @@ function TypeBadge({ type }: { type: string }) {
     </span>
   );
 }
-
-// ── Submission queue table ──────────────────────────────────────────────────
 
 interface SubmissionQueueProps {
   submissions: TeacherSubmission[];
@@ -78,11 +92,10 @@ export function SubmissionQueue({
             (h, i) => (
               <TableHead
                 key={h}
-                className={`text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 ${i >= 4 ? "text-right" : ""}`}
-              >
+                className={`text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 ${i >= 4 ? "text-right" : ""}`}>
                 {h}
               </TableHead>
-            )
+            ),
           )}
         </TableRow>
       </TableHeader>
@@ -90,21 +103,18 @@ export function SubmissionQueue({
         {rows.map((sub) => (
           <TableRow
             key={sub.id}
-            className="border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
-          >
+            className="border-gray-100 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
             <TableCell>
               <Link
                 to={`/teacher/submissions/${sub.id}`}
-                className="font-bold text-[14px] text-gray-900 dark:text-white hover:text-[#1c81ff] transition-colors"
-              >
+                className="font-bold text-[14px] text-gray-900 dark:text-white hover:text-[#1c81ff] transition-colors">
                 {sub.profile.display_name ?? `#${sub.profile.id}`}
               </Link>
             </TableCell>
             <TableCell>
               <Link
                 to={`/teacher/submissions/${sub.id}`}
-                className="text-[14px] text-gray-600 dark:text-gray-300 hover:text-[#1c81ff] transition-colors"
-              >
+                className="text-[14px] text-gray-600 dark:text-gray-300 hover:text-[#1c81ff] transition-colors">
                 {sub.challenge.title}
               </Link>
             </TableCell>
@@ -151,11 +161,10 @@ export function SubmissionQueueSkeleton({ rows = 3 }: { rows?: number }) {
             (h, i) => (
               <TableHead
                 key={h}
-                className={`text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 ${i >= 4 ? "text-right" : ""}`}
-              >
+                className={`text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 ${i >= 4 ? "text-right" : ""}`}>
                 {h}
               </TableHead>
-            )
+            ),
           )}
         </TableRow>
       </TableHeader>

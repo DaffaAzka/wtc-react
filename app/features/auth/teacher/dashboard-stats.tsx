@@ -52,15 +52,14 @@ export function DashboardStats({ stats }: DashboardStatsProps) {
       {STAT_ITEMS.map(({ key, label, Icon, colorClass, bgClass }) => (
         <div
           key={key}
-          className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm p-5 hover:shadow-md hover:-translate-y-1 transition-all duration-300"
-        >
-          <div className={`w-11 h-11 rounded-full ${bgClass} flex items-center justify-center mb-4`}>
+          className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm p-5 hover:shadow-md hover:-translate-y-1 transition-all duration-300">
+          <div
+            className={`w-11 h-11 rounded-full ${bgClass} flex items-center justify-center mb-4`}>
             <Icon className={`h-5 w-5 ${colorClass}`} />
           </div>
           <div
             className="text-3xl font-extrabold text-gray-900 dark:text-white mb-1"
-            style={{ letterSpacing: "-0.02em" }}
-          >
+            style={{ letterSpacing: "-0.02em" }}>
             {stats[key]}
           </div>
           <div className="text-[12px] font-bold uppercase tracking-[0.15em] text-gray-400 dark:text-gray-500">
@@ -80,8 +79,7 @@ export function DashboardStatsSkeleton() {
       {Array.from({ length: 5 }).map((_, i) => (
         <div
           key={i}
-          className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm p-5 space-y-3"
-        >
+          className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm p-5 space-y-3">
           <Skeleton className="h-11 w-11 rounded-full" />
           <Skeleton className="h-8 w-14 rounded-lg" />
           <Skeleton className="h-2.5 w-16 rounded-full" />

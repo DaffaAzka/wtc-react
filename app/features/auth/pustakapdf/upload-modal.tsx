@@ -41,7 +41,6 @@ export default function UploadMaterialModal({
   const [description, setDescription] = useState("");
   const [isUploading, setIsUploading] = useState(false);
 
-  // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -51,7 +50,6 @@ export default function UploadMaterialModal({
         return;
       }
 
-      // Validate file size (max 50MB)
       const maxSize = 50 * 1024 * 1024; // 50MB
       if (file.size > maxSize) {
         toast.error("Ukuran file maksimal 50MB");
@@ -60,7 +58,6 @@ export default function UploadMaterialModal({
 
       setSelectedFile(file);
 
-      // Auto-fill title from filename if empty
       if (!title) {
         const filename = file.name.replace(/\.pdf$/i, "");
         setTitle(filename);
@@ -77,11 +74,9 @@ export default function UploadMaterialModal({
     setDescription("");
   };
 
-  // Handle submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation
     if (!selectedLessonSlug) {
       toast.error("Pilih lesson terlebih dahulu");
       return;
@@ -105,7 +100,6 @@ export default function UploadMaterialModal({
     setIsUploading(true);
 
     try {
-      // Prepare form data
       const formData = new FormData();
       formData.append("file", selectedFile);
       formData.append("title", title.trim());
@@ -114,7 +108,6 @@ export default function UploadMaterialModal({
         formData.append("description", description.trim());
       }
 
-      // Upload
       const response = await fetch(
         `https://wtc-api.pinat.nl/api/lessons/${selectedLessonSlug}/attachments`,
         {
@@ -123,7 +116,7 @@ export default function UploadMaterialModal({
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: formData,
-        }
+        },
       );
 
       if (!response.ok) {
@@ -142,10 +135,9 @@ export default function UploadMaterialModal({
     }
   };
 
-  // Handle close
   const handleClose = () => {
     if (isUploading) {
-      return; // Don't allow close while uploading
+      return;
     }
     resetForm();
     onClose();
@@ -160,7 +152,8 @@ export default function UploadMaterialModal({
             Upload Materi Pembelajaran
           </DialogTitle>
           <DialogDescription>
-            Tambahkan materi pembelajaran baru dalam bentuk PDF untuk lesson tertentu
+            Tambahkan materi pembelajaran baru dalam bentuk PDF untuk lesson
+            tertentu
           </DialogDescription>
         </DialogHeader>
 
@@ -173,8 +166,7 @@ export default function UploadMaterialModal({
             <Select
               value={selectedLessonSlug}
               onValueChange={setSelectedLessonSlug}
-              disabled={isUploading}
-            >
+              disabled={isUploading}>
               <SelectTrigger id="lesson" className="h-11">
                 <SelectValue placeholder="Pilih lesson untuk materi ini" />
               </SelectTrigger>
@@ -238,11 +230,7 @@ export default function UploadMaterialModal({
             <Label htmlFor="type" className="text-sm font-medium">
               Tipe Materi <span className="text-red-500">*</span>
             </Label>
-            <Select
-              value={type}
-              onValueChange={setType}
-              disabled={isUploading}
-            >
+            <Select value={type} onValueChange={setType} disabled={isUploading}>
               <SelectTrigger id="type" className="h-11">
                 <SelectValue placeholder="Pilih tipe materi" />
               </SelectTrigger>
@@ -278,15 +266,18 @@ export default function UploadMaterialModal({
               type="button"
               variant="outline"
               onClick={handleClose}
-              disabled={isUploading}
-            >
+              disabled={isUploading}>
               Batal
             </Button>
             <Button
               type="submit"
-              disabled={isUploading || !selectedFile || !selectedLessonSlug || !title.trim()}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
+              disabled={
+                isUploading ||
+                !selectedFile ||
+                !selectedLessonSlug ||
+                !title.trim()
+              }
+              className="bg-blue-600 hover:bg-blue-700 text-white">
               {isUploading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

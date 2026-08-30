@@ -5,9 +5,24 @@ import { TrackPreview } from "./components/track-preview";
 import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/students/components/empty-state";
-import { useEnrollTrack, useMyTracks, useTrackEnrollment, useUnenrollTrack } from "@/students/hooks/enrollments";
+import {
+  useEnrollTrack,
+  useTrackEnrollment,
+  useUnenrollTrack,
+} from "@/students/hooks/enrollments";
 import { cn, getPatternBackground } from "@/lib/utils";
-import { ArrowLeft, BookOpen, CheckCircle, CheckCircle2, Clock, Loader2, Play, Lock, Target, TriangleAlert } from "lucide-react";
+import {
+  ArrowLeft,
+  BookOpen,
+  CheckCircle,
+  CheckCircle2,
+  Clock,
+  Loader2,
+  Play,
+  Lock,
+  Target,
+  TriangleAlert,
+} from "lucide-react";
 import { toast } from "sonner";
 import type { LessonWithState } from "@/types/model";
 
@@ -28,26 +43,17 @@ export default function TrackDetail() {
   const loading = trackLoading || enrollmentLoading || (isEnrolled && overviewLoading);
   const error = trackError || (isEnrolled ? overviewError : null);
 
-  const handleEnrollClick = () => {
-    if (!slug) return;
-    setShowConfirmModal(true);
-  };
+  const handleEnrollClick = () => { if (!slug) return; setShowConfirmModal(true); };
   const handleConfirmEnroll = async () => {
     if (!slug) return;
     await enrollMutation.mutateAsync(slug);
     setShowConfirmModal(false);
     await Promise.all([refreshEnrollment(), refreshOverview()]);
   };
-  const handleUnenroll = async () => {
-    if (!slug) return;
-    await unenrollMutation.mutateAsync(slug);
-  };
+  const handleUnenroll = async () => { if (!slug) return; await unenrollMutation.mutateAsync(slug); };
 
   const handleLessonClick = (lesson: LessonWithState, module: any) => {
-    if (lesson.state === "locked") {
-      toast.error("Lesson Terkunci. Selesaikan lesson sebelumnya terlebih dahulu.");
-      return;
-    }
+    if (lesson.state === "locked") { toast.error("Lesson Terkunci. Selesaikan lesson sebelumnya terlebih dahulu."); return; }
     navigate(`/student/classes/${track!.slug}/${module.slug}/${lesson.slug}`);
   };
 
@@ -73,9 +79,7 @@ export default function TrackDetail() {
               <Skeleton className="h-5 w-2/3 rounded-lg" />
               <Skeleton className="h-2 w-full rounded-full" />
               <div className="space-y-2 pt-2">
-                {[1, 2].map((j) => (
-                  <Skeleton key={j} className="h-12 w-full rounded-xl" />
-                ))}
+                {[1, 2].map((j) => <Skeleton key={j} className="h-12 w-full rounded-xl" />)}
               </div>
             </div>
           ))}
@@ -93,7 +97,9 @@ export default function TrackDetail() {
         </Link>
         <div className="rounded-2xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 p-8 flex items-start gap-3">
           <TriangleAlert className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
-          <p className="text-[15px] text-red-600 dark:text-red-400">{error.message || "Terjadi kesalahan saat memuat detail kelas."}</p>
+          <p className="text-[15px] text-red-600 dark:text-red-400">
+            {error.message || "Terjadi kesalahan saat memuat detail kelas."}
+          </p>
         </div>
       </div>
     );
@@ -149,7 +155,7 @@ export default function TrackDetail() {
 
   // ── Enrolled view ─────────────────────────────────────────────────────────────
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-4xl">
       {/* Back */}
       <Link to="/student/classes" className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
         <ArrowLeft className="h-3.5 w-3.5" /> Kembali ke Katalog
@@ -159,16 +165,11 @@ export default function TrackDetail() {
       <div className="overflow-hidden rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm">
         <div className="flex flex-col lg:flex-row gap-0">
           {/* Image */}
-          <div className="relative lg:w-56 xl:w-64 shrink-0 overflow-hidden min-h-[180px]" style={{ background: getPatternBackground(track.title) }}>
+          <div className="relative lg:w-56 xl:w-64 shrink-0 overflow-hidden min-h-[180px]"
+            style={{ background: getPatternBackground(track.title) }}>
             {track.image_url && (
-              <img
-                src={track.image_url}
-                alt={track.title}
-                className="w-full h-full object-cover absolute inset-0"
-                onError={(e) => {
-                  e.currentTarget.style.display = "none";
-                }}
-              />
+              <img src={track.image_url} alt={track.title} className="w-full h-full object-cover absolute inset-0"
+                onError={(e) => { e.currentTarget.style.display = "none"; }} />
             )}
             <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/30 dark:to-[#0b1215]/30" />
           </div>
@@ -180,12 +181,16 @@ export default function TrackDetail() {
                 <span className="inline-flex items-center gap-1 rounded-full bg-[#00E676]/10 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] text-[#00E676]">
                   <CheckCircle className="h-3 w-3" /> Terdaftar
                 </span>
-                <span className="inline-flex items-center rounded-full bg-[#1c81ff]/10 px-2.5 py-0.5 text-[11px] font-bold text-[#1c81ff]">{modules.length} Modul</span>
+                <span className="inline-flex items-center rounded-full bg-[#1c81ff]/10 px-2.5 py-0.5 text-[11px] font-bold text-[#1c81ff]">
+                  {modules.length} Modul
+                </span>
               </div>
               <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>
                 {track.title}
               </h1>
-              {track.description && <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400 mt-2">{track.description}</p>}
+              {track.description && (
+                <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400 mt-2">{track.description}</p>
+              )}
             </div>
 
             {/* Progress */}
@@ -247,20 +252,20 @@ export default function TrackDetail() {
                         <h3 className="font-extrabold text-[15px] text-gray-900 dark:text-white" style={{ letterSpacing: "-0.01em" }}>
                           {module.title}
                         </h3>
-                        {module.description && <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-0.5">{module.description}</p>}
+                        {module.description && (
+                          <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-0.5">{module.description}</p>
+                        )}
                       </div>
                     </div>
-                    <span className="shrink-0 text-[12px] font-bold tabular-nums text-[#1c81ff]">{module.progress.percent}%</span>
+                    <span className="shrink-0 text-[12px] font-bold tabular-nums text-[#1c81ff]">
+                      {module.progress.percent}%
+                    </span>
                   </div>
                   <div className="mt-3 space-y-1.5">
                     <Progress value={module.progress.percent} className="h-1.5 bg-gray-100 dark:bg-white/10 [&>div]:bg-[#1c81ff]" />
                     <div className="flex items-center gap-3 text-[11px] text-gray-400 dark:text-gray-600">
-                      <span>
-                        {module.progress.completed_lessons}/{module.progress.total_lessons} lessons
-                      </span>
-                      <span>
-                        {module.progress.completed_challenges}/{module.progress.total_challenges} challenges
-                      </span>
+                      <span>{module.progress.completed_lessons}/{module.progress.total_lessons} lessons</span>
+                      <span>{module.progress.completed_challenges}/{module.progress.total_challenges} challenges</span>
                     </div>
                   </div>
                 </div>
@@ -271,8 +276,8 @@ export default function TrackDetail() {
                     <p className="text-[13px] text-gray-500 dark:text-gray-400 text-center py-6">Belum ada lesson di modul ini</p>
                   ) : (
                     module.lessons.map((lesson) => {
-                      const isLocked = lesson.state === "locked";
-                      const isCurrent = lesson.state === "current";
+                      const isLocked    = lesson.state === "locked";
+                      const isCurrent   = lesson.state === "current";
                       const isCompleted = lesson.state === "completed";
 
                       return (
@@ -289,17 +294,15 @@ export default function TrackDetail() {
                           )}
                         >
                           {/* Icon */}
-                          <div
-                            className={cn(
-                              "shrink-0 h-9 w-9 rounded-full flex items-center justify-center",
-                              isLocked && "bg-gray-100 dark:bg-white/5",
-                              isCurrent && "bg-[#1c81ff]/20",
-                              isCompleted && "bg-[#00E676]/10",
-                              !isLocked && !isCurrent && !isCompleted && "bg-gray-100 dark:bg-white/5",
-                            )}
-                          >
-                            {isLocked && <Lock className="h-4 w-4 text-gray-400 dark:text-gray-600" />}
-                            {isCurrent && <Play className="h-4 w-4 text-[#1c81ff]" />}
+                          <div className={cn(
+                            "shrink-0 h-9 w-9 rounded-full flex items-center justify-center",
+                            isLocked    && "bg-gray-100 dark:bg-white/5",
+                            isCurrent   && "bg-[#1c81ff]/20",
+                            isCompleted && "bg-[#00E676]/10",
+                            !isLocked && !isCurrent && !isCompleted && "bg-gray-100 dark:bg-white/5",
+                          )}>
+                            {isLocked    && <Lock       className="h-4 w-4 text-gray-400 dark:text-gray-600" />}
+                            {isCurrent   && <Play       className="h-4 w-4 text-[#1c81ff]" />}
                             {isCompleted && <CheckCircle className="h-4 w-4 text-[#00E676]" />}
                             {!isLocked && !isCurrent && !isCompleted && <Play className="h-4 w-4 text-gray-400 dark:text-gray-600" />}
                           </div>
@@ -307,18 +310,19 @@ export default function TrackDetail() {
                           {/* Text */}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span
-                                className={cn(
-                                  "text-[14px] font-bold truncate",
-                                  isCurrent && "text-[#1c81ff]",
-                                  isCompleted && "text-gray-900 dark:text-white",
-                                  isLocked && "text-gray-400 dark:text-gray-600",
-                                  !isLocked && !isCurrent && !isCompleted && "text-gray-900 dark:text-white",
-                                )}
-                              >
+                              <span className={cn("text-[14px] font-bold truncate",
+                                isCurrent   && "text-[#1c81ff]",
+                                isCompleted && "text-gray-900 dark:text-white",
+                                isLocked    && "text-gray-400 dark:text-gray-600",
+                                !isLocked && !isCurrent && !isCompleted && "text-gray-900 dark:text-white",
+                              )}>
                                 {lesson.title}
                               </span>
-                              {isCurrent && <span className="shrink-0 inline-flex items-center rounded-full bg-[#1c81ff] px-2 py-0.5 text-[10px] font-bold text-white">Sedang Belajar</span>}
+                              {isCurrent && (
+                                <span className="shrink-0 inline-flex items-center rounded-full bg-[#1c81ff] px-2 py-0.5 text-[10px] font-bold text-white">
+                                  Sedang Belajar
+                                </span>
+                              )}
                             </div>
                             <div className="flex items-center gap-3 mt-0.5 text-[12px] text-gray-400 dark:text-gray-600">
                               {lesson.duration && (
