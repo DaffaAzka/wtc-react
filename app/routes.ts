@@ -45,6 +45,9 @@ export default [
         "/challenges/:id/take",
         "routes/auth/student/challenges/$id.take.tsx",
       ),
+
+      // Certificates
+      route("/certificates", "routes/auth/student/certificates/index.tsx"),
     ]),
   ]),
   layout("routes/auth/layout.tsx", [
@@ -110,6 +113,11 @@ export default [
         index("routes/auth/admin/student-progress/index.tsx"),
         route("/tracks/:slug", "routes/auth/admin/student-progress/tracks.$slug.tsx"),
       ]),
+
+      // Certificates & Achievements
+      route("/admin/certificates", "routes/auth/admin/certificates/index.tsx"),
+      route("/admin/certificate-template", "routes/auth/admin/certificate-template/index.tsx"),
+      route("/admin/achievements", "routes/auth/admin/achievements/index.tsx"),
     ]),
   ]),
 
@@ -143,4 +151,6 @@ export default [
       route("/audit-logs", "routes/auth/teacher/audit-logs.tsx"),
     ]),
   ]),
+  // Public certificate verification — no auth, no layout
+  route("/verify/:code", "routes/public/verify.$code.tsx"),
 ] satisfies RouteConfig;

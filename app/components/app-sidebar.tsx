@@ -45,6 +45,8 @@ import {
   Library,
   Layers,
   ClipboardList,
+  Award,
+  Star,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth";
 import { useTheme } from "@/contexts/theme";
@@ -200,6 +202,9 @@ const adminCourseGroup: NavGroup = {
 const adminManage: NavItem[] = [
   { title: "Users", url: "/user-management", icon: UsersIcon },
   { title: "Student Progress", url: "/student-progress", icon: Users },
+  { title: "Certificates", url: "/admin/certificates", icon: Award },
+  { title: "Certificate Template", url: "/admin/certificate-template", icon: Star },
+  { title: "Achievements", url: "/admin/achievements", icon: Trophy },
   { title: "Recycle Bin", url: "/recycle-bin", icon: Trash2 },
 ];
 
@@ -229,6 +234,7 @@ const studentMain: NavItem[] = [
   { title: "Beranda", url: "/student/dashboard", icon: Home },
   { title: "Progress Belajar", url: "/student/progress", icon: GraduationCap },
   { title: "Kelas", url: "/student/classes", icon: BookOpen },
+  { title: "Sertifikat Saya", url: "/student/certificates", icon: Award },
 ];
 
 // ── Main component ───────────────────────────────────────────────────────────
