@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { X, Download, AlertCircle, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useSubmitFeedback } from "@/hooks/certificate";
+import { downloadCertificate } from "@/services/certificate";
 import type { Certificate } from "@/types/certificate";
 
 type Props = {
@@ -17,17 +18,18 @@ export function CertificateViewerModal({ certificate, htmlContent, cssContent, o
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const submitFeedback = useSubmitFeedback();
 
-  const handleDownload = () => {
-    const content = htmlContent ?? "";
-    const styles = cssContent ?? "";
-    const fullHtml = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${styles}</style></head><body>${content}</body></html>`;
-    const blob = new Blob([fullHtml], { type: "text/html" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `certificate-${certificate.certificate_number}.html`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const [downloading, setDownloading] = useState(false);
+
+  const handleDownload = async () => {
+    try {
+      setDownloading(true);
+      const { url } = await downloadCertificate(certificate.id);
+      window.open(url, "_blank");
+    } catch {
+      toast.error("Failed to download certificate");
+    } finally {
+      setDownloading(false);
+    }
   };
 
   const handleSubmitFeedback = () => {
