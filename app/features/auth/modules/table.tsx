@@ -78,9 +78,6 @@ export default function ModulesTable({
     });
   }, [data, search]);
 
-  // Build correct URL for lessons and challenges based on routes.ts:
-  // lessons:    /:slug?/lessons           → /{moduleSlug}/lessons
-  // challenges: /:slug?/modules/:moduleSlug/challenges → /{trackSlug}/modules/{moduleSlug}/challenges
   function lessonsUrl(moduleSlug: string) {
     return `${basePath}/${moduleSlug}/lessons`;
   }
@@ -104,7 +101,10 @@ export default function ModulesTable({
               </span>{" "}
               {(total ?? data.length) === 1 ? "module" : "modules"}
               {filtered.length !== data.length && (
-                <span className="text-gray-400"> · {filtered.length} shown</span>
+                <span className="text-gray-400">
+                  {" "}
+                  · {filtered.length} shown
+                </span>
               )}
             </p>
             <div className="relative w-full max-w-56">
@@ -223,7 +223,9 @@ export default function ModulesTable({
                               <EllipsisIcon className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="rounded-xl">
+                          <DropdownMenuContent
+                            align="end"
+                            className="rounded-xl">
                             <Link to={lessonsUrl(module.slug)}>
                               <DropdownMenuItem className="rounded-lg cursor-pointer">
                                 View Lessons

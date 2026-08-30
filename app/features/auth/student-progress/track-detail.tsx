@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -25,10 +25,6 @@ import type {
   TrackProfileProgress,
 } from "@/types/student-progress";
 import { resolveAvatar, initials, ProgressBar, EmptyState } from "./_shared";
-
-// ---------------------------------------------------------------------------
-// Track image placeholder — reuse same gradients as index
-// ---------------------------------------------------------------------------
 
 const GRADIENT_PLACEHOLDERS = [
   "from-violet-500 to-indigo-600",
@@ -351,4 +347,3 @@ export default function TrackDetail({ slug }: TrackDetailProps) {
     </div>
   );
 }
-  

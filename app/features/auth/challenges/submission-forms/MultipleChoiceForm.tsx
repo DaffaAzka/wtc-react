@@ -11,7 +11,12 @@ interface MultipleChoiceFormProps {
   onSubmit: (file: File | null, content: string) => void;
 }
 
-export function MultipleChoiceForm({ challenge, canSubmit, isSubmitting, onSubmit }: MultipleChoiceFormProps) {
+export function MultipleChoiceForm({
+  challenge,
+  canSubmit,
+  isSubmitting,
+  onSubmit,
+}: MultipleChoiceFormProps) {
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [error, setError] = useState("");
 
@@ -19,12 +24,15 @@ export function MultipleChoiceForm({ challenge, canSubmit, isSubmitting, onSubmi
   const [displayOptions] = useState(() =>
     challenge.settings?.shuffle_options
       ? [...options].sort(() => Math.random() - 0.5)
-      : options
+      : options,
   );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedOption) { setError("Silakan pilih salah satu jawaban"); return; }
+    if (!selectedOption) {
+      setError("Silakan pilih salah satu jawaban");
+      return;
+    }
     onSubmit(null, selectedOption);
     setError("");
   };
@@ -33,7 +41,9 @@ export function MultipleChoiceForm({ challenge, canSubmit, isSubmitting, onSubmi
     return (
       <div className="flex items-start gap-3 rounded-2xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 p-5">
         <AlertCircle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
-        <p className="text-[15px] text-red-600 dark:text-red-400">Challenge ini tidak memiliki opsi pilihan. Silakan hubungi instruktur.</p>
+        <p className="text-[15px] text-red-600 dark:text-red-400">
+          Challenge ini tidak memiliki opsi pilihan. Silakan hubungi instruktur.
+        </p>
       </div>
     );
   }
@@ -44,18 +54,25 @@ export function MultipleChoiceForm({ challenge, canSubmit, isSubmitting, onSubmi
         <div className="w-8 h-8 rounded-full bg-[#1c81ff]/10 flex items-center justify-center">
           <Send className="h-4 w-4 text-[#1c81ff]" />
         </div>
-        <span className="font-bold text-gray-900 dark:text-white">Pilih Jawaban</span>
+        <span className="font-bold text-gray-900 dark:text-white">
+          Pilih Jawaban
+        </span>
       </div>
 
       <div className="p-5">
         {!canSubmit ? (
           <div className="flex items-start gap-3 rounded-xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 p-4">
             <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
-            <p className="text-[14px] text-red-600 dark:text-red-400">Anda telah mencapai batas maksimum percobaan untuk challenge ini.</p>
+            <p className="text-[14px] text-red-600 dark:text-red-400">
+              Anda telah mencapai batas maksimum percobaan untuk challenge ini.
+            </p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
-            <RadioGroup value={selectedOption} onValueChange={setSelectedOption} className="space-y-2.5">
+            <RadioGroup
+              value={selectedOption}
+              onValueChange={setSelectedOption}
+              className="space-y-2.5">
               {displayOptions.map((option: any) => (
                 <div
                   key={option.key}
@@ -63,11 +80,17 @@ export function MultipleChoiceForm({ challenge, canSubmit, isSubmitting, onSubmi
                     selectedOption === option.key
                       ? "border-[#1c81ff] bg-[#1c81ff]/5 dark:bg-[#1c81ff]/10"
                       : "border-gray-200 dark:border-white/10 hover:border-[#1c81ff]/40 hover:bg-gray-50 dark:hover:bg-white/5"
-                  }`}
-                >
-                  <RadioGroupItem value={option.key} id={option.key} className="mt-0.5 shrink-0" />
-                  <Label htmlFor={option.key} className="flex-1 cursor-pointer text-[14px] leading-relaxed text-gray-700 dark:text-gray-300">
-                    <span className={`font-extrabold mr-2 ${selectedOption === option.key ? "text-[#1c81ff]" : "text-gray-400 dark:text-gray-600"}`}>
+                  }`}>
+                  <RadioGroupItem
+                    value={option.key}
+                    id={option.key}
+                    className="mt-0.5 shrink-0"
+                  />
+                  <Label
+                    htmlFor={option.key}
+                    className="flex-1 cursor-pointer text-[14px] leading-relaxed text-gray-700 dark:text-gray-300">
+                    <span
+                      className={`font-extrabold mr-2 ${selectedOption === option.key ? "text-[#1c81ff]" : "text-gray-400 dark:text-gray-600"}`}>
                       {option.key.toUpperCase()}.
                     </span>
                     {option.text}
@@ -79,13 +102,27 @@ export function MultipleChoiceForm({ challenge, canSubmit, isSubmitting, onSubmi
             {error && (
               <div className="flex items-start gap-2.5 rounded-xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 px-4 py-3">
                 <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
-                <p className="text-[13px] text-red-600 dark:text-red-400">{error}</p>
+                <p className="text-[13px] text-red-600 dark:text-red-400">
+                  {error}
+                </p>
               </div>
             )}
 
-            <button type="submit" disabled={isSubmitting || !selectedOption}
+            <button
+              type="submit"
+              disabled={isSubmitting || !selectedOption}
               className="w-full flex items-center justify-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-3 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-[14px]">
-              {isSubmitting ? <><Loader2 className="h-4 w-4 animate-spin" />Mengirim…</> : <><Send className="h-4 w-4" />Kirim Jawaban</>}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Mengirim…
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4" />
+                  Kirim Jawaban
+                </>
+              )}
             </button>
           </form>
         )}

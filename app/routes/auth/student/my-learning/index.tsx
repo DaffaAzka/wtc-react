@@ -6,12 +6,10 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getPatternBackground } from "@/lib/utils";
 import {
-  GraduationCap,
   BookOpen,
   Trophy,
   Clock,
   CheckCircle2,
-  Inbox,
   RefreshCw,
 } from "lucide-react";
 

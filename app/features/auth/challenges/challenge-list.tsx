@@ -110,7 +110,7 @@ export default function ChallengeList({ challenges, context }: Props) {
 
       {/* Edit Modal (Metadata Only) */}
       {editModal.challenge &&
-        (editModal.challenge.type === "file_upload" ?
+        (editModal.challenge.type === "file_upload" ? (
           <CodingAssignmentModalEdit
             key={`edit-${editModal.challenge.id}`}
             challenge={editModal.challenge}
@@ -120,7 +120,8 @@ export default function ChallengeList({ challenges, context }: Props) {
               setEditModal((prev) => ({ ...prev, isOpen: open }))
             }
           />
-        : <ChallengeModalEdit
+        ) : (
+          <ChallengeModalEdit
             key={`edit-${editModal.challenge.id}`}
             challenge={editModal.challenge}
             context={context}
@@ -128,7 +129,8 @@ export default function ChallengeList({ challenges, context }: Props) {
             onOpenChange={(open) =>
               setEditModal((prev) => ({ ...prev, isOpen: open }))
             }
-          />)}
+          />
+        ))}
     </>
   );
 }

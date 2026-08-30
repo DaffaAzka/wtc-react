@@ -1,4 +1,4 @@
-import InputForm from "@/components/custom/input-form";
+﻿import InputForm from "@/components/custom/input-form";
 import {
   Select,
   SelectContent,
@@ -15,17 +15,28 @@ type Props = {
   onChange: (data: MCQQuestion) => void;
   shouldAutoFocus?: boolean;
   questionErrors: Record<string, string>;
-  setQuestionErrors: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  setQuestionErrors: React.Dispatch<
+    React.SetStateAction<Record<string, string>>
+  >;
 };
 
 const OPTIONS = ["A", "B", "C", "D"] as const;
 
 export default function MCQForm({
-  data, onChange, shouldAutoFocus, index, questionErrors, setQuestionErrors,
+  data,
+  onChange,
+  shouldAutoFocus,
+  index,
+  questionErrors,
+  setQuestionErrors,
 }: Props) {
   const clearError = (key: string) => {
     if (questionErrors[key]) {
-      setQuestionErrors((prev) => { const u = { ...prev }; delete u[key]; return u; });
+      setQuestionErrors((prev) => {
+        const u = { ...prev };
+        delete u[key];
+        return u;
+      });
     }
   };
 
@@ -83,30 +94,40 @@ export default function MCQForm({
           onValueChange={(value) => {
             onChange({ ...data, answer: value as "A" | "B" | "C" | "D" });
             clearError(`answer-${index}`);
-          }}
-        >
+          }}>
           <SelectTrigger className="rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
             {OPTIONS.map((letter) => (
-              <SelectItem key={letter} value={letter}>{letter}</SelectItem>
+              <SelectItem key={letter} value={letter}>
+                {letter}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
         {questionErrors[`answer-${index}`] && (
-          <p className="text-[12px] text-red-500">{questionErrors[`answer-${index}`]}</p>
+          <p className="text-[12px] text-red-500">
+            {questionErrors[`answer-${index}`]}
+          </p>
         )}
       </div>
 
       {/* Score (read-only) */}
       <div className="space-y-1.5">
         <label className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
-          Score <span className="font-normal text-gray-400 dark:text-gray-600">(Auto-calculated)</span>
+          Score{" "}
+          <span className="font-normal text-gray-400 dark:text-gray-600">
+            (Auto-calculated)
+          </span>
         </label>
         <div className="flex items-center h-11 w-full rounded-xl bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-4">
-          <span className="text-[14px] font-extrabold text-[#1c81ff]">{data.score}</span>
-          <span className="text-[13px] text-gray-400 dark:text-gray-600 ml-1">pts</span>
+          <span className="text-[14px] font-extrabold text-[#1c81ff]">
+            {data.score}
+          </span>
+          <span className="text-[13px] text-gray-400 dark:text-gray-600 ml-1">
+            pts
+          </span>
         </div>
       </div>
     </div>

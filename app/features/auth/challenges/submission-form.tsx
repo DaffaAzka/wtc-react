@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import type { Challenge } from "@/types/model";
 
-// Import all type-specific submission forms
 import { MultipleChoiceForm } from "./submission-forms/MultipleChoiceForm";
 import { FillBlankForm } from "./submission-forms/FillBlankForm";
 import { EssayForm } from "./submission-forms/EssayForm";
@@ -31,7 +30,6 @@ export function SubmissionForm({
   isSubmitting,
   onSubmit,
 }: SubmissionFormProps) {
-  // Route to the appropriate form based on challenge type
   switch (challenge.type) {
     case "multiple_choice":
       return (
@@ -128,13 +126,16 @@ export function SubmissionForm({
       return (
         <Card>
           <CardHeader>
-            <CardTitle className="text-lg">Unsupported Challenge Type</CardTitle>
+            <CardTitle className="text-lg">
+              Unsupported Challenge Type
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <Alert variant="destructive">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Challenge type "{challenge.type}" tidak didukung. Silakan hubungi instruktur.
+                Challenge type "{challenge.type}" tidak didukung. Silakan
+                hubungi instruktur.
               </AlertDescription>
             </Alert>
           </CardContent>

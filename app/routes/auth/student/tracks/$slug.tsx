@@ -7,7 +7,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/students/components/empty-state";
 import {
   useEnrollTrack,
-  useMyTracks,
   useTrackEnrollment,
   useUnenrollTrack,
 } from "@/students/hooks/enrollments";

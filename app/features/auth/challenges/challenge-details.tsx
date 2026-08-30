@@ -20,9 +20,9 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 const DIFFICULTY_STYLE: Record<string, { bg: string; text: string }> = {
-  easy:   { bg: "bg-[#00E676]/10", text: "text-[#00E676]" },
+  easy: { bg: "bg-[#00E676]/10", text: "text-[#00E676]" },
   medium: { bg: "bg-[#f6b60b]/10", text: "text-[#f6b60b]" },
-  hard:   { bg: "bg-[#ff007b]/10", text: "text-[#ff007b]" },
+  hard: { bg: "bg-[#ff007b]/10", text: "text-[#ff007b]" },
 };
 
 export function ChallengeDetails({
@@ -41,13 +41,13 @@ export function ChallengeDetails({
         <div>
           <h2
             className="text-2xl font-extrabold tracking-tight text-gray-900 dark:text-white mb-3"
-            style={{ letterSpacing: "-0.02em" }}
-          >
+            style={{ letterSpacing: "-0.02em" }}>
             {challenge.title}
           </h2>
           <div className="flex flex-wrap items-center gap-2">
             {diffStyle && challenge.difficulty && (
-              <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] capitalize ${diffStyle.bg} ${diffStyle.text}`}>
+              <span
+                className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] capitalize ${diffStyle.bg} ${diffStyle.text}`}>
                 {challenge.difficulty}
               </span>
             )}
@@ -101,10 +101,13 @@ export function ChallengeDetails({
                 <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 mb-0.5">
                   Sisa Percobaan
                 </p>
-                <p className={cn(
-                  "text-[15px] font-extrabold",
-                  remainingAttempts === 0 ? "text-[#ff007b]" : "text-gray-900 dark:text-white"
-                )}>
+                <p
+                  className={cn(
+                    "text-[15px] font-extrabold",
+                    remainingAttempts === 0
+                      ? "text-[#ff007b]"
+                      : "text-gray-900 dark:text-white",
+                  )}>
                   {remainingAttempts === Infinity ? "∞" : remainingAttempts}
                 </p>
               </div>
@@ -122,8 +125,7 @@ export function ChallengeDetails({
           {challenge.attachments.map((attachment: ChallengeAttachment) => (
             <div
               key={attachment.id}
-              className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-white/10 px-4 py-3"
-            >
+              className="flex items-center gap-3 rounded-xl border border-gray-200 dark:border-white/10 px-4 py-3">
               <div className="w-8 h-8 rounded-full bg-[#1c81ff]/10 flex items-center justify-center shrink-0">
                 <FileText className="h-4 w-4 text-[#1c81ff]" />
               </div>

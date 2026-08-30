@@ -8,7 +8,6 @@ import {
   Lock,
   Loader2,
   Download,
-  PlayCircle,
 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ContentView from "@/components/custom/content-view";

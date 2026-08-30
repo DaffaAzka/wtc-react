@@ -36,8 +36,7 @@ export function TrackPreview({
       {/* Back */}
       <Link
         to="/student/classes"
-        className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-      >
+        className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
         <ArrowLeft className="h-3.5 w-3.5" />
         Kembali ke Katalog
       </Link>
@@ -50,14 +49,15 @@ export function TrackPreview({
             {/* Image / pattern */}
             <div
               className="relative h-52 w-full overflow-hidden"
-              style={{ background: getPatternBackground(track.title) }}
-            >
+              style={{ background: getPatternBackground(track.title) }}>
               {track.image_url && (
                 <img
                   src={track.image_url}
                   alt={track.title}
                   className="w-full h-full object-cover"
-                  onError={(e) => { e.currentTarget.style.display = "none"; }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
                 />
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
@@ -88,8 +88,7 @@ export function TrackPreview({
                 </p>
                 <h1
                   className="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight"
-                  style={{ letterSpacing: "-0.02em" }}
-                >
+                  style={{ letterSpacing: "-0.02em" }}>
                   {track.title}
                 </h1>
               </div>
@@ -106,7 +105,8 @@ export function TrackPreview({
                     Tentang Kelas Ini
                   </h2>
                   <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400">
-                    {track.description || "Deskripsi kelas akan segera ditambahkan."}
+                    {track.description ||
+                      "Deskripsi kelas akan segera ditambahkan."}
                   </p>
                 </div>
               </div>
@@ -149,9 +149,9 @@ export function TrackPreview({
               ].map(({ icon: Icon, color, iconColor, title, desc }) => (
                 <div
                   key={title}
-                  className="flex items-start gap-3 rounded-xl border border-gray-200 dark:border-white/10 p-4 hover:shadow-sm transition-shadow"
-                >
-                  <div className={`w-9 h-9 rounded-full ${color} flex items-center justify-center shrink-0`}>
+                  className="flex items-start gap-3 rounded-xl border border-gray-200 dark:border-white/10 p-4 hover:shadow-sm transition-shadow">
+                  <div
+                    className={`w-9 h-9 rounded-full ${color} flex items-center justify-center shrink-0`}>
                     <Icon className={`h-4 w-4 ${iconColor}`} />
                   </div>
                   <div>
@@ -173,28 +173,55 @@ export function TrackPreview({
               <div className="w-8 h-8 rounded-full bg-[#2548d8]/10 flex items-center justify-center">
                 <Sparkles className="h-4 w-4 text-[#2548d8]" />
               </div>
-              <span className="font-bold text-gray-900 dark:text-white">Struktur Pembelajaran</span>
+              <span className="font-bold text-gray-900 dark:text-white">
+                Struktur Pembelajaran
+              </span>
             </div>
             <div className="p-5 space-y-3">
               <p className="text-[14px] text-gray-500 dark:text-gray-400">
-                Kurikulum dirancang dengan pendekatan bertahap untuk pemahaman yang solid.
+                Kurikulum dirancang dengan pendekatan bertahap untuk pemahaman
+                yang solid.
               </p>
               {[
-                { n: "01", color: "bg-[#1c81ff]/10 text-[#1c81ff]", title: "Fundamental Concepts", desc: "Membangun fondasi dengan konsep-konsep dasar yang penting" },
-                { n: "02", color: "bg-[#2548d8]/10 text-[#2548d8]", title: "Practical Implementation", desc: "Menerapkan teori ke dalam praktik dengan hands-on exercises" },
-                { n: "03", color: "bg-[#31c7c8]/10 text-[#31c7c8]", title: "Advanced Techniques", desc: "Menguasai teknik lanjutan dan best practices" },
-                { n: "04", color: "bg-[#00E676]/10 text-[#00E676]", title: "Real-World Projects", desc: "Mengerjakan project nyata untuk portfolio dan pengalaman praktis" },
+                {
+                  n: "01",
+                  color: "bg-[#1c81ff]/10 text-[#1c81ff]",
+                  title: "Fundamental Concepts",
+                  desc: "Membangun fondasi dengan konsep-konsep dasar yang penting",
+                },
+                {
+                  n: "02",
+                  color: "bg-[#2548d8]/10 text-[#2548d8]",
+                  title: "Practical Implementation",
+                  desc: "Menerapkan teori ke dalam praktik dengan hands-on exercises",
+                },
+                {
+                  n: "03",
+                  color: "bg-[#31c7c8]/10 text-[#31c7c8]",
+                  title: "Advanced Techniques",
+                  desc: "Menguasai teknik lanjutan dan best practices",
+                },
+                {
+                  n: "04",
+                  color: "bg-[#00E676]/10 text-[#00E676]",
+                  title: "Real-World Projects",
+                  desc: "Mengerjakan project nyata untuk portfolio dan pengalaman praktis",
+                },
               ].map(({ n, color, title, desc }) => (
                 <div
                   key={n}
-                  className="flex items-start gap-3 rounded-xl border border-gray-100 dark:border-white/5 hover:border-gray-200 dark:hover:border-white/10 p-4 transition-colors"
-                >
-                  <span className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center font-mono text-[12px] font-extrabold ${color}`}>
+                  className="flex items-start gap-3 rounded-xl border border-gray-100 dark:border-white/5 hover:border-gray-200 dark:hover:border-white/10 p-4 transition-colors">
+                  <span
+                    className={`shrink-0 w-9 h-9 rounded-xl flex items-center justify-center font-mono text-[12px] font-extrabold ${color}`}>
                     {n}
                   </span>
                   <div>
-                    <h4 className="font-bold text-[14px] text-gray-900 dark:text-white">{title}</h4>
-                    <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-0.5">{desc}</p>
+                    <h4 className="font-bold text-[14px] text-gray-900 dark:text-white">
+                      {title}
+                    </h4>
+                    <p className="text-[13px] text-gray-500 dark:text-gray-400 mt-0.5">
+                      {desc}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -202,8 +229,11 @@ export function TrackPreview({
               <div className="rounded-xl bg-[#1c81ff]/5 border border-[#1c81ff]/15 p-4 flex items-start gap-3">
                 <Sparkles className="h-4 w-4 text-[#1c81ff] shrink-0 mt-0.5" />
                 <p className="text-[13px] text-gray-600 dark:text-gray-300">
-                  <span className="font-bold text-gray-900 dark:text-white">Daftar sekarang</span>{" "}
-                  untuk mengakses kurikulum lengkap dengan detail modul, lessons, dan challenges.
+                  <span className="font-bold text-gray-900 dark:text-white">
+                    Daftar sekarang
+                  </span>{" "}
+                  untuk mengakses kurikulum lengkap dengan detail modul,
+                  lessons, dan challenges.
                 </p>
               </div>
             </div>
@@ -220,8 +250,7 @@ export function TrackPreview({
               </div>
               <div
                 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-1"
-                style={{ letterSpacing: "-0.02em" }}
-              >
+                style={{ letterSpacing: "-0.02em" }}>
                 Gratis
               </div>
               <p className="text-[13px] font-bold text-gray-500 dark:text-gray-400">
@@ -236,13 +265,36 @@ export function TrackPreview({
               </p>
               <ul className="space-y-2.5">
                 {[
-                  { icon: BookOpen, color: "text-[#1c81ff]", bg: "bg-[#1c81ff]/10", text: `${track.modules_count || "Beberapa"} modul pembelajaran` },
-                  { icon: PlayCircle, color: "text-[#2548d8]", bg: "bg-[#2548d8]/10", text: "Lessons interaktif" },
-                  { icon: Award, color: "text-[#31c7c8]", bg: "bg-[#31c7c8]/10", text: "Sertifikat penyelesaian" },
-                  { icon: CheckCircle, color: "text-[#00E676]", bg: "bg-[#00E676]/10", text: "Akses seumur hidup" },
+                  {
+                    icon: BookOpen,
+                    color: "text-[#1c81ff]",
+                    bg: "bg-[#1c81ff]/10",
+                    text: `${track.modules_count || "Beberapa"} modul pembelajaran`,
+                  },
+                  {
+                    icon: PlayCircle,
+                    color: "text-[#2548d8]",
+                    bg: "bg-[#2548d8]/10",
+                    text: "Lessons interaktif",
+                  },
+                  {
+                    icon: Award,
+                    color: "text-[#31c7c8]",
+                    bg: "bg-[#31c7c8]/10",
+                    text: "Sertifikat penyelesaian",
+                  },
+                  {
+                    icon: CheckCircle,
+                    color: "text-[#00E676]",
+                    bg: "bg-[#00E676]/10",
+                    text: "Akses seumur hidup",
+                  },
                 ].map(({ icon: Icon, color, bg, text }) => (
-                  <li key={text} className="flex items-center gap-3 text-[14px] text-gray-700 dark:text-gray-300">
-                    <div className={`w-7 h-7 rounded-full ${bg} flex items-center justify-center shrink-0`}>
+                  <li
+                    key={text}
+                    className="flex items-center gap-3 text-[14px] text-gray-700 dark:text-gray-300">
+                    <div
+                      className={`w-7 h-7 rounded-full ${bg} flex items-center justify-center shrink-0`}>
                       <Icon className={`h-3.5 w-3.5 ${color}`} />
                     </div>
                     {text}
@@ -254,8 +306,7 @@ export function TrackPreview({
                 <button
                   onClick={onEnrollClick}
                   disabled={enrollmentPending}
-                  className="w-full flex items-center justify-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-3.5 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-[15px]"
-                >
+                  className="w-full flex items-center justify-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-3.5 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-[15px]">
                   {enrollmentPending ? (
                     <>
                       <Loader2 className="h-5 w-5 animate-spin" />
@@ -269,7 +320,8 @@ export function TrackPreview({
                   )}
                 </button>
                 <p className="text-center text-[12px] text-gray-400 dark:text-gray-600 mt-3">
-                  Dengan mendaftar, kamu setuju untuk belajar dan menyelesaikan materi.
+                  Dengan mendaftar, kamu setuju untuk belajar dan menyelesaikan
+                  materi.
                 </p>
               </div>
             </div>

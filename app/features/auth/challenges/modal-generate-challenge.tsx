@@ -42,7 +42,9 @@ export default function GenerateChallengeModal({
   onGenerated,
 }: Props) {
   const [type, setType] = useState<ChallengeFormType>("multiple_choice");
-  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">("medium");
+  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">(
+    "medium",
+  );
   const [maxScore, setMaxScore] = useState("100");
   const [mcqCount, setMcqCount] = useState("10");
   const [essayCount, setEssayCount] = useState("3");
@@ -51,7 +53,8 @@ export default function GenerateChallengeModal({
   const generateForLesson = useGenerateChallengeForLesson(context.slug);
   const generateForModule = useGenerateChallengeForModule(context.slug);
 
-  const mutation = context.type === "lesson" ? generateForLesson : generateForModule;
+  const mutation =
+    context.type === "lesson" ? generateForLesson : generateForModule;
 
   const handleGenerate = () => {
     mutation.mutate(
@@ -106,8 +109,7 @@ export default function GenerateChallengeModal({
             </Label>
             <Select
               value={type}
-              onValueChange={(v) => setType(v as ChallengeFormType)}
-            >
+              onValueChange={(v) => setType(v as ChallengeFormType)}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -166,8 +168,7 @@ export default function GenerateChallengeModal({
                 value={difficulty}
                 onValueChange={(v) =>
                   setDifficulty(v as "easy" | "medium" | "hard")
-                }
-              >
+                }>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
@@ -199,8 +200,7 @@ export default function GenerateChallengeModal({
             <Label>Bahasa Soal</Label>
             <Select
               value={language}
-              onValueChange={(v) => setLanguage(v as "id" | "en")}
-            >
+              onValueChange={(v) => setLanguage(v as "id" | "en")}>
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -215,8 +215,7 @@ export default function GenerateChallengeModal({
         <Button
           onClick={handleGenerate}
           disabled={mutation.isPending}
-          className="w-full gap-2"
-        >
+          className="w-full gap-2">
           {mutation.isPending ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />

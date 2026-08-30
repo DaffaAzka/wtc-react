@@ -11,9 +11,6 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 
-// ---------------------------------------------------------------------------
-// React Router mock
-// ---------------------------------------------------------------------------
 vi.mock("react-router", () => ({
   Link: ({
     children,
@@ -187,10 +184,7 @@ vi.mock("sonner", () => ({
 // ---------------------------------------------------------------------------
 // Import mocked hooks at module level for use in beforeEach
 // ---------------------------------------------------------------------------
-import {
-  useGetTracks,
-  useDeleteTrack,
-} from "@/hooks/tracks";
+import { useGetTracks, useDeleteTrack } from "@/hooks/tracks";
 import { useGetModules } from "@/hooks/modules";
 import { useGetLessons } from "@/hooks/lessons";
 import { useGetChallenges } from "@/hooks/challenges";
@@ -319,13 +313,15 @@ describe("TeacherContentPage – tab structure", () => {
     expect(screen.getByRole("tab", { name: /tracks/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /modules/i })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: /lessons/i })).toBeInTheDocument();
-    expect(screen.getByRole("tab", { name: /challenges/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /challenges/i }),
+    ).toBeInTheDocument();
   });
 
   it("shows Add Track button in Tracks tab (default)", () => {
     renderPage();
     expect(
-      screen.getByRole("button", { name: /add track/i })
+      screen.getByRole("button", { name: /add track/i }),
     ).toBeInTheDocument();
   });
 
@@ -335,7 +331,7 @@ describe("TeacherContentPage – tab structure", () => {
     await user.click(screen.getByRole("tab", { name: /modules/i }));
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: /add module/i })
+        screen.getByRole("button", { name: /add module/i }),
       ).toBeInTheDocument();
     });
   });
@@ -346,7 +342,7 @@ describe("TeacherContentPage – tab structure", () => {
     await user.click(screen.getByRole("tab", { name: /lessons/i }));
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: /add lesson/i })
+        screen.getByRole("button", { name: /add lesson/i }),
       ).toBeInTheDocument();
     });
   });
@@ -357,7 +353,7 @@ describe("TeacherContentPage – tab structure", () => {
     await user.click(screen.getByRole("tab", { name: /challenges/i }));
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: /add challenge/i })
+        screen.getByRole("button", { name: /add challenge/i }),
       ).toBeInTheDocument();
     });
   });
@@ -365,7 +361,7 @@ describe("TeacherContentPage – tab structure", () => {
   it("never renders a Restore button or text", () => {
     renderPage();
     expect(
-      screen.queryByRole("button", { name: /restore/i })
+      screen.queryByRole("button", { name: /restore/i }),
     ).not.toBeInTheDocument();
     expect(screen.queryByText(/restore/i)).not.toBeInTheDocument();
   });
@@ -432,13 +428,15 @@ describe("Tracks tab – data, creator cell, and soft-delete", () => {
     await user.click(screen.getByRole("button", { name: /open menu/i }));
 
     await waitFor(() =>
-      expect(screen.getByRole("menuitem", { name: /delete/i })).toBeInTheDocument()
+      expect(
+        screen.getByRole("menuitem", { name: /delete/i }),
+      ).toBeInTheDocument(),
     );
     await user.click(screen.getByRole("menuitem", { name: /delete/i }));
 
     await waitFor(() => {
       expect(
-        screen.getByRole("button", { name: /soft delete/i })
+        screen.getByRole("button", { name: /soft delete/i }),
       ).toBeInTheDocument();
     });
   });
@@ -455,16 +453,16 @@ describe("Tracks tab – data, creator cell, and soft-delete", () => {
     await user.click(screen.getByRole("button", { name: /open menu/i }));
 
     await waitFor(() =>
-      expect(screen.getByRole("menuitem", { name: /delete/i })).toBeInTheDocument()
+      expect(
+        screen.getByRole("menuitem", { name: /delete/i }),
+      ).toBeInTheDocument(),
     );
     await user.click(screen.getByRole("menuitem", { name: /delete/i }));
 
-    await waitFor(() =>
-      screen.getByRole("button", { name: /soft delete/i })
-    );
+    await waitFor(() => screen.getByRole("button", { name: /soft delete/i }));
 
     expect(
-      screen.queryByRole("button", { name: /restore/i })
+      screen.queryByRole("button", { name: /restore/i }),
     ).not.toBeInTheDocument();
   });
 
@@ -488,19 +486,16 @@ describe("Tracks tab – data, creator cell, and soft-delete", () => {
     await user.click(screen.getByRole("button", { name: /open menu/i }));
 
     await waitFor(() =>
-      expect(screen.getByRole("menuitem", { name: /delete/i })).toBeInTheDocument()
+      expect(
+        screen.getByRole("menuitem", { name: /delete/i }),
+      ).toBeInTheDocument(),
     );
     await user.click(screen.getByRole("menuitem", { name: /delete/i }));
 
-    await waitFor(() =>
-      screen.getByRole("button", { name: /soft delete/i })
-    );
+    await waitFor(() => screen.getByRole("button", { name: /soft delete/i }));
     await user.click(screen.getByRole("button", { name: /soft delete/i }));
 
-    expect(mutate).toHaveBeenCalledWith(
-      sampleTrack.slug,
-      expect.any(Object)
-    );
+    expect(mutate).toHaveBeenCalledWith(sampleTrack.slug, expect.any(Object));
   });
 });
 
@@ -635,9 +630,8 @@ describe("Challenges tab – data", () => {
 // ===========================================================================
 describe("CreatorBadge component", () => {
   it("renders display_name and role label", async () => {
-    const { default: CreatorBadge } = await import(
-      "@/features/auth/teacher/creator-badge"
-    );
+    const { default: CreatorBadge } =
+      await import("@/features/auth/teacher/creator-badge");
     render(
       <CreatorBadge
         creator={{
@@ -645,28 +639,26 @@ describe("CreatorBadge component", () => {
           roles: [{ name: "teacher", display_name: "Teacher" }],
           avatar: null,
         }}
-      />
+      />,
     );
     expect(screen.getByText("Alice Smith")).toBeInTheDocument();
     expect(screen.getByText("Teacher")).toBeInTheDocument();
   });
 
   it("renders a dash when creator is null", async () => {
-    const { default: CreatorBadge } = await import(
-      "@/features/auth/teacher/creator-badge"
-    );
+    const { default: CreatorBadge } =
+      await import("@/features/auth/teacher/creator-badge");
     render(<CreatorBadge creator={null} />);
     expect(screen.getByText("—")).toBeInTheDocument();
   });
 
   it("renders initial avatar when no avatar URL is provided", async () => {
-    const { default: CreatorBadge } = await import(
-      "@/features/auth/teacher/creator-badge"
-    );
+    const { default: CreatorBadge } =
+      await import("@/features/auth/teacher/creator-badge");
     render(
       <CreatorBadge
         creator={{ display_name: "Bob Builder", roles: [], avatar: null }}
-      />
+      />,
     );
     expect(screen.getByText("B")).toBeInTheDocument();
   });
