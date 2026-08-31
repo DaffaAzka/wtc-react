@@ -87,10 +87,11 @@ export const ChallengeService = {
 
   getByLesson: async (lessonId: number): Promise<Challenge[]> => {
     const response = await api.get<ApiResponse<Challenge[]>>(
-      `/challenges?lesson_id=${lessonId}`,
+      "/challenges",
+      { params: { lesson_id: lessonId, pagination: false } },
     );
 
-    return response.data.data!;
+    return response.data.data ?? [];
   },
 
   getByModule: async (moduleSlug: string): Promise<Challenge[]> => {
