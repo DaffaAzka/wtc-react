@@ -5,6 +5,7 @@ import { api } from "@/lib/axios";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { ArrowRight, BookOpen, Award, TrendingUp, Target } from "lucide-react";
+import { computeAndSaveStreak } from "@/utils/streak";
 
 function getPatternBackground(text: string): string {
   let hash = 0;
@@ -83,6 +84,12 @@ export default function Dashboard() {
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
+  const [streak, setStreak] = useState(0);
+
+  useEffect(() => {
+    const { currentStreak } = computeAndSaveStreak(false);
+    setStreak(currentStreak);
+  }, []);
 
   useEffect(() => {
     const fetchDashboard = async () => {
@@ -232,6 +239,39 @@ export default function Dashboard() {
               </div>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* ── Streak ── */}
+      <div className="flex items-center gap-4 rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm px-6 py-4">
+        <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-orange-500/10 shrink-0">
+          <span className="text-3xl">🔥</span>
+          <div className="absolute inset-0 rounded-full" style={{ boxShadow: "0 0 16px 2px rgba(251,146,60,0.25)" }} />
+        </div>
+        <div className="flex-1">
+          <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-orange-400 mb-0.5">Daily Streak</p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-3xl font-extrabold text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>{streak}</span>
+            <span className="text-[14px] font-semibold text-gray-500 dark:text-gray-400">
+              {streak === 1 ? "hari" : "hari beruntun"}
+            </span>
+          </div>
+        </div>
+        <div className="hidden sm:flex flex-col items-end gap-1">
+          <div className="flex gap-1">
+            {Array.from({ length: 7 }).map((_, i) => (
+              <div
+                key={i}
+                className="w-5 h-5 rounded-full"
+                style={{
+                  background: i < (streak % 7 === 0 && streak > 0 ? 7 : streak % 7)
+                    ? "linear-gradient(135deg, #fb923c, #ef4444)"
+                    : "rgba(251,146,60,0.12)",
+                }}
+              />
+            ))}
+          </div>
+          <p className="text-[11px] text-gray-400 dark:text-gray-500">7-day progress</p>
         </div>
       </div>
 
