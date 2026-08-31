@@ -215,10 +215,10 @@ export default function Dashboard() {
           <h1
             className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight"
             style={{ letterSpacing: "-0.02em" }}>
-            {data.profile.display_name} 👋
+            {data.profile.display_name} 
           </h1>
           <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400 mt-1">
-            Semangat belajar hari ini! 🚀
+            Semangat belajar hari ini! 
           </p>
         </div>
 
@@ -246,12 +246,21 @@ export default function Dashboard() {
       <div className="flex items-center gap-4 rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm px-6 py-4">
         <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-orange-500/10 shrink-0">
           <span className="text-3xl">🔥</span>
-          <div className="absolute inset-0 rounded-full" style={{ boxShadow: "0 0 16px 2px rgba(251,146,60,0.25)" }} />
+          <div
+            className="absolute inset-0 rounded-full"
+            style={{ boxShadow: "0 0 16px 2px rgba(251,146,60,0.25)" }}
+          />
         </div>
         <div className="flex-1">
-          <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-orange-400 mb-0.5">Daily Streak</p>
+          <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-orange-400 mb-0.5">
+            Daily Streak
+          </p>
           <div className="flex items-baseline gap-2">
-            <span className="text-3xl font-extrabold text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>{streak}</span>
+            <span
+              className="text-3xl font-extrabold text-gray-900 dark:text-white"
+              style={{ letterSpacing: "-0.02em" }}>
+              {streak}
+            </span>
             <span className="text-[14px] font-semibold text-gray-500 dark:text-gray-400">
               {streak === 1 ? "hari" : "hari beruntun"}
             </span>
@@ -264,14 +273,17 @@ export default function Dashboard() {
                 key={i}
                 className="w-5 h-5 rounded-full"
                 style={{
-                  background: i < (streak % 7 === 0 && streak > 0 ? 7 : streak % 7)
-                    ? "linear-gradient(135deg, #fb923c, #ef4444)"
-                    : "rgba(251,146,60,0.12)",
+                  background:
+                    i < (streak % 7 === 0 && streak > 0 ? 7 : streak % 7)
+                      ? "linear-gradient(135deg, #fb923c, #ef4444)"
+                      : "rgba(251,146,60,0.12)",
                 }}
               />
             ))}
           </div>
-          <p className="text-[11px] text-gray-400 dark:text-gray-500">7-day progress</p>
+          <p className="text-[11px] text-gray-400 dark:text-gray-500">
+            7-day progress
+          </p>
         </div>
       </div>
 
