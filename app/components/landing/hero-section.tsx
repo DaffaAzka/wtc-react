@@ -15,7 +15,7 @@ const copy = {
   headline2: "Engineering.",
   headline3: "Build Your Future.",
   sub: "Learn modern tech through real-world projects, experienced mentorship, and an industry-ready curriculum.",
-  cta: "Start Learning",
+  cta: "Start Learning Free",
   ctaSecondary: "Sign In",
   students: "active learners",
 };
@@ -114,7 +114,7 @@ export function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative flex flex-col justify-center min-h-screen pt-20 px-6 sm:px-10 lg:px-20"
+      className="relative flex flex-col justify-center min-h-screen pt-20 px-6 sm:px-10 lg:px-20 overflow-hidden"
       style={{ background: "#ffffff" }}>
       <style>{`
         @keyframes float {

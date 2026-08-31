@@ -1,4 +1,4 @@
-﻿import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -164,7 +164,7 @@ export default function QuestionGenerator({
           <CardTitle>Question Generator</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {type === "mixed" ? (
+          {type === "mixed" ?
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="mcq-count">
@@ -208,8 +208,7 @@ export default function QuestionGenerator({
                 )}
               </div>
             </div>
-          ) : (
-            <div className="space-y-2">
+          : <div className="space-y-2">
               <Label htmlFor="question-count">
                 Question Count <span className="text-red-500">*</span>
               </Label>
@@ -229,7 +228,7 @@ export default function QuestionGenerator({
                 <p className="text-sm text-red-500">{errors.questionCount}</p>
               )}
             </div>
-          )}
+          }
 
           <Button type="button" onClick={handleGenerate} className="w-full">
             Generate Questions

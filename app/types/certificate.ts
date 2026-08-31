@@ -18,6 +18,7 @@ export type Certificate = {
 
 export type CertificateTemplate = {
   id?: string;
+  name?: string;
   html_template: string;
   css_styles: string;
   background_url: string | null;

@@ -150,9 +150,11 @@ export default function VerifyCertificate() {
                   </p>
                   <div className="flex items-center gap-2">
                     <GradeBadge grade={result.certificate.grade} />
-                    <span className="text-[14px] font-bold text-gray-500 tabular-nums">
-                      {result.certificate.grade_score.toFixed(1)}
-                    </span>
+                    {result.certificate.grade_score != null && (
+                      <span className="text-[14px] font-bold text-gray-500 tabular-nums">
+                        {result.certificate.grade_score.toFixed(1)}
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="space-y-1 text-right">

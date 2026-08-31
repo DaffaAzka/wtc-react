@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { Plus, Code, ArrowLeft } from "lucide-react";
-import {
-  useGetChallengesByLesson,
-  useGetChallengesByModule,
-} from "@/hooks/challenges";
+import { useGetChallengesByLesson, useGetChallengesByModule } from "@/hooks/challenges";
 import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
 import { ChallengeGridSkeleton } from "@/components/skeletons/challenge-card";
 import ChallengeModal from "./modal-add";
@@ -34,12 +31,9 @@ export default function ChallengeManager({
   backLabel = "Back",
 }: Props) {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isAddCodingAssignmentOpen, setIsAddCodingAssignmentOpen] =
-    useState(false);
+  const [isAddCodingAssignmentOpen, setIsAddCodingAssignmentOpen] = useState(false);
   const [isGenerateModalOpen, setIsGenerateModalOpen] = useState(false);
-  const [prefillData, setPrefillData] = useState<
-    GeneratedChallenge | undefined
-  >(undefined);
+  const [prefillData, setPrefillData] = useState<GeneratedChallenge | undefined>(undefined);
 
   const lessonChallenges = useGetChallengesByLesson(
     context.type === "lesson" ? context.id : 0,
@@ -69,7 +63,8 @@ export default function ChallengeManager({
         {/* Back link */}
         <Link
           to={backUrl}
-          className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+          className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+        >
           <ArrowLeft className="h-3.5 w-3.5" />
           {backLabel}
         </Link>
@@ -82,7 +77,8 @@ export default function ChallengeManager({
             </p>
             <h1
               className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight"
-              style={{ letterSpacing: "-0.02em" }}>
+              style={{ letterSpacing: "-0.02em" }}
+            >
               {context.title}
             </h1>
             <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400 mt-1">
@@ -90,13 +86,7 @@ export default function ChallengeManager({
               {safeChallenges.length === 1 ? "challenge" : "challenges"} in this{" "}
               {context.type}
               {context.parentInfo && (
-                <>
-                  {" "}
-                  ·{" "}
-                  <span className="text-gray-900 dark:text-white font-bold">
-                    {context.parentInfo.title}
-                  </span>
-                </>
+                <> · <span className="text-gray-900 dark:text-white font-bold">{context.parentInfo.title}</span></>
               )}
             </p>
           </div>
@@ -104,13 +94,15 @@ export default function ChallengeManager({
           <div className="flex items-center gap-2 shrink-0 mt-1">
             <button
               onClick={() => setIsAddCodingAssignmentOpen(true)}
-              className="flex items-center gap-2 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl py-2.5 px-4 text-[13px] hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
+              className="flex items-center gap-2 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl py-2.5 px-4 text-[13px] hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+            >
               <Code className="h-4 w-4" />
               <span className="hidden sm:inline">Coding Assignment</span>
             </button>
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="flex items-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-2.5 px-4 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 text-[13px]">
+              className="flex items-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-2.5 px-4 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 text-[13px]"
+            >
               <Plus className="h-4 w-4" />
               Add Challenge
             </button>

@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { AlertCircle, Send, Loader2, Code } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Challenge } from "@/types/model";
 
 interface CodeEditorFormProps {
@@ -19,32 +13,26 @@ interface CodeEditorFormProps {
 const LANGUAGES = [
   { value: "javascript", label: "JavaScript" },
   { value: "typescript", label: "TypeScript" },
-  { value: "python", label: "Python" },
-  { value: "java", label: "Java" },
-  { value: "cpp", label: "C++" },
-  { value: "c", label: "C" },
-  { value: "go", label: "Go" },
-  { value: "rust", label: "Rust" },
-  { value: "php", label: "PHP" },
-  { value: "ruby", label: "Ruby" },
-  { value: "sql", label: "SQL" },
-  { value: "html", label: "HTML" },
-  { value: "css", label: "CSS" },
+  { value: "python",     label: "Python" },
+  { value: "java",       label: "Java" },
+  { value: "cpp",        label: "C++" },
+  { value: "c",          label: "C" },
+  { value: "go",         label: "Go" },
+  { value: "rust",       label: "Rust" },
+  { value: "php",        label: "PHP" },
+  { value: "ruby",       label: "Ruby" },
+  { value: "sql",        label: "SQL" },
+  { value: "html",       label: "HTML" },
+  { value: "css",        label: "CSS" },
 ];
 
 const LANG_TIPS: Record<string, string> = {
-  python:
-    "Python menggunakan indentasi untuk block code, bukan kurung kurawal.",
+  python:     "Python menggunakan indentasi untuk block code, bukan kurung kurawal.",
   javascript: "Gunakan const/let, hindari var. Arrow function untuk callback.",
-  java: "Setiap class harus dalam package. Main: public static void main(String[] args)",
+  java:       "Setiap class harus dalam package. Main: public static void main(String[] args)",
 };
 
-export function CodeEditorForm({
-  challenge,
-  canSubmit,
-  isSubmitting,
-  onSubmit,
-}: CodeEditorFormProps) {
+export function CodeEditorForm({ challenge, canSubmit, isSubmitting, onSubmit }: CodeEditorFormProps) {
   const [code, setCode] = useState("");
   const [language, setLanguage] = useState("javascript");
   const [error, setError] = useState("");
@@ -54,22 +42,9 @@ export function CodeEditorForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!code.trim()) {
-      setError("Silakan masukkan kode Anda");
-      return;
-    }
-    if (code.trim().length < 10) {
-      setError("Kode harus minimal 10 karakter");
-      return;
-    }
-    onSubmit(
-      null,
-      JSON.stringify({
-        language,
-        code: code.trim(),
-        submitted_at: new Date().toISOString(),
-      }),
-    );
+    if (!code.trim()) { setError("Silakan masukkan kode Anda"); return; }
+    if (code.trim().length < 10) { setError("Kode harus minimal 10 karakter"); return; }
+    onSubmit(null, JSON.stringify({ language, code: code.trim(), submitted_at: new Date().toISOString() }));
     setError("");
   };
 
@@ -79,18 +54,14 @@ export function CodeEditorForm({
         <div className="w-8 h-8 rounded-full bg-[#1c81ff]/10 flex items-center justify-center">
           <Code className="h-4 w-4 text-[#1c81ff]" />
         </div>
-        <span className="font-bold text-gray-900 dark:text-white">
-          Submit Kode
-        </span>
+        <span className="font-bold text-gray-900 dark:text-white">Submit Kode</span>
       </div>
 
       <div className="p-5">
         {!canSubmit ? (
           <div className="flex items-start gap-3 rounded-xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 p-4">
             <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
-            <p className="text-[14px] text-red-600 dark:text-red-400">
-              Anda telah mencapai batas maksimum percobaan untuk challenge ini.
-            </p>
+            <p className="text-[14px] text-red-600 dark:text-red-400">Anda telah mencapai batas maksimum percobaan untuk challenge ini.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-5">
@@ -99,9 +70,7 @@ export function CodeEditorForm({
               <div className="flex items-start gap-2.5">
                 <Code className="h-4 w-4 text-[#1c81ff] shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-[13px] font-bold text-gray-700 dark:text-gray-300 mb-1.5">
-                    Tips Menulis Kode
-                  </p>
+                  <p className="text-[13px] font-bold text-gray-700 dark:text-gray-300 mb-1.5">Tips Menulis Kode</p>
                   <ul className="space-y-1 text-[12px] text-gray-500 dark:text-gray-400 list-disc list-inside">
                     <li>Gunakan indentasi yang konsisten (2 atau 4 spasi)</li>
                     <li>Tambahkan komentar untuk logika kompleks</li>
@@ -114,25 +83,17 @@ export function CodeEditorForm({
 
             {/* Language selector */}
             <div className="space-y-1.5">
-              <label
-                htmlFor="language"
-                className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
+              <label htmlFor="language" className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
                 Bahasa Pemrograman
               </label>
-              <Select
-                value={language}
-                onValueChange={setLanguage}
-                disabled={isSubmitting}>
-                <SelectTrigger
-                  id="language"
+              <Select value={language} onValueChange={setLanguage} disabled={isSubmitting}>
+                <SelectTrigger id="language"
                   className="rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
                   {LANGUAGES.map((lang) => (
-                    <SelectItem key={lang.value} value={lang.value}>
-                      {lang.label}
-                    </SelectItem>
+                    <SelectItem key={lang.value} value={lang.value}>{lang.label}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -140,9 +101,7 @@ export function CodeEditorForm({
 
             {/* Code area */}
             <div className="space-y-2">
-              <label
-                htmlFor="code-editor"
-                className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
+              <label htmlFor="code-editor" className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
                 Kode Anda <span className="text-red-500">*</span>
               </label>
               <textarea
@@ -160,36 +119,20 @@ export function CodeEditorForm({
                 <span>{charCount} karakter</span>
               </div>
               {LANG_TIPS[language] && (
-                <p className="text-[12px] text-[#1c81ff]/70">
-                  💡 {LANG_TIPS[language]}
-                </p>
+                <p className="text-[12px] text-[#1c81ff]/70">💡 {LANG_TIPS[language]}</p>
               )}
             </div>
 
             {error && (
               <div className="flex items-start gap-2.5 rounded-xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 px-4 py-3">
                 <AlertCircle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
-                <p className="text-[13px] text-red-600 dark:text-red-400">
-                  {error}
-                </p>
+                <p className="text-[13px] text-red-600 dark:text-red-400">{error}</p>
               </div>
             )}
 
-            <button
-              type="submit"
-              disabled={isSubmitting || !code.trim()}
+            <button type="submit" disabled={isSubmitting || !code.trim()}
               className="w-full flex items-center justify-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-3 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-[14px]">
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Mengirim…
-                </>
-              ) : (
-                <>
-                  <Send className="h-4 w-4" />
-                  Kirim Kode
-                </>
-              )}
+              {isSubmitting ? <><Loader2 className="h-4 w-4 animate-spin" />Mengirim…</> : <><Send className="h-4 w-4" />Kirim Kode</>}
             </button>
           </form>
         )}
