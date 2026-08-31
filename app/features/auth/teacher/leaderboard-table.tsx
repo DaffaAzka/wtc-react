@@ -38,18 +38,10 @@ export function rankBadgeConfig(rank: number): RankBadgeConfig {
   if (rank === 1)
     return { label: "#1", bg: "bg-[#f6b60b]/15", text: "text-[#f6b60b]" };
   if (rank === 2)
-    return {
-      label: "#2",
-      bg: "bg-gray-200/60 dark:bg-white/10",
-      text: "text-gray-500 dark:text-gray-400",
-    };
+    return { label: "#2", bg: "bg-gray-200/60 dark:bg-white/10", text: "text-gray-500 dark:text-gray-400" };
   if (rank === 3)
     return { label: "#3", bg: "bg-[#ff7b3d]/15", text: "text-[#ff7b3d]" };
-  return {
-    label: `#${rank}`,
-    bg: "bg-gray-100 dark:bg-white/5",
-    text: "text-gray-400 dark:text-gray-600",
-  };
+  return { label: `#${rank}`, bg: "bg-gray-100 dark:bg-white/5", text: "text-gray-400 dark:text-gray-600" };
 }
 
 const PERIOD_LABELS: Record<LeaderboardPeriod, string> = {
@@ -87,7 +79,8 @@ function RankCell({ rank }: { rank: number }) {
   const cfg = rankBadgeConfig(rank);
   return (
     <div
-      className={`inline-flex items-center justify-center gap-1 w-10 h-7 rounded-lg text-[11px] font-extrabold ${cfg.bg} ${cfg.text}`}>
+      className={`inline-flex items-center justify-center gap-1 w-10 h-7 rounded-lg text-[11px] font-extrabold ${cfg.bg} ${cfg.text}`}
+    >
       {rank <= 3 && <Trophy className="h-2.5 w-2.5" />}
       {cfg.label}
     </div>
@@ -151,14 +144,16 @@ export default function LeaderboardTable() {
         <div className="flex items-center gap-2">
           <label
             htmlFor="period-filter"
-            className="text-[13px] font-bold text-gray-700 dark:text-gray-300">
+            className="text-[13px] font-bold text-gray-700 dark:text-gray-300"
+          >
             Period
           </label>
           <Select value={period} onValueChange={handlePeriodChange}>
             <SelectTrigger
               id="period-filter"
               className="w-36 h-9 rounded-xl border-gray-200 dark:border-white/20 bg-slate-50 dark:bg-[#1a1a1a] text-sm font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]"
-              aria-label="Filter by period">
+              aria-label="Filter by period"
+            >
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="rounded-xl">
@@ -173,16 +168,19 @@ export default function LeaderboardTable() {
           <div className="flex items-center gap-2">
             <label
               htmlFor="class-filter"
-              className="text-[13px] font-bold text-gray-700 dark:text-gray-300">
+              className="text-[13px] font-bold text-gray-700 dark:text-gray-300"
+            >
               Class
             </label>
             <Select
               value={classId === null ? "all" : String(classId)}
-              onValueChange={handleClassChange}>
+              onValueChange={handleClassChange}
+            >
               <SelectTrigger
                 id="class-filter"
                 className="w-48 h-9 rounded-xl border-gray-200 dark:border-white/20 bg-slate-50 dark:bg-[#1a1a1a] text-sm font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]"
-                aria-label="Filter by study class">
+                aria-label="Filter by study class"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
@@ -229,7 +227,8 @@ export default function LeaderboardTable() {
                     </p>
                     <button
                       onClick={() => refetch()}
-                      className="flex items-center gap-1.5 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-900 dark:text-white font-bold rounded-xl px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
+                      className="flex items-center gap-1.5 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-900 dark:text-white font-bold rounded-xl px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+                    >
                       <RefreshCw className="h-3.5 w-3.5" />
                       Try again
                     </button>
@@ -253,7 +252,8 @@ export default function LeaderboardTable() {
               entries.map((entry) => (
                 <tr
                   key={(entry as any).profile?.id ?? entry.rank}
-                  className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                  className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
+                >
                   <td className="px-5 py-3.5">
                     <RankCell rank={entry.rank} />
                   </td>
@@ -262,12 +262,12 @@ export default function LeaderboardTable() {
                       <Avatar className="h-9 w-9 ring-1 ring-gray-200 dark:ring-white/10">
                         <AvatarImage
                           src={(entry as any).profile?.avatar?.url ?? undefined}
-                          alt={
-                            (entry as any).profile?.display_name ?? "Student"
-                          }
+                          alt={(entry as any).profile?.display_name ?? "Student"}
                         />
                         <AvatarFallback className="text-xs font-bold bg-[#1c81ff]/10 text-[#1c81ff]">
-                          {((entry as any).profile?.display_name ?? "?")
+                          {(
+                            (entry as any).profile?.display_name ?? "?"
+                          )
                             .charAt(0)
                             .toUpperCase()}
                         </AvatarFallback>
@@ -309,7 +309,8 @@ export default function LeaderboardTable() {
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1 || isLoading}
               aria-label="Previous page"
-              className="flex items-center gap-1 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-3 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+              className="flex items-center gap-1 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-3 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            >
               <ChevronLeft className="h-4 w-4" />
               Prev
             </button>
@@ -317,10 +318,13 @@ export default function LeaderboardTable() {
               {meta.current_page} / {meta.last_page}
             </span>
             <button
-              onClick={() => setPage((p) => Math.min(meta.last_page, p + 1))}
+              onClick={() =>
+                setPage((p) => Math.min(meta.last_page, p + 1))
+              }
               disabled={page === meta.last_page || isLoading}
               aria-label="Next page"
-              className="flex items-center gap-1 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-3 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all">
+              className="flex items-center gap-1 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-3 py-1.5 text-sm hover:bg-gray-50 dark:hover:bg-white/5 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+            >
               Next
               <ChevronRight className="h-4 w-4" />
             </button>

@@ -3,7 +3,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { AlertCircle, Send, Loader2, Clock, AlertTriangle } from "lucide-react";
 import type { Challenge } from "@/types/model";
-import type { MCQQuestion } from "@/types/challenge";
+import type { MCQQuestion, EssayQuestion } from "@/types/challenge";
 
 interface TimedExamFormProps {
   challenge: Challenge;

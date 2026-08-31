@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { useInView } from "./use-in-view";
 
 const copy = {
@@ -10,7 +10,7 @@ const copy = {
   ],
   company: "Company",
   companyLinks: [
-    { label: "About Us", to: "#about" }, // <-- Ini udah gw ganti jadi hash link
+    { label: "About Us", to: "/about" },
     { label: "Contact", to: "/contact" },
     { label: "Privacy Policy", to: "/privacy" },
     { label: "Terms of Service", to: "/terms" },
@@ -20,28 +20,6 @@ const copy = {
 
 export function Footer() {
   const { ref, inView } = useInView();
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  // Fungsi buat nangani klik link yang ada hash (#)-nya
-  const handleLinkClick = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    to: string,
-  ) => {
-    if (to.startsWith("#")) {
-      e.preventDefault();
-      // Kalau lagi di halaman utama, langsung scroll
-      if (location.pathname === "/") {
-        const element = document.querySelector(to);
-        if (element) {
-          element.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-      } else {
-        // Kalau lagi di halaman lain, arahin dulu ke home baru tambahin hash-nya
-        navigate(`/${to}`);
-      }
-    }
-  };
 
   return (
     <footer
@@ -162,23 +140,12 @@ export function Footer() {
             <ul className="flex flex-col gap-3">
               {copy.companyLinks.map((l) => (
                 <li key={l.to}>
-                  {/* Pengecekan buat misahin mana link internal (/) sama link hash (#) */}
-                  {l.to.startsWith("#") ? (
-                    <a
-                      href={l.to}
-                      onClick={(e) => handleLinkClick(e, l.to)}
-                      className="text-[14px] font-medium transition-colors duration-200 hover:text-white cursor-pointer"
-                      style={{ color: "#888888" }}>
-                      {l.label}
-                    </a>
-                  ) : (
-                    <Link
-                      to={l.to}
-                      className="text-[14px] font-medium transition-colors duration-200 hover:text-white"
-                      style={{ color: "#888888" }}>
-                      {l.label}
-                    </Link>
-                  )}
+                  <Link
+                    to={l.to}
+                    className="text-[14px] font-medium transition-colors duration-200 hover:text-white"
+                    style={{ color: "#888888" }}>
+                    {l.label}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -194,6 +161,15 @@ export function Footer() {
           <p className="text-[13px] font-medium" style={{ color: "#555555" }}>
             {copy.copyright}
           </p>
+          <div className="flex items-center gap-1.5 font-medium">
+            <span className="text-[13px]" style={{ color: "#555555" }}>
+              Built with
+            </span>
+            <span style={{ color: "#1c81ff" }}>♥</span>
+            <span className="text-[13px]" style={{ color: "#555555" }}>
+              in Indonesia
+            </span>
+          </div>
         </div>
       </div>
     </footer>

@@ -59,11 +59,17 @@ export function useCertificateTemplate() {
   const query = useQuery<CertificateTemplate, ApiErrorResponse>({
     queryKey: certificateKeys.template(),
     queryFn: () => CertificateService.getTemplate(),
+    retry: (failureCount, error: any) => {
+      // Don't retry on 404 — no active template is a valid state
+      if (error?.status === 404 || error?.response?.status === 404) return false;
+      return failureCount < 3;
+    },
   });
   return {
     template: query.data ?? null,
     loading: query.isLoading,
-    error: query.error ?? null,
+    // Don't surface 404 as an error — it just means no template exists yet
+    error: (query.error as any)?.response?.status === 404 ? null : (query.error ?? null),
     refresh: query.refetch,
   };
 }

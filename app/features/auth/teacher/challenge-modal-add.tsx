@@ -17,10 +17,12 @@ import type { ChallengeContext } from "@/features/auth/challenges/challenge-mana
 type ContextType = "lesson" | "module";
 
 export default function TeacherChallengeModalAdd() {
+  // Step 1: pick context type + target
   const [pickerOpen, setPickerOpen] = useState(false);
   const [contextType, setContextType] = useState<ContextType>("lesson");
   const [targetId, setTargetId] = useState("");
 
+  // Step 2: actual challenge add modal
   const [challengeOpen, setChallengeOpen] = useState(false);
   const [challengeContext, setChallengeContext] =
     useState<ChallengeContext | null>(null);
@@ -35,12 +37,7 @@ export default function TeacherChallengeModalAdd() {
     if (contextType === "lesson") {
       const lesson = lessons.find((l) => l.id === id);
       if (!lesson) return;
-      ctx = {
-        type: "lesson",
-        id: lesson.id,
-        slug: lesson.slug,
-        title: lesson.title,
-      };
+      ctx = { type: "lesson", id: lesson.id, slug: lesson.slug, title: lesson.title };
     } else {
       const mod = modules.find((m) => m.id === id);
       if (!mod) return;

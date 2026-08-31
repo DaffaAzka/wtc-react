@@ -1,5 +1,5 @@
 import { useInView } from "./use-in-view";
-import { mentorsPhotos } from "@/components/custom/team-photos";
+import { teamPhotos } from "@/components/custom/team-photos";
 
 const copy = {
   tag: "Mentors & Instructors",
@@ -13,25 +13,25 @@ const mentors = [
     name: "Ahmad Rafi Fadhilah",
     role: "Full-Stack Web & Mobile Dev",
     company: "XII RPL 1",
-    photo: mentorsPhotos[0],
+    photo: teamPhotos[0],
   },
   { 
     name: "Daffa Islami Azka",
     role: "Full-Stack Web & Mobile Dev",
-    company: "XII RPL 3 (Alumni 2026)",
-    photo: mentorsPhotos[1],
+    company: "XII RPL 3(Alumni)",
+    photo: teamPhotos[1],
   },
   {
     name: "FIkri Aziz Mudzakir",
     role: "Full-Stack Web",
     company: "XII RPL 1",
-    photo: mentorsPhotos[2],
+    photo: teamPhotos[2],
   },
   {
-    name: "Muhamad Afif Al Ghozali",
-    role: "Full-Stack Web, DevOps, & Cloud",
+    name: "M Afif Alghozali",
+    role: "Full-Stack Web & DevOps",
     company: "XII RPL 1",
-    photo: mentorsPhotos[3],
+    photo: teamPhotos[3],
   },
 ];
 
@@ -44,7 +44,7 @@ export function MentorsSection() {
       ref={ref}
       className="min-h-screen flex flex-col justify-center w-full pt-20 pb-16 px-6 lg:px-20"
       style={{ background: "#ffffff" }}>
-      <div className="mx-auto w-full max-w-6xl px-6">
+      <div className="mx-auto w-full max-w-6xl px-6 py-24">
         {/* Header Section (Animasi Fade Up) */}
         <div
           className={`mb-16 transition-all duration-700 ease-out ${

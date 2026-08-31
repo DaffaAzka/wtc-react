@@ -52,7 +52,7 @@ export function TracksSection() {
       ref={ref}
       className="min-h-screen flex flex-col justify-center w-full pt-20 pb-16 px-6 lg:px-20"
       style={{ background: "#ffffff" }}>
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-6xl px-6 py-24">
         {/* Header Section (Animasi barengan) */}
         <div
           className={`mb-16 transition-all duration-700 ease-out ${

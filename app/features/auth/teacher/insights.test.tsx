@@ -84,77 +84,39 @@ describe("formatPeriodLabel", () => {
 
 describe("buildLeaderboardParams", () => {
   test("period is forwarded into params", () => {
-    expect(
-      buildLeaderboardParams({ period: "weekly", classId: null, page: 1 })
-        .period,
-    ).toBe("weekly");
-    expect(
-      buildLeaderboardParams({ period: "monthly", classId: null, page: 1 })
-        .period,
-    ).toBe("monthly");
-    expect(
-      buildLeaderboardParams({ period: "all-time", classId: null, page: 1 })
-        .period,
-    ).toBe("all-time");
+    expect(buildLeaderboardParams({ period: "weekly", classId: null, page: 1 }).period).toBe("weekly");
+    expect(buildLeaderboardParams({ period: "monthly", classId: null, page: 1 }).period).toBe("monthly");
+    expect(buildLeaderboardParams({ period: "all-time", classId: null, page: 1 }).period).toBe("all-time");
   });
 
   test("page is forwarded into params", () => {
-    const p = buildLeaderboardParams({
-      period: "weekly",
-      classId: null,
-      page: 3,
-    });
+    const p = buildLeaderboardParams({ period: "weekly", classId: null, page: 3 });
     expect(p.page).toBe(3);
   });
 
   test("study_class_id is set when classId is not null", () => {
-    const p = buildLeaderboardParams({
-      period: "all-time",
-      classId: 5,
-      page: 1,
-    });
+    const p = buildLeaderboardParams({ period: "all-time", classId: 5, page: 1 });
     expect(p.study_class_id).toBe(5);
   });
 
   test("study_class_id is absent when classId is null (no spurious key)", () => {
-    const p = buildLeaderboardParams({
-      period: "all-time",
-      classId: null,
-      page: 1,
-    });
+    const p = buildLeaderboardParams({ period: "all-time", classId: null, page: 1 });
     expect("study_class_id" in p).toBe(false);
   });
 
   test("default per_page is 15", () => {
-    const p = buildLeaderboardParams({
-      period: "all-time",
-      classId: null,
-      page: 1,
-    });
+    const p = buildLeaderboardParams({ period: "all-time", classId: null, page: 1 });
     expect(p.per_page).toBe(15);
   });
 
   test("custom perPage overrides the default", () => {
-    const p = buildLeaderboardParams({
-      period: "all-time",
-      classId: null,
-      page: 1,
-      perPage: 25,
-    });
+    const p = buildLeaderboardParams({ period: "all-time", classId: null, page: 1, perPage: 25 });
     expect(p.per_page).toBe(25);
   });
 
   test("different pages produce distinct param objects", () => {
-    const p1 = buildLeaderboardParams({
-      period: "weekly",
-      classId: null,
-      page: 1,
-    });
-    const p2 = buildLeaderboardParams({
-      period: "weekly",
-      classId: null,
-      page: 2,
-    });
+    const p1 = buildLeaderboardParams({ period: "weekly", classId: null, page: 1 });
+    const p2 = buildLeaderboardParams({ period: "weekly", classId: null, page: 2 });
     expect(JSON.stringify(p1)).not.toBe(JSON.stringify(p2));
   });
 });
@@ -240,11 +202,7 @@ describe("formatChangedFields", () => {
   });
 
   test("multiple fields returns comma-separated key names", () => {
-    const result = formatChangedFields({
-      title: "x",
-      description: "y",
-      order: 1,
-    });
+    const result = formatChangedFields({ title: "x", description: "y", order: 1 });
     expect(result).toContain("title");
     expect(result).toContain("description");
     expect(result).toContain("order");
@@ -291,11 +249,7 @@ describe("formatTimestamp", () => {
 
 describe("teacher insights — excluded fields guard", () => {
   test("leaderboard buildLeaderboardParams never includes email, ip, user_agent, or restore", () => {
-    const params = buildLeaderboardParams({
-      period: "weekly",
-      classId: 1,
-      page: 1,
-    });
+    const params = buildLeaderboardParams({ period: "weekly", classId: 1, page: 1 });
     const keys = Object.keys(params);
     expect(keys).not.toContain("email");
     expect(keys).not.toContain("ip");
@@ -306,10 +260,7 @@ describe("teacher insights — excluded fields guard", () => {
   test("audit log formatChangedFields output never contains email or ip values from changed data", () => {
     // The function only exposes key names, never values — this guards against
     // accidentally rendering PII field values.
-    const result = formatChangedFields({
-      email: "secret@example.com",
-      ip: "192.168.1.1",
-    });
+    const result = formatChangedFields({ email: "secret@example.com", ip: "192.168.1.1" });
     expect(result).not.toContain("secret@example.com");
     expect(result).not.toContain("192.168.1.1");
     // key names themselves (email, ip) appear — that's acceptable metadata
@@ -324,20 +275,12 @@ describe("teacher insights — excluded fields guard", () => {
 
 describe("leaderboard pagination params", () => {
   test("page 1 is the minimum and is passed through", () => {
-    const p = buildLeaderboardParams({
-      period: "all-time",
-      classId: null,
-      page: 1,
-    });
+    const p = buildLeaderboardParams({ period: "all-time", classId: null, page: 1 });
     expect(p.page).toBe(1);
   });
 
   test("large page numbers are passed through without clamping", () => {
-    const p = buildLeaderboardParams({
-      period: "all-time",
-      classId: null,
-      page: 999,
-    });
+    const p = buildLeaderboardParams({ period: "all-time", classId: null, page: 999 });
     expect(p.page).toBe(999);
   });
 });

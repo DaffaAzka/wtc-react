@@ -22,6 +22,7 @@ export function NavUser({
   const { isMobile } = useSidebar();
   const { logout, user: authUser } = useAuth();
 
+  // Teacher profile route arrives with the teacher route tree.
   const profileRoute = useMemo(() => (hasRole(authUser, "admin") ? "/admin/profile" : "/student/profile"), [authUser]);
 
   return (
