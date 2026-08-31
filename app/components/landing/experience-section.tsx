@@ -9,7 +9,7 @@ const copy = {
   cards: [
     {
       step: "01",
-      title: "Structured Video Content",
+      title: "Structured Module Content",
       desc: "Every track is broken into short, dense modules. Watch anywhere, anytime — no time limit.",
       icon: PlayCircle,
     },

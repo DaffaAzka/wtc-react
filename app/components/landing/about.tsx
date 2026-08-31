@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { teamPhotos } from "@/components/custom/team-photos";
+import { teamDevPhotos } from "@/components/custom/team-photos";
 import { useInView } from "./use-in-view";
 
 const copy = {
@@ -7,7 +7,7 @@ const copy = {
   heading1: "Empowering the",
   heading2: "next generation",
   heading3: "of tech talents.",
-  sub: "Webtech Training Camp (WTC) is more than just a coding bootcamp. We are a community of passionate developers, industry experts, and lifelong learners dedicated to bridging the gap between education and real-world industry demands. Join us and build the future together.",
+  sub: "Webtech Training Camp (WTC) is more than just a coding bootcamp. We are a community of passionate developers and industry experts driven by one mission: to empower the next generation of tech talent. We bridge the gap between education and real-world industry demands. Join us, and let's build the future together.",
 };
 
 export function AboutSection() {
@@ -16,7 +16,7 @@ export function AboutSection() {
 
   useEffect(() => {
     const slideInterval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % teamPhotos.length);
+      setCurrentSlide((prev) => (prev + 1) % teamDevPhotos.length);
     }, 4000);
     return () => clearInterval(slideInterval);
   }, []);
@@ -94,7 +94,7 @@ export function AboutSection() {
               border: "1px solid #2a2a2a",
               boxShadow: "0 20px 40px rgba(0,0,0,0.4)",
             }}>
-            {teamPhotos.map((src, i) => (
+            {teamDevPhotos.map((src, i) => (
               <img
                 key={i}
                 src={src}
@@ -118,7 +118,7 @@ export function AboutSection() {
 
             {/* Indikator Dots */}
             <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
-              {teamPhotos.map((_, i) => (
+              {teamDevPhotos.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentSlide(i)}
