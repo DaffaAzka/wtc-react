@@ -229,9 +229,7 @@ function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: stri
               <div className="flex items-center gap-3">
                 <div className="w-1 h-10 rounded-full bg-gradient-to-b from-[#31c7c8] to-[#1c81ff]" />
                 <div>
-                  <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 mb-0.5">
-                    {currentModule?.title}
-                  </p>
+                  <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 mb-0.5">{currentModule?.title}</p>
                   <h2 className="text-xl font-extrabold text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>
                     {moduleChallenges.length === 1 ? "Challenge Module" : `${moduleChallenges.length} Challenges Module`}
                   </h2>
@@ -247,77 +245,76 @@ function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: stri
           ) : (
             /* ── Lesson content ── */
             <div className="max-w-7xl mx-auto p-6 md:p-8 pb-24 space-y-6">
-            {/* Video */}
-            {fullLesson.video_url && (
-              <div className="overflow-hidden rounded-2xl bg-black shadow-lg">
-                <div className="aspect-video">
-                  <iframe src={fullLesson.video_url} title={fullLesson.title} className="w-full h-full" allowFullScreen />
-                </div>
-              </div>
-            )}
-
-            {/* Content */}
-            <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm p-6 md:p-8">
-              <div className="prose prose-slate dark:prose-invert max-w-none">
-                <ContentView rawJsonData={fullLesson.content} />
-              </div>
-            </div>
-
-            {/* Attachments */}
-            {fullLesson.attachments && fullLesson.attachments.length > 0 && (
-              <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden">
-                <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100 dark:border-white/5">
-                  <div className="w-8 h-8 rounded-full bg-[#1c81ff]/10 flex items-center justify-center">
-                    <Download className="h-4 w-4 text-[#1c81ff]" />
+              {/* Video */}
+              {fullLesson.video_url && (
+                <div className="overflow-hidden rounded-2xl bg-black shadow-lg">
+                  <div className="aspect-video">
+                    <iframe src={fullLesson.video_url} title={fullLesson.title} className="w-full h-full" allowFullScreen />
                   </div>
-                  <span className="font-bold text-gray-900 dark:text-white">Materi Tambahan</span>
                 </div>
-                <div className="p-4 space-y-2">
-                  {fullLesson.attachments.map((attachment) => (
-                    <a
-                      key={attachment.id}
-                      href={`/api/attachments/${attachment.id}/download`}
-                      className="flex items-center justify-between rounded-xl border border-gray-200 dark:border-white/10 px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[14px] font-bold text-gray-900 dark:text-white group-hover:text-[#1c81ff] transition-colors truncate">{attachment.title}</p>
-                        {attachment.description && <p className="text-[12px] text-gray-500 dark:text-gray-400 mt-0.5">{attachment.description}</p>}
-                        <p className="text-[11px] text-gray-400 dark:text-gray-600 mt-0.5 font-mono">
-                          {attachment.file_name}
-                          {attachment.size && ` · ${attachment.size}`}
-                        </p>
-                      </div>
-                      <Download className="shrink-0 h-4 w-4 text-gray-400 dark:text-gray-600 group-hover:text-[#1c81ff] transition-colors ml-4" />
-                    </a>
+              )}
+
+              {/* Content */}
+              <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm p-6 md:p-8">
+                <div className="prose prose-slate dark:prose-invert max-w-none">
+                  <ContentView rawJsonData={fullLesson.content} />
+                </div>
+              </div>
+
+              {/* Attachments */}
+              {fullLesson.attachments && fullLesson.attachments.length > 0 && (
+                <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden">
+                  <div className="flex items-center gap-3 px-6 py-4 border-b border-gray-100 dark:border-white/5">
+                    <div className="w-8 h-8 rounded-full bg-[#1c81ff]/10 flex items-center justify-center">
+                      <Download className="h-4 w-4 text-[#1c81ff]" />
+                    </div>
+                    <span className="font-bold text-gray-900 dark:text-white">Materi Tambahan</span>
+                  </div>
+                  <div className="p-4 space-y-2">
+                    {fullLesson.attachments.map((attachment) => (
+                      <a
+                        key={attachment.id}
+                        href={`/api/attachments/${attachment.id}/download`}
+                        className="flex items-center justify-between rounded-xl border border-gray-200 dark:border-white/10 px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[14px] font-bold text-gray-900 dark:text-white group-hover:text-[#1c81ff] transition-colors truncate">{attachment.title}</p>
+                          {attachment.description && <p className="text-[12px] text-gray-500 dark:text-gray-400 mt-0.5">{attachment.description}</p>}
+                          <p className="text-[11px] text-gray-400 dark:text-gray-600 mt-0.5 font-mono">
+                            {attachment.file_name}
+                            {attachment.size && ` · ${attachment.size}`}
+                          </p>
+                        </div>
+                        <Download className="shrink-0 h-4 w-4 text-gray-400 dark:text-gray-600 group-hover:text-[#1c81ff] transition-colors ml-4" />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Per-lesson challenge section */}
+              {hasLessonChallenges && canMarkComplete && (
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-1 h-10 rounded-full bg-gradient-to-b from-[#1c81ff] to-[#31c7c8]" />
+                    <div>
+                      <h2 className="text-xl font-extrabold text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>
+                        {challenges.length === 1 ? "Challenge untuk Lesson Ini" : `${challenges.length} Challenges`}
+                      </h2>
+                      <p className="text-[14px] text-gray-500 dark:text-gray-400">Selesaikan {challenges.length === 1 ? "challenge ini" : "semua challenges"} untuk menyelesaikan lesson</p>
+                    </div>
+                  </div>
+                  {challenges.map((challenge, index) => (
+                    <ChallengeSection key={challenge.id} challenge={challenge} index={index} total={challenges.length} />
                   ))}
                 </div>
-              </div>
-            )}
-
-            {/* Per-lesson challenge section */}
-            {hasLessonChallenges && !isCompleted && canMarkComplete && (
-              <div className="space-y-6">
-                <div className="flex items-center gap-3">
-                  <div className="w-1 h-10 rounded-full bg-gradient-to-b from-[#1c81ff] to-[#31c7c8]" />
-                  <div>
-                    <h2 className="text-xl font-extrabold text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>
-                      {challenges.length === 1 ? "Challenge untuk Lesson Ini" : `${challenges.length} Challenges`}
-                    </h2>
-                    <p className="text-[14px] text-gray-500 dark:text-gray-400">Selesaikan {challenges.length === 1 ? "challenge ini" : "semua challenges"} untuk menyelesaikan lesson</p>
-                  </div>
-                </div>
-                {challenges.map((challenge, index) => (
-                  <ChallengeSection key={challenge.id} challenge={challenge} index={index} total={challenges.length} />
-                ))}
-              </div>
-            )}
-
-          </div>
+              )}
+            </div>
           )}
         </div>
 
         {/* Right sidebar */}
-        <div className="hidden lg:flex w-72 xl:w-80 border-l border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0f12] h-full flex-col">
+        <div className="hidden lg:flex w-72 xl:w-80 border-l border-gray-200 dark:border-white/10 bg-white dark:bg-[#0a0f12] flex-col overflow-hidden">
           {/* Module header */}
           <div className="px-5 py-4 border-b border-gray-200 dark:border-white/10 space-y-3">
             <div>
@@ -334,7 +331,7 @@ function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: stri
           </div>
 
           {/* Lessons list — scoped to current module only */}
-          <ScrollArea className="flex-1">
+          <ScrollArea className="flex-1 px-1.5 min-h-0">
             <div className="p-2">
               {(currentModule?.lessons ?? []).map((lesson, index) => {
                 const isActive = lesson.slug === lessonSlug;
@@ -383,30 +380,22 @@ function LessonDetailContent({ lessonSlug, bypassLockCheck }: { lessonSlug: stri
               {/* Challenges — shown at the bottom after all module lessons */}
               {hasModuleChallenges && (
                 <div className="mt-2 pt-2 border-t border-gray-100 dark:border-white/5">
-                  <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 dark:text-gray-600">
-                    Challenges
-                  </p>
+                  <p className="px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-gray-400 dark:text-gray-600">Challenges</p>
                   {moduleChallenges.map((challenge, index) => (
                     <button
                       key={challenge.id}
                       onClick={() => setShowModuleChallenges(true)}
                       className={cn(
                         "w-full flex items-start gap-3 rounded-xl p-3 text-left transition-all",
-                        showModuleChallenges
-                          ? "bg-[#31c7c8]/10 border border-[#31c7c8]/20"
-                          : "hover:bg-gray-50 dark:hover:bg-white/5",
+                        showModuleChallenges ? "bg-[#31c7c8]/10 border border-[#31c7c8]/20" : "hover:bg-gray-50 dark:hover:bg-white/5",
                       )}
                     >
                       <div className="shrink-0 mt-0.5">
                         <PlayCircle className={cn("h-4 w-4", showModuleChallenges ? "text-[#31c7c8]" : "text-gray-400 dark:text-gray-600")} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <span className="block font-mono text-[10px] text-gray-400 dark:text-gray-600 mb-0.5">
-                          CHALLENGE {String(index + 1).padStart(2, "0")}
-                        </span>
-                        <span className={cn("block text-[13px] font-bold line-clamp-2", showModuleChallenges ? "text-[#31c7c8]" : "text-gray-700 dark:text-gray-300")}>
-                          {challenge.title}
-                        </span>
+                        <span className="block font-mono text-[10px] text-gray-400 dark:text-gray-600 mb-0.5">CHALLENGE {String(index + 1).padStart(2, "0")}</span>
+                        <span className={cn("block text-[13px] font-bold line-clamp-2", showModuleChallenges ? "text-[#31c7c8]" : "text-gray-700 dark:text-gray-300")}>{challenge.title}</span>
                       </div>
                     </button>
                   ))}
