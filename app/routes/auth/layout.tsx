@@ -9,11 +9,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { ModeToggle } from "@/components/custom/mode-toggle";
 import type { Route } from "./+types/layout";
 import { getToken, getUser } from "@/utils/auth-storage";
 import { resolveLandingPath } from "@/utils/roles";
@@ -46,6 +43,9 @@ export default function AuthLayout() {
             className="h-4 bg-gray-200 dark:bg-white/10"
           />
           <DynamicBreadcrumb />
+          <div className="ml-auto">
+            <ModeToggle />
+          </div>
         </header>
 
         {/* ── Page content ── */}
@@ -110,11 +110,18 @@ function DynamicBreadcrumb() {
     );
   }
 
-  const crumbs = segments.map((seg, i) => ({
-    label: segmentLabel(seg),
-    href: "/" + segments.slice(0, i + 1).join("/"),
-    isLast: i === segments.length - 1,
-  }));
+  const crumbs = segments.map((seg, i) => {
+    let href = "/" + segments.slice(0, i + 1).join("/");
+    // Lesson slug always links to /view — direct path is not a valid route
+    if (i > 0 && segments[i - 1] === "lessons") {
+      href = href + "/view";
+    }
+    return {
+      label: segmentLabel(seg),
+      href,
+      isLast: i === segments.length - 1,
+    };
+  });
 
   return (
     <Breadcrumb>

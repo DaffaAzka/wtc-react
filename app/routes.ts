@@ -79,6 +79,7 @@ export default [
       route(
         "/:slug?/modules/:moduleSlug/challenges",
         "routes/auth/admin/modules/challenges/index.tsx",
+        { id: "admin-module-challenges" },
       ),
 
       // Lesson Routes — /:slug? covers both /lessons and /:moduleSlug/lessons
@@ -99,8 +100,7 @@ export default [
 
       // Global Challenges Routes
       route("/challenges", "routes/auth/admin/all-challenges/index.tsx"),
-      route("/challenges/:id", "routes/auth/admin/challenges/$id.tsx"),
-      route("/challenges/:id/edit", "routes/auth/admin/challenges/$id.edit.tsx"),
+      route("/:slug/challenges", "routes/auth/admin/modules/challenges/index.tsx", { id: "admin-slug-challenges" }),
 
       // Submissions
       route("/submissions/:challengeId", "routes/auth/admin/submissions/$challengeId.tsx"),
@@ -150,6 +150,10 @@ export default [
       ]),
       route("/audit-logs", "routes/auth/teacher/audit-logs.tsx"),
       route("/certificates", "routes/auth/teacher/certificates/index.tsx"),
+
+      route("/admin/challenges/:id", "routes/auth/admin/challenges/$id.tsx", { id: "teacher-admin-challenge-detail" }),
+      route("/admin/challenges/:id/edit", "routes/auth/admin/challenges/$id.edit.tsx", { id: "teacher-admin-challenge-edit" }),
+      route("/admin/submissions/:challengeId", "routes/auth/admin/submissions/$challengeId.tsx", { id: "teacher-admin-submissions" }),
     ]),
   ]),
   // Public certificate verification — no auth, no layout

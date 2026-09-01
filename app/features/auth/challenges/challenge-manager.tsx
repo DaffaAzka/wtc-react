@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
-import { Plus, Code, ArrowLeft } from "lucide-react";
+import { Plus, Code, ArrowLeft, Sparkles } from "lucide-react";
 import { useGetChallengesByLesson, useGetChallengesByModule } from "@/hooks/challenges";
 import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
 import { ChallengeGridSkeleton } from "@/components/skeletons/challenge-card";
@@ -93,6 +93,13 @@ export default function ChallengeManager({
 
           <div className="flex items-center gap-2 shrink-0 mt-1">
             <button
+              onClick={() => setIsGenerateModalOpen(true)}
+              className="flex items-center gap-2 bg-transparent border-[1.5px] border-violet-500/50 text-violet-600 font-bold rounded-xl py-2.5 px-4 text-[13px] hover:bg-violet-500/10 transition-all"
+            >
+              <Sparkles className="h-4 w-4" />
+              <span className="hidden sm:inline">Generate with AI</span>
+            </button>
+            <button
               onClick={() => setIsAddCodingAssignmentOpen(true)}
               className="flex items-center gap-2 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl py-2.5 px-4 text-[13px] hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
             >
@@ -100,7 +107,7 @@ export default function ChallengeManager({
               <span className="hidden sm:inline">Coding Assignment</span>
             </button>
             <button
-              onClick={() => setIsAddModalOpen(true)}
+              onClick={() => { setPrefillData(undefined); setIsAddModalOpen(true); }}
               className="flex items-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-2.5 px-4 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 text-[13px]"
             >
               <Plus className="h-4 w-4" />
@@ -126,6 +133,7 @@ export default function ChallengeManager({
           context={context}
           isOpen={isAddModalOpen}
           onOpenChange={setIsAddModalOpen}
+          prefill={prefillData}
         />
       )}
       {isAddCodingAssignmentOpen && (
