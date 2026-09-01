@@ -40,7 +40,7 @@ export function FaqSection() {
       ref={ref}
       className="min-h-screen flex flex-col justify-center w-full pt-20 pb-16 px-6 lg:px-20"
       style={{ background: "#ffffff" }}>
-      <div className="mx-auto max-w-4xl px-6 py-24">
+      <div className="mx-auto max-w-4xl px-6">
         <div
           className={`mb-16 text-center transition-all duration-700 ease-out ${
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"

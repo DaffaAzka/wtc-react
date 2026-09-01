@@ -81,6 +81,7 @@ export function HeroSquiggle() {
 
       <svg
         className="sq-svg absolute -left-10 lg:left-0 top-32 lg:top-[20%] h-[70%] lg:h-[80%] w-[350px] lg:w-[450px] pointer-events-none z-0"
+        overflow="visible"
         viewBox="0 0 400 800"
         fill="none"
         xmlns="http://www.w3.org/2000/svg">
