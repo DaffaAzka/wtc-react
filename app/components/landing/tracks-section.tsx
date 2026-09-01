@@ -14,7 +14,7 @@ import {
   SiFlutter,
   SiMysql,
   SiPhp,
-  SiOpenjdk,
+  SiExpress
 } from "react-icons/si";
 import { FaAws } from "react-icons/fa6";
 
@@ -38,7 +38,7 @@ const techs = [
   { icon: SiGit, name: "Git", color: "#F05032" },
   { icon: SiKotlin, name: "Kotlin", color: "#7F52FF" },
   { icon: SiFlutter, name: "Flutter", color: "#02569B" },
-  { icon: SiOpenjdk, name: "Java", color: "#007396" },
+  { icon: SiExpress, name: "Express", color: "#000000" },
   { icon: SiMysql, name: "MySQL", color: "#4479A1" },
   { icon: SiPhp, name: "PHP", color: "#777BB4" },
 ];
