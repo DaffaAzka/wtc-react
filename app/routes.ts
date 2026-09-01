@@ -150,9 +150,9 @@ export default [
       route("/audit-logs", "routes/auth/teacher/audit-logs.tsx"),
       route("/certificates", "routes/auth/teacher/certificates/index.tsx"),
 
-      route("/admin/challenges/:id", "routes/auth/admin/challenges/$id.tsx"),
-      route("/admin/challenges/:id/edit", "routes/auth/admin/challenges/$id.edit.tsx"),
-      route("/admin/submissions/:challengeId", "routes/auth/admin/submissions/$challengeId.tsx"),
+      route("/admin/challenges/:id", "routes/auth/admin/challenges/$id.tsx", { id: "teacher-admin-challenge-detail" }),
+      route("/admin/challenges/:id/edit", "routes/auth/admin/challenges/$id.edit.tsx", { id: "teacher-admin-challenge-edit" }),
+      route("/admin/submissions/:challengeId", "routes/auth/admin/submissions/$challengeId.tsx", { id: "teacher-admin-submissions" }),
     ]),
   ]),
   // Public certificate verification — no auth, no layout

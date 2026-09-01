@@ -110,11 +110,18 @@ function DynamicBreadcrumb() {
     );
   }
 
-  const crumbs = segments.map((seg, i) => ({
-    label: segmentLabel(seg),
-    href: "/" + segments.slice(0, i + 1).join("/"),
-    isLast: i === segments.length - 1,
-  }));
+  const crumbs = segments.map((seg, i) => {
+    let href = "/" + segments.slice(0, i + 1).join("/");
+    // Lesson slug always links to /view — direct path is not a valid route
+    if (i > 0 && segments[i - 1] === "lessons") {
+      href = href + "/view";
+    }
+    return {
+      label: segmentLabel(seg),
+      href,
+      isLast: i === segments.length - 1,
+    };
+  });
 
   return (
     <Breadcrumb>
