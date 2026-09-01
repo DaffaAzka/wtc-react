@@ -79,6 +79,7 @@ export default [
       route(
         "/:slug?/modules/:moduleSlug/challenges",
         "routes/auth/admin/modules/challenges/index.tsx",
+        { id: "admin-module-challenges" },
       ),
 
       // Lesson Routes — /:slug? covers both /lessons and /:moduleSlug/lessons
