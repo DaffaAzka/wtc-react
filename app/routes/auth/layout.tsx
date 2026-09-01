@@ -9,11 +9,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { ModeToggle } from "@/components/custom/mode-toggle";
 import type { Route } from "./+types/layout";
 import { getToken, getUser } from "@/utils/auth-storage";
 import { resolveLandingPath } from "@/utils/roles";
@@ -46,6 +43,9 @@ export default function AuthLayout() {
             className="h-4 bg-gray-200 dark:bg-white/10"
           />
           <DynamicBreadcrumb />
+          <div className="ml-auto">
+            <ModeToggle />
+          </div>
         </header>
 
         {/* ── Page content ── */}
