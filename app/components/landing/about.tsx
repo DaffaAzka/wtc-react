@@ -62,7 +62,9 @@ export function AboutSection() {
           {/* Opsional: Tombol kecil buat interaksi */}
           <div className="mt-8">
             <a
-              href="#tracks"
+              href="https://discord.gg/HfzMFuzaD"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-[15px] font-bold transition-all hover:gap-3"
               style={{ color: "#ffffff" }}>
               Explore our community
