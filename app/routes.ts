@@ -99,6 +99,7 @@ export default [
 
       // Global Challenges Routes
       route("/challenges", "routes/auth/admin/all-challenges/index.tsx"),
+      route("/:slug/challenges", "routes/auth/admin/modules/challenges/index.tsx"),
 
       // Submissions
       route("/submissions/:challengeId", "routes/auth/admin/submissions/$challengeId.tsx"),
