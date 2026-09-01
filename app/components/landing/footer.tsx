@@ -24,10 +24,7 @@ export function Footer() {
   const navigate = useNavigate();
 
   // Fungsi buat nangani klik link yang ada hash (#)-nya
-  const handleLinkClick = (
-    e: React.MouseEvent<HTMLAnchorElement>,
-    to: string,
-  ) => {
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, to: string) => {
     if (to.startsWith("#")) {
       e.preventDefault();
       // Kalau lagi di halaman utama, langsung scroll
@@ -44,22 +41,16 @@ export function Footer() {
   };
 
   return (
-    <footer
-      ref={ref}
-      className="relative w-full pt-16 pb-8 px-6 sm:px-10 lg:px-20 overflow-hidden"
-      style={{ background: "#000000" }}>
+    <footer ref={ref} className="relative w-full pt-16 pb-8 px-6 sm:px-10 lg:px-20 overflow-hidden" style={{ background: "#000000" }}>
       <div className="mx-auto max-w-6xl relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 lg:gap-10">
           {/* Brand & Social */}
-          <div
-            className={`col-span-1 md:col-span-2 transition-all duration-700 ease-out ${
-              inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-            }`}>
+          <div className={`col-span-1 md:col-span-2 transition-all duration-700 ease-out ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
             <Link to="/" className="flex items-center gap-2 mb-5 inline-block">
               <img
-                src="/brand-pack/logo-h-light.svg"
+                src="/brand-pack/logo-h-dark.svg"
                 alt="WTC LMS"
-                className="h-28 md:h-32 lg:h-38 w-auto transition-all duration-300 hover:scale-105"
+                className="size-28 md:size-32 lg:size-38 transition-all duration-300 hover:scale-105"
                 onError={(e) => {
                   const el = e.currentTarget as HTMLImageElement;
                   el.style.display = "none";
@@ -72,11 +63,8 @@ export function Footer() {
               </span>
             </Link>
 
-            <p
-              className="text-[14px] leading-relaxed mb-6 max-w-[320px]"
-              style={{ color: "#757575" }}>
-              A project-based technology learning platform with real industry
-              mentorship.
+            <p className="text-[14px] leading-relaxed mb-6 max-w-[320px]" style={{ color: "#757575" }}>
+              A project-based technology learning platform with real industry mentorship.
             </p>
 
             {/* Social icons */}
@@ -106,18 +94,10 @@ export function Footer() {
                   aria-label={s.label}
                   className="flex h-9 w-9 items-center justify-center rounded-full transition-all duration-300 hover:-translate-y-1"
                   style={{ background: "#1a1a1a" }}
-                  onMouseEnter={(e) =>
-                    ((e.currentTarget as HTMLElement).style.background =
-                      "#2a2a2a")
-                  }
-                  onMouseLeave={(e) =>
-                    ((e.currentTarget as HTMLElement).style.background =
-                      "#1a1a1a")
-                  }>
-                  <svg
-                    className="h-4 w-4 transition-colors duration-300"
-                    fill="#a1a1aa"
-                    viewBox="0 0 24 24">
+                  onMouseEnter={(e) => ((e.currentTarget as HTMLElement).style.background = "#2a2a2a")}
+                  onMouseLeave={(e) => ((e.currentTarget as HTMLElement).style.background = "#1a1a1a")}
+                >
+                  <svg className="h-4 w-4 transition-colors duration-300" fill="#a1a1aa" viewBox="0 0 24 24">
                     <path d={s.path} />
                   </svg>
                 </a>
@@ -126,22 +106,14 @@ export function Footer() {
           </div>
 
           {/* Learn links */}
-          <div
-            className={`transition-all duration-700 delay-100 ease-out ${
-              inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-            }`}>
-            <h4
-              className="text-[12px] font-bold uppercase tracking-[0.1em] mb-5"
-              style={{ color: "#ffffff" }}>
+          <div className={`transition-all duration-700 delay-100 ease-out ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+            <h4 className="text-[12px] font-bold uppercase tracking-[0.1em] mb-5" style={{ color: "#ffffff" }}>
               {copy.learn}
             </h4>
             <ul className="flex flex-col gap-3">
               {copy.learnLinks.map((l) => (
                 <li key={l.to}>
-                  <Link
-                    to={l.to}
-                    className="text-[14px] font-medium transition-colors duration-200 hover:text-white"
-                    style={{ color: "#888888" }}>
+                  <Link to={l.to} className="text-[14px] font-medium transition-colors duration-200 hover:text-white" style={{ color: "#888888" }}>
                     {l.label}
                   </Link>
                 </li>
@@ -150,13 +122,8 @@ export function Footer() {
           </div>
 
           {/* Company links */}
-          <div
-            className={`transition-all duration-700 delay-200 ease-out ${
-              inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-            }`}>
-            <h4
-              className="text-[12px] font-bold uppercase tracking-[0.1em] mb-5"
-              style={{ color: "#ffffff" }}>
+          <div className={`transition-all duration-700 delay-200 ease-out ${inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"}`}>
+            <h4 className="text-[12px] font-bold uppercase tracking-[0.1em] mb-5" style={{ color: "#ffffff" }}>
               {copy.company}
             </h4>
             <ul className="flex flex-col gap-3">
@@ -168,14 +135,12 @@ export function Footer() {
                       href={l.to}
                       onClick={(e) => handleLinkClick(e, l.to)}
                       className="text-[14px] font-medium transition-colors duration-200 hover:text-white cursor-pointer"
-                      style={{ color: "#888888" }}>
+                      style={{ color: "#888888" }}
+                    >
                       {l.label}
                     </a>
                   ) : (
-                    <Link
-                      to={l.to}
-                      className="text-[14px] font-medium transition-colors duration-200 hover:text-white"
-                      style={{ color: "#888888" }}>
+                    <Link to={l.to} className="text-[14px] font-medium transition-colors duration-200 hover:text-white" style={{ color: "#888888" }}>
                       {l.label}
                     </Link>
                   )}
@@ -190,7 +155,8 @@ export function Footer() {
           className={`mt-12 pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 transition-all duration-1000 delay-300 ease-out ${
             inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
           }`}
-          style={{ borderTop: "1px solid #1a1a1a" }}>
+          style={{ borderTop: "1px solid #1a1a1a" }}
+        >
           <p className="text-[13px] font-medium" style={{ color: "#555555" }}>
             {copy.copyright}
           </p>

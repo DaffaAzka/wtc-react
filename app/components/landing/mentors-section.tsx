@@ -106,7 +106,7 @@ export function MentorsSection() {
               />
 
               <div>
-                <p className="absolute top-0 right-0 p-5 text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: "#ffffff" }}>
+                <p className="absolute top-0 right-0 p-5 md:text-[10px] text-[8px] font-bold uppercase tracking-widest mb-1.5" style={{ color: "#ffffff" }}>
                   <a href={m.github} target="_blank" rel="noopener noreferrer">
                     <FaGithub className="inline-block size-3.5 mr-1.5 mb-0.5" />
                     {m.githubusn}
@@ -116,13 +116,13 @@ export function MentorsSection() {
 
               {/* Text Overlay */}
               <div className="absolute bottom-0 left-0 right-0 p-5 transform transition-transform duration-300 translate-y-1 group-hover:translate-y-0">
-                <p className="text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: "#00d2ff" }}>
+                <p className="text-[8px] md:text-[10px] font-bold uppercase tracking-widest mb-1.5" style={{ color: "#00d2ff" }}>
                   {m.company}
                 </p>
-                <p className="text-[18px] lg:text-[20px] font-bold leading-tight mb-1" style={{ color: "#ffffff" }}>
+                <p className="text-[12px] md:text-[18px] lg:text-[20px] font-bold leading-tight mb-1" style={{ color: "#ffffff" }}>
                   {m.name}
                 </p>
-                <p className="text-[13px] font-medium opacity-80" style={{ color: "#e5e7eb" }}>
+                <p className="md:text-[13px] text-[8px] font-medium opacity-80" style={{ color: "#e5e7eb" }}>
                   {m.role}
                 </p>
               </div>
