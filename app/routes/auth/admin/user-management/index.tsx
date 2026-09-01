@@ -38,15 +38,85 @@ import {
   Inbox,
   ShieldCheck,
 } from "lucide-react";
-import type {
-  ProfileWithUser,
-  RoleResource,
-  PaginationMeta,
-  ProfilesResponse,
-  RolesResponse,
-  ProfileResponse,
-} from "./_types";
-import { RoleBadge } from "./_role-badge";
+
+// ── Types ───────────────────────────────────────────────────────────────────
+
+type UserResource = {
+  id: string;
+  puid: string | null;
+  name: string;
+  email: string;
+  provider: string;
+  avatar: string;
+  email_verified_at: string;
+  created_at: string;
+  updated_at: string;
+};
+
+type RoleResource = {
+  id: number;
+  name: string;
+  created_at: string | null;
+  updated_at: string | null;
+};
+
+type ProfileWithUser = {
+  id: string;
+  user_id: string;
+  study_class_id: number | null;
+  display_name: string | null;
+  points: number;
+  last_login_at: string;
+  last_synced_at: string;
+  created_at: string;
+  updated_at: string;
+  user: UserResource;
+  roles: RoleResource[];
+};
+
+type PaginationMeta = {
+  current_page: number;
+  per_page: number;
+  total: number;
+  last_page: number;
+  from: number;
+  to: number;
+};
+
+type ProfilesResponse = {
+  success: boolean;
+  message: string;
+  data: { profiles: ProfileWithUser[]; pagination: PaginationMeta };
+};
+
+type RolesResponse = {
+  success: boolean;
+  message: string;
+  data: RoleResource[];
+};
+
+type ProfileResponse = {
+  success: boolean;
+  message: string;
+  data: ProfileWithUser;
+};
+
+// ── Role badge color ────────────────────────────────────────────────────────
+
+const ROLE_COLORS: Record<string, { bg: string; text: string }> = {
+  admin:   { bg: "bg-[#ff007b]/10",  text: "text-[#ff007b]" },
+  teacher: { bg: "bg-[#1c81ff]/10",  text: "text-[#1c81ff]" },
+  student: { bg: "bg-[#00E676]/10",  text: "text-[#00E676]" },
+};
+
+function RoleBadge({ name }: { name: string }) {
+  const c = ROLE_COLORS[name.toLowerCase()] ?? { bg: "bg-gray-100 dark:bg-white/5", text: "text-gray-500 dark:text-gray-400" };
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] ${c.bg} ${c.text}`}>
+      {name}
+    </span>
+  );
+}
 
 // ── Main page ───────────────────────────────────────────────────────────────
 
@@ -98,9 +168,7 @@ export default function UserManagement() {
     try {
       const res = await api.get<ProfileResponse>(`/profiles/${profileId}`);
       if (res.data.success) {
-        setProfiles((prev) =>
-          prev.map((p) => p.id === profileId ? { ...p, roles: res.data.data.roles } : p)
-        );
+        setProfiles((prev) => prev.map((p) => p.id === profileId ? { ...p, roles: res.data.data.roles } : p));
         if (selectedProfile?.id === profileId)
           setSelectedProfile((p) => p ? { ...p, roles: res.data.data.roles } : p);
       }
@@ -151,12 +219,7 @@ export default function UserManagement() {
 
   useEffect(() => { fetchRoles(); }, []);
   useEffect(() => { fetchProfiles(); }, [currentPage, search, roleFilter]);
-  useEffect(() => {
-    if (!loading) {
-      const t = setTimeout(() => setMounted(true), 60);
-      return () => clearTimeout(t);
-    }
-  }, [loading]);
+  useEffect(() => { if (!loading) { const t = setTimeout(() => setMounted(true), 60); return () => clearTimeout(t); } }, [loading]);
 
   const avatarSrc = (avatar: any) =>
     typeof avatar === "string" ? avatar : avatar?.url ?? undefined;
@@ -206,7 +269,10 @@ export default function UserManagement() {
             className="w-full rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-gray-800 pl-10 pr-4 py-2.5 text-[14px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff] outline-none transition-all"
           />
         </div>
-        <Select value={roleFilter} onValueChange={(v) => { setRoleFilter(v); setCurrentPage(1); }}>
+        <Select
+          value={roleFilter}
+          onValueChange={(v) => { setRoleFilter(v); setCurrentPage(1); }}
+        >
           <SelectTrigger className="w-full sm:w-48 rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
@@ -357,10 +423,7 @@ export default function UserManagement() {
       <Dialog open={roleDialogOpen} onOpenChange={setRoleDialogOpen}>
         <DialogContent className="max-w-lg rounded-2xl">
           <DialogHeader>
-            <DialogTitle
-              className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white"
-              style={{ letterSpacing: "-0.02em" }}
-            >
+            <DialogTitle className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>
               Manage Roles
             </DialogTitle>
             <DialogDescription asChild>
@@ -457,10 +520,7 @@ export default function UserManagement() {
       <AlertDialog open={!!roleToRemove} onOpenChange={() => setRoleToRemove(null)}>
         <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
-            <AlertDialogTitle
-              className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white"
-              style={{ letterSpacing: "-0.02em" }}
-            >
+            <AlertDialogTitle className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>
               Remove role?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-[15px] text-gray-500 dark:text-gray-400">

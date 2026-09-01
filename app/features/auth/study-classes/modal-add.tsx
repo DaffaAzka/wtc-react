@@ -36,7 +36,7 @@ export default function ModalAdd() {
   const createStudyClass = useCreateStudyClass();
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
   const handleSelectChange = (name: string, value: string) =>
@@ -61,7 +61,7 @@ export default function ModalAdd() {
             semester: "",
           });
         },
-      },
+      }
     );
   };
 
@@ -137,9 +137,15 @@ export default function ModalAdd() {
                 <SelectItem value="2027/2028">2027/2028</SelectItem>
               </SelectContent>
             </Select>
-            {getFieldError(createStudyClass.error?.errors, "academic_year") && (
+            {getFieldError(
+              createStudyClass.error?.errors,
+              "academic_year"
+            ) && (
               <p className="text-sm text-red-600">
-                {getFieldError(createStudyClass.error?.errors, "academic_year")}
+                {getFieldError(
+                  createStudyClass.error?.errors,
+                  "academic_year"
+                )}
               </p>
             )}
           </div>

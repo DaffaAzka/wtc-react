@@ -8,10 +8,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useGradeSubmission } from "@/hooks/teacher";
-import type {
-  TeacherSubmission,
-  GradeSubmissionRequest,
-} from "@/types/teacher";
+import type { TeacherSubmission, GradeSubmissionRequest } from "@/types/teacher";
 import { CheckCircle2, Loader2 } from "lucide-react";
 
 interface GradingPanelProps {
@@ -24,19 +21,18 @@ export function GradingPanel({ submission }: GradingPanelProps) {
   const maxScore = submission.challenge.max_score;
 
   const [score, setScore] = useState<string>(
-    submission.score !== null ? String(submission.score) : "",
+    submission.score !== null ? String(submission.score) : ""
   );
   const [feedback, setFeedback] = useState<string>(submission.feedback ?? "");
   const [status, setStatus] = useState<GradeSubmissionRequest["status"]>(
     submission.status === "graded" || submission.status === "returned"
       ? submission.status
-      : "graded",
+      : "graded"
   );
 
   const scoreNum = score === "" ? null : Number(score);
   const scoreInvalid =
-    scoreNum !== null &&
-    (isNaN(scoreNum) || scoreNum < 0 || scoreNum > maxScore);
+    scoreNum !== null && (isNaN(scoreNum) || scoreNum < 0 || scoreNum > maxScore);
 
   const serverError =
     error?.message ??
@@ -54,9 +50,8 @@ export function GradingPanel({ submission }: GradingPanelProps) {
       { id: submission.id, data: payload },
       {
         onSuccess: () => toast.success("Submission graded successfully."),
-        onError: (err) =>
-          toast.error(err.message ?? "Failed to grade submission."),
-      },
+        onError: (err) => toast.error(err.message ?? "Failed to grade submission."),
+      }
     );
   }
 
@@ -65,17 +60,13 @@ export function GradingPanel({ submission }: GradingPanelProps) {
       {/* Error banner */}
       {serverError && (
         <div className="rounded-xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 px-4 py-3">
-          <p className="text-[14px] text-red-600 dark:text-red-400">
-            {serverError}
-          </p>
+          <p className="text-[14px] text-red-600 dark:text-red-400">{serverError}</p>
         </div>
       )}
 
       {/* Score */}
       <div className="space-y-1.5">
-        <label
-          htmlFor="manual_score"
-          className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
+        <label htmlFor="manual_score" className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
           Score{" "}
           <span className="font-normal text-gray-400 dark:text-gray-600">
             (max {maxScore})
@@ -109,19 +100,17 @@ export function GradingPanel({ submission }: GradingPanelProps) {
 
       {/* Status */}
       <div className="space-y-1.5">
-        <label
-          htmlFor="grade-status"
-          className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
+        <label htmlFor="grade-status" className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
           Status
         </label>
         <Select
           value={status}
-          onValueChange={(v) =>
-            setStatus(v as GradeSubmissionRequest["status"])
-          }>
+          onValueChange={(v) => setStatus(v as GradeSubmissionRequest["status"])}
+        >
           <SelectTrigger
             id="grade-status"
-            className="rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
+            className="rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]"
+          >
             <SelectValue placeholder="Select status" />
           </SelectTrigger>
           <SelectContent className="rounded-xl">
@@ -133,13 +122,9 @@ export function GradingPanel({ submission }: GradingPanelProps) {
 
       {/* Feedback */}
       <div className="space-y-1.5">
-        <label
-          htmlFor="feedback"
-          className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
+        <label htmlFor="feedback" className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
           Feedback{" "}
-          <span className="font-normal text-gray-400 dark:text-gray-600">
-            (optional)
-          </span>
+          <span className="font-normal text-gray-400 dark:text-gray-600">(optional)</span>
         </label>
         <textarea
           id="feedback"
@@ -154,17 +139,12 @@ export function GradingPanel({ submission }: GradingPanelProps) {
       <button
         type="submit"
         disabled={isPending || scoreInvalid}
-        className="w-full flex items-center justify-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-2.5 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-[14px]">
+        className="w-full flex items-center justify-center gap-2 bg-[#1c81ff] text-white font-bold rounded-xl py-2.5 shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed text-[14px]"
+      >
         {isPending ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Saving…
-          </>
+          <><Loader2 className="h-4 w-4 animate-spin" />Saving…</>
         ) : (
-          <>
-            <CheckCircle2 className="h-4 w-4" />
-            Save Grade
-          </>
+          <><CheckCircle2 className="h-4 w-4" />Save Grade</>
         )}
       </button>
     </form>

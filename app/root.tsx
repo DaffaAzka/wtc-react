@@ -16,6 +16,7 @@ import { useState } from "react";
 import { Toaster } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "./contexts/theme";
+import { ErrorPage } from "./components/error-page";
 
 export const meta: Route.MetaFunction = () => {
   return [
@@ -44,31 +45,50 @@ export function ErrorBoundary() {
   if (isRouteErrorResponse(error)) {
     if (error.status === 404) {
       return (
-        <div className="flex h-screen items-center justify-center flex-col">
-          <h1 className="text-4xl font-bold">404</h1>
-          <p>Page not found.</p>
-        </div>
+        <ErrorPage
+          code="404"
+          title="Page Not Found"
+          description="The page you are looking for might have been removed, had its name changed, or is temporarily unavailable. Please check the URL or go back to the homepage."
+        />
       );
     }
 
     if (error.status === 403) {
       return (
-        <div className="flex h-screen items-center justify-center flex-col">
-          <h1 className="text-4xl font-bold">403</h1>
-          <p>You don't have permission to access this page.</p>
-        </div>
+        <ErrorPage
+          code="403"
+          title="Access Denied"
+          description="You do not have permission to access this page. If you believe this is an error, please contact the administrator."
+        />
+      );
+    }
+
+    if (error.status === 500) {
+      return (
+        <ErrorPage
+          code="500"
+          title="Server Error"
+          description="There's something wrong on our end. Our team has been notified. Please try again in a few minutes."
+        />
       );
     }
 
     return (
-      <div className="flex h-screen items-center justify-center flex-col">
-        <h1 className="text-4xl font-bold">{error.status}</h1>
-        <p>{error.statusText}</p>
-      </div>
+      <ErrorPage
+        code={String(error.status)}
+        title={error.statusText || "An Error Occurred"}
+        description="An unexpected error occurred. Please go back to the homepage."
+      />
     );
   }
 
-  return <div>Something went wrong.</div>;
+  return (
+    <ErrorPage
+      code="Oops"
+      title="Terjadi Kesalahan"
+      description="Ada sesuatu yang tidak berjalan dengan benar. Coba muat ulang halaman atau kembali ke beranda."
+    />
+  );
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {

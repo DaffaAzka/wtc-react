@@ -34,9 +34,9 @@ interface TeacherChallengesTableProps {
 }
 
 const DIFFICULTY_STYLE: Record<string, { bg: string; text: string }> = {
-  easy: { bg: "bg-[#00E676]/10", text: "text-[#00E676]" },
+  easy:   { bg: "bg-[#00E676]/10", text: "text-[#00E676]" },
   medium: { bg: "bg-[#f6b60b]/10", text: "text-[#f6b60b]" },
-  hard: { bg: "bg-[#ff007b]/10", text: "text-[#ff007b]" },
+  hard:   { bg: "bg-[#ff007b]/10", text: "text-[#ff007b]" },
 };
 
 function formatUpdated(dateString?: string | null) {
@@ -68,24 +68,17 @@ export default function TeacherChallengesTable({
   total,
 }: TeacherChallengesTableProps) {
   const [search, setSearch] = useState("");
-  const [editModal, setEditModal] = useState<{
-    data: ChallengeWithCreator | null;
-    isOpen: boolean;
-  }>({ data: null, isOpen: false });
-  const [deleteAlert, setDeleteAlert] = useState<{
-    data: ChallengeWithCreator | null;
-    isOpen: boolean;
-  }>({ data: null, isOpen: false });
+  const [editModal, setEditModal] = useState<{ data: ChallengeWithCreator | null; isOpen: boolean }>({ data: null, isOpen: false });
+  const [deleteAlert, setDeleteAlert] = useState<{ data: ChallengeWithCreator | null; isOpen: boolean }>({ data: null, isOpen: false });
   const deleteChallenge = useDeleteChallenge();
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return data;
-    return data.filter(
-      (c) =>
-        c.title.toLowerCase().includes(q) ||
-        c.slug.toLowerCase().includes(q) ||
-        c.type.toLowerCase().includes(q),
+    return data.filter((c) =>
+      c.title.toLowerCase().includes(q) ||
+      c.slug.toLowerCase().includes(q) ||
+      c.type.toLowerCase().includes(q)
     );
   }, [data, search]);
 
@@ -103,16 +96,9 @@ export default function TeacherChallengesTable({
         {!loading && !error && data.length > 0 && (
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 dark:border-white/5 px-5 py-3.5 bg-white dark:bg-[#0b1215]">
             <p className="text-[13px] text-gray-500 dark:text-gray-400">
-              <span className="font-bold text-gray-900 dark:text-white">
-                {total ?? data.length}
-              </span>{" "}
+              <span className="font-bold text-gray-900 dark:text-white">{total ?? data.length}</span>{" "}
               {(total ?? data.length) === 1 ? "challenge" : "challenges"}
-              {filtered.length !== data.length && (
-                <span className="text-gray-400">
-                  {" "}
-                  · {filtered.length} shown
-                </span>
-              )}
+              {filtered.length !== data.length && <span className="text-gray-400"> · {filtered.length} shown</span>}
             </p>
             <div className="relative w-full max-w-56">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400 dark:text-gray-600" />
@@ -141,12 +127,9 @@ export default function TeacherChallengesTable({
             <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center">
               <TriangleAlert className="h-5 w-5 text-red-500" />
             </div>
-            <p className="text-[14px] text-gray-500 dark:text-gray-400">
-              Couldn't load challenges.
-            </p>
+            <p className="text-[14px] text-gray-500 dark:text-gray-400">Couldn't load challenges.</p>
             {onRetry && (
-              <button
-                onClick={onRetry}
+              <button onClick={onRetry}
                 className="flex items-center gap-1.5 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-900 dark:text-white font-bold rounded-xl px-4 py-2 text-[13px] hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
                 <RefreshCw className="h-3.5 w-3.5" /> Try again
               </button>
@@ -157,58 +140,36 @@ export default function TeacherChallengesTable({
             <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center">
               <Inbox className="h-5 w-5 text-gray-400 dark:text-gray-600" />
             </div>
-            <p className="text-[14px] font-bold text-gray-900 dark:text-white">
-              No challenges yet
-            </p>
-            <p className="text-[13px] text-gray-500 dark:text-gray-400">
-              Add your first challenge to start assessing students.
-            </p>
+            <p className="text-[14px] font-bold text-gray-900 dark:text-white">No challenges yet</p>
+            <p className="text-[13px] text-gray-500 dark:text-gray-400">Add your first challenge to start assessing students.</p>
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-16 text-center bg-white dark:bg-[#0b1215]">
             <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-white/5 flex items-center justify-center">
               <SearchX className="h-5 w-5 text-gray-400 dark:text-gray-600" />
             </div>
-            <p className="text-[14px] font-bold text-gray-900 dark:text-white">
-              No matches for "{search}"
-            </p>
-            <p className="text-[13px] text-gray-500 dark:text-gray-400">
-              Try a different title, slug, or type.
-            </p>
+            <p className="text-[14px] font-bold text-gray-900 dark:text-white">No matches for "{search}"</p>
+            <p className="text-[13px] text-gray-500 dark:text-gray-400">Try a different title, slug, or type.</p>
           </div>
         ) : (
           <table className="w-full text-sm bg-white dark:bg-[#0b1215]">
             <thead>
               <tr className="border-b border-gray-100 dark:border-white/5 bg-gray-50 dark:bg-white/[0.02]">
-                <th className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500">
-                  Title
-                </th>
-                <th className="hidden px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 sm:table-cell">
-                  Difficulty
-                </th>
-                <th className="hidden px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 lg:table-cell">
-                  Creator
-                </th>
-                <th className="hidden px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 md:table-cell">
-                  Updated
-                </th>
+                <th className="px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500">Title</th>
+                <th className="hidden px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 sm:table-cell">Difficulty</th>
+                <th className="hidden px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 lg:table-cell">Creator</th>
+                <th className="hidden px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 md:table-cell">Updated</th>
                 <th className="w-10 px-5 py-3" />
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-white/5">
               {filtered.map((challenge) => {
-                const diffStyle = challenge.difficulty
-                  ? DIFFICULTY_STYLE[challenge.difficulty.toLowerCase()]
-                  : null;
+                const diffStyle = challenge.difficulty ? DIFFICULTY_STYLE[challenge.difficulty.toLowerCase()] : null;
                 return (
-                  <tr
-                    key={challenge.id}
-                    className="group hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                  <tr key={challenge.id} className="group hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-bold text-[14px] text-gray-900 dark:text-white">
-                          {challenge.title}
-                        </span>
+                        <span className="font-bold text-[14px] text-gray-900 dark:text-white">{challenge.title}</span>
                         <span className="inline-flex items-center rounded-lg bg-gray-100 dark:bg-white/5 border border-gray-200 dark:border-white/10 px-2 py-0.5 font-mono text-[11px] text-gray-400 dark:text-gray-600">
                           {challenge.type.replace(/_/g, " ")}
                         </span>
@@ -216,14 +177,11 @@ export default function TeacherChallengesTable({
                     </td>
                     <td className="hidden px-5 py-3.5 sm:table-cell">
                       {diffStyle && challenge.difficulty ? (
-                        <span
-                          className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] capitalize ${diffStyle.bg} ${diffStyle.text}`}>
+                        <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-[0.08em] capitalize ${diffStyle.bg} ${diffStyle.text}`}>
                           {challenge.difficulty}
                         </span>
                       ) : (
-                        <span className="text-gray-400 dark:text-gray-600">
-                          —
-                        </span>
+                        <span className="text-gray-400 dark:text-gray-600">—</span>
                       )}
                     </td>
                     <td className="hidden px-5 py-3.5 lg:table-cell">
@@ -236,33 +194,14 @@ export default function TeacherChallengesTable({
                       <div className="flex items-center justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <button
-                              aria-label="open menu"
+                            <button aria-label="open menu"
                               className="flex items-center justify-center h-7 w-7 rounded-lg text-gray-400 dark:text-gray-600 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">
                               <EllipsisIcon className="h-4 w-4" />
                             </button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="end"
-                            className="rounded-xl">
-                            <DropdownMenuItem
-                              className="rounded-lg"
-                              onClick={() =>
-                                setEditModal({ data: challenge, isOpen: true })
-                              }>
-                              Update
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              variant="destructive"
-                              className="rounded-lg"
-                              onClick={() =>
-                                setDeleteAlert({
-                                  data: challenge,
-                                  isOpen: true,
-                                })
-                              }>
-                              Delete
-                            </DropdownMenuItem>
+                          <DropdownMenuContent align="end" className="rounded-xl">
+                            <DropdownMenuItem className="rounded-lg" onClick={() => setEditModal({ data: challenge, isOpen: true })}>Update</DropdownMenuItem>
+                            <DropdownMenuItem variant="destructive" className="rounded-lg" onClick={() => setDeleteAlert({ data: challenge, isOpen: true })}>Delete</DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </div>
@@ -281,17 +220,13 @@ export default function TeacherChallengesTable({
           challenge={editModal.data}
           context={makeFallbackContext(editModal.data)}
           isOpen={editModal.isOpen}
-          onOpenChange={(open) =>
-            setEditModal((prev) => ({ ...prev, isOpen: open }))
-          }
+          onOpenChange={(open) => setEditModal((prev) => ({ ...prev, isOpen: open }))}
         />
       )}
 
       <SoftDeleteAlert
         isOpen={deleteAlert.isOpen}
-        onOpenChange={(open) =>
-          setDeleteAlert((prev) => ({ ...prev, isOpen: open }))
-        }
+        onOpenChange={(open) => setDeleteAlert((prev) => ({ ...prev, isOpen: open }))}
         title={deleteAlert.data?.title ?? ""}
         isPending={deleteChallenge.isPending}
         onConfirm={handleConfirmDelete}

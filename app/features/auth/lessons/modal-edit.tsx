@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useUpdateLesson } from "@/hooks/lessons";
-import { getFieldError } from "@/utils/global";
+import { generateSlug, getFieldError } from "@/utils/global";
 
 export default function ModalEdit({
   data,
