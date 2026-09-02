@@ -12,11 +12,13 @@ import { Button } from "@/components/ui/button";
 import ModalDelete from "./modal-delete";
 import {
   EllipsisIcon,
+  FileText,
   Inbox,
   RefreshCw,
   Search,
   SearchX,
   TriangleAlert,
+  Trophy,
 } from "lucide-react";
 import { Link } from "react-router";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -86,10 +88,16 @@ export default function ModulesTable({
   }
 
   function challengesUrl(moduleSlug: string) {
-    if (trackSlug) {
-      return `${basePath}/${trackSlug}/modules/${moduleSlug}/challenges`;
+    const isTeacher = basePath === "/teacher";
+    if (isTeacher) {
+      // Teacher route: /teacher/:slug/challenges
+      return `${basePath}/${moduleSlug}/challenges`;
     }
-    return `${basePath}/${moduleSlug}/challenges`;
+    // Admin route: /:slug?/modules/:moduleSlug/challenges
+    if (trackSlug) {
+      return `/${trackSlug}/modules/${moduleSlug}/challenges`;
+    }
+    return `/modules/${moduleSlug}/challenges`;
   }
 
   return (
@@ -204,16 +212,26 @@ export default function ModulesTable({
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                        <Link
-                          to={lessonsUrl(module.slug)}
-                          className="rounded-lg px-2.5 py-1 text-[12px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-colors">
-                          Lessons
-                        </Link>
-                        <Link
-                          to={challengesUrl(module.slug)}
-                          className="rounded-lg px-2.5 py-1 text-[12px] font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/5 hover:text-gray-900 dark:hover:text-white transition-colors">
-                          Challenges
-                        </Link>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-gray-400 hover:text-white"
+                          title="Manage Lessons"
+                          asChild>
+                          <Link to={lessonsUrl(module.slug)}>
+                            <FileText className="w-4 h-4" />
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-gray-400 hover:text-white"
+                          title="Manage Challenges"
+                          asChild>
+                          <Link to={challengesUrl(module.slug)}>
+                            <Trophy className="w-4 h-4" />
+                          </Link>
+                        </Button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button

@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Inbox, RefreshCw, RotateCcw, TriangleAlert } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { ApiErrorResponse, ApiResponse } from "@/types/response";
 
 type TrashedItem = { id: number; title: string; deleted_at: string };
@@ -126,13 +127,15 @@ function TrashedTable({ resource }: { resource: Resource }) {
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center justify-end opacity-0 transition-opacity group-hover:opacity-100">
-                      <button
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-gray-400 hover:text-white"
+                        title="Restore"
                         onClick={() => setConfirmItem(item)}
-                        className="flex items-center gap-1.5 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-3 py-1.5 text-[13px] hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
                       >
-                        <RotateCcw className="h-3.5 w-3.5" />
-                        Restore
-                      </button>
+                        <RotateCcw className="h-4 w-4" />
+                      </Button>
                     </div>
                   </td>
                 </tr>
