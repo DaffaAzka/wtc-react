@@ -12,6 +12,7 @@ import ModalDelete from "./modal-delete";
 import {
   EllipsisIcon,
   Inbox,
+  Layers,
   RefreshCw,
   Search,
   SearchX,
@@ -19,6 +20,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 interface TracksTableProps {
   data: Track[];
@@ -153,11 +155,16 @@ export default function TracksTable({
                     </td>
                     <td className="px-5 py-3.5">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link
-                          to={`${basePath}/${track.slug}/modules`}
-                          className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground">
-                          Modules
-                        </Link>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-gray-400 hover:text-white"
+                          title="Manage Modules"
+                          asChild>
+                          <Link to={`${basePath}/${track.slug}/modules`}>
+                            <Layers className="w-4 h-4" />
+                          </Link>
+                        </Button>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button

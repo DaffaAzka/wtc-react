@@ -5,7 +5,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/contexts/auth";
 import { saveToken } from "@/utils/auth-storage";
-import { resolveLandingPath, hasRole } from "@/utils/roles";
+import { resolveLandingPath } from "@/utils/roles";
 import { computeAndSaveStreak, type StreakResult } from "@/utils/streak";
 
 export function useLogin() {
@@ -35,7 +35,7 @@ export function useLogin() {
 
       const path = resolveLandingPath(mergedUser);
 
-      if (hasRole(mergedUser, "student")) {
+      if (path === "/student/dashboard") {
         const result = computeAndSaveStreak(false);
         setPendingPath(path);
         setStreakResult(result);
@@ -75,7 +75,7 @@ export function useRegister() {
 
       const path = resolveLandingPath(mergedUser);
 
-      if (hasRole(mergedUser, "student")) {
+      if (path === "/student/dashboard") {
         const result = computeAndSaveStreak(true);
         setPendingPath(path);
         setStreakResult(result);

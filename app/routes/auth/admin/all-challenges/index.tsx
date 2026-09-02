@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router";
+import { Button } from "@/components/ui/button";
 import { useGetAllChallengesPaginated } from "@/hooks/challenges";
 import {
   DropdownMenu,
@@ -216,10 +217,16 @@ export default function AllChallengesPage() {
                   <td className="hidden px-5 py-3.5 text-[13px] text-gray-500 dark:text-gray-400 lg:table-cell">{formatUpdated(challenge.updated_at)}</td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Link to={`/challenges/${challenge.id}`}
-                        className="rounded-lg px-2.5 py-1 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        View
-                      </Link>
+                      <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-gray-400 hover:text-white"
+                          title="View Challenge"
+                          asChild>
+                          <Link to={`/challenges/${challenge.id}`}>
+                            <Eye className="w-4 h-4" />
+                          </Link>
+                        </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button className="flex items-center justify-center h-7 w-7 rounded-lg text-gray-400 dark:text-gray-600 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-700 dark:hover:text-gray-300 transition-colors">

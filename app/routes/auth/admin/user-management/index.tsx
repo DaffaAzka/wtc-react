@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import {
   Search,
   UserCog,
@@ -372,13 +373,15 @@ export default function UserManagement() {
                     </div>
                   </td>
                   <td className="px-5 py-3.5 text-right">
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-all"
+                      title="Manage Roles"
                       onClick={() => openRoleDialog(profile)}
-                      className="inline-flex items-center gap-1.5 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-3 py-1.5 text-[13px] hover:bg-gray-50 dark:hover:bg-white/5 opacity-0 group-hover:opacity-100 transition-all"
                     >
-                      <UserCog className="h-3.5 w-3.5" />
-                      Manage Roles
-                    </button>
+                      <UserCog className="h-4 w-4" />
+                    </Button>
                   </td>
                 </tr>
               ))
