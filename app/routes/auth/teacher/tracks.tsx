@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import TracksTable from "@/features/auth/tracks/table";
 import { useGetTracksPaginated } from "@/hooks/tracks";
 import { Pagination } from "@/components/ui/pagination";
+import ModalAdd from "@/features/auth/tracks/modal-add";
 
 export default function TeacherTracksPage() {
   const [page, setPage] = useState(1);
@@ -25,10 +26,9 @@ export default function TeacherTracksPage() {
         <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400 mt-1">
           Browse all learning tracks in the curriculum.
         </p>
-      </div>
-
-      <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden">
-        <TracksTable data={tracks} loading={loading} error={error} onRetry={refresh} total={pagination?.total} />
+        <div className="shrink-0 mt-1">
+          <ModalAdd />
+        </div>
       </div>
 
       <TracksTable
