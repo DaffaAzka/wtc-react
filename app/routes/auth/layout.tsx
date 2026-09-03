@@ -67,6 +67,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   "course-management": "Course Management",
   "student-progress": "Student Progress",
   "recycle-bin": "Recycle Bin",
+  "audit-logs": "Audit Logs",
   profile: "Profile",
   materials: "Materials",
   tracks: "Tracks",
@@ -75,6 +76,7 @@ const SEGMENT_LABELS: Record<string, string> = {
   challenges: "Challenges",
   submissions: "Submissions",
   leaderboard: "Leaderboard",
+  certificates: "Certificates",
   create: "Create",
   update: "Update",
   view: "View",
@@ -85,6 +87,16 @@ const SEGMENT_LABELS: Record<string, string> = {
   progress: "Progress",
 };
 
+/**
+ * Static path segments that correspond to real named routes.
+ * Any segment NOT in this set is treated as a dynamic slug/id and
+ * will be rendered as plain text (no link) to avoid 404s.
+ */
+const KNOWN_SECTIONS = new Set(Object.keys(SEGMENT_LABELS));
+
+// Role prefixes to hide from the breadcrumb UI (kept in hrefs for routing)
+const HIDDEN_PREFIXES = new Set(["admin", "teacher", "student"]);
+
 function segmentLabel(seg: string): string {
   if (SEGMENT_LABELS[seg]) return SEGMENT_LABELS[seg];
   return seg
@@ -94,9 +106,21 @@ function segmentLabel(seg: string): string {
 
 function DynamicBreadcrumb() {
   const location = useLocation();
-  const segments = location.pathname.split("/").filter(Boolean);
+  const allSegments = location.pathname.split("/").filter(Boolean);
 
-  if (segments.length === 0) {
+  // Build crumbs with absolute hrefs (full path preserved for correct routing),
+  // then filter role prefix segments out of the visible list.
+  const allCrumbs = allSegments.map((seg, i) => ({
+    seg,
+    label: segmentLabel(seg),
+    href: "/" + allSegments.slice(0, i + 1).join("/"),
+    // Dynamic slugs/ids have no named route — render as plain text to avoid 404
+    isDynamic: !KNOWN_SECTIONS.has(seg),
+  }));
+
+  const crumbs = allCrumbs.filter((c) => !HIDDEN_PREFIXES.has(c.seg));
+
+  if (crumbs.length === 0) {
     return (
       <Breadcrumb>
         <BreadcrumbList>
@@ -110,45 +134,36 @@ function DynamicBreadcrumb() {
     );
   }
 
-  const crumbs = segments.map((seg, i) => {
-    let href = "/" + segments.slice(0, i + 1).join("/");
-    // Lesson slug always links to /view — direct path is not a valid route
-    if (i > 0 && segments[i - 1] === "lessons") {
-      href = href + "/view";
-    }
-    return {
-      label: segmentLabel(seg),
-      href,
-      isLast: i === segments.length - 1,
-    };
-  });
-
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        {crumbs.map((crumb, i) => (
-          <span key={crumb.href} className="flex items-center gap-1.5">
-            {i > 0 && (
-              <BreadcrumbSeparator className="hidden md:flex text-gray-300 dark:text-white/20" />
-            )}
-            <BreadcrumbItem
-              className={i < crumbs.length - 1 ? "hidden md:flex" : ""}
-            >
-              {crumb.isLast ? (
-                <BreadcrumbPage className="text-[13px] font-bold text-gray-900 dark:text-white">
-                  {crumb.label}
-                </BreadcrumbPage>
-              ) : (
-                <BreadcrumbLink
-                  href={crumb.href}
-                  className="text-[13px] font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-                >
-                  {crumb.label}
-                </BreadcrumbLink>
+        {crumbs.map((crumb, i) => {
+          const isLast = i === crumbs.length - 1;
+          return (
+            <span key={crumb.href} className="flex items-center gap-1.5">
+              {i > 0 && (
+                <BreadcrumbSeparator className="hidden md:flex text-gray-300 dark:text-white/20" />
               )}
-            </BreadcrumbItem>
-          </span>
-        ))}
+              <BreadcrumbItem
+                className={!isLast ? "hidden md:flex" : ""}
+              >
+                {isLast || crumb.isDynamic ? (
+                  // Last item or a dynamic slug/id → plain text, no link
+                  <BreadcrumbPage className="text-[13px] font-bold text-gray-900 dark:text-white">
+                    {crumb.label}
+                  </BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink
+                    href={crumb.href}
+                    className="text-[13px] font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  >
+                    {crumb.label}
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+            </span>
+          );
+        })}
       </BreadcrumbList>
     </Breadcrumb>
   );
