@@ -77,12 +77,12 @@ export default function TeacherLayout() {
 // ---------------------------------------------------------------------------
 
 const SEGMENT_LABELS: Record<string, string> = {
-  teacher: "Teacher",
   dashboard: "Dashboard",
   content: "Content",
   submissions: "Submissions",
   leaderboard: "Leaderboard",
   "audit-logs": "Audit Logs",
+  "student-progress": "Student Progress",
   profile: "Profile",
   tracks: "Tracks",
   modules: "Modules",
@@ -91,55 +91,76 @@ const SEGMENT_LABELS: Record<string, string> = {
   create: "Create",
   update: "Update",
   view: "View",
+  edit: "Edit",
+  certificates: "Certificates",
+  admin: "Admin",
 };
+
+/**
+ * Static path segments that correspond to real named routes.
+ * Any segment NOT in this set is treated as a dynamic slug/id and
+ * will be rendered as plain text (no link) to avoid 404s.
+ */
+const KNOWN_SECTIONS = new Set(Object.keys(SEGMENT_LABELS));
 
 function segmentLabel(seg: string): string {
   if (SEGMENT_LABELS[seg]) return SEGMENT_LABELS[seg];
+  // Format dynamic slugs/ids into readable text
   return seg.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 function TeacherBreadcrumb() {
   const location = useLocation();
 
-  const segments = location.pathname.split("/").filter(Boolean);
+  const allSegments = location.pathname.split("/").filter(Boolean);
 
-  if (segments.length === 0) {
+  // Build crumbs with absolute hrefs (including /teacher prefix for correctness),
+  // then filter the 'teacher' segment out of the visible list.
+  const allCrumbs = allSegments.map((seg, i) => ({
+    seg,
+    label: segmentLabel(seg),
+    // Absolute href so every link works regardless of current depth
+    href: "/" + allSegments.slice(0, i + 1).join("/"),
+    // Dynamic slugs/ids have no corresponding named route — don't make them links
+    isDynamic: !KNOWN_SECTIONS.has(seg),
+  }));
+
+  // Hide the 'teacher' role prefix from the UI (but keep it in hrefs)
+  const crumbs = allCrumbs.filter((c) => c.seg !== "teacher");
+
+  if (crumbs.length === 0) {
     return (
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbPage>Teacher</BreadcrumbPage>
+            <BreadcrumbPage>Dashboard</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
     );
   }
 
-  const crumbs = segments.map((seg, i) => ({
-    label: segmentLabel(seg),
-    href: "/" + segments.slice(0, i + 1).join("/"),
-    isLast: i === segments.length - 1,
-  }));
-
   return (
     <Breadcrumb>
       <BreadcrumbList>
-        {crumbs.map((crumb, i) => (
-          <span key={crumb.href} className="flex items-center gap-1.5">
-            {i > 0 && <BreadcrumbSeparator className="hidden md:block" />}
-            <BreadcrumbItem
-              className={i < crumbs.length - 1 ? "hidden md:block" : ""}
-            >
-              {crumb.isLast ? (
-                <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
-              ) : (
-                <BreadcrumbLink asChild>
-                  <Link to={crumb.href}>{crumb.label}</Link>
-                </BreadcrumbLink>
-              )}
-            </BreadcrumbItem>
-          </span>
-        ))}
+        {crumbs.map((crumb, i) => {
+          const isLast = i === crumbs.length - 1;
+          return (
+            <span key={crumb.href} className="flex items-center gap-1.5">
+              {i > 0 && <BreadcrumbSeparator className="hidden md:block" />}
+              <BreadcrumbItem className={!isLast ? "hidden md:block" : ""}>
+                {isLast || crumb.isDynamic ? (
+                  // Last item or a dynamic slug → plain text, no link
+                  <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                ) : (
+                  <BreadcrumbLink asChild>
+                    <Link to={crumb.href}>{crumb.label}</Link>
+                  </BreadcrumbLink>
+                )}
+              </BreadcrumbItem>
+            </span>
+          );
+        })}
       </BreadcrumbList>
     </Breadcrumb>
   );

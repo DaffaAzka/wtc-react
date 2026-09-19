@@ -2,6 +2,7 @@ import { Download, Eye, FileText, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
+import { Button } from "@/components/ui/button";
 import type { ChallengeAttachment, Lesson } from "@/types/model";
 
 interface MaterialCardProps {
@@ -11,10 +12,10 @@ interface MaterialCardProps {
 }
 
 const TYPE_STYLE: Record<string, { bg: string; text: string; label: string }> = {
-  material:  { bg: "bg-[#00E676]/10", text: "text-[#00E676]",  label: "Materi" },
-  reference: { bg: "bg-[#1c81ff]/10", text: "text-[#1c81ff]",  label: "Referensi" },
-  slides:    { bg: "bg-[#31c7c8]/10", text: "text-[#31c7c8]",  label: "Slide" },
-  document:  { bg: "bg-[#f6b60b]/10", text: "text-[#f6b60b]",  label: "Dokumen" },
+  material:  { bg: "bg-[#00E676]/10", text: "text-[#00E676]",  label: "Material" },
+  reference: { bg: "bg-[#1c81ff]/10", text: "text-[#1c81ff]",  label: "Reference" },
+  slides:    { bg: "bg-[#31c7c8]/10", text: "text-[#31c7c8]",  label: "Slides" },
+  document:  { bg: "bg-[#f6b60b]/10", text: "text-[#f6b60b]",  label: "Document" },
   download:  { bg: "bg-[#2548d8]/10", text: "text-[#2548d8]",  label: "Download" },
 };
 
@@ -42,7 +43,7 @@ export default function MaterialCard({ attachment, lesson, onDelete }: MaterialC
   };
 
   const handleDelete = async () => {
-    if (!confirm(`Hapus materi "${attachment.title}"?`)) return;
+    if (!confirm(`Delete material "${attachment.title}"?`)) return;
     setIsDeleting(true);
     try {
       const response = await fetch(
@@ -52,11 +53,11 @@ export default function MaterialCard({ attachment, lesson, onDelete }: MaterialC
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
-      if (!response.ok) throw new Error("Gagal menghapus materi");
-      toast.success("Materi berhasil dihapus");
+      if (!response.ok) throw new Error("Failed to delete material");
+      toast.success("Material deleted successfully");
       onDelete();
     } catch (error: any) {
-      toast.error(error.message || "Gagal menghapus materi");
+      toast.error(error.message || "Failed to delete material");
     } finally {
       setIsDeleting(false);
     }
@@ -68,13 +69,13 @@ export default function MaterialCard({ attachment, lesson, onDelete }: MaterialC
         `https://wtc-api.pinat.nl/api/attachments/${attachment.id}/file`,
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
-      if (!response.ok) throw new Error("Gagal mengambil file");
+      if (!response.ok) throw new Error("Failed to fetch file");
       const result = await response.json();
       const fileUrl = result.data?.file?.url;
-      if (fileUrl) { window.open(fileUrl, "_blank"); toast.success("Download dimulai"); }
-      else toast.error("File tidak tersedia");
+      if (fileUrl) { window.open(fileUrl, "_blank"); toast.success("Download started"); }
+      else toast.error("File not available");
     } catch (error: any) {
-      toast.error(error.message || "Gagal mengambil file");
+      toast.error(error.message || "Failed to fetch file");
     }
   };
 
@@ -120,28 +121,34 @@ export default function MaterialCard({ attachment, lesson, onDelete }: MaterialC
 
       {/* Actions */}
       <div className="flex items-center gap-2 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-gray-400 hover:text-white"
+          title="View Detail"
           onClick={() => navigate(`/materials/${lesson.slug}/${attachment.id}`)}
-          className="flex items-center gap-1.5 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-3 py-1.5 text-[13px] hover:bg-white dark:hover:bg-white/5 hover:text-[#1c81ff] hover:border-[#1c81ff]/30 transition-all"
         >
-          <Eye className="h-3.5 w-3.5" />
-          Detail
-        </button>
-        <button
+          <Eye className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-[#1c81ff] hover:text-[#1c81ff] hover:bg-[#1c81ff]/10"
+          title="Download"
           onClick={handleDownload}
-          className="flex items-center gap-1.5 bg-[#1c81ff]/10 border-[1.5px] border-[#1c81ff]/20 text-[#1c81ff] font-bold rounded-xl px-3 py-1.5 text-[13px] hover:bg-[#1c81ff]/20 transition-all"
         >
-          <Download className="h-3.5 w-3.5" />
-          Download
-        </button>
-        <button
-          onClick={handleDelete}
+          <Download className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-[#ff007b] hover:text-[#ff007b] hover:bg-[#ff007b]/10 disabled:opacity-40"
+          title="Delete"
           disabled={isDeleting}
-          className="flex items-center justify-center w-8 h-8 rounded-xl bg-[#ff007b]/10 text-[#ff007b] hover:bg-[#ff007b]/20 disabled:opacity-40 transition-all"
-          title="Hapus"
+          onClick={handleDelete}
         >
-          <Trash2 className="h-3.5 w-3.5" />
-        </button>
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </div>
     </div>
   );

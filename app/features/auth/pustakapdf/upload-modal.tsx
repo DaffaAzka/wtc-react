@@ -83,22 +83,22 @@ export default function UploadMaterialModal({
 
     // Validation
     if (!selectedLessonSlug) {
-      toast.error("Pilih lesson terlebih dahulu");
+      toast.error("Please select a lesson first");
       return;
     }
 
     if (!selectedFile) {
-      toast.error("Pilih file PDF terlebih dahulu");
+      toast.error("Please select a PDF file first");
       return;
     }
 
     if (!title.trim()) {
-      toast.error("Judul materi tidak boleh kosong");
+      toast.error("Material title cannot be empty");
       return;
     }
 
     if (!type) {
-      toast.error("Pilih tipe materi terlebih dahulu");
+      toast.error("Please select a material type");
       return;
     }
 
@@ -128,15 +128,15 @@ export default function UploadMaterialModal({
 
       if (!response.ok) {
         const error = await response.json().catch(() => null);
-        throw new Error(error?.message || "Gagal mengupload materi");
+        throw new Error(error?.message || "Failed to upload material");
       }
 
-      toast.success("Materi berhasil diupload");
+      toast.success("Material uploaded successfully");
       resetForm();
       onSuccess();
       onClose();
     } catch (error: any) {
-      toast.error(error.message || "Gagal mengupload materi");
+      toast.error(error.message || "Failed to upload material");
     } finally {
       setIsUploading(false);
     }
@@ -157,10 +157,10 @@ export default function UploadMaterialModal({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl">
             <Upload className="h-6 w-6 text-blue-600" />
-            Upload Materi Pembelajaran
+            Upload Learning Material
           </DialogTitle>
           <DialogDescription>
-            Tambahkan materi pembelajaran baru dalam bentuk PDF untuk lesson tertentu
+            Add new learning material in PDF format for a specific lesson
           </DialogDescription>
         </DialogHeader>
 
@@ -176,7 +176,7 @@ export default function UploadMaterialModal({
               disabled={isUploading}
             >
               <SelectTrigger id="lesson" className="h-11">
-                <SelectValue placeholder="Pilih lesson untuk materi ini" />
+                <SelectValue placeholder="Select lesson for this material" />
               </SelectTrigger>
               <SelectContent>
                 {lessons.map((lesson) => (
@@ -225,7 +225,7 @@ export default function UploadMaterialModal({
             <Input
               id="title"
               type="text"
-              placeholder="Masukkan judul materi"
+              placeholder="Enter material title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={isUploading}
@@ -244,13 +244,13 @@ export default function UploadMaterialModal({
               disabled={isUploading}
             >
               <SelectTrigger id="type" className="h-11">
-                <SelectValue placeholder="Pilih tipe materi" />
+                <SelectValue placeholder="Select material type" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="material">Materi</SelectItem>
-                <SelectItem value="reference">Referensi</SelectItem>
-                <SelectItem value="slides">Slide Presentasi</SelectItem>
-                <SelectItem value="document">Dokumen</SelectItem>
+                <SelectItem value="material">Material</SelectItem>
+                <SelectItem value="reference">Reference</SelectItem>
+                <SelectItem value="slides">Slides</SelectItem>
+                <SelectItem value="document">Document</SelectItem>
                 <SelectItem value="download">Download</SelectItem>
               </SelectContent>
             </Select>
@@ -263,7 +263,7 @@ export default function UploadMaterialModal({
             </Label>
             <Textarea
               id="description"
-              placeholder="Masukkan deskripsi atau catatan untuk materi ini"
+              placeholder="Enter description or notes for this material"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               disabled={isUploading}
@@ -280,7 +280,7 @@ export default function UploadMaterialModal({
               onClick={handleClose}
               disabled={isUploading}
             >
-              Batal
+              Cancel
             </Button>
             <Button
               type="submit"

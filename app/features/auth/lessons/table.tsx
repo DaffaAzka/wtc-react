@@ -11,14 +11,17 @@ import ModalEdit from "./modal-edit";
 import ModalDelete from "./modal-delete";
 import {
   EllipsisIcon,
+  Eye,
   Inbox,
   RefreshCw,
   Search,
   SearchX,
   TriangleAlert,
+  Trophy,
 } from "lucide-react";
 import { Link } from "react-router";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 
 interface LessonsTableProps {
   data: Lesson[];
@@ -149,14 +152,26 @@ export default function LessonsTable({
                   </td>
                   <td className="px-5 py-3.5">
                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Link to={`${lesson.slug}/view`}
-                        className="rounded-lg px-2.5 py-1 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        View
-                      </Link>
-                      <Link to={`${lesson.slug}/challenges`}
-                        className="rounded-lg px-2.5 py-1 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-white/10 hover:text-gray-900 dark:hover:text-white transition-colors">
-                        Challenges
-                      </Link>
+                      <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-gray-400 hover:text-white"
+                          title="View Lesson"
+                          asChild>
+                          <Link to={`${lesson.slug}/view`}>
+                            <Eye className="w-4 h-4" />
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-gray-400 hover:text-white"
+                          title="Manage Challenges"
+                          asChild>
+                          <Link to={`${lesson.slug}/challenges`}>
+                            <Trophy className="w-4 h-4" />
+                          </Link>
+                        </Button>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button aria-label="open menu"

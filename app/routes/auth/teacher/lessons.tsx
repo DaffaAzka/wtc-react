@@ -6,7 +6,7 @@ import { useGetLessonsPaginated } from "@/hooks/lessons";
 import { useGetModules } from "@/hooks/modules";
 import { useGetTracks } from "@/hooks/tracks";
 import type { LessonFilter } from "@/types/filter";
-import { Pagination } from "@/components/ui/pagination";
+import ModalAdd from "@/features/auth/lessons/modal-add";
 
 export default function TeacherLessonsPage() {
   const { tracks, loading: trackLoading } = useGetTracks();
@@ -32,14 +32,19 @@ export default function TeacherLessonsPage() {
 
   return (
     <div className={`space-y-8 transition-all duration-700 ease-out ${mounted ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}`}>
-      <div>
-        <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#1c81ff] mb-2">Content</p>
-        <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight" style={{ letterSpacing: "-0.02em" }}>
-          Lessons
-        </h1>
-        <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400 mt-1">
-          Browse all lessons across modules.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-[#1c81ff] mb-2">Content</p>
+          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-white leading-tight" style={{ letterSpacing: "-0.02em" }}>
+            Lessons
+          </h1>
+          <p className="text-[15px] leading-relaxed text-gray-500 dark:text-gray-400 mt-1">
+            Browse all lessons across modules.
+          </p>
+        </div>
+        <div className="shrink-0 mt-1">
+          <ModalAdd />
+        </div>
       </div>
 
       <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm p-5">
@@ -66,9 +71,7 @@ export default function TeacherLessonsPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden">
-        <LessonsTable data={lessons} loading={loading} error={error} onRetry={refresh} total={pagination?.total} />
-      </div>
+      <LessonsTable data={lessons} loading={loading} error={error} onRetry={refresh} total={pagination?.total} basePath="/teacher" />
 
       {pagination && (
         <Pagination
