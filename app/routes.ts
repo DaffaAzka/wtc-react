@@ -11,6 +11,7 @@ export default [
     index("routes/home.tsx"),
     route("/login", "routes/guest/login.tsx"),
     route("/register", "routes/guest/register.tsx"),
+    route("/verify-email", "routes/guest/verify-email.tsx"),
     route("/auth/callback", "routes/auth/callback.tsx"),
   ]),
 
@@ -18,9 +19,14 @@ export default [
     ...prefix("/student", [
       route("/dashboard", "routes/auth/student/dashboard.tsx"),
 
-      // Track/Class Routes (URL: /classes, API: /tracks)
+      // My Class — shows the user's enrolled study class + its tracks
+      route("/my-class", "routes/auth/student/my-class.tsx"),
+
+      // All Classes — shows all active study classes (was: all tracks)
+      route("/classes", "routes/auth/student/classes.tsx"),
+
+      // Track/Class detail routes (URL: /classes/:slug)
       ...prefix("/classes", [
-        index("routes/auth/student/tracks/index.tsx"),
         route("/:slug", "routes/auth/student/tracks/$slug.tsx"),
         route(
           "/:slug/:moduleSlug/:lessonSlug?",
@@ -56,10 +62,8 @@ export default [
 
     layout("routes/auth/admin/layout.tsx", [
       route("/user-management", "routes/auth/admin/user-management/index.tsx"),
-      route(
-        "/course-management",
-        "routes/auth/admin/course-management/index.tsx",
-      ),
+      route("/study-classes", "routes/auth/admin/study-classes/index.tsx"),
+      route("/course-management", "routes/auth/admin/course-management/index.tsx"),
 
       // Profile Management
       route("/admin/profile", "routes/auth/admin/profile/index.tsx"),
@@ -139,6 +143,7 @@ export default [
     ...prefix("/teacher", [
       route("/dashboard", "routes/auth/teacher/dashboard.tsx"),
       route("/tracks", "routes/auth/teacher/tracks.tsx"),
+      route("/study-classes", "routes/auth/teacher/study-classes.tsx"),
       route("/modules", "routes/auth/teacher/modules.tsx"),
       route("/lessons", "routes/auth/teacher/lessons.tsx"),
       route("/challenges", "routes/auth/teacher/challenges.tsx"),

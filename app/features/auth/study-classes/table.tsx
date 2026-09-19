@@ -9,16 +9,21 @@ import type { ApiErrorResponse } from "@/types/response";
 import { useMemo, useState } from "react";
 import ModalEdit from "./modal-edit";
 import ModalDelete from "./modal-delete";
+import ModalManageTracks from "./modal-manage-tracks";
 import {
   EllipsisIcon,
   Inbox,
+  Layers,
   RefreshCw,
   Search,
   SearchX,
   TriangleAlert,
   Users,
+  ToggleLeft,
+  ToggleRight,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useToggleStudyClass, useGetStudyClass } from "@/hooks/study-classes";
 
 interface StudyClassesTableProps {
   data: StudyClass[];
@@ -39,6 +44,17 @@ function formatDate(dateString?: string) {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
+function ManageTracksWrapper({ studyClass, onClose }: { studyClass: StudyClass; onClose: () => void }) {
+  const { studyClass: detail, loading } = useGetStudyClass(studyClass.id);
+  return (
+    <ModalManageTracks
+      data={loading ? null : (detail ?? studyClass)}
+      isOpen={true}
+      onOpenChange={(open) => { if (!open) onClose(); }}
+    />
+  );
+}
+
 export default function StudyClassesTable({
   data,
   loading = false,
@@ -48,6 +64,9 @@ export default function StudyClassesTable({
   const [search, setSearch] = useState("");
   const [editModal, setEditModal] = useState<{ data: StudyClass | null; isOpen: boolean }>({ data: null, isOpen: false });
   const [deleteModal, setDeleteModal] = useState<{ data: StudyClass | null; isOpen: boolean }>({ data: null, isOpen: false });
+  const [manageTracksFor, setManageTracksFor] = useState<StudyClass | null>(null);
+
+  const toggleStudyClass = useToggleStudyClass();
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -131,6 +150,7 @@ export default function StudyClassesTable({
                 <th className="hidden px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 sm:table-cell">Academic Year</th>
                 <th className="hidden px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 md:table-cell">Semester</th>
                 <th className="hidden px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 lg:table-cell">Students</th>
+                <th className="hidden px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 md:table-cell">Status</th>
                 <th className="hidden px-5 py-3 text-left text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400 dark:text-gray-500 xl:table-cell">Updated</th>
                 <th className="w-10 px-5 py-3" />
               </tr>
@@ -158,6 +178,15 @@ export default function StudyClassesTable({
                       <span className="font-bold text-gray-900 dark:text-white">{studyClass.students_count ?? 0}</span>
                     </div>
                   </td>
+                  <td className="hidden px-5 py-3.5 md:table-cell">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                      studyClass.is_active
+                        ? "bg-green-100 dark:bg-green-500/10 text-green-600 dark:text-green-400"
+                        : "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-600"
+                    }`}>
+                      {studyClass.is_active ? "Active" : "Inactive"}
+                    </span>
+                  </td>
                   <td className="hidden px-5 py-3.5 text-[13px] text-gray-500 dark:text-gray-400 xl:table-cell tabular-nums">
                     {formatDate(studyClass.updated_at)}
                   </td>
@@ -171,8 +200,21 @@ export default function StudyClassesTable({
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="rounded-xl">
-                          <DropdownMenuItem className="rounded-lg" onClick={() => setEditModal({ data: studyClass, isOpen: true })}>Update</DropdownMenuItem>
-                          <DropdownMenuItem variant="destructive" className="rounded-lg" onClick={() => setDeleteModal({ data: studyClass, isOpen: true })}>Delete</DropdownMenuItem>
+                          <DropdownMenuItem className="rounded-lg" onClick={() => setManageTracksFor(studyClass)}>
+                            <Layers className="h-4 w-4 mr-2" />
+                            Manage Tracks
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="rounded-lg" onClick={() => toggleStudyClass.mutate(studyClass.id)}>
+                            {studyClass.is_active
+                              ? <><ToggleLeft className="h-4 w-4 mr-2" />Deactivate</>
+                              : <><ToggleRight className="h-4 w-4 mr-2" />Activate</>}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem className="rounded-lg" onClick={() => setEditModal({ data: studyClass, isOpen: true })}>
+                            Update
+                          </DropdownMenuItem>
+                          <DropdownMenuItem variant="destructive" className="rounded-lg" onClick={() => setDeleteModal({ data: studyClass, isOpen: true })}>
+                            Delete
+                          </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -199,6 +241,13 @@ export default function StudyClassesTable({
           data={deleteModal.data}
           isOpen={deleteModal.isOpen}
           onOpenChange={(open) => setDeleteModal((prev) => ({ ...prev, isOpen: open }))}
+        />
+      )}
+
+      {manageTracksFor && (
+        <ManageTracksWrapper
+          studyClass={manageTracksFor}
+          onClose={() => setManageTracksFor(null)}
         />
       )}
     </>

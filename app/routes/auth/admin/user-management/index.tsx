@@ -190,11 +190,14 @@ export default function UserManagement() {
     return allRoles.filter((r) => !assignedIds.includes(r.id));
   };
 
-  const getAvatarSrc = (avatar: any) =>
-    typeof avatar === "string" ? avatar : (avatar as any)?.url ?? undefined;
+  const getAvatarSrc = (avatar: any) => (typeof avatar === "string" ? avatar : ((avatar as any)?.url ?? undefined));
 
-  useEffect(() => { fetchRoles(); }, []);
-  useEffect(() => { fetchProfiles(); }, [currentPage, search, roleFilter]);
+  useEffect(() => {
+    fetchRoles();
+  }, []);
+  useEffect(() => {
+    fetchProfiles();
+  }, [currentPage, search, roleFilter]);
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -210,25 +213,36 @@ export default function UserManagement() {
           <Input
             placeholder="Cari user (nama atau email)..."
             value={search}
-            onChange={(e) => { setSearch(e.target.value); setCurrentPage(1); }}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
             className="pl-10"
           />
         </div>
-        <Select value={roleFilter} onValueChange={(value) => { setRoleFilter(value); setCurrentPage(1); }}>
+        <Select
+          value={roleFilter}
+          onValueChange={(value) => {
+            setRoleFilter(value);
+            setCurrentPage(1);
+          }}
+        >
           <SelectTrigger className="w-full sm:w-[200px]">
             <SelectValue placeholder="Filter by role" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Semua Role</SelectItem>
             {allRoles.map((role) => (
-              <SelectItem key={role.id} value={role.name}>{role.name}</SelectItem>
+              <SelectItem key={role.id} value={role.name}>
+                {role.name}
+              </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
 
       {/* Users Table */}
-      <div className="rounded-lg border bg-card">
+      <div className="rounded-lg border bg-card px-2">
         <Table>
           <TableHeader>
             <TableRow>
@@ -248,8 +262,12 @@ export default function UserManagement() {
                       <Skeleton className="h-4 w-[150px]" />
                     </div>
                   </TableCell>
-                  <TableCell><Skeleton className="h-4 w-[200px]" /></TableCell>
-                  <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-[200px]" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-[80px]" />
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Skeleton className="h-6 w-[60px]" />
@@ -269,7 +287,10 @@ export default function UserManagement() {
                 <TableRow
                   key={profile.id}
                   className="cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => { setSelectedProfile(profile); setModalOpen(true); }}
+                  onClick={() => {
+                    setSelectedProfile(profile);
+                    setModalOpen(true);
+                  }}
                 >
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -291,7 +312,9 @@ export default function UserManagement() {
                     <div className="flex gap-1.5 flex-wrap">
                       {profile.roles && profile.roles.length > 0 ? (
                         profile.roles.map((role) => (
-                          <Badge key={role.id} variant="secondary">{role.name}</Badge>
+                          <Badge key={role.id} variant="secondary">
+                            {role.name}
+                          </Badge>
                         ))
                       ) : (
                         <span className="text-sm text-muted-foreground">—</span>
@@ -340,19 +363,22 @@ export default function UserManagement() {
               <div className="flex items-center gap-4 p-4 rounded-lg bg-muted/50">
                 <Avatar className="h-14 w-14 shrink-0">
                   <AvatarImage src={getAvatarSrc(selectedProfile.user.avatar)} alt={selectedProfile.display_name ?? undefined} />
-                  <AvatarFallback className="text-xl font-semibold">
-                    {selectedProfile.display_name?.charAt(0).toUpperCase() ?? "?"}
-                  </AvatarFallback>
+                  <AvatarFallback className="text-xl font-semibold">{selectedProfile.display_name?.charAt(0).toUpperCase() ?? "?"}</AvatarFallback>
                 </Avatar>
                 <div className="min-w-0">
                   <p className="font-semibold truncate">{selectedProfile.display_name ?? selectedProfile.user.name}</p>
                   <p className="text-sm text-muted-foreground truncate">{selectedProfile.user.email}</p>
                   <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                    <Badge variant="outline" className="text-xs">{selectedProfile.user.provider}</Badge>
+                    <Badge variant="outline" className="text-xs">
+                      {selectedProfile.user.provider}
+                    </Badge>
                     <span className="text-xs text-muted-foreground">{selectedProfile.points} poin</span>
                     <span className="text-xs text-muted-foreground">
-                      Bergabung {new Date(selectedProfile.user.created_at).toLocaleDateString("id-ID", {
-                        year: "numeric", month: "short", day: "numeric",
+                      Bergabung{" "}
+                      {new Date(selectedProfile.user.created_at).toLocaleDateString("id-ID", {
+                        year: "numeric",
+                        month: "short",
+                        day: "numeric",
                       })}
                     </span>
                   </div>
@@ -385,9 +411,7 @@ export default function UserManagement() {
                       </div>
                     ))
                   ) : (
-                    <p className="text-sm text-muted-foreground text-center py-3 border rounded-md">
-                      Belum ada role
-                    </p>
+                    <p className="text-sm text-muted-foreground text-center py-3 border rounded-md">Belum ada role</p>
                   )}
                 </div>
 
@@ -399,7 +423,9 @@ export default function UserManagement() {
                     </SelectTrigger>
                     <SelectContent>
                       {getAvailableRoles().map((role) => (
-                        <SelectItem key={role.id} value={role.id.toString()}>{role.name}</SelectItem>
+                        <SelectItem key={role.id} value={role.id.toString()}>
+                          {role.name}
+                        </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -435,7 +461,9 @@ export default function UserManagement() {
           <AlertDialogFooter>
             <AlertDialogCancel>Batal</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => { if (roleToRemove) handleRemoveRole(roleToRemove.roleId); }}
+              onClick={() => {
+                if (roleToRemove) handleRemoveRole(roleToRemove.roleId);
+              }}
               className="bg-destructive hover:bg-destructive/90"
             >
               Hapus Role
@@ -445,7 +473,12 @@ export default function UserManagement() {
       </AlertDialog>
 
       {/* Confirm Delete User */}
-      <AlertDialog open={!!userToDelete} onOpenChange={(open) => { if (!open && !deletingUser) setUserToDelete(null); }}>
+      <AlertDialog
+        open={!!userToDelete}
+        onOpenChange={(open) => {
+          if (!open && !deletingUser) setUserToDelete(null);
+        }}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Hapus User Secara Permanen?</AlertDialogTitle>
@@ -468,11 +501,7 @@ export default function UserManagement() {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={deletingUser}>Batal</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteUser}
-              disabled={deletingUser}
-              className="bg-destructive hover:bg-destructive/90"
-            >
+            <AlertDialogAction onClick={handleDeleteUser} disabled={deletingUser} className="bg-destructive hover:bg-destructive/90">
               {deletingUser ? "Menghapus..." : "Hapus Permanen"}
             </AlertDialogAction>
           </AlertDialogFooter>

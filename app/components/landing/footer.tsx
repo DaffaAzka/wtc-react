@@ -10,7 +10,7 @@ const copy = {
   ],
   company: "Company",
   companyLinks: [
-    { label: "About Us", to: "#about" }, // <-- Ini udah gw ganti jadi hash link
+    { label: "About Us", to: "#about" },
     { label: "Contact", to: "/contact" },
     { label: "Privacy Policy", to: "/privacy" },
     { label: "Terms of Service", to: "/terms" },
