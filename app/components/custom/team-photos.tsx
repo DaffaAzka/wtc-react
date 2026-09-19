@@ -22,6 +22,8 @@ export const mentorsPhotos = [
   "/images/mentors/mentor2.png",
   "/images/mentors/mentor3.png",
   "/images/mentors/mentor4.png",
+  "/images/mentors/mentor5.jpeg",
+  "/images/mentors/mentor6.jpeg",
 ];
 
 export const teamDevPhotos = [
