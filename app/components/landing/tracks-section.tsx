@@ -14,7 +14,7 @@ import {
   SiFlutter,
   SiMysql,
   SiPhp,
-  SiOpenjdk,
+  SiExpress
 } from "react-icons/si";
 import { FaAws } from "react-icons/fa6";
 
@@ -38,7 +38,7 @@ const techs = [
   { icon: SiGit, name: "Git", color: "#F05032" },
   { icon: SiKotlin, name: "Kotlin", color: "#7F52FF" },
   { icon: SiFlutter, name: "Flutter", color: "#02569B" },
-  { icon: SiOpenjdk, name: "Java", color: "#007396" },
+  { icon: SiExpress, name: "Express", color: "#000000" },
   { icon: SiMysql, name: "MySQL", color: "#4479A1" },
   { icon: SiPhp, name: "PHP", color: "#777BB4" },
 ];
@@ -52,7 +52,7 @@ export function TracksSection() {
       ref={ref}
       className="min-h-screen flex flex-col justify-center w-full pt-20 pb-16 px-6 lg:px-20"
       style={{ background: "#ffffff" }}>
-      <div className="mx-auto max-w-6xl px-6 py-24">
+      <div className="mx-auto max-w-6xl px-6">
         {/* Header Section (Animasi barengan) */}
         <div
           className={`mb-16 transition-all duration-700 ease-out ${

@@ -5,7 +5,7 @@ import { StatsSection } from "./landing/stats-section";
 import { TracksSection } from "./landing/tracks-section";
 import { ExperienceSection } from "./landing/experience-section";
 import { MentorsSection } from "./landing/mentors-section";
-import { AboutSection } from "./landing/testimonials-section";
+import { AboutSection } from "./landing/about";
 import { FaqSection } from "./landing/faq-section";
 import { Footer } from "./landing/footer";
 

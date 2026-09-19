@@ -6,31 +6,10 @@ import Builder from "./builder";
 import ScoringSummary from "./scoring-summary";
 import type { Question } from "@/types/challenge";
 import LoadingButton from "@/components/custom/loading-button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useUpdateChallenge } from "@/hooks/challenges";
 import type { Challenge } from "@/types/model";
 import type { ChallengeFormType } from "@/types/challenge";
@@ -39,14 +18,7 @@ import { getFieldError } from "@/utils/global";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { calculateQuestionScore } from "@/helper/calculate-score";
 import { validateAllQuestions } from "@/helper/validate-question";
-import {
-  CheckCircle2,
-  Info,
-  Target,
-  RotateCw,
-  HelpCircle,
-  Loader2,
-} from "lucide-react";
+import { CheckCircle2, Info, Target, RotateCw, HelpCircle, Loader2 } from "lucide-react";
 
 type Props = {
   challenge: Challenge;
@@ -55,22 +27,12 @@ type Props = {
   onOpenChange: (open: boolean) => void;
 };
 
-const EDIT_STORAGE_KEY = (challengeId: number) =>
-  `challenge-edit-draft-${challengeId}`;
+const EDIT_STORAGE_KEY = (challengeId: number) => `challenge-edit-draft-${challengeId}`;
 
-const castDifficulty = (d: string | null | undefined): "" | "easy" | "medium" | "hard" =>
-  d === "easy" || d === "medium" || d === "hard" ? d : "";
+const castDifficulty = (d: string | null | undefined): "" | "easy" | "medium" | "hard" => (d === "easy" || d === "medium" || d === "hard" ? d : "");
 
-export default function ChallengeModalEdit({
-  challenge,
-  context,
-  isOpen,
-  onOpenChange,
-}: Props) {
-  const updateChallenge = useUpdateChallenge(
-    context.type === "lesson" ? context.id : undefined,
-    context.type === "module" ? context.slug : undefined,
-  );
+export default function ChallengeModalEdit({ challenge, context, isOpen, onOpenChange }: Props) {
+  const updateChallenge = useUpdateChallenge(context.type === "lesson" ? context.id : undefined, context.type === "module" ? context.slug : undefined);
 
   const [form, setForm] = useState<{
     title: string;
@@ -96,8 +58,13 @@ export default function ChallengeModalEdit({
   const [questions, setQuestions] = useState<Question[]>([]);
   const [questionErrors, setQuestionErrors] = useState<Record<string, string>>({});
   const [formErrors, setFormErrors] = useState<{
-    title?: string; difficulty?: string; content?: string;
-    max_score?: string; minimum_score?: string; points?: string; allowed_attempts?: string;
+    title?: string;
+    difficulty?: string;
+    content?: string;
+    max_score?: string;
+    minimum_score?: string;
+    points?: string;
+    allowed_attempts?: string;
   }>({});
   const [saving, setSaving] = useState(false);
   const [pendingTypeChange, setPendingTypeChange] = useState<ChallengeFormType | null>(null);
@@ -128,9 +95,7 @@ export default function ChallengeModalEdit({
     const existingQuestions = challenge.metadata?.questions ?? [];
     const initialForm = {
       title: challenge.title,
-      type: challenge.type === "quiz_group"
-        ? (existingQuestions.some((q) => q.type === "essay") ? "mixed" : "quiz_group")
-        : (challenge.type as ChallengeFormType),
+      type: challenge.type === "quiz_group" ? (existingQuestions.some((q) => q.type === "essay") ? "mixed" : "quiz_group") : (challenge.type as ChallengeFormType),
       difficulty: castDifficulty(challenge.difficulty),
       content: challenge.content,
       max_score: String(challenge.max_score),
@@ -148,7 +113,7 @@ export default function ChallengeModalEdit({
           difficulty: castDifficulty(parsed.form.difficulty),
         });
         setQuestions(parsed.questions ?? []);
-        setIsUnlimitedAttempts(parsed.isUnlimitedAttempts ?? (challenge.allowed_attempts === null));
+        setIsUnlimitedAttempts(parsed.isUnlimitedAttempts ?? challenge.allowed_attempts === null);
         setOriginalState({ form: initialForm, questions: existingQuestions });
         toast("Draft restored");
         setReadyToSave(true);
@@ -169,8 +134,7 @@ export default function ChallengeModalEdit({
     if (!isOpen || !readyToSave) return;
     setSaving(true);
     const timer = setTimeout(() => {
-      localStorage.setItem(EDIT_STORAGE_KEY(challenge.id),
-        JSON.stringify({ form: debouncedForm, questions: debouncedQuestions, isUnlimitedAttempts }));
+      localStorage.setItem(EDIT_STORAGE_KEY(challenge.id), JSON.stringify({ form: debouncedForm, questions: debouncedQuestions, isUnlimitedAttempts }));
       setSaving(false);
     }, 300);
     return () => clearTimeout(timer);
@@ -180,7 +144,7 @@ export default function ChallengeModalEdit({
     if (!readyToSave || !form.max_score || questions.length === 0) return;
     const maxScore = Number(form.max_score);
     if (maxScore <= 0 || isNaN(maxScore)) return;
-    const mcqCount   = questions.filter((q) => q.type === "multiple_choice").length;
+    const mcqCount = questions.filter((q) => q.type === "multiple_choice").length;
     const essayCount = questions.filter((q) => q.type === "essay").length;
     const firstQuestion = questions[0];
     const expectedScore = calculateQuestionScore(firstQuestion.type, maxScore, mcqCount, essayCount, form.type);
@@ -203,14 +167,14 @@ export default function ChallengeModalEdit({
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const errors: typeof formErrors = {};
-    if (!form.title.trim())          errors.title = "Challenge title is required.";
-    if (!form.difficulty)            errors.difficulty = "Difficulty is required.";
-    if (!form.max_score.trim())      errors.max_score = "Max Score is required.";
+    if (!form.title.trim()) errors.title = "Challenge title is required.";
+    if (!form.difficulty) errors.difficulty = "Difficulty is required.";
+    if (!form.max_score.trim()) errors.max_score = "Max Score is required.";
     else if (Number(form.max_score) < 1) errors.max_score = "Max Score must be at least 1.";
-    if (!form.minimum_score.trim())  errors.minimum_score = "Minimum Score is required.";
+    if (!form.minimum_score.trim()) errors.minimum_score = "Minimum Score is required.";
     else if (Number(form.minimum_score) < 0) errors.minimum_score = "Minimum Score cannot be negative.";
     else if (Number(form.minimum_score) > Number(form.max_score)) errors.minimum_score = "Minimum Score cannot exceed Max Score.";
-    if (!form.points.trim())         errors.points = "Points is required.";
+    if (!form.points.trim()) errors.points = "Points is required.";
     else if (Number(form.points) < 0) errors.points = "Points must be at least 0.";
     if (!isUnlimitedAttempts) {
       if (!form.allowed_attempts.trim()) errors.allowed_attempts = "Allowed Attempts is required.";
@@ -220,15 +184,42 @@ export default function ChallengeModalEdit({
     if (!form.content.trim()) errors.content = "Description is required.";
     setFormErrors(errors);
 
-    if (errors.title)            { titleRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
-    if (errors.difficulty)       { difficultyRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
-    if (errors.max_score)        { maxScoreRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
-    if (errors.minimum_score)    { minimumScoreRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
-    if (errors.points)           { pointsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
-    if (errors.allowed_attempts) { allowedAttemptsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
-    if (errors.content)          { descriptionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }); return; }
-    if (questions.length === 0)  { toast.error("Please add at least one question."); return; }
-    if (!validateQuestions())    { toast.error("Please fix all validation errors before submitting."); return; }
+    if (errors.title) {
+      titleRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.difficulty) {
+      difficultyRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.max_score) {
+      maxScoreRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.minimum_score) {
+      minimumScoreRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.points) {
+      pointsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.allowed_attempts) {
+      allowedAttemptsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (errors.content) {
+      descriptionRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    if (questions.length === 0) {
+      toast.error("Please add at least one question.");
+      return;
+    }
+    if (!validateQuestions()) {
+      toast.error("Please fix all validation errors before submitting.");
+      return;
+    }
 
     // mixed → quiz_group, quiz_group → quiz_group, multiple_choice → multiple_choice, essay → essay
     const submissionType = form.type === "mixed" ? "quiz_group" : form.type;
@@ -264,7 +255,7 @@ export default function ChallengeModalEdit({
     <>
       <Dialog open={isOpen} onOpenChange={onOpenChange}>
         <DialogContent
-          className="sm:max-w-4xl max-h-[90vh] flex flex-col p-0 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10"
+          className="sm:max-w-4xl gap-0 max-h-[90vh] flex flex-col p-0 rounded-2xl overflow-hidden border border-gray-200 dark:border-white/10"
           onEscapeKeyDown={undefined}
           onPointerDownOutside={undefined}
         >
@@ -284,9 +275,7 @@ export default function ChallengeModalEdit({
 
               {/* Status indicators */}
               <div className="flex items-center gap-3 shrink-0">
-                {hasUnsavedChanges && !saving && (
-                  <span className="text-[12px] font-bold text-[#f6b60b]">Unsaved changes</span>
-                )}
+                {hasUnsavedChanges && !saving && <span className="text-[12px] font-bold text-[#f6b60b]">Unsaved changes</span>}
                 {saving ? (
                   <span className="flex items-center gap-1.5 text-[12px] text-[#f6b60b]">
                     <Loader2 className="h-3 w-3 animate-spin" /> Saving…
@@ -332,14 +321,22 @@ export default function ChallengeModalEdit({
                       <Info className="h-4 w-4 text-[#1c81ff]" />
                     </div>
                     <div>
-                      <h3 className="font-extrabold text-[15px] text-gray-900 dark:text-white" style={{ letterSpacing: "-0.01em" }}>Challenge Information</h3>
+                      <h3 className="font-extrabold text-[15px] text-gray-900 dark:text-white" style={{ letterSpacing: "-0.01em" }}>
+                        Challenge Information
+                      </h3>
                       <p className="text-[12px] text-gray-500 dark:text-gray-400">Basic details about the challenge</p>
                     </div>
                   </div>
 
                   <div ref={titleRef}>
-                    <InputForm name="title" text="Challenge Title" type="text" value={form.title} handleChange={handleChange}
-                      error={formErrors.title ?? getFieldError(updateChallenge.error?.errors, "title")} />
+                    <InputForm
+                      name="title"
+                      text="Challenge Title"
+                      type="text"
+                      value={form.title}
+                      handleChange={handleChange}
+                      error={formErrors.title ?? getFieldError(updateChallenge.error?.errors, "title")}
+                    />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -347,8 +344,13 @@ export default function ChallengeModalEdit({
                       <label className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
                         Difficulty <span className="text-red-500">*</span>
                       </label>
-                      <Select value={form.difficulty || undefined}
-                        onValueChange={(v) => { setForm((p) => ({ ...p, difficulty: v as any })); setFormErrors((p) => ({ ...p, difficulty: undefined })); }}>
+                      <Select
+                        value={form.difficulty || undefined}
+                        onValueChange={(v) => {
+                          setForm((p) => ({ ...p, difficulty: v as any }));
+                          setFormErrors((p) => ({ ...p, difficulty: undefined }));
+                        }}
+                      >
                         <SelectTrigger className="rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
                           <SelectValue placeholder="Select difficulty" />
                         </SelectTrigger>
@@ -365,12 +367,14 @@ export default function ChallengeModalEdit({
                       <label className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
                         Challenge Type <span className="text-red-500">*</span>
                       </label>
-                      <Select value={form.type}
+                      <Select
+                        value={form.type}
                         onValueChange={(v) => {
                           const newType = v as ChallengeFormType;
                           if (questions.length > 0 && newType !== form.type) setPendingTypeChange(newType);
                           else setForm((p) => ({ ...p, type: newType }));
-                        }}>
+                        }}
+                      >
                         <SelectTrigger className="rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border-slate-200 dark:border-gray-800 font-bold focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff]">
                           <SelectValue />
                         </SelectTrigger>
@@ -385,8 +389,13 @@ export default function ChallengeModalEdit({
                   </div>
 
                   <div ref={descriptionRef}>
-                    <TextareaForm name="content" text="Description" value={form.content} handleChange={handleChange}
-                      error={formErrors.content ?? getFieldError(updateChallenge.error?.errors, "content")} />
+                    <TextareaForm
+                      name="content"
+                      text="Description"
+                      value={form.content}
+                      handleChange={handleChange}
+                      error={formErrors.content ?? getFieldError(updateChallenge.error?.errors, "content")}
+                    />
                   </div>
                 </div>
 
@@ -397,32 +406,50 @@ export default function ChallengeModalEdit({
                       <Target className="h-4 w-4 text-[#f6b60b]" />
                     </div>
                     <div>
-                      <h3 className="font-extrabold text-[15px] text-gray-900 dark:text-white" style={{ letterSpacing: "-0.01em" }}>Scoring Configuration</h3>
+                      <h3 className="font-extrabold text-[15px] text-gray-900 dark:text-white" style={{ letterSpacing: "-0.01em" }}>
+                        Scoring Configuration
+                      </h3>
                       <p className="text-[12px] text-gray-500 dark:text-gray-400">Set the total weight and reward points</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div ref={maxScoreRef} className="space-y-1">
-                      <InputForm name="max_score" text="Max Score" type="number" value={form.max_score} handleChange={handleChange}
-                        error={formErrors.max_score ?? getFieldError(updateChallenge.error?.errors, "max_score")} />
+                      <InputForm
+                        name="max_score"
+                        text="Max Score"
+                        type="number"
+                        value={form.max_score}
+                        handleChange={handleChange}
+                        error={formErrors.max_score ?? getFieldError(updateChallenge.error?.errors, "max_score")}
+                      />
                       <p className="text-[12px] text-gray-400 dark:text-gray-600">Distributed across questions</p>
                     </div>
                     <div ref={minimumScoreRef} className="space-y-1">
-                      <InputForm name="minimum_score" text="Minimum Score" type="number" value={form.minimum_score} handleChange={handleChange}
-                        error={formErrors.minimum_score ?? getFieldError(updateChallenge.error?.errors, "minimum_score")} />
+                      <InputForm
+                        name="minimum_score"
+                        text="Minimum Score"
+                        type="number"
+                        value={form.minimum_score}
+                        handleChange={handleChange}
+                        error={formErrors.minimum_score ?? getFieldError(updateChallenge.error?.errors, "minimum_score")}
+                      />
                       <p className="text-[12px] text-gray-400 dark:text-gray-600">Required to pass</p>
                     </div>
                     <div ref={pointsRef} className="space-y-1">
-                      <InputForm name="points" text="Points (EXP)" type="number" value={form.points} handleChange={handleChange}
-                        error={formErrors.points ?? getFieldError(updateChallenge.error?.errors, "points")} />
+                      <InputForm
+                        name="points"
+                        text="Points (EXP)"
+                        type="number"
+                        value={form.points}
+                        handleChange={handleChange}
+                        error={formErrors.points ?? getFieldError(updateChallenge.error?.errors, "points")}
+                      />
                       <p className="text-[12px] text-gray-400 dark:text-gray-600">Reward upon completion</p>
                     </div>
                   </div>
 
-                  {questions.length > 0 && (
-                    <ScoringSummary type={form.type} maxScore={Number(form.max_score)} questions={questions} />
-                  )}
+                  {questions.length > 0 && <ScoringSummary type={form.type} maxScore={Number(form.max_score)} questions={questions} />}
                 </div>
 
                 {/* ── Attempt Settings ── */}
@@ -432,24 +459,30 @@ export default function ChallengeModalEdit({
                       <RotateCw className="h-4 w-4 text-[#31c7c8]" />
                     </div>
                     <div>
-                      <h3 className="font-extrabold text-[15px] text-gray-900 dark:text-white" style={{ letterSpacing: "-0.01em" }}>Attempt Settings</h3>
+                      <h3 className="font-extrabold text-[15px] text-gray-900 dark:text-white" style={{ letterSpacing: "-0.01em" }}>
+                        Attempt Settings
+                      </h3>
                       <p className="text-[12px] text-gray-500 dark:text-gray-400">Configure how many times students can attempt</p>
                     </div>
                   </div>
                   <div className="max-w-md space-y-4">
                     <div className="flex items-center gap-2">
-                      <Checkbox id="unlimited-attempts-edit" checked={isUnlimitedAttempts}
-                        onCheckedChange={(checked) => setIsUnlimitedAttempts(checked === true)} />
+                      <Checkbox id="unlimited-attempts-edit" checked={isUnlimitedAttempts} onCheckedChange={(checked) => setIsUnlimitedAttempts(checked === true)} />
                       <label htmlFor="unlimited-attempts-edit" className="text-[14px] font-bold text-gray-700 dark:text-gray-300 cursor-pointer">
                         Unlimited attempts
                       </label>
                     </div>
                     <div ref={allowedAttemptsRef} className="space-y-1">
-                      <InputForm name="allowed_attempts" text="Allowed Attempts" type="number"
+                      <InputForm
+                        name="allowed_attempts"
+                        text="Allowed Attempts"
+                        type="number"
                         value={isUnlimitedAttempts ? "" : form.allowed_attempts}
-                        handleChange={handleChange} isDisabled={isUnlimitedAttempts}
+                        handleChange={handleChange}
+                        isDisabled={isUnlimitedAttempts}
                         placeholder={isUnlimitedAttempts ? "Unlimited" : ""}
-                        error={formErrors.allowed_attempts ?? getFieldError(updateChallenge.error?.errors, "allowed_attempts")} />
+                        error={formErrors.allowed_attempts ?? getFieldError(updateChallenge.error?.errors, "allowed_attempts")}
+                      />
                       <p className="text-[12px] text-gray-400 dark:text-gray-600">Number of attempts (minimum: 1)</p>
                     </div>
                   </div>
@@ -462,7 +495,9 @@ export default function ChallengeModalEdit({
                       <HelpCircle className="h-4 w-4 text-[#2548d8]" />
                     </div>
                     <div>
-                      <h3 className="font-extrabold text-[15px] text-gray-900 dark:text-white" style={{ letterSpacing: "-0.01em" }}>Question Builder</h3>
+                      <h3 className="font-extrabold text-[15px] text-gray-900 dark:text-white" style={{ letterSpacing: "-0.01em" }}>
+                        Question Builder
+                      </h3>
                       <p className="text-[12px] text-gray-500 dark:text-gray-400">Edit questions for this challenge</p>
                     </div>
                   </div>
@@ -481,27 +516,27 @@ export default function ChallengeModalEdit({
 
             {/* Fixed footer */}
             <div className="shrink-0 border-t border-gray-100 dark:border-white/5 px-6 py-4 bg-white dark:bg-[#0b1215]">
-              <LoadingButton
-                text="Update Challenge"
-                loading={updateChallenge.isPending}
-                disabled={!hasUnsavedChanges || updateChallenge.isPending}
-              />
+              <LoadingButton text="Update Challenge" loading={updateChallenge.isPending} disabled={!hasUnsavedChanges || updateChallenge.isPending} />
             </div>
           </form>
         </DialogContent>
       </Dialog>
 
       {/* Type change confirmation */}
-      <AlertDialog open={pendingTypeChange !== null} onOpenChange={(open) => { if (!open) setPendingTypeChange(null); }}>
+      <AlertDialog
+        open={pendingTypeChange !== null}
+        onOpenChange={(open) => {
+          if (!open) setPendingTypeChange(null);
+        }}
+      >
         <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white" style={{ letterSpacing: "-0.02em" }}>
               Change Challenge Type?
             </AlertDialogTitle>
             <AlertDialogDescription className="text-[15px] text-gray-500 dark:text-gray-400">
-              Changing the challenge type will delete all{" "}
-              <span className="font-bold text-gray-900 dark:text-white">{questions.length}</span>{" "}
-              existing {questions.length !== 1 ? "questions" : "question"}. This cannot be undone.
+              Changing the challenge type will delete all <span className="font-bold text-gray-900 dark:text-white">{questions.length}</span> existing{" "}
+              {questions.length !== 1 ? "questions" : "question"}. This cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

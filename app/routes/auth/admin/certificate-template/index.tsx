@@ -53,6 +53,7 @@ export default function CertificateTemplateDesigner() {
   const saveTemplate = useSaveTemplate();
 
   const [mounted, setMounted] = useState(false);
+  const [name, setName] = useState("Default Template");
   const [htmlTemplate, setHtmlTemplate] = useState(DEFAULT_HTML);
   const [cssStyles, setCssStyles] = useState(DEFAULT_CSS);
   const [backgroundUrl, setBackgroundUrl] = useState("");
@@ -69,6 +70,7 @@ export default function CertificateTemplateDesigner() {
   // Populate from loaded template
   useEffect(() => {
     if (template) {
+      setName(template.name || "Default Template");
       setHtmlTemplate(template.html_template || DEFAULT_HTML);
       setCssStyles(template.css_styles || DEFAULT_CSS);
       setBackgroundUrl(template.background_url || "");
@@ -93,6 +95,7 @@ ${cssStyles}
 
   const handleSave = () => {
     const data: CertificateTemplate = {
+      name: name || "Default Template",
       html_template: htmlTemplate,
       css_styles: cssStyles,
       background_url: backgroundUrl || null,
@@ -163,6 +166,20 @@ ${cssStyles}
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {/* ── Left: Editor panel ── */}
           <div className="space-y-5">
+            {/* Template Name */}
+            <div className="rounded-2xl bg-white dark:bg-[#0b1215] border border-gray-200 dark:border-white/10 p-5 space-y-4">
+              <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-gray-500 dark:text-gray-400">
+                Template Name
+              </p>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Default Template"
+                className="w-full rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-gray-800 px-4 py-2.5 text-[14px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff] outline-none transition-all"
+              />
+            </div>
+
             {/* Asset URLs */}
             <div className="rounded-2xl bg-white dark:bg-[#0b1215] border border-gray-200 dark:border-white/10 p-5 space-y-4">
               <p className="text-[12px] font-bold uppercase tracking-[0.15em] text-gray-500 dark:text-gray-400 flex items-center gap-2">

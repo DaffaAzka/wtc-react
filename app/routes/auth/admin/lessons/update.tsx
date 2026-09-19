@@ -5,6 +5,7 @@ import type { SerializedEditorState } from "lexical";
 import { useEffect, useState } from "react";
 import InputForm from "@/components/custom/input-form";
 import LoadingButton from "@/components/custom/loading-button";
+import { Button } from "@/components/ui/button";
 import { RichEditor } from "@/components/custom/rich-editor";
 import { buildInitialEditorState, getFieldError } from "@/utils/global";
 import { Link } from "react-router";
@@ -148,15 +149,17 @@ export default function UpdatePage({ params }: Route.ComponentProps) {
                     <p className="text-[14px] font-bold text-gray-900 dark:text-white">{att.title}</p>
                     <p className="text-[12px] text-gray-500 dark:text-gray-400">{att.type} · {new Date(att.created_at).toLocaleDateString()}</p>
                   </div>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     type="button"
-                    onClick={() => setDeleteTarget(att.id)}
+                    className="text-red-400 hover:text-red-500 opacity-0 group-hover:opacity-100 disabled:opacity-40"
+                    title="Delete"
                     disabled={deleteAttachment.isPending && deleteTarget === att.id}
-                    className="flex items-center gap-1.5 text-[13px] font-bold text-red-500 hover:text-red-600 opacity-0 group-hover:opacity-100 disabled:opacity-40 transition-all"
+                    onClick={() => setDeleteTarget(att.id)}
                   >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    Delete
-                  </button>
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               ))}
             </div>

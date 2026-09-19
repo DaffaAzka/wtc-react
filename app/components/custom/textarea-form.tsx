@@ -30,13 +30,11 @@ export default function TextareaForm({
           onChange={handleChange}
           aria-invalid={error != null}
           placeholder={placeholder}
-          className="w-full resize-none overflow-auto bg-background wrap-break-word text-black"
+          className="w-full resize-none overflow-auto bg-background wrap-break-word text-gray-700 dark:text-gray-300"
           rows={4}
           disabled={isDisabled}
         />
-        {error && (
-          <FieldDescription className="text-xs">{error}</FieldDescription>
-        )}
+        {error && <FieldDescription className="text-xs">{error}</FieldDescription>}
       </div>
     </Field>
   );

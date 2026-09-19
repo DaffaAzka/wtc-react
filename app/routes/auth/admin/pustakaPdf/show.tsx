@@ -23,7 +23,7 @@ export default function MaterialDetailPage() {
       `https://wtc-api.pinat.nl/api/attachments/${attachmentId}/file`,
       { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
     );
-    if (!response.ok) throw new Error("Gagal memuat file");
+    if (!response.ok) throw new Error("Failed to load file");
     const result = await response.json();
     const url = result.data?.file?.url ?? null;
     if (url) setCachedFileUrl(url);
@@ -38,11 +38,11 @@ export default function MaterialDetailPage() {
         const url = await getFileUrl();
         if (!url) return;
         const fileResponse = await fetch(url);
-        if (!fileResponse.ok) throw new Error("Gagal memuat file");
+        if (!fileResponse.ok) throw new Error("Failed to load file");
         const blob = await fileResponse.blob();
         setPreviewUrl(URL.createObjectURL(blob));
       } catch (error: any) {
-        toast.error(error.message || "Gagal memuat preview");
+        toast.error(error.message || "Failed to load preview");
       } finally {
         setPreviewLoading(false);
       }
@@ -55,9 +55,9 @@ export default function MaterialDetailPage() {
     try {
       const url = await getFileUrl();
       if (url) window.open(url, "_blank");
-      else toast.error("File tidak tersedia");
+      else toast.error("File not available");
     } catch (error: any) {
-      toast.error(error.message || "Gagal mengunduh file");
+      toast.error(error.message || "Failed to download file");
     } finally {
       setFileLoading(false);
     }
@@ -99,11 +99,11 @@ export default function MaterialDetailPage() {
           className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Kembali ke Pustaka Materi
+          Back to Learning Materials
         </Link>
         <div className="rounded-2xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 p-6">
           <p className="text-[15px] text-red-600 dark:text-red-400">
-            Materi tidak ditemukan.
+            Material not found.
           </p>
         </div>
       </div>
@@ -119,7 +119,7 @@ export default function MaterialDetailPage() {
         className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
-        Kembali ke Pustaka Materi
+        Back to Learning Materials
       </Link>
 
       <div className="grid lg:grid-cols-3 gap-6">
@@ -144,10 +144,10 @@ export default function MaterialDetailPage() {
                 <FileText className="h-7 w-7 text-gray-400 dark:text-gray-600" />
               </div>
               <p className="text-[15px] font-bold text-gray-900 dark:text-white">
-                Preview tidak tersedia
+                Preview not available
               </p>
               <p className="text-[13px] text-gray-500 dark:text-gray-400">
-                Download file untuk melihat isinya.
+                Download the file to view its contents.
               </p>
             </div>
           )}

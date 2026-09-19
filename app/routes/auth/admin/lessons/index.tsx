@@ -77,6 +77,7 @@ function ModuleScopedLessons({ slug }: { slug: string }) {
 // ── Standalone view (/lessons) ──────────────────────────────────────────────
 
 function StandaloneLessons() {
+  const basePath = "";          // always admin — no /teacher prefix
   const { tracks, loading: trackLoading } = useGetTracks();
 
   const [selectedTrackId, setSelectedTrackId] = useState<string | undefined>();
