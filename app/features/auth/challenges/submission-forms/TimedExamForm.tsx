@@ -25,6 +25,10 @@ export function TimedExamForm({ challenge, canSubmit, isSubmitting, onSubmit }: 
   const [examStarted, setExamStarted] = useState(false);
   const [examEnded, setExamEnded] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  // Keep a ref in sync so the timer callback always reads the latest answers
+  // without needing to be recreated (which would reset the interval).
+  const answersRef = useRef<Answer[]>([]);
+  useEffect(() => { answersRef.current = answers; }, [answers]);
 
   const formatTime = (s: number) =>
     `${Math.floor(s / 60).toString().padStart(2, "0")}:${(s % 60).toString().padStart(2, "0")}`;
@@ -39,10 +43,12 @@ export function TimedExamForm({ challenge, canSubmit, isSubmitting, onSubmit }: 
   const handleAutoSubmit = () => {
     setExamEnded(true);
     if (timerRef.current) clearInterval(timerRef.current);
+    // Use answersRef so we always submit the latest answers, not stale closure state
+    const latestAnswers = answersRef.current;
     onSubmit(null, JSON.stringify({
       exam_type: "timed_exam", total_questions: questions.length,
       time_limit_minutes: estimatedMinutes, time_used_seconds: totalSeconds - timeRemaining,
-      answers: answers.sort((a, b) => a.questionIndex - b.questionIndex),
+      answers: latestAnswers.sort((a, b) => a.questionIndex - b.questionIndex),
       auto_submitted: true, submitted_at: new Date().toISOString(),
     }));
   };

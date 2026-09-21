@@ -9,10 +9,10 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  // const token = localStorage.getItem("token");
-  // if (token) {
-  //   throw redirect("/dashboard");
-  // } DONT FORGET TO UNCOMMENT LATER
+  const token = localStorage.getItem("token");
+  if (token) {
+    throw redirect("/dashboard");
+  }
   return null;
 }
 

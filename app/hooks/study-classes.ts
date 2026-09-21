@@ -11,11 +11,9 @@ import { toast } from "sonner";
 export const studyClassKeys = {
   all: ["study-classes"] as const,
   detail: (id: number) => ["study-classes", id] as const,
+  myClass: ["study-classes", "my"] as const,
 };
 
-/**
- * Get all study classes with optional filters
- */
 export function useGetStudyClasses(filters?: StudyClassFilter) {
   const query = useQuery<StudyClass[], ApiErrorResponse>({
     queryKey: [...studyClassKeys.all, filters],
@@ -30,9 +28,6 @@ export function useGetStudyClasses(filters?: StudyClassFilter) {
   };
 }
 
-/**
- * Get paginated study classes with optional filters
- */
 export function useGetStudyClassesPaginated(filters?: StudyClassFilter) {
   const query = useQuery<PaginatedResponse<StudyClass>, ApiErrorResponse>({
     queryKey: [...studyClassKeys.all, "paginated", filters],
@@ -48,9 +43,6 @@ export function useGetStudyClassesPaginated(filters?: StudyClassFilter) {
   };
 }
 
-/**
- * Get a single study class by ID
- */
 export function useGetStudyClass(id: number) {
   const query = useQuery<StudyClass, ApiErrorResponse>({
     queryKey: studyClassKeys.detail(id),
@@ -66,9 +58,21 @@ export function useGetStudyClass(id: number) {
   };
 }
 
-/**
- * Create a new study class
- */
+export function useGetMyClass() {
+  const query = useQuery<StudyClass, ApiErrorResponse>({
+    queryKey: studyClassKeys.myClass,
+    queryFn: () => StudyClassService.getMyClass(),
+    retry: false, // 404 = user has no class, that's expected
+  });
+
+  return {
+    myClass: query.data ?? null,
+    loading: query.isLoading,
+    error: query.error ?? null,
+    refresh: query.refetch,
+  };
+}
+
 export function useCreateStudyClass() {
   const queryClient = useQueryClient();
 
@@ -77,7 +81,7 @@ export function useCreateStudyClass() {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: studyClassKeys.all });
       toast.success("Study class created successfully", {
-        description: `${data.name} has been added to the system.`,
+        description: `${data.name} has been added.`,
       });
     },
     onError: (error) => {
@@ -88,23 +92,14 @@ export function useCreateStudyClass() {
   });
 }
 
-/**
- * Update an existing study class
- */
 export function useUpdateStudyClass() {
   const queryClient = useQueryClient();
 
-  return useMutation<
-    StudyClass,
-    ApiErrorResponse,
-    { id: number; data: StudyClassRequest }
-  >({
+  return useMutation<StudyClass, ApiErrorResponse, { id: number; data: StudyClassRequest }>({
     mutationFn: ({ id, data }) => StudyClassService.update(id, data),
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: studyClassKeys.all });
-      queryClient.invalidateQueries({
-        queryKey: studyClassKeys.detail(data.id),
-      });
+      queryClient.invalidateQueries({ queryKey: studyClassKeys.detail(data.id) });
       toast.success("Study class updated successfully", {
         description: `${data.name} has been updated.`,
       });
@@ -117,9 +112,6 @@ export function useUpdateStudyClass() {
   });
 }
 
-/**
- * Delete a study class
- */
 export function useDeleteStudyClass() {
   const queryClient = useQueryClient();
 
@@ -127,13 +119,85 @@ export function useDeleteStudyClass() {
     mutationFn: (id) => StudyClassService.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: studyClassKeys.all });
-      toast.success("Study class deleted successfully", {
-        description: "The study class has been removed from the system.",
-      });
+      toast.success("Study class deleted successfully.");
     },
     onError: (error) => {
       toast.error("Failed to delete study class", {
         description: error.message || "An unexpected error occurred.",
+      });
+    },
+  });
+}
+
+export function useToggleStudyClass() {
+  const queryClient = useQueryClient();
+
+  return useMutation<StudyClass, ApiErrorResponse, number>({
+    mutationFn: (id) => StudyClassService.toggle(id),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: studyClassKeys.all });
+      queryClient.invalidateQueries({ queryKey: studyClassKeys.detail(data.id) });
+      toast.success(`Study class ${data.is_active ? "activated" : "deactivated"}.`);
+    },
+    onError: (error) => {
+      toast.error("Failed to toggle study class", {
+        description: error.message || "An unexpected error occurred.",
+      });
+    },
+  });
+}
+
+export function useAssignTrack() {
+  const queryClient = useQueryClient();
+
+  return useMutation<StudyClass, ApiErrorResponse, { studyClassId: number; trackId: number }>({
+    mutationFn: ({ studyClassId, trackId }) =>
+      StudyClassService.assignTrack(studyClassId, trackId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: studyClassKeys.detail(data.id) });
+      queryClient.invalidateQueries({ queryKey: studyClassKeys.all });
+      toast.success("Track assigned successfully.");
+    },
+    onError: (error) => {
+      toast.error("Failed to assign track", {
+        description: error.message || "An unexpected error occurred.",
+      });
+    },
+  });
+}
+
+export function useRemoveTrack() {
+  const queryClient = useQueryClient();
+
+  return useMutation<StudyClass, ApiErrorResponse, { studyClassId: number; trackId: number }>({
+    mutationFn: ({ studyClassId, trackId }) =>
+      StudyClassService.removeTrack(studyClassId, trackId),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: studyClassKeys.detail(data.id) });
+      queryClient.invalidateQueries({ queryKey: studyClassKeys.all });
+      toast.success("Track removed successfully.");
+    },
+    onError: (error) => {
+      toast.error("Failed to remove track", {
+        description: error.message || "An unexpected error occurred.",
+      });
+    },
+  });
+}
+
+export function useJoinClass() {
+  const queryClient = useQueryClient();
+
+  return useMutation<StudyClass, ApiErrorResponse, number>({
+    mutationFn: (id) => StudyClassService.joinClass(id),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: studyClassKeys.myClass });
+      queryClient.invalidateQueries({ queryKey: studyClassKeys.all });
+      toast.success(`Berhasil bergabung ke ${data.name}!`);
+    },
+    onError: (error) => {
+      toast.error("Gagal bergabung ke kelas", {
+        description: error.message || "Terjadi kesalahan.",
       });
     },
   });

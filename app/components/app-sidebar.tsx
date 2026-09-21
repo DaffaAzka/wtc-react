@@ -158,6 +158,7 @@ const adminCourseGroup: NavGroup = {
   url: "/course-management",
   icon: Layers,
   items: [
+    { title: "Classes", url: "/study-classes", icon: GraduationCap },
     { title: "Tracks", url: "/tracks", icon: RouteIcon },
     { title: "Modules", url: "/modules", icon: LayersIcon },
     { title: "Lessons", url: "/lessons", icon: NotebookTextIcon },
@@ -187,6 +188,7 @@ const teacherContentGroup: NavGroup = {
   title: "Course Management",
   icon: Layers,
   items: [
+    { title: "Study Classes", url: "/teacher/study-classes", icon: GraduationCap },
     { title: "Tracks", url: "/teacher/tracks", icon: RouteIcon },
     { title: "Modules", url: "/teacher/modules", icon: LayersIcon },
     { title: "Lessons", url: "/teacher/lessons", icon: NotebookTextIcon },
@@ -197,7 +199,8 @@ const teacherContentGroup: NavGroup = {
 const studentMain: NavItem[] = [
   { title: "Beranda", url: "/student/dashboard", icon: Home },
   { title: "Progress Belajar", url: "/student/progress", icon: GraduationCap },
-  { title: "Kelas", url: "/student/classes", icon: BookOpen },
+  { title: "Kelas Saya", url: "/student/my-class", icon: BookOpen },
+  { title: "Semua Kelas", url: "/student/classes", icon: Layers },
   { title: "Sertifikat Saya", url: "/student/certificates", icon: Award },
 ];
 
