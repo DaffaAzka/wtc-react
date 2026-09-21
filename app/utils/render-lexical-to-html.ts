@@ -134,7 +134,10 @@ function renderLexicalNode(node: any): string {
     // ── Link ──────────────────────────────────────────────────────────────
     case "link":
     case "autolink": {
-      const href = node.url ? escapeHtml(node.url) : "#";
+      const rawUrl = node.url ?? "";
+      // Block javascript: and data: URIs — only allow http(s), relative, and mailto
+      const isSafe = /^(https?:\/\/|mailto:|\/|#)/i.test(rawUrl) || rawUrl === "";
+      const href = isSafe ? escapeHtml(rawUrl) : "#";
       return `<a class="cv-link" href="${href}" target="_blank" rel="noopener noreferrer">${children}</a>`;
     }
 

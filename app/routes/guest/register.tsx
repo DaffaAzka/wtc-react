@@ -34,6 +34,8 @@ export default function Register() {
     password_confirmation: "",
   });
 
+  const [clientError, setClientError] = useState<string | null>(null);
+
   useEffect(() => {
     setIsLoaded(true);
   }, []);
@@ -50,6 +52,11 @@ export default function Register() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (form.password !== form.password_confirmation) {
+      setClientError("Password confirmation does not match.");
+      return;
+    }
+    setClientError(null);
     register.mutate(form);
   };
 
@@ -114,13 +121,12 @@ export default function Register() {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="flex flex-col">
-              {register.error &&
-                register.error?.message !== "Validation errors" && (
+              {(clientError || (register.error && register.error?.message !== "Validation errors")) && (
                   <Alert
                     variant="destructive"
                     className="mb-5 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-red-600 dark:text-red-400 rounded-lg p-3">
                     <AlertDescription className="font-medium text-sm">
-                      {register.error?.message ?? "An unknown error occurred."}
+                      {clientError ?? register.error?.message ?? "An unknown error occurred."}
                     </AlertDescription>
                   </Alert>
                 )}
