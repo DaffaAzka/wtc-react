@@ -31,6 +31,7 @@ export default function ModalAdd() {
     description: "",
     academic_year: "",
     semester: "",
+    image_url: "",
   });
 
   const createStudyClass = useCreateStudyClass();
@@ -50,6 +51,7 @@ export default function ModalAdd() {
         description: form.description || null,
         academic_year: form.academic_year || null,
         semester: form.semester || null,
+        image_url: form.image_url || null,
       },
       {
         onSuccess: () => {
@@ -59,6 +61,7 @@ export default function ModalAdd() {
             description: "",
             academic_year: "",
             semester: "",
+            image_url: "",
           });
         },
       }
@@ -175,6 +178,15 @@ export default function ModalAdd() {
               </p>
             )}
           </div>
+
+          <InputForm
+            name="image_url"
+            text="Image URL"
+            type="url"
+            value={form.image_url}
+            handleChange={handleChange}
+            error={getFieldError(createStudyClass.error?.errors, "image_url")}
+          />
 
           <LoadingButton text="Create" loading={createStudyClass.isPending} />
         </form>

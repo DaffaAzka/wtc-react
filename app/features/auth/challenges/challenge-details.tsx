@@ -1,5 +1,6 @@
 import { FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import DOMPurify from "dompurify";
 import type { Challenge, ChallengeAttachment } from "@/types/model";
 
 interface ChallengeDetailsProps {
@@ -63,7 +64,12 @@ export function ChallengeDetails({
         {/* Content */}
         <div
           className="prose prose-sm max-w-none dark:prose-invert text-[15px] leading-relaxed text-gray-600 dark:text-gray-300"
-          dangerouslySetInnerHTML={{ __html: challenge.content }}
+          dangerouslySetInnerHTML={{
+            __html:
+              typeof window !== "undefined"
+                ? DOMPurify.sanitize(challenge.content, { USE_PROFILES: { html: true } })
+                : "",
+          }}
         />
       </div>
 

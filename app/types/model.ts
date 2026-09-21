@@ -23,6 +23,7 @@ export type Track = {
   id: number;
   slug: string;
   title: string;
+  is_active: boolean;
   order?: number | null;
   image_url: string;
   description: string;

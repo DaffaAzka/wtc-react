@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AlertCircle, Send, Loader2, PenLine } from "lucide-react";
+import DOMPurify from "dompurify";
 import type { Challenge } from "@/types/model";
 
 interface FillBlankFormProps {
@@ -90,7 +91,14 @@ export function FillBlankForm({ challenge, canSubmit, isSubmitting, onSubmit }: 
 
             {/* Content */}
             <div className="prose prose-sm max-w-none dark:prose-invert rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 p-4">
-              <div dangerouslySetInnerHTML={{ __html: challenge.content }} />
+              <div
+                dangerouslySetInnerHTML={{
+                  __html:
+                    typeof window !== "undefined"
+                      ? DOMPurify.sanitize(challenge.content, { USE_PROFILES: { html: true } })
+                      : "",
+                }}
+              />
             </div>
 
             {/* Blank inputs */}

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2, Upload, X, Camera, Clock, CheckCircle2, Trophy, Award } from "lucide-react";
+import { Loader2, Upload, X, Camera, Clock, CheckCircle2, Trophy, Award, LogOut } from "lucide-react";
 import { useGetProfile, useUpdateProfile, useUploadAvatar, useDeleteAvatar } from "@/hooks/profile";
 import { useAllMySubmissions } from "@/hooks/submission";
 import type { ProfileUpdateRequest } from "@/services/profile";
@@ -28,17 +28,12 @@ export function ProfileInfoForm() {
     if (profileData?.profile) {
       setFormData({
         display_name: profileData.profile.display_name || "",
-        study_class_id: profileData.profile.study_class_id || undefined,
       });
     }
   }, [profileData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value =
-      e.target.name === "study_class_id"
-        ? e.target.value ? parseInt(e.target.value) : undefined
-        : e.target.value;
-    setFormData((prev) => ({ ...prev, [e.target.name]: value }));
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,10 +135,20 @@ export function ProfileInfoForm() {
         </div>
 
         <div className="flex-1 min-w-0">
-          <h2 className="text-xl font-extrabold text-gray-900 dark:text-white truncate" style={{ letterSpacing: "-0.02em" }}>
-            {displayName}
-          </h2>
+          <div className="flex items-center gap-2 flex-wrap">
+            {profile.study_class && (
+              <span className="inline-flex items-center rounded-md bg-[#1c81ff]/10 border border-[#1c81ff]/20 px-2 py-0.5 text-[11px] font-bold text-[#1c81ff] uppercase tracking-[0.08em] shrink-0">
+                {profile.study_class.code}
+              </span>
+            )}
+            <h2 className="text-xl font-extrabold text-gray-900 dark:text-white truncate" style={{ letterSpacing: "-0.02em" }}>
+              {displayName}
+            </h2>
+          </div>
           <p className="text-[14px] text-gray-500 dark:text-gray-400 mt-0.5 truncate">{user.email}</p>
+          {profile.study_class && (
+            <p className="text-[12px] text-gray-400 dark:text-gray-500 mt-0.5 truncate">{profile.study_class.name}</p>
+          )}
 
           <div className="flex items-center gap-2 mt-3 flex-wrap">
             {avatarFile && !isUploading && (
@@ -291,19 +296,31 @@ export function ProfileInfoForm() {
         </div>
 
         <div className="space-y-1.5">
-          <label htmlFor="study_class_id" className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">
-            Kelas Studi <span className="font-normal text-gray-400 dark:text-gray-600">(opsional)</span>
-          </label>
-          <input id="study_class_id" name="study_class_id" type="number"
-            value={formData.study_class_id || ""}
-            onChange={handleInputChange}
-            placeholder="ID Kelas Studi"
-            className="w-full rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-gray-800 px-4 py-3 text-[14px] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 focus:border-[#1c81ff] focus:ring-1 focus:ring-[#1c81ff] outline-none transition-all"
-          />
-          {profile.study_class && (
-            <p className="text-[12px] text-gray-400 dark:text-gray-600">
-              Kelas saat ini: {profile.study_class.name} ({profile.study_class.code})
-            </p>
+          <label className="text-[13px] font-bold text-gray-700 dark:text-gray-300 block">Kelas Studi</label>
+          {profile.study_class ? (
+            <div className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-gray-800 px-4 py-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <span className="inline-flex items-center rounded-md bg-[#1c81ff]/10 border border-[#1c81ff]/20 px-2 py-0.5 text-[11px] font-bold text-[#1c81ff] uppercase tracking-[0.08em] shrink-0">
+                  {profile.study_class.code}
+                </span>
+                <span className="text-[14px] text-gray-900 dark:text-white font-medium truncate">
+                  {profile.study_class.name}
+                </span>
+              </div>
+              <button
+                type="button"
+                disabled={isUpdating}
+                onClick={() => updateProfile({ study_class_id: null })}
+                className="flex items-center gap-1.5 text-[12px] font-bold text-red-500 hover:opacity-75 disabled:opacity-40 transition-opacity shrink-0"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+                Un-enroll
+              </button>
+            </div>
+          ) : (
+            <div className="rounded-xl bg-slate-50 dark:bg-[#1a1a1a] border border-slate-200 dark:border-gray-800 px-4 py-3">
+              <p className="text-[13px] text-gray-400 dark:text-gray-500">Belum terdaftar di kelas manapun</p>
+            </div>
           )}
         </div>
 

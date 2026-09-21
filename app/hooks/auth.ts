@@ -87,3 +87,15 @@ export function useRegister() {
 
   return { ...mutation, streakResult, proceed };
 }
+
+export function useVerifyEmail() {
+  return useMutation<{ user: AuthResponse["user"] }, ApiErrorResponse, string>({
+    mutationFn: (token) => authService.verifyEmail(token),
+  });
+}
+
+export function useResendVerification() {
+  return useMutation<void, ApiErrorResponse, void>({
+    mutationFn: () => authService.resendVerification(),
+  });
+}

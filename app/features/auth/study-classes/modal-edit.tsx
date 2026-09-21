@@ -38,6 +38,7 @@ export default function ModalEdit({
     description: "",
     academic_year: "",
     semester: "",
+    image_url: "",
   });
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export default function ModalEdit({
         description: data.description || "",
         academic_year: data.academic_year || "",
         semester: data.semester || "",
+        image_url: data.image_url || "",
       });
     }
   }, [data]);
@@ -72,6 +74,7 @@ export default function ModalEdit({
           description: form.description || null,
           academic_year: form.academic_year || null,
           semester: form.semester || null,
+          image_url: form.image_url || null,
         },
       },
       {
@@ -189,6 +192,15 @@ export default function ModalEdit({
               </p>
             )}
           </div>
+
+          <InputForm
+            name="image_url"
+            text="Image URL"
+            type="url"
+            value={form.image_url}
+            handleChange={handleChange}
+            error={getFieldError(updateStudyClass.error?.errors, "image_url")}
+          />
 
           <LoadingButton text="Update" loading={updateStudyClass.isPending} />
         </form>

@@ -56,6 +56,18 @@ export const authService = {
     return response.data.data!;
   },
 
+  verifyEmail: async (token: string): Promise<{ user: AuthResponse["user"] }> => {
+    const response = await api.get<ApiResponse<{ user: AuthResponse["user"] }>>(
+      "/email/verify",
+      { params: { token } },
+    );
+    return response.data.data!;
+  },
+
+  resendVerification: async (): Promise<void> => {
+    await api.post("/email/verify/resend");
+  },
+
   // Auth API methods (VITE_AUTH_URL)
   me() {
     return authApi.get("/api/auth/me");
