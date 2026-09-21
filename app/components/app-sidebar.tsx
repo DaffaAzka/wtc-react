@@ -158,6 +158,7 @@ const adminCourseGroup: NavGroup = {
   url: "/course-management",
   icon: Layers,
   items: [
+    { title: "Classes", url: "/study-classes", icon: GraduationCap },
     { title: "Tracks", url: "/tracks", icon: RouteIcon },
     { title: "Modules", url: "/modules", icon: LayersIcon },
     { title: "Lessons", url: "/lessons", icon: NotebookTextIcon },
@@ -168,7 +169,6 @@ const adminCourseGroup: NavGroup = {
 
 const adminManage: NavItem[] = [
   { title: "Users", url: "/user-management", icon: UsersIcon },
-  { title: "Study Classes", url: "/study-classes", icon: GraduationCap },
   { title: "Student Progress", url: "/student-progress", icon: Users },
   { title: "Certificates", url: "/admin/certificates", icon: Award },
   { title: "Certificate Template", url: "/admin/certificate-template", icon: Star },
