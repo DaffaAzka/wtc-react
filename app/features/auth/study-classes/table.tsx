@@ -19,8 +19,6 @@ import {
   SearchX,
   TriangleAlert,
   Users,
-  ToggleLeft,
-  ToggleRight,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToggleStudyClass, useGetStudyClass } from "@/hooks/study-classes";
@@ -179,13 +177,25 @@ export default function StudyClassesTable({
                     </div>
                   </td>
                   <td className="hidden px-5 py-3.5 md:table-cell">
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold ${
-                      studyClass.is_active
-                        ? "bg-green-100 dark:bg-green-500/10 text-green-600 dark:text-green-400"
-                        : "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-600"
-                    }`}>
-                      {studyClass.is_active ? "Active" : "Inactive"}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => toggleStudyClass.mutate(studyClass.id)}
+                        disabled={toggleStudyClass.isPending}
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold transition-all hover:opacity-80 ${
+                          studyClass.is_active
+                            ? "bg-green-100 dark:bg-green-500/10 text-green-600 dark:text-green-400"
+                            : "bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-600"
+                        }`}
+                      >
+                        {studyClass.is_active ? "Active" : "Inactive"}
+                      </button>
+                      {studyClass.tracks && studyClass.tracks.length > 0 && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#1c81ff]/10 px-2 py-0.5 text-[11px] font-bold text-[#1c81ff]">
+                          <Layers className="h-2.5 w-2.5" />
+                          {studyClass.tracks.length}
+                        </span>
+                      )}
+                    </div>
                   </td>
                   <td className="hidden px-5 py-3.5 text-[13px] text-gray-500 dark:text-gray-400 xl:table-cell tabular-nums">
                     {formatDate(studyClass.updated_at)}
@@ -203,11 +213,6 @@ export default function StudyClassesTable({
                           <DropdownMenuItem className="rounded-lg" onClick={() => setManageTracksFor(studyClass)}>
                             <Layers className="h-4 w-4 mr-2" />
                             Manage Tracks
-                          </DropdownMenuItem>
-                          <DropdownMenuItem className="rounded-lg" onClick={() => toggleStudyClass.mutate(studyClass.id)}>
-                            {studyClass.is_active
-                              ? <><ToggleLeft className="h-4 w-4 mr-2" />Deactivate</>
-                              : <><ToggleRight className="h-4 w-4 mr-2" />Activate</>}
                           </DropdownMenuItem>
                           <DropdownMenuItem className="rounded-lg" onClick={() => setEditModal({ data: studyClass, isOpen: true })}>
                             Update

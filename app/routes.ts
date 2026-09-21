@@ -22,12 +22,14 @@ export default [
       // My Class — shows the user's enrolled study class + its tracks
       route("/my-class", "routes/auth/student/my-class.tsx"),
 
-      // All Classes — shows all active study classes (was: all tracks)
+      // All Classes — shows all active study classes
       route("/classes", "routes/auth/student/classes.tsx"),
 
-      // Track/Class detail routes (URL: /classes/:slug)
+      // Study Class Detail
+      route("/classes/:id", "routes/auth/student/study-class-detail.tsx"),
+
+      // Track/Class lesson routes (URL: /classes/:slug/:moduleSlug/:lessonSlug)
       ...prefix("/classes", [
-        route("/:slug", "routes/auth/student/tracks/$slug.tsx"),
         route(
           "/:slug/:moduleSlug/:lessonSlug?",
           "routes/auth/student/lessons/$slug.tsx",
