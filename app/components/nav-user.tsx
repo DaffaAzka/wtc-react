@@ -3,12 +3,31 @@
 import { useMemo } from "react";
 import { Link } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/auth";
 import { getTwoInitials } from "@/utils/global";
+import { getActiveView } from "@/utils/auth-storage";
 import { ChevronsUpDownIcon, Settings2Icon, LogOutIcon } from "lucide-react";
-import { hasRole } from "@/utils/roles";
+import type { ProfileAvatar } from "@/types/model";
+
+function resolveAvatarSrc(avatar: ProfileAvatar): string | undefined {
+  if (typeof avatar === "string") return avatar;
+  return avatar?.url ?? undefined;
+}
 
 export function NavUser({
   user,
@@ -16,23 +35,34 @@ export function NavUser({
   user: {
     name: string;
     email: string;
-    avatar?: string | { url: string; expires_at: string } | null;
+    avatar?: ProfileAvatar;
   };
 }) {
   const { isMobile } = useSidebar();
-  const { logout, user: authUser } = useAuth();
+  const { logout, activeView: activeViewState } = useAuth();
 
-  // Teacher profile route arrives with the teacher route tree.
-  const profileRoute = useMemo(() => (hasRole(authUser, "admin") ? "/admin/profile" : "/student/profile"), [authUser]);
+  // Fallback to localStorage when React state hasn't flushed yet (post-login race condition)
+  const activeView = activeViewState ?? getActiveView();
+
+  const profileRoute = useMemo(() => {
+    if (activeView === "admin") return "/admin/profile";
+    if (activeView === "teacher") return "/teacher/profile";
+    return "/student/profile";
+  }, [activeView]);
+
+  const avatarSrc = resolveAvatarSrc(user.avatar ?? null);
 
   return (
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground">
+            <SidebarMenuButton
+              size="lg"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            >
               <Avatar>
-                <AvatarImage src={typeof user.avatar === "string" ? user.avatar : (user.avatar?.url ?? undefined)} />
+                <AvatarImage src={avatarSrc} />
                 <AvatarFallback>{getTwoInitials(user.name)}</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
@@ -42,11 +72,16 @@ export function NavUser({
               <ChevronsUpDownIcon className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg" side={isMobile ? "bottom" : "right"} align="end" sideOffset={4}>
+          <DropdownMenuContent
+            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            side={isMobile ? "bottom" : "right"}
+            align="end"
+            sideOffset={4}
+          >
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar>
-                  <AvatarImage src={typeof user.avatar === 'string' ? user.avatar : (user.avatar?.url ?? undefined)} />
+                  <AvatarImage src={avatarSrc} />
                   <AvatarFallback>{getTwoInitials(user.name)}</AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">

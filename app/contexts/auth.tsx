@@ -2,8 +2,9 @@ import { createContext, useContext, useEffect, useMemo, useState } from "react";
 
 import { authApi } from "@/lib/auth-api";
 import { api } from "@/lib/axios";
-import type { Profile } from "@/types/model";
-import { clearAuth, getToken, getUser, saveUser } from "@/utils/auth-storage";
+import type { Profile, RoleName } from "@/types/model";
+import { clearAuth, getActiveView, getToken, getUser, saveActiveView, saveUser } from "@/utils/auth-storage";
+import { getUserViews, resolveDefaultView } from "@/utils/roles";
 
 type MeResponse = {
   user: {
@@ -41,8 +42,10 @@ type AuthContextType = {
   user: Profile | null;
   token: string | null;
   loading: boolean;
+  activeView: RoleName | null;
 
   setUserData: (userData: Profile) => void;
+  setActiveView: (role: RoleName) => void;
   refreshUser: () => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -63,6 +66,18 @@ function toMergedUser(payload: MeResponse): Profile {
   };
 }
 
+/**
+ * Validates the stored active_view against the user's current roles.
+ * Falls back to the default view (highest-priority role) if stored value is missing or no longer valid.
+ */
+function resolveAndPersistView(mergedUser: Profile): RoleName {
+  const stored = getActiveView();
+  const views = getUserViews(mergedUser);
+  const resolved = stored && views.includes(stored) ? stored : resolveDefaultView(mergedUser);
+  if (resolved !== stored) saveActiveView(resolved);
+  return resolved;
+}
+
 export function AuthProvider({
   children,
 }: Readonly<{
@@ -71,16 +86,23 @@ export function AuthProvider({
   const [user, setUser] = useState<Profile | null>(null);
   const [token, setToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [activeView, setActiveViewState] = useState<RoleName | null>(null);
 
   const clearSession = () => {
     clearAuth();
     setUser(null);
     setToken(null);
+    setActiveViewState(null);
   };
 
   const setUserData = (userData: Profile) => {
     setUser(userData);
     saveUser(userData);
+  };
+
+  const setActiveView = (role: RoleName) => {
+    saveActiveView(role);
+    setActiveViewState(role);
   };
 
   const fetchMe = async (accessToken: string) => {
@@ -95,6 +117,10 @@ export function AuthProvider({
     setUser(mergedUser);
     saveUser(mergedUser);
 
+    // Re-validate active_view against fresh roles from the backend
+    const resolved = resolveAndPersistView(mergedUser);
+    setActiveViewState(resolved);
+
     return mergedUser;
   };
 
@@ -105,52 +131,42 @@ export function AuthProvider({
       const storedToken = getToken();
 
       if (!storedToken) {
-        if (mounted) {
-          setLoading(false);
-        }
-
+        if (mounted) setLoading(false);
         return;
       }
 
       try {
         setToken(storedToken);
 
-        /*
-         * Load cached user immediately.
-         */
+        // Load cached user immediately so the UI isn't blank
         const storedUser = getUser();
 
         if (storedUser && mounted) {
           setUser(storedUser);
+          // Optimistically set active view from cache; fetchMe will re-validate
+          const cached = resolveAndPersistView(storedUser);
+          setActiveViewState(cached);
         }
 
-        /*
-         * Then refresh the user from backend.
-         */
+        // Then refresh user from backend (also re-validates active_view)
         try {
           await fetchMe(storedToken);
         } catch (error) {
           const tokenStillExists = localStorage.getItem("token");
 
-          if (!tokenStillExists) {
-            if (mounted) {
-              setUser(null);
-              setToken(null);
-            }
-          } else {
-            // Failed to fetch fresh user data, using cached data
+          if (!tokenStillExists && mounted) {
+            setUser(null);
+            setToken(null);
+            setActiveViewState(null);
           }
+          // Otherwise keep using cached data
         }
-      } catch (error) {
-        // Bootstrap error
-
+      } catch {
         if (localStorage.getItem("token")) {
           clearSession();
         }
       } finally {
-        if (mounted) {
-          setLoading(false);
-        }
+        if (mounted) setLoading(false);
       }
     };
 
@@ -161,11 +177,27 @@ export function AuthProvider({
     };
   }, []);
 
-  const refreshUser = async () => {
-    if (!token) {
-      return;
-    }
+  // Sync active_view changes from other tabs
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      // Sync active_view changes across tabs
+      if (e.key === "active_view" && e.newValue) {
+        const val = e.newValue;
+        if (val === "admin" || val === "teacher" || val === "student") {
+          setActiveViewState(val as RoleName);
+        }
+      }
+      // Propagate logout to all open tabs
+      if (e.key === "token" && e.newValue === null) {
+        clearSession();
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
+  const refreshUser = async () => {
+    if (!token) return;
     await fetchMe(token);
   };
 
@@ -186,9 +218,15 @@ export function AuthProvider({
         redirect_uri: window.location.origin,
       });
 
-      window.location.href = response.data.redirect_to ?? "/";
-    } catch (error) {
-      // Login callback error, redirect to home
+      const target = response.data.redirect_to;
+      // Validate same-origin before following the redirect to prevent open-redirect attacks
+      const isSameOrigin = (() => {
+        if (!target) return false;
+        try { return new URL(target, window.location.origin).origin === window.location.origin; }
+        catch { return false; }
+      })();
+      window.location.href = isSameOrigin ? target : "/";
+    } catch {
       window.location.href = "/";
     }
   };
@@ -198,11 +236,13 @@ export function AuthProvider({
       user,
       token,
       loading,
+      activeView,
       setUserData,
+      setActiveView,
       refreshUser,
       logout,
     }),
-    [user, token, loading],
+    [user, token, loading, activeView],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

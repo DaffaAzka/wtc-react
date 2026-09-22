@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, Outlet, redirect, useLocation } from "react-router";
-import { getToken, getUser } from "@/utils/auth-storage";
-import { hasRole, resolveLandingPath } from "@/utils/roles";
+import { getActiveView, getToken, getUser, saveActiveView } from "@/utils/auth-storage";
+import { hasRole, resolveDefaultView, resolveViewPath } from "@/utils/roles";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarInset, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
@@ -11,8 +11,19 @@ export async function clientLoader() {
   if (!getToken()) throw redirect("/");
   const user = getUser();
   if (!user) throw redirect("/");
-  if (hasRole(user, "teacher") || hasRole(user, "admin")) throw redirect(resolveLandingPath(user));
+
+  const view = getActiveView();
+
+  // Redirect to the correct view if not in student view
+  if (!view || view !== "student") {
+    const resolved = view ?? resolveDefaultView(user);
+    saveActiveView(resolved);
+    throw redirect(resolveViewPath(resolved));
+  }
+
+  // Safety net: verify the user actually holds the student role
   if (!hasRole(user, "student")) throw redirect("/");
+
   return null;
 }
 

@@ -237,8 +237,9 @@ export default function MyLearning() {
                         className="group block rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-300"
                       >
                         <div className="relative h-44 overflow-hidden" style={{ background: getPatternBackground(track.title) }}>
-                          {track.image_url && (
+                          {track.image_url?.startsWith("https://") && (
                             <img src={track.image_url} alt={track.title}
+                              loading="lazy"
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                               onError={(e) => { e.currentTarget.style.display = "none"; }}
                             />
@@ -284,8 +285,9 @@ export default function MyLearning() {
                       className="group block rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-1 transition-all duration-300"
                     >
                       <div className="relative h-32 overflow-hidden" style={{ background: getPatternBackground(track.title) }}>
-                        {track.image_url && (
+                        {track.image_url?.startsWith("https://") && (
                           <img src={track.image_url} alt={track.title}
+                            loading="lazy"
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             onError={(e) => { e.currentTarget.style.display = "none"; }}
                           />
