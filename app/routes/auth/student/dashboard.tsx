@@ -1,47 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { useAuth } from "@/contexts/auth";
-import { api } from "@/lib/axios";
+import { getPatternBackground } from "@/lib/utils";
+import { useDashboard } from "@/hooks/enrollment";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { ArrowRight, BookOpen, Award, TrendingUp, Target } from "lucide-react";
 import { computeAndSaveStreak } from "@/utils/streak";
-
-function getPatternBackground(text: string): string {
-  let hash = 0;
-  for (let i = 0; i < text.length; i++) {
-    hash = (hash << 5) - hash + text.charCodeAt(i);
-    hash = hash & hash;
-  }
-
-  const colors = [
-    {
-      primary: "rgba(28, 129, 255, 0.12)",
-      secondary: "rgba(28, 129, 255, 0.06)",
-    },
-    {
-      primary: "rgba(49, 199, 200, 0.12)",
-      secondary: "rgba(49, 199, 200, 0.06)",
-    },
-    {
-      primary: "rgba(37, 72, 216, 0.12)",
-      secondary: "rgba(37, 72, 216, 0.06)",
-    },
-    {
-      primary: "rgba(100, 116, 139, 0.1)",
-      secondary: "rgba(100, 116, 139, 0.05)",
-    },
-  ];
-
-  const colorIndex = Math.abs(hash) % colors.length;
-  const c = colors[colorIndex];
-
-  return `radial-gradient(circle at 20% 50%, ${c.primary} 0%, transparent 50%),
-          radial-gradient(circle at 80% 80%, ${c.primary} 0%, transparent 50%),
-          radial-gradient(circle at 40% 20%, ${c.secondary} 0%, transparent 50%),
-          radial-gradient(circle at 90% 30%, ${c.secondary} 0%, transparent 50%),
-          radial-gradient(circle at 10% 80%, ${c.primary} 0%, transparent 50%)`;
-}
 
 interface DashboardProfile {
   id: string;
@@ -81,28 +46,14 @@ interface DashboardData {
 
 export default function Dashboard() {
   const { user } = useAuth();
-  const [data, setData] = useState<DashboardData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { data: dashboardData, isLoading: loading } = useDashboard();
+  const data = dashboardData as DashboardData | undefined;
   const [mounted, setMounted] = useState(false);
   const [streak, setStreak] = useState(0);
 
   useEffect(() => {
     const { currentStreak } = computeAndSaveStreak(false);
     setStreak(currentStreak);
-  }, []);
-
-  useEffect(() => {
-    const fetchDashboard = async () => {
-      try {
-        const response = await api.get("/my/dashboard");
-        setData(response.data?.data || response.data);
-      } catch {
-        // silently handled
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDashboard();
   }, []);
 
   useEffect(() => {
@@ -455,10 +406,11 @@ export default function Dashboard() {
                 <div
                   className="h-44 w-full overflow-hidden"
                   style={{ background: getPatternBackground(track.title) }}>
-                  {track.image_url && (
+                  {track.image_url?.startsWith("https://") && (
                     <img
                       src={track.image_url}
                       alt={track.title}
+                      loading="lazy"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => {
                         e.currentTarget.style.display = "none";

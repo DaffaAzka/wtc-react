@@ -17,8 +17,8 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { ModeToggle } from "@/components/custom/mode-toggle";
-import { getToken, getUser } from "@/utils/auth-storage";
-import { hasRole, resolveLandingPath } from "@/utils/roles";
+import { getActiveView, getToken, getUser, saveActiveView } from "@/utils/auth-storage";
+import { hasRole, resolveDefaultView, resolveViewPath } from "@/utils/roles";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -28,20 +28,22 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function clientLoader() {
-  if (!getToken()) {
-    throw redirect("/");
-  }
+  if (!getToken()) throw redirect("/");
 
   const user = getUser();
+  if (!user) throw redirect("/");
 
-  if (!user) {
-    throw redirect("/");
+  const view = getActiveView();
+  if (!view || view !== "teacher") {
+    const resolved = view ?? resolveDefaultView(user);
+    saveActiveView(resolved);
+    throw redirect(resolveViewPath(resolved));
   }
 
-  // Admit teachers and admins (admins can access teacher area)
-  if (!hasRole(user, "teacher") && !hasRole(user, "admin")) {
-    throw redirect(resolveLandingPath(user));
-  }
+  // Safety net: verify the user actually holds the teacher role.
+  // Without this, any authenticated user can write active_view=teacher into
+  // localStorage and render the teacher UI.
+  if (!hasRole(user, "teacher")) throw redirect("/");
 
   return null;
 }
@@ -96,16 +98,10 @@ const SEGMENT_LABELS: Record<string, string> = {
   admin: "Admin",
 };
 
-/**
- * Static path segments that correspond to real named routes.
- * Any segment NOT in this set is treated as a dynamic slug/id and
- * will be rendered as plain text (no link) to avoid 404s.
- */
 const KNOWN_SECTIONS = new Set(Object.keys(SEGMENT_LABELS));
 
 function segmentLabel(seg: string): string {
   if (SEGMENT_LABELS[seg]) return SEGMENT_LABELS[seg];
-  // Format dynamic slugs/ids into readable text
   return seg.replace(/[-_]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
@@ -114,18 +110,13 @@ function TeacherBreadcrumb() {
 
   const allSegments = location.pathname.split("/").filter(Boolean);
 
-  // Build crumbs with absolute hrefs (including /teacher prefix for correctness),
-  // then filter the 'teacher' segment out of the visible list.
   const allCrumbs = allSegments.map((seg, i) => ({
     seg,
     label: segmentLabel(seg),
-    // Absolute href so every link works regardless of current depth
     href: "/" + allSegments.slice(0, i + 1).join("/"),
-    // Dynamic slugs/ids have no corresponding named route — don't make them links
     isDynamic: !KNOWN_SECTIONS.has(seg),
   }));
 
-  // Hide the 'teacher' role prefix from the UI (but keep it in hrefs)
   const crumbs = allCrumbs.filter((c) => c.seg !== "teacher");
 
   if (crumbs.length === 0) {
@@ -150,7 +141,6 @@ function TeacherBreadcrumb() {
               {i > 0 && <BreadcrumbSeparator className="hidden md:block" />}
               <BreadcrumbItem className={!isLast ? "hidden md:block" : ""}>
                 {isLast || crumb.isDynamic ? (
-                  // Last item or a dynamic slug → plain text, no link
                   <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
                 ) : (
                   <BreadcrumbLink asChild>

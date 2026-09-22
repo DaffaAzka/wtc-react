@@ -20,6 +20,9 @@ export default function VerifyEmail() {
   // Auto-verify on mount if token is present
   useEffect(() => {
     if (token) {
+      // Clear token from URL immediately — prevents it leaking via Referer headers
+      // or being reused if the user shares the URL after verification.
+      window.history.replaceState({}, "", "/verify-email");
       verify.mutate(token);
     }
   }, []);

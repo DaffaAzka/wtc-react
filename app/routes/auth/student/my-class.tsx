@@ -161,7 +161,7 @@ export default function MyClassPage() {
                 >
                   {/* Cover */}
                   <div className="relative h-36 overflow-hidden" style={{ background: getPatternBackground(track.title) }}>
-                    {track.image_url && (
+                    {track.image_url?.startsWith("https://") && (
                       <img
                         src={track.image_url}
                         alt={track.title}

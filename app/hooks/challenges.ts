@@ -45,6 +45,7 @@ export function useGetChallengesPaginated(params?: {
 export function useGetAllChallengesPaginated() {
   const query = useQuery<Challenge[], ApiErrorResponse>({
     queryKey: [...challengeKeys.all, "all-paginated"],
+    staleTime: 5 * 60 * 1000, // 5 minutes — match useGetAllLessons
     queryFn: async () => {
       // Fetch first page to get total pages
       const firstPage = await ChallengeService.getAllPaginated({
