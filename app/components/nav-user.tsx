@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/contexts/auth";
 import { getTwoInitials } from "@/utils/global";
+import { getActiveView } from "@/utils/auth-storage";
 import { ChevronsUpDownIcon, Settings2Icon, LogOutIcon } from "lucide-react";
 import type { ProfileAvatar } from "@/types/model";
 
@@ -38,7 +39,10 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
-  const { logout, activeView } = useAuth();
+  const { logout, activeView: activeViewState } = useAuth();
+
+  // Fallback to localStorage when React state hasn't flushed yet (post-login race condition)
+  const activeView = activeViewState ?? getActiveView();
 
   const profileRoute = useMemo(() => {
     if (activeView === "admin") return "/admin/profile";

@@ -11,9 +11,12 @@ export default [
     index("routes/home.tsx"),
     route("/login", "routes/guest/login.tsx"),
     route("/register", "routes/guest/register.tsx"),
-    route("/verify-email", "routes/guest/verify-email.tsx"),
     route("/auth/callback", "routes/auth/callback.tsx"),
   ]),
+
+  // Email verification — outside guest layout so logged-in users aren't redirected
+  route("/verify-email", "routes/guest/verify-email.tsx"),
+  route("/check-email", "routes/guest/check-email.tsx"),
 
   layout("routes/auth/student/layout.tsx", [
     ...prefix("/student", [

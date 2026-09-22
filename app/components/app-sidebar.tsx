@@ -54,6 +54,7 @@ import { useTheme } from "@/contexts/theme";
 import { getTwoInitials } from "@/utils/global";
 import { ModeToggle } from "./custom/mode-toggle";
 import { getUserViews, resolveViewPath } from "@/utils/roles";
+import { getActiveView } from "@/utils/auth-storage";
 import type { RoleName } from "@/types/model";
 
 type NavItem = {
@@ -259,9 +260,12 @@ function profileRouteForView(view: RoleName | null): string {
 // ── Main component ───────────────────────────────────────────────────────────
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { user, logout, activeView, setActiveView } = useAuth();
+  const { user, logout, activeView: activeViewState, setActiveView } = useAuth();
   const { theme } = useTheme();
   const navigate = useNavigate();
+
+  // Fallback to localStorage when React state hasn't flushed yet (post-login race condition)
+  const activeView = activeViewState ?? getActiveView();
 
   const [logoSrc, setLogoSrc] = React.useState(() => {
     if (typeof window === "undefined") return "/brand-pack/logo-h-light.svg";
