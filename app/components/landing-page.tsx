@@ -13,9 +13,9 @@ export function LandingPage() {
   return (
     <LangProvider>
       <style>{`
-        /* Gilroy untuk seluruh landing page */
+        /* Plus Jakarta Sans untuk seluruh landing page */
         .wtc-landing, .wtc-landing * {
-          font-family: 'Gilroy', 'DM Sans', ui-sans-serif, system-ui, sans-serif !important;
+          font-family: 'Plus Jakarta Sans', 'DM Sans', ui-sans-serif, system-ui, sans-serif !important;
         }
         ::-webkit-scrollbar { display: none; }
         

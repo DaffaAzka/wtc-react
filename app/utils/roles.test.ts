@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
+import { renderHook, act } from "@testing-library/react";
 
 const mocks = vi.hoisted(() => {
   const mutationOptions: { current?: { onSuccess?: (data: any) => void } } = {};
@@ -7,6 +8,7 @@ const mocks = vi.hoisted(() => {
     navigate: vi.fn(),
     redirect: vi.fn((to: string) => ({ to })),
     setUserData: vi.fn(),
+    setActiveView: vi.fn(),
   };
 });
 
@@ -24,7 +26,7 @@ vi.mock("react-router", async (importOriginal) => ({
 }));
 
 vi.mock("@/contexts/auth", () => ({
-  useAuth: () => ({ setUserData: mocks.setUserData }),
+  useAuth: () => ({ setUserData: mocks.setUserData, setActiveView: mocks.setActiveView }),
 }));
 
 vi.mock("@/services/auth", () => ({
@@ -35,8 +37,7 @@ import type { Profile } from "@/types/model";
 import { useRegister } from "@/hooks/auth";
 import { clientLoader as studentLoader } from "@/routes/auth/student/layout";
 import { clientLoader as adminLoader } from "@/routes/auth/admin/layout";
-import { getUser } from "./auth-storage";
-import { hasRole, normalizeRoleName, resolveLandingPath } from "./roles";
+import { hasRole, normalizeRoleName, resolveLandingPath, resolveDefaultView, resolveViewPath, getUserViews } from "./roles";
 
 const user = (roles: unknown): Profile => ({
   display_name: null,
@@ -69,6 +70,7 @@ describe("roles", () => {
     mocks.navigate.mockReset();
     mocks.redirect.mockClear();
     mocks.setUserData.mockReset();
+    mocks.setActiveView.mockReset();
   });
 
   test("normalizes supported names without case sensitivity", () => {
@@ -85,26 +87,42 @@ describe("roles", () => {
     expect(hasRole(user(undefined), "teacher")).toBe(false);
   });
 
-  test("uses admin then teacher precedence across multiple roles", () => {
-    expect(hasRole(user([{ name: "TEACHER" }]), "teacher")).toBe(true);
-    expect(resolveLandingPath(user([{ name: "student" }, { name: "Teacher" }]))).toBe("/teacher/dashboard");
-    expect(resolveLandingPath(user([{ name: "teacher" }, { name: "ADMIN" }]))).toBe("/dashboard");
+  test("resolveDefaultView uses admin then teacher precedence across multiple roles", () => {
+    expect(resolveDefaultView(user([{ name: "student" }, { name: "Teacher" }]))).toBe("teacher");
+    expect(resolveDefaultView(user([{ name: "teacher" }, { name: "ADMIN" }]))).toBe("admin");
+    expect(resolveDefaultView(user([{ name: "student" }]))).toBe("student");
+    expect(resolveDefaultView(null)).toBe("student");
   });
 
-  test("defaults landing paths to student", () => {
+  test("resolveViewPath maps roles to correct paths", () => {
+    expect(resolveViewPath("admin")).toBe("/dashboard");
+    expect(resolveViewPath("teacher")).toBe("/teacher/dashboard");
+    expect(resolveViewPath("student")).toBe("/student/dashboard");
+  });
+
+  test("getUserViews returns all roles in priority order", () => {
+    expect(getUserViews(user([{ name: "student" }, { name: "ADMIN" }, { name: "Teacher" }]))).toEqual(["admin", "teacher", "student"]);
+    expect(getUserViews(user([{ name: "student" }]))).toEqual(["student"]);
+    expect(getUserViews(null)).toEqual([]);
+  });
+
+  test("resolveLandingPath backward compat — same behaviour as before", () => {
+    expect(resolveLandingPath(user([{ name: "student" }, { name: "Teacher" }]))).toBe("/teacher/dashboard");
+    expect(resolveLandingPath(user([{ name: "teacher" }, { name: "ADMIN" }]))).toBe("/dashboard");
     expect(resolveLandingPath(user([{ name: "student" }]))).toBe("/student/dashboard");
-    expect(resolveLandingPath(user([]))).toBe("/student/dashboard");
     expect(resolveLandingPath(null)).toBe("/student/dashboard");
   });
 
-  test("registers teachers into shared storage and their landing path", () => {
+  test("registers teachers and sets active view to their default view", () => {
     const storage = installStorage();
-    useRegister();
+    const { result } = renderHook(() => useRegister());
 
-    mocks.mutationOptions.current?.onSuccess?.({
-      token: "teacher-token",
-      user: { email: "teacher@example.test", avatar: null },
-      profile: { user_id: "u1", display_name: "Teacher", roles: [{ name: "TEACHER" }] },
+    act(() => {
+      mocks.mutationOptions.current?.onSuccess?.({
+        token: "teacher-token",
+        user: { email: "teacher@example.test", avatar: null, provider: "pinat" },
+        profile: { user_id: "u1", display_name: "Teacher", roles: [{ name: "TEACHER" }] },
+      });
     });
 
     expect(storage.get("token")).toBe("teacher-token");
@@ -112,8 +130,11 @@ describe("roles", () => {
       email: "teacher@example.test",
       roles: [{ name: "TEACHER" }],
     }));
+    expect(mocks.setActiveView).toHaveBeenCalledWith("teacher");
     expect(mocks.navigate).toHaveBeenCalledWith("/teacher/dashboard");
   });
+
+  // ── Student layout guard ────────────────────────────────────────────────────
 
   test("student guard redirects unauthenticated and malformed cached sessions to login", async () => {
     installStorage();
@@ -123,49 +144,92 @@ describe("roles", () => {
     await expect(studentLoader()).rejects.toEqual({ to: "/" });
   });
 
-  test("student guard admits students and redirects teacher and admin", async () => {
-    const storage = installStorage({ token: "token", user: JSON.stringify(user([{ name: "Student" }])) });
+  test("student guard admits when active_view is student", async () => {
+    installStorage({
+      token: "token",
+      user: JSON.stringify(user([{ name: "Student" }])),
+      active_view: "student",
+    });
     await expect(studentLoader()).resolves.toBeNull();
+  });
 
-    storage.set("user", JSON.stringify(user([{ name: "Teacher" }])));
+  test("student guard redirects to correct view when active_view is not student", async () => {
+    // active_view === teacher → go to teacher dashboard
+    installStorage({
+      token: "token",
+      user: JSON.stringify(user([{ name: "Student" }, { name: "Teacher" }])),
+      active_view: "teacher",
+    });
     await expect(studentLoader()).rejects.toEqual({ to: "/teacher/dashboard" });
 
-    storage.set("user", JSON.stringify(user([{ name: "ADMIN" }])));
+    // active_view === admin → go to admin dashboard
+    installStorage({
+      token: "token",
+      user: JSON.stringify(user([{ name: "Student" }, { name: "ADMIN" }])),
+      active_view: "admin",
+    });
     await expect(studentLoader()).rejects.toEqual({ to: "/dashboard" });
   });
 
-  // D-1 regression: zero-role authenticated user must not loop via resolveLandingPath
-  test("D-1: student guard redirects zero-role user to / not /student/dashboard", async () => {
-    // roles: [] — authenticated, has token, user object is valid, but no recognized role
-    installStorage({ token: "t", user: JSON.stringify(user([])) });
+  test("student guard redirects to default view when active_view is missing", async () => {
+    // No active_view — falls back to resolveDefaultView (teacher wins here)
+    installStorage({
+      token: "token",
+      user: JSON.stringify(user([{ name: "student" }, { name: "Teacher" }])),
+    });
+    await expect(studentLoader()).rejects.toEqual({ to: "/teacher/dashboard" });
+  });
+
+  test("student guard redirects to / when user has no recognized roles", async () => {
+    installStorage({
+      token: "t",
+      user: JSON.stringify(user([])),
+      active_view: "student",
+    });
     await expect(studentLoader()).rejects.toEqual({ to: "/" });
 
-    // roles with unrecognized value — same expectation
-    installStorage({ token: "t", user: JSON.stringify(user([{ name: "moderator" }])) });
+    installStorage({
+      token: "t",
+      user: JSON.stringify(user([{ name: "moderator" }])),
+      active_view: "student",
+    });
     await expect(studentLoader()).rejects.toEqual({ to: "/" });
   });
 
-  // D-2 regression: admin layout must check token independently
-  test("D-2: admin guard redirects to / when no token", async () => {
-    installStorage(); // no token, no user
+  // ── Admin layout guard ──────────────────────────────────────────────────────
+
+  test("admin guard redirects to / when no token", async () => {
+    installStorage();
     await expect(adminLoader()).rejects.toEqual({ to: "/" });
   });
 
-  test("D-2: admin guard redirects to / when token present but user null", async () => {
-    installStorage({ token: "t" }); // token present, no user in storage
+  test("admin guard redirects to / when token present but user null", async () => {
+    installStorage({ token: "t" });
     await expect(adminLoader()).rejects.toEqual({ to: "/" });
   });
 
-  test("D-2: admin guard redirects non-admin to their landing path", async () => {
-    const storage = installStorage({ token: "t", user: JSON.stringify(user([{ name: "teacher" }])) });
+  test("admin guard redirects when active_view is not admin", async () => {
+    installStorage({
+      token: "t",
+      user: JSON.stringify(user([{ name: "teacher" }])),
+      active_view: "teacher",
+    });
     await expect(adminLoader()).rejects.toEqual({ to: "/teacher/dashboard" });
 
-    storage.set("user", JSON.stringify(user([{ name: "student" }])));
+    installStorage({
+      token: "t",
+      user: JSON.stringify(user([{ name: "student" }])),
+      active_view: "student",
+    });
     await expect(adminLoader()).rejects.toEqual({ to: "/student/dashboard" });
   });
 
-  test("D-2: admin guard admits admin users", async () => {
-    installStorage({ token: "t", user: JSON.stringify(user([{ name: "admin" }])) });
+  test("admin guard admits when active_view is admin", async () => {
+    installStorage({
+      token: "t",
+      user: JSON.stringify(user([{ name: "admin" }])),
+      active_view: "admin",
+    });
     await expect(adminLoader()).resolves.toBeUndefined();
   });
 });

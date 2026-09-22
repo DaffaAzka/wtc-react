@@ -11,10 +11,20 @@ import {
 } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
+// Only render images from https:// origins to prevent pixel-tracking via admin-controlled URLs
+function safeImageUrl(url?: string | null): string | undefined {
+  return url?.startsWith("https://") ? url : undefined;
+}
+
 export default function StudyClassDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { studyClass, loading: scLoading } = useGetStudyClass(Number(id));
+
+  // Guard against NaN — malformed/missing params would fire GET /study-classes/NaN
+  const numericId = Number(id);
+  const { studyClass, loading: scLoading } = useGetStudyClass(
+    id && !isNaN(numericId) ? numericId : 0
+  );
   const { myClass, loading: myClassLoading } = useGetMyClass();
   const { myTracks, loading: tracksLoading } = useMyTracks();
   const { mutate: joinClass, isPending: joining } = useJoinClass();
@@ -81,9 +91,9 @@ export default function StudyClassDetailPage() {
 
       {/* Hero */}
       <div className="relative rounded-2xl overflow-hidden" style={{ minHeight: '220px', background: getPatternBackground(studyClass.name) }}>
-        {studyClass.image_url && (
+        {safeImageUrl(studyClass.image_url) && (
           <img
-            src={studyClass.image_url}
+            src={safeImageUrl(studyClass.image_url)}
             alt={studyClass.name}
             className="absolute inset-0 w-full h-full object-cover"
             onError={(e) => { e.currentTarget.style.display = "none"; }}

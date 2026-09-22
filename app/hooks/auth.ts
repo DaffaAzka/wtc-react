@@ -5,12 +5,12 @@ import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/contexts/auth";
 import { saveToken } from "@/utils/auth-storage";
-import { resolveLandingPath } from "@/utils/roles";
+import { resolveDefaultView, resolveViewPath } from "@/utils/roles";
 import { computeAndSaveStreak, type StreakResult } from "@/utils/streak";
 
 export function useLogin() {
   const navigate = useNavigate();
-  const { setUserData } = useAuth();
+  const { setUserData, setActiveView } = useAuth();
   const [streakResult, setStreakResult] = useState<StreakResult | null>(null);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
 
@@ -33,7 +33,20 @@ export function useLogin() {
 
       setUserData(mergedUser as any);
 
-      const path = resolveLandingPath(mergedUser);
+      // Always resolve + persist active view first — layout guards need it
+      const defaultView = resolveDefaultView(mergedUser as any);
+      setActiveView(defaultView);
+
+      // Only redirect unverified students — admin/teacher skip email check
+      const isStudentOnly = !mergedUser.roles?.some(
+        (r: any) => r.name === "admin" || r.name === "teacher",
+      );
+      if (data.user.provider === "local" && !data.user.email_verified_at && isStudentOnly) {
+        navigate("/check-email");
+        return;
+      }
+
+      const path = resolveViewPath(defaultView);
 
       if (path === "/student/dashboard") {
         const result = computeAndSaveStreak(false);
@@ -50,7 +63,7 @@ export function useLogin() {
 
 export function useRegister() {
   const navigate = useNavigate();
-  const { setUserData } = useAuth();
+  const { setUserData, setActiveView } = useAuth();
   const [streakResult, setStreakResult] = useState<StreakResult | null>(null);
   const [pendingPath, setPendingPath] = useState<string | null>(null);
 
@@ -73,7 +86,17 @@ export function useRegister() {
 
       setUserData(mergedUser as any);
 
-      const path = resolveLandingPath(mergedUser);
+      // Always resolve + persist active view first
+      const defaultView = resolveDefaultView(mergedUser as any);
+      setActiveView(defaultView);
+
+      // Local users go to check-email first — Pinat users are pre-verified
+      if (data.user.provider === "local") {
+        navigate("/check-email");
+        return;
+      }
+
+      const path = resolveViewPath(defaultView);
 
       if (path === "/student/dashboard") {
         const result = computeAndSaveStreak(true);
