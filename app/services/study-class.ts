@@ -42,6 +42,7 @@ export type StudyClassFilter = {
   semester?: string;
   active_only?: boolean;
   with_tracks?: boolean;
+  with_students?: boolean;
   page?: number;
   per_page?: number;
 };
