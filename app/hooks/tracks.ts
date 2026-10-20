@@ -57,11 +57,11 @@ export function useGetTrack(slug: string) {
   };
 }
 
-export function useGetTrackOverview(slug: string) {
+export function useGetTrackOverview(slug: string, enabled = true) {
   const query = useQuery<TrackOverview, ApiErrorResponse>({
     queryKey: trackKeys.overview(slug),
     queryFn: () => TrackService.getOverview(slug),
-    enabled: !!slug,
+    enabled: enabled && !!slug,
   });
 
   return {
