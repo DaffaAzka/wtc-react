@@ -52,6 +52,7 @@ export function useTrackEnrollment(trackSlug: string) {
     queryKey: enrollmentKeys.trackEnrollment(trackSlug),
     queryFn: () => EnrollmentService.getEnrollmentStatus(trackSlug),
     enabled: !!trackSlug,
+    retry: false, // 404 = not enrolled, that's expected
   });
 
   return {

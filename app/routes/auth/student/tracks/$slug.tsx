@@ -19,7 +19,7 @@ export default function TrackDetail() {
   const { enrollment, loading: enrollmentLoading, refresh: refreshEnrollment } = useTrackEnrollment(slug ?? "");
   const isEnrolled = enrollment?.status === "active" || enrollment?.status === "completed";
 
-  const { trackOverview, loading: overviewLoading, error: overviewError, refresh: refreshOverview } = useGetTrackOverview(slug ?? "");
+  const { trackOverview, loading: overviewLoading, error: overviewError, refresh: refreshOverview } = useGetTrackOverview(slug ?? "", isEnrolled);
 
   const enrollMutation = useEnrollTrack();
   const unenrollMutation = useUnenrollTrack();
