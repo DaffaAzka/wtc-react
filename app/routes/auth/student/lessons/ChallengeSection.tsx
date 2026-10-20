@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { toast } from "sonner";
 import type { Challenge } from "@/types/model";
 import { useMySubmissions, useSubmitChallenge } from "@/hooks/submission";
@@ -33,12 +34,19 @@ export function ChallengeSection({ challenge, index, total }: ChallengeSectionPr
   const { mutate: submitChallenge, isPending: isSubmitting } = useSubmitChallenge();
   const { refreshTrackOverview } = useTrackContext();
 
+  // Bumped on every successful submit so the form remounts with empty answers.
+  // The submissions refetch is async, so keying off submissionCount alone left a
+  // window where the old answers were still on screen and re-submittable.
+  const [formResetKey, setFormResetKey] = useState(0);
+
   const submissionCount = submissions.length;
   const allowedAttempts = challenge.allowed_attempts || 0;
   const remainingAttempts = allowedAttempts > 0 ? allowedAttempts - submissionCount : Infinity;
   const canSubmitChallenge = remainingAttempts > 0 || allowedAttempts === 0;
 
   const handleChallengeSubmit = (file: File | null, content: string) => {
+    if (isSubmitting) return;
+
     submitChallenge(
       {
         challengeId: challenge.id,
@@ -49,6 +57,10 @@ export function ChallengeSection({ challenge, index, total }: ChallengeSectionPr
       },
       {
         onSuccess: (submission) => {
+          // Clear the answers before anything else so a second click cannot
+          // resend the same content.
+          setFormResetKey((k) => k + 1);
+
           const score = submission.score;
           toast.success(
             score !== null && score !== undefined
@@ -101,7 +113,7 @@ export function ChallengeSection({ challenge, index, total }: ChallengeSectionPr
         </div>
 
         <SubmissionForm
-          key={submissionCount}
+          key={`${challenge.id}-${formResetKey}`}
           challenge={challenge}
           canSubmit={canSubmitChallenge}
           isSubmitting={isSubmitting}
