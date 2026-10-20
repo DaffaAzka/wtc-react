@@ -85,6 +85,14 @@ export default function AllClassesPage() {
               >
                 {/* Cover */}
                 <div className="relative h-40 overflow-hidden shrink-0" style={{ background: getPatternBackground(studyClass.name) }}>
+                  {studyClass.image_url?.startsWith("https://") && (
+                    <img
+                      src={studyClass.image_url}
+                      alt={studyClass.name}
+                      className="absolute inset-0 h-full w-full object-cover"
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    />
+                  )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
                   {/* Active badge */}
