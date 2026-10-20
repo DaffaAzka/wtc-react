@@ -50,7 +50,6 @@ export type ChallengeSubmissionsData = {
 
 export type SubmitRequest = {
   file?: File;
-  content?: string;
   submitted_content?: {
     answers?: string[];
     [key: string]: any;
@@ -99,16 +98,15 @@ export const SubmissionService = {
       return response.data.data!;
     }
 
-    // For file uploads or legacy content field
-    // Send as FormData (backward compatibility)
+    // For file uploads: send as multipart form-data
     const formData = new FormData();
 
     if (request.file) {
       formData.append("file", request.file);
     }
 
-    if (request.content) {
-      formData.append("content", request.content);
+    if (request.submitted_content) {
+      formData.append("submitted_content", JSON.stringify(request.submitted_content));
     }
 
     const response = await api.post<ApiResponse<Submission>>(

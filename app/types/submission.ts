@@ -39,7 +39,7 @@ export type Submission = {
   score: number | null;
   feedback: string | null;
   file_path: string | null;
-  content: string | null;
+  submitted_content: unknown;
   submitted_at: string | null;
   created_at: string;
   updated_at: string;
@@ -67,7 +67,7 @@ export type SubmissionDetail = {
     score?: number | null;
     feedback?: string | null;
     file_path?: string | null;
-    content?: string | null;
+    submitted_content?: unknown;
     submitted_at?: string | null;
     created_at?: string;
     updated_at?: string;
@@ -92,7 +92,7 @@ export type SubmissionDetail = {
   score?: number | null;
   feedback?: string | null;
   file_path?: string | null;
-  content?: string | null;
+  submitted_content?: unknown;
   submitted_at?: string | null;
   created_at?: string;
   updated_at?: string;
@@ -100,7 +100,7 @@ export type SubmissionDetail = {
 
 export type SubmissionCreateRequest = {
   challenge_id: number;
-  content?: string;
+  submitted_content?: unknown;
   file?: File;
 };
 

@@ -1,10 +1,26 @@
 import { toast } from "sonner";
 import type { Challenge } from "@/types/model";
 import { useMySubmissions, useSubmitChallenge } from "@/hooks/submission";
+import { useTrackContext } from "@/contexts/track-context";
 import { ChallengeDetails } from "@/features/auth/challenges/challenge-details";
 import { SubmissionForm } from "@/features/auth/challenges/submission-form";
 import { SubmissionHistory } from "@/features/auth/challenges/submission-history";
 import { Target } from "lucide-react";
+
+// Each submission form hands back a string. multiple_choice sends a bare key
+// ("B") and essay sends raw text; everything else already sends JSON — including
+// a legacy multiple_choice challenge with >1 question, which renders QuizGroupForm.
+const toSubmittedContent = (type: string, raw: string) => {
+  if (!raw) return undefined;
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && typeof parsed === "object") return parsed;
+  } catch {
+    // not JSON — fall through to the per-type wrapping below
+  }
+  if (type === "multiple_choice") return { answers: [raw] };
+  return { text: raw };
+};
 
 interface ChallengeSectionProps {
   challenge: Challenge;
@@ -15,6 +31,7 @@ interface ChallengeSectionProps {
 export function ChallengeSection({ challenge, index, total }: ChallengeSectionProps) {
   const { data: submissions = [] } = useMySubmissions(challenge.id);
   const { mutate: submitChallenge, isPending: isSubmitting } = useSubmitChallenge();
+  const { refreshTrackOverview } = useTrackContext();
 
   const submissionCount = submissions.length;
   const allowedAttempts = challenge.allowed_attempts || 0;
@@ -25,11 +42,25 @@ export function ChallengeSection({ challenge, index, total }: ChallengeSectionPr
     submitChallenge(
       {
         challengeId: challenge.id,
-        request: { file: file || undefined, content: content || undefined },
+        request: {
+          file: file || undefined,
+          submitted_content: toSubmittedContent(challenge.type, content),
+        },
       },
       {
-        onSuccess: () => {
-          toast.success(`Challenge ${index + 1} berhasil dikumpulkan! 🎉`);
+        onSuccess: (submission) => {
+          const score = submission.score;
+          toast.success(
+            score !== null && score !== undefined
+              ? `Challenge ${index + 1} terkirim: ${score}/${challenge.max_score} poin`
+              : `Challenge ${index + 1} terkirim, menunggu penilaian`,
+          );
+          // Passing a challenge can unlock the next lesson — refresh so the
+          // sidebar and bottom nav pick that up without a page reload.
+          refreshTrackOverview();
+          document
+            .getElementById(`submission-history-${challenge.id}`)
+            ?.scrollIntoView({ behavior: "smooth", block: "center" });
         },
         onError: (error) => {
           toast.error(`Gagal submit challenge ${index + 1}`, {
@@ -65,9 +96,12 @@ export function ChallengeSection({ challenge, index, total }: ChallengeSectionPr
           remainingAttempts={remainingAttempts}
         />
 
-        <SubmissionHistory submissions={submissions} maxScore={challenge.max_score} />
+        <div id={`submission-history-${challenge.id}`}>
+          <SubmissionHistory submissions={submissions} maxScore={challenge.max_score} />
+        </div>
 
         <SubmissionForm
+          key={submissionCount}
           challenge={challenge}
           canSubmit={canSubmitChallenge}
           isSubmitting={isSubmitting}

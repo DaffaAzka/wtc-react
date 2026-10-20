@@ -212,7 +212,13 @@ export default function GradingModal({
   const submission = data && "submission" in data && data.submission ? data.submission : data;
   const profile = submission?.profile;
   const challenge = submission?.challenge;
-  const submissionContent = typeof submission?.content === "string" ? submission.content : "";
+  const rawContent = submission?.submitted_content;
+  const submissionContent =
+    typeof rawContent === "string"
+      ? rawContent
+      : rawContent
+        ? JSON.stringify(rawContent, null, 2)
+        : "";
   const submissionStatus = submission?.status ?? "submitted";
 
   return (
