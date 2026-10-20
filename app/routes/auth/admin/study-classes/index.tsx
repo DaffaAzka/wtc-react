@@ -4,7 +4,7 @@ import StudyClassesTable from "@/features/auth/study-classes/table";
 import { useGetStudyClasses } from "@/hooks/study-classes";
 
 export default function IndexPage() {
-  const { studyClasses, loading, error, refresh } = useGetStudyClasses();
+  const { studyClasses, loading, error, refresh } = useGetStudyClasses({ with_students: true });
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

@@ -2,6 +2,7 @@ import { TrackService } from "@/services/track";
 import type { Track, TrackOverview } from "@/types/model";
 import type { ApiErrorResponse, PaginatedResponse } from "@/types/response";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export const trackKeys = {
   all: ["tracks"] as const,
@@ -79,8 +80,16 @@ export function useStoreTrack() {
     Omit<Track, "id" | "created_at" | "updated_at">
   >({
     mutationFn: (payload) => TrackService.store(payload),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: trackKeys.all });
+      toast.success("Track created successfully", {
+        description: `"${data.title}" has been added.`,
+      });
+    },
+    onError: (error) => {
+      toast.error("Failed to create track", {
+        description: error.message || "An unexpected error occurred.",
+      });
     },
   });
 }

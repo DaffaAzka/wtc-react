@@ -8,7 +8,7 @@ import { generateSlug, getFieldError } from "@/utils/global";
 import { useState } from "react";
 import type { Route } from "./+types/create";
 import { FormPageSkeleton } from "@/components/skeletons/form-page";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ArrowLeft, Paperclip, X } from "lucide-react";
 
 const ATTACHMENT_TYPES = ["material", "reference", "download", "slides", "document"] as const;
@@ -18,6 +18,7 @@ export default function CreatePage({ params }: Route.ComponentProps) {
   const { module, loading, error } = useGetModule(params.slug!);
   const storeLesson = useStoreLesson();
   const addAttachment = useAddLessonAttachment();
+  const navigate = useNavigate();
   const [editorResetKey, setEditorResetKey] = useState(0);
 
   const [form, setForm] = useState({ title: "", slug: "", content: "", video_url: "", order: "" });
@@ -57,6 +58,7 @@ export default function CreatePage({ params }: Route.ComponentProps) {
           setEditorContent("");
           setPreparedAttachments([]);
           setEditorResetKey((prev) => prev + 1);
+          navigate(`/${module!.slug}/lessons`);
         },
       }
     );

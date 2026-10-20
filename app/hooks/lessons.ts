@@ -13,7 +13,14 @@ export const lessonKeys = {
 export function useGetLessons(filters?: LessonFilter) {
   const query = useQuery<Lesson[], ApiErrorResponse>({
     queryKey: [...lessonKeys.all, filters],
-    queryFn: () => LessonService.getAll(filters),
+    queryFn: async () => {
+      try {
+        return await LessonService.getAll(filters);
+      } catch (err: any) {
+        if (err?.response?.status === 404) return [];
+        throw err;
+      }
+    },
   });
 
   return {
@@ -29,7 +36,15 @@ export function useGetLessonsPaginated(
 ) {
   const query = useQuery<PaginatedResponse<Lesson>, ApiErrorResponse>({
     queryKey: [...lessonKeys.all, "paginated", filters],
-    queryFn: () => LessonService.getAllPaginated(filters),
+    queryFn: async () => {
+      try {
+        return await LessonService.getAllPaginated(filters);
+      } catch (err: any) {
+        if (err?.response?.status === 404)
+          return { data: [], links: { first: null, last: null, prev: null, next: null }, meta: { current_page: 1, last_page: 1, from: null, to: null, total: 0, per_page: filters?.per_page ?? 15 } };
+        throw err;
+      }
+    },
   });
 
   return {
@@ -117,8 +132,16 @@ export function useStoreLesson() {
     Omit<Lesson, "id" | "deleted_at" | "created_at" | "updated_at">
   >({
     mutationFn: (payload) => LessonService.store(payload),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: lessonKeys.all });
+      toast.success("Lesson successfully created!", {
+        description: `"${data.title}" has been added.`,
+      });
+    },
+    onError: (error) => {
+      toast.error("Failed to create lesson", {
+        description: error.message || "An unexpected error occurred.",
+      });
     },
   });
 }
