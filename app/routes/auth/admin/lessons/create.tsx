@@ -8,7 +8,7 @@ import { generateSlug, getFieldError } from "@/utils/global";
 import { useState } from "react";
 import type { Route } from "./+types/create";
 import { FormPageSkeleton } from "@/components/skeletons/form-page";
-import { Link, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { ArrowLeft, Paperclip, X } from "lucide-react";
 
 const ATTACHMENT_TYPES = ["material", "reference", "download", "slides", "document"] as const;
@@ -19,6 +19,10 @@ export default function CreatePage({ params }: Route.ComponentProps) {
   const storeLesson = useStoreLesson();
   const addAttachment = useAddLessonAttachment();
   const navigate = useNavigate();
+  // Same page is mounted under both /teacher/:slug/lessons/create and the admin
+  // root; keep the prefix the user arrived with instead of dropping it.
+  const { pathname } = useLocation();
+  const basePath = pathname.startsWith("/teacher") ? "/teacher" : "";
   const [editorResetKey, setEditorResetKey] = useState(0);
 
   const [form, setForm] = useState({ title: "", slug: "", content: "", video_url: "", order: "" });
@@ -58,7 +62,7 @@ export default function CreatePage({ params }: Route.ComponentProps) {
           setEditorContent("");
           setPreparedAttachments([]);
           setEditorResetKey((prev) => prev + 1);
-          navigate(`/${module!.slug}/lessons`);
+          navigate(`${basePath}/${module!.slug}/lessons`);
         },
       }
     );
@@ -73,7 +77,7 @@ export default function CreatePage({ params }: Route.ComponentProps) {
       {/* Header */}
       <div>
         <Link
-          to={`/${module.slug}/lessons`}
+          to={`${basePath}/${module.slug}/lessons`}
           className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mb-4"
         >
           <ArrowLeft className="h-3.5 w-3.5" />

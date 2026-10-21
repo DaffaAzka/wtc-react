@@ -8,7 +8,7 @@ import LoadingButton from "@/components/custom/loading-button";
 import { Button } from "@/components/ui/button";
 import { RichEditor } from "@/components/custom/rich-editor";
 import { buildInitialEditorState, getFieldError } from "@/utils/global";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { ArrowLeft, Paperclip, Trash2 } from "lucide-react";
 import {
   AlertDialog,
@@ -25,6 +25,14 @@ const ATTACHMENT_TYPES = ["material", "reference", "download", "slides", "docume
 type AttachmentType = typeof ATTACHMENT_TYPES[number];
 
 export default function UpdatePage({ params }: Route.ComponentProps) {
+  // The route is /:slug?/lessons/:lessonSlug/update, so :slug is the parent
+  // MODULE slug — not the lesson slug. Linking back with lesson.slug sent the
+  // user to /<lesson-slug>/lessons, which then tried to load a module with the
+  // lesson's slug and 404'd.
+  const moduleSlug = (params as { slug?: string }).slug;
+  const { pathname } = useLocation();
+  const basePath = pathname.startsWith("/teacher") ? "/teacher" : "";
+
   const { lesson, error, loading, refresh } = useGetLesson(params.lessonSlug);
   const updateLesson = useUpdateLesson();
   const addAttachment = useAddLessonAttachment();
@@ -96,7 +104,7 @@ export default function UpdatePage({ params }: Route.ComponentProps) {
       {/* Header */}
       <div>
         <Link
-          to={`/${lesson.slug}/lessons`}
+          to={moduleSlug ? `${basePath}/${moduleSlug}/lessons` : `${basePath}/lessons`}
           className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mb-4"
         >
           <ArrowLeft className="h-3.5 w-3.5" />

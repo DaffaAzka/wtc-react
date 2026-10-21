@@ -157,8 +157,16 @@ export function useUpdateLesson() {
     >
   >({
     mutationFn: (payload) => LessonService.update(payload.slug, payload),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: lessonKeys.all });
+      toast.success("Lesson updated", {
+        description: `"${data.title}" has been saved.`,
+      });
+    },
+    onError: (error) => {
+      toast.error("Failed to update lesson", {
+        description: error.message || "An unexpected error occurred.",
+      });
     },
   });
 }
