@@ -2,7 +2,7 @@ import type { Challenge } from "@/types/model";
 import type { ChallengeContext } from "./challenge-manager";
 import ChallengeCard from "./challenge-card";
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import { useDeleteChallenge } from "@/hooks/challenges";
 import { toast } from "sonner";
 import {
@@ -25,6 +25,13 @@ type Props = {
 
 export default function ChallengeList({ challenges, context }: Props) {
   const navigate = useNavigate();
+  // The submissions-by-challenge page lives at /submissions/:challengeId for
+  // admin and /teacher/admin/submissions/:challengeId for the teacher mount.
+  // /teacher/submissions/:id is a different page keyed by submission id.
+  const { pathname } = useLocation();
+  const submissionsBase = pathname.startsWith("/teacher")
+    ? "/teacher/admin/submissions"
+    : "/submissions";
   const deleteChallenge = useDeleteChallenge(
     context.type === "lesson" ? context.id : undefined,
     context.type === "module" ? context.slug : undefined,
@@ -59,7 +66,7 @@ export default function ChallengeList({ challenges, context }: Props) {
   };
 
   const handleViewSubmissions = (challenge: Challenge) => {
-    navigate(`/submissions/${challenge.id}`);
+    navigate(`${submissionsBase}/${challenge.id}`);
   };
 
   return (

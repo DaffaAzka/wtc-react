@@ -1,4 +1,4 @@
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft, Save, Info } from "lucide-react";
 import { useGetChallenge, useUpdateChallenge } from "@/hooks/challenges";
 import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
@@ -19,6 +19,10 @@ export default function EditChallengePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const challengeId = parseInt(id || "0", 10);
+  // Mounted at /challenges/:id/edit and at /teacher/admin/challenges/:id/edit.
+  const { pathname } = useLocation();
+  const basePath = pathname.startsWith("/teacher") ? "/teacher/admin" : "";
+  const listPath = pathname.startsWith("/teacher") ? "/teacher/challenges" : "/challenges";
 
   const { challenge, loading, error } = useGetChallenge(challengeId);
   const updateChallenge = useUpdateChallenge();
@@ -96,7 +100,7 @@ export default function EditChallengePage() {
         module_id: challenge.module_id,
       },
       {
-        onSuccess: () => { toast.success("Challenge updated!"); navigate(`/admin/challenges/${challenge.id}`); },
+        onSuccess: () => { toast.success("Challenge updated!"); navigate(`${basePath}/challenges/${challenge.id}`); },
         onError: (err) => { toast.error(err.message || "Failed to update challenge"); },
       }
     );
@@ -108,7 +112,7 @@ export default function EditChallengePage() {
     return (
       <div className="rounded-2xl bg-red-50 dark:bg-red-500/5 border border-red-200 dark:border-red-500/20 p-6 flex items-start gap-3">
         <p className="text-[15px] text-red-600 dark:text-red-400">{error?.message || "Challenge not found."}</p>
-        <button onClick={() => navigate("/admin/all-challenges")} className="ml-auto text-[13px] font-bold text-red-600 dark:text-red-400 hover:underline whitespace-nowrap">Back to Challenges</button>
+        <button onClick={() => navigate(listPath)} className="ml-auto text-[13px] font-bold text-red-600 dark:text-red-400 hover:underline whitespace-nowrap">Back to Challenges</button>
       </div>
     );
   }
@@ -118,7 +122,7 @@ export default function EditChallengePage() {
       {/* Header */}
       <div>
         <Link
-          to={`/admin/challenges/${challenge.id}`}
+          to={`${basePath}/challenges/${challenge.id}`}
           className="inline-flex items-center gap-1.5 text-[13px] font-bold text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mb-4"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
@@ -215,7 +219,7 @@ export default function EditChallengePage() {
 
         {/* Actions */}
         <div className="flex items-center justify-end gap-3">
-          <button type="button" onClick={() => navigate(`/admin/challenges/${challenge.id}`)}
+          <button type="button" onClick={() => navigate(`${basePath}/challenges/${challenge.id}`)}
             className="bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-900 dark:text-white font-bold rounded-xl py-2.5 px-5 text-[14px] hover:bg-gray-50 dark:hover:bg-white/5 transition-all">
             Cancel
           </button>

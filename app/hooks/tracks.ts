@@ -102,8 +102,16 @@ export function useUpdateTrack() {
     Omit<Track, "id" | "created_at" | "updated_at">
   >({
     mutationFn: (payload) => TrackService.update(payload.slug, payload),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: trackKeys.all });
+      toast.success("Track updated", {
+        description: `"${data.title}" has been saved.`,
+      });
+    },
+    onError: (error) => {
+      toast.error("Failed to update track", {
+        description: error.message || "An unexpected error occurred.",
+      });
     },
   });
 }
@@ -114,6 +122,12 @@ export function useDeleteTrack() {
     mutationFn: (slug: string) => TrackService.delete(slug),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: trackKeys.all });
+      toast.success("Track deleted");
+    },
+    onError: (error) => {
+      toast.error("Failed to delete track", {
+        description: error.message || "An unexpected error occurred.",
+      });
     },
   });
 }

@@ -4,8 +4,10 @@ import { getPatternBackground } from "@/lib/utils";
 import { BookOpen, ArrowRight, Layers } from "lucide-react";
 
 export default function CourseCard({ data }: { data: Track }) {
+  // Relative "${data.slug}" resolved to /courses/<slug>, which has no route.
+  // /student/tracks/:slug is the only track-detail page that exists.
   return (
-    <Link to={`${data.slug}`} className="group block">
+    <Link to={`/student/tracks/${data.slug}`} className="group block">
       <div className="overflow-hidden rounded-2xl bg-white border border-gray-200 dark:bg-[#0b1215] dark:border-white/10 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 h-full flex flex-col">
         {/* Image */}
         <div

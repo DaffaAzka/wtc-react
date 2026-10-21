@@ -6,7 +6,8 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import type { Challenge } from "@/types/model";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
+import { contentBasePath } from "@/utils/global";
 import {
   Edit,
   Eye,
@@ -75,6 +76,10 @@ export default function ChallengeCard({
   onViewSubmissions,
 }: Props) {
   const questionCount = getQuestionCount(challenge);
+  // ChallengeManager renders this card from both the admin and the /teacher
+  // mounts, so the detail link cannot be root-relative.
+  const { pathname } = useLocation();
+  const basePath = contentBasePath(pathname);
   const Icon = CHALLENGE_TYPE_ICONS[challenge.type] ?? Lightbulb;
   const typeLabel = CHALLENGE_TYPE_LABELS[challenge.type] ?? challenge.type;
   const diffStyle = challenge.difficulty
@@ -109,7 +114,7 @@ export default function ChallengeCard({
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="rounded-xl">
-                  <Link to={`/admin/challenges/${challenge.id}`}>
+                  <Link to={`${basePath}/challenges/${challenge.id}`}>
                     <DropdownMenuItem className="rounded-lg">
                       <Eye className="h-4 w-4 mr-2" /> View
                     </DropdownMenuItem>

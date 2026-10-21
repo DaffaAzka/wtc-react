@@ -29,6 +29,12 @@ interface LessonsTableProps {
   error?: ApiErrorResponse | null;
   onRetry?: () => void;
   total?: number;
+  // Lesson detail routes are /:slug?/lessons/:lessonSlug/* on the admin mount
+  // but /:slug/lessons/:lessonSlug/* on the teacher mount, where the module
+  // slug is required. Row links used to be relative ("slug/view"), which
+  // resolved against the current list URL and matched no route.
+  basePath?: string;
+  moduleSlug?: string;
 }
 
 function formatUpdated(dateString?: string | null) {
@@ -49,6 +55,8 @@ export default function LessonsTable({
   error = null,
   onRetry,
   total,
+  basePath = "",
+  moduleSlug,
 }: LessonsTableProps) {
   const [search, setSearch] = useState("");
   const [editModal, setEditModal] = useState<{ data: Lesson | null; isOpen: boolean }>({ data: null, isOpen: false });
@@ -137,7 +145,13 @@ export default function LessonsTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-white/5">
-              {filtered.map((lesson) => (
+              {filtered.map((lesson) => {
+                // The teacher mount declares ":slug" as required, so row links
+                // need the parent module slug. Use the row's own module when
+                // the API supplied it, else the scope this list was opened in.
+                const scope = lesson.module?.slug ?? moduleSlug;
+                const rowBase = scope ? `${basePath}/${scope}/lessons` : `${basePath}/lessons`;
+                return (
                 <tr key={lesson.id} className="group hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-2 flex-wrap">
@@ -158,7 +172,7 @@ export default function LessonsTable({
                           className="text-gray-400 hover:text-white"
                           title="View Lesson"
                           asChild>
-                          <Link to={`${lesson.slug}/view`}>
+                          <Link to={`${rowBase}/${lesson.slug}/view`}>
                             <Eye className="w-4 h-4" />
                           </Link>
                         </Button>
@@ -168,7 +182,7 @@ export default function LessonsTable({
                           className="text-gray-400 hover:text-white"
                           title="Manage Challenges"
                           asChild>
-                          <Link to={`${lesson.slug}/challenges`}>
+                          <Link to={`${rowBase}/${lesson.slug}/challenges`}>
                             <Trophy className="w-4 h-4" />
                           </Link>
                         </Button>
@@ -180,10 +194,10 @@ export default function LessonsTable({
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="rounded-xl">
-                          <Link to={`${lesson.slug}/view`}>
+                          <Link to={`${rowBase}/${lesson.slug}/view`}>
                             <DropdownMenuItem className="rounded-lg">View</DropdownMenuItem>
                           </Link>
-                          <Link to={`${lesson.slug}/update`}>
+                          <Link to={`${rowBase}/${lesson.slug}/update`}>
                             <DropdownMenuItem className="rounded-lg">Update</DropdownMenuItem>
                           </Link>
                           <DropdownMenuItem variant="destructive" className="rounded-lg"
@@ -195,7 +209,8 @@ export default function LessonsTable({
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         )}

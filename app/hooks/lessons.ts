@@ -157,8 +157,16 @@ export function useUpdateLesson() {
     >
   >({
     mutationFn: (payload) => LessonService.update(payload.slug, payload),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: lessonKeys.all });
+      toast.success("Lesson updated", {
+        description: `"${data.title}" has been saved.`,
+      });
+    },
+    onError: (error) => {
+      toast.error("Failed to update lesson", {
+        description: error.message || "An unexpected error occurred.",
+      });
     },
   });
 }
@@ -169,6 +177,12 @@ export function useDeleteLesson() {
     mutationFn: (slug: string) => LessonService.delete(slug),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: lessonKeys.all });
+      toast.success("Lesson deleted");
+    },
+    onError: (error) => {
+      toast.error("Failed to delete lesson", {
+        description: error.message || "An unexpected error occurred.",
+      });
     },
   });
 }

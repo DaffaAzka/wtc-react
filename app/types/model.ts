@@ -57,6 +57,7 @@ export type Lesson = {
   duration?: number | null;
   order?: number | null;
   attachments?: ChallengeAttachment[];
+  module?: { id: number; title: string; slug: string } | null;
   deleted_at: string | null;
   created_at: string | null;
   updated_at: string | null;
