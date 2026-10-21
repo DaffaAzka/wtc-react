@@ -1,8 +1,9 @@
-import { useParams, useNavigate } from "react-router";
+import { useParams, useNavigate, useLocation } from "react-router";
 import { useGetChallenge } from "@/hooks/challenges";
 import { ChallengeDetails } from "@/features/auth/challenges/challenge-details";
 import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
 import ErrorState from "@/components/custom/error-state";
+import { contentBasePath } from "@/utils/global";
 import { Link } from "react-router";
 import { ArrowLeft, Pencil, FileText, CheckCircle2, Circle, AlignLeft, Trophy, Target, Infinity as InfinityIcon, TriangleAlert } from "lucide-react";
 
@@ -16,6 +17,10 @@ export default function AdminChallengeViewPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const challengeId = Number(id);
+  // This page is mounted at /challenges/:id and at /teacher/admin/challenges/:id.
+  // The teacher alias needs the /teacher/admin prefix on every outgoing link.
+  const { pathname } = useLocation();
+  const basePath = pathname.startsWith("/teacher") ? "/teacher/admin" : "";
 
   const { challenge, loading, error } = useGetChallenge(challengeId);
 
@@ -72,7 +77,7 @@ export default function AdminChallengeViewPage() {
           <div className="flex items-center gap-2 shrink-0">
             <button
               type="button"
-              onClick={() => navigate(`/admin/submissions/${challenge.id}`)}
+              onClick={() => navigate(`${basePath}/submissions/${challenge.id}`)}
               className="flex items-center gap-1.5 bg-transparent border-[1.5px] border-gray-200 dark:border-white/20 text-gray-700 dark:text-gray-300 font-bold rounded-xl px-3.5 py-2 text-[13px] hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
             >
               <FileText className="h-3.5 w-3.5" />
@@ -80,7 +85,7 @@ export default function AdminChallengeViewPage() {
             </button>
             <button
               type="button"
-              onClick={() => navigate(`/admin/challenges/${challenge.id}/edit`)}
+              onClick={() => navigate(`${basePath}/challenges/${challenge.id}/edit`)}
               className="flex items-center gap-1.5 bg-[#1c81ff] text-white font-bold rounded-xl px-3.5 py-2 text-[13px] shadow-md shadow-blue-500/20 transition-transform hover:scale-[1.02] active:scale-95"
             >
               <Pencil className="h-3.5 w-3.5" />

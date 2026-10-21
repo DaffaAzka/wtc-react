@@ -85,3 +85,12 @@ export function buildInitialEditorState(
 
   return undefined;
 }
+
+/**
+ * Admin content pages are also mounted under /teacher (see app/routes.ts), so a
+ * hard-coded "/challenges/..." link 404s from the teacher workspace. Derive the
+ * prefix from the current path instead of assuming the admin mount.
+ */
+export function contentBasePath(pathname: string) {
+  return pathname.startsWith("/teacher") ? "/teacher" : "";
+}

@@ -73,6 +73,7 @@ export default function TeacherLessonsPage() {
 
       <LessonsTable data={lessons} loading={loading} error={error} onRetry={refresh} total={pagination?.total} basePath="/teacher" />
 
+
       {pagination && (
         <Pagination
           currentPage={pagination.current_page}

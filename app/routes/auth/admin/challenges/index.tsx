@@ -6,15 +6,18 @@ import { ChallengeGridSkeleton } from "@/components/skeletons/challenge-card";
 import ErrorState from "@/components/custom/error-state";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import ChallengeManager from "@/features/auth/challenges/challenge-manager";
+import { contentBasePath } from "@/utils/global";
 
 export default function ChallengePage({ params }: Route.ComponentProps) {
-  // Build dynamic back URL based on route structure
-  // Back to lessons LIST, not lesson view
+  // Build dynamic back URL based on route structure.
+  // Back to lessons LIST, not lesson view. This page is also mounted by
+  // routes/auth/teacher/content/lesson-challenges.tsx, so keep the prefix.
+  const basePath = contentBasePath(useLocation().pathname);
   const backUrl = params.slug
-    ? `/${params.slug}/lessons`
-    : `/lessons`;
+    ? `${basePath}/${params.slug}/lessons`
+    : `${basePath}/lessons`;
 
   const {
     lesson,

@@ -2,12 +2,16 @@ import { useGetModule } from "@/hooks/modules";
 import type { Route } from "./+types/index";
 import { PageHeaderSkeleton } from "@/components/skeletons/page-header";
 import { ChallengeGridSkeleton } from "@/components/skeletons/challenge-card";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { ArrowLeft, TriangleAlert, Inbox } from "lucide-react";
 import ChallengeManager from "@/features/auth/challenges/challenge-manager";
+import { contentBasePath } from "@/utils/global";
 
 export default function ModuleChallengePage({ params }: Route.ComponentProps) {
-  const backUrl = params.slug ? `/${params.slug}/modules` : `/modules`;
+  // Also mounted at /teacher/:slug/modules/:moduleSlug/challenges by
+  // routes/auth/teacher/content/module-challenges.tsx.
+  const basePath = contentBasePath(useLocation().pathname);
+  const backUrl = params.slug ? `${basePath}/${params.slug}/modules` : `${basePath}/modules`;
   const { module, loading, error, refresh } = useGetModule(params.moduleSlug);
 
   if (loading) {

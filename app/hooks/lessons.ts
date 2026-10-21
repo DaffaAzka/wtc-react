@@ -177,6 +177,12 @@ export function useDeleteLesson() {
     mutationFn: (slug: string) => LessonService.delete(slug),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: lessonKeys.all });
+      toast.success("Lesson deleted");
+    },
+    onError: (error) => {
+      toast.error("Failed to delete lesson", {
+        description: error.message || "An unexpected error occurred.",
+      });
     },
   });
 }

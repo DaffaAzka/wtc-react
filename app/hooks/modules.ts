@@ -123,8 +123,16 @@ export function useUpdateModule() {
     Omit<Module, "id" | "created_at" | "updated_at">
   >({
     mutationFn: (payload) => ModuleService.update(payload.slug, payload),
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: moduleKeys.all });
+      toast.success("Module updated", {
+        description: `"${data.title}" has been saved.`,
+      });
+    },
+    onError: (error) => {
+      toast.error("Failed to update module", {
+        description: error.message || "An unexpected error occurred.",
+      });
     },
   });
 }
@@ -135,6 +143,12 @@ export function useDeleteModule() {
     mutationFn: (slug: string) => ModuleService.delete(slug),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: moduleKeys.all });
+      toast.success("Module deleted");
+    },
+    onError: (error) => {
+      toast.error("Failed to delete module", {
+        description: error.message || "An unexpected error occurred.",
+      });
     },
   });
 }

@@ -2,6 +2,7 @@ import { ChallengeService } from "@/services/challenge";
 import type { Challenge } from "@/types/model";
 import type { ApiErrorResponse, PaginatedResponse } from "@/types/response";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 export const challengeKeys = {
   all: ["challenges"] as const,
@@ -141,7 +142,7 @@ export function useStoreChallenge(lessonId?: number, moduleSlug?: string) {
   >({
     mutationFn: (payload) => ChallengeService.store(payload),
 
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({
         queryKey: challengeKeys.all,
       });
@@ -157,6 +158,15 @@ export function useStoreChallenge(lessonId?: number, moduleSlug?: string) {
           queryKey: challengeKeys.byModule(moduleSlug),
         });
       }
+
+      toast.success("Challenge created", {
+        description: `"${data.title}" has been added.`,
+      });
+    },
+    onError: (error: any) => {
+      toast.error("Failed to create challenge", {
+        description: error?.message || "An unexpected error occurred.",
+      });
     },
   });
 }
@@ -191,6 +201,15 @@ export function useUpdateChallenge(lessonId?: number, moduleSlug?: string) {
           queryKey: challengeKeys.byModule(moduleSlug),
         });
       }
+
+      toast.success("Challenge updated", {
+        description: `"${data.title}" has been saved.`,
+      });
+    },
+    onError: (error: any) => {
+      toast.error("Failed to update challenge", {
+        description: error?.message || "An unexpected error occurred.",
+      });
     },
   });
 }
@@ -217,6 +236,13 @@ export function useDeleteChallenge(lessonId?: number, moduleSlug?: string) {
           queryKey: challengeKeys.byModule(moduleSlug),
         });
       }
+
+      toast.success("Challenge deleted");
+    },
+    onError: (error: any) => {
+      toast.error("Failed to delete challenge", {
+        description: error?.message || "An unexpected error occurred.",
+      });
     },
   });
 }
